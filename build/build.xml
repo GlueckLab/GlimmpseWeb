@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="glimmpse-web" default="zip" basedir=".">
+	<property environment="env"/>
+	<property name="apache.home" value="${env.APACHE_HOME}" />
+	
+	<!--This should only assign a value if the environment does NOT
+	contain one for apache.home, as ANT won't modify a property
+	once it has been set.  HOWEVER, it doesn't seem to work even if
+	the env.APACHE_HOME is not set.  I have commented it out
+	<property file="./build.properties"/>-->
+
+	<!--This is another try which doesn't work, as ANT complains
+	that you can't nest a "property" inside a "not"-->
+	<!--
+	<condition property="${apache.home}">
+	   <not>
+	   	<echo>env value not found</echo>
+	     <property file="./build.properties"/>
+	   </not>
+	</condition>-->
+	
+	<property name="module.name" value="edu.ucdenver.bios.glimmpseweb.GlimmpseWeb" />
+    <property name="source.dir" value="${basedir}/../src" />
+	<property name="explodedzip.dir" value="${basedir}/glimmpse-web" />
+	<property name="target.dir"  value="${explodedzip.dir}"/>
+	<property name="javadoc.dir" value="${basedir}/javadoc" />
+	<property name="thirdparty.dir" value="${basedir}/../../thirdparty" />
+	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.4.0/lib" />
+	<property name="gwt.visualization.dir" value="${thirdparty.dir}/gwt-visualization/1.1/lib" />
+	<property name="zip.file" value="${ant.project.name}.zip" />
+	<property name="war.dir" value="${basedir}/../war"/>
+	<property name="checkstyle.dir" value="${thirdparty.dir}/checkstyle/5.3"/>
+	<property name="svcname" value="glimmpse" />
+	
+  	<path id="compile.path">
+  		<pathelement location="${source.dir}"/>
+  		<fileset dir="${gwt.dir}">
+  			<include name="gwt-user.jar"/>
+  			<include name="gwt-dev.jar"/>
+  		</fileset>
+  		<fileset dir="${gwt.visualization.dir}">
+  			<include name="gwt-visualization.jar"/>
+  		</fileset>
+  	</path>
+	
+	<!--For checkstyle -->
+	<taskdef resource="checkstyletask.properties"
+	         classpath="${checkstyle.dir}/checkstyle-5.3-all.jar"/>
+	
+	<target name="clean" description="deletes all generated files">
+		<delete dir="${explodedzip.dir}"/>
+    	<delete dir="${javadoc.dir}"/> 
+	</target>
+
+	<target name="prepare" description="creates output directories">
+	    <mkdir dir="${target.dir}"/>
+        <mkdir dir="${javadoc.dir}"/> 
+	</target>
+	
+  	<target name="compile.gwt" 
+    	description="compiles Java source files to JavaScript">
+    	<java classname="com.google.gwt.dev.Compiler" fork="true">
+            <arg value="-war" />
+            <arg value="${target.dir}" />
+            <arg value="-style" />
+            <arg value="obfuscated" />
+            <arg value="${module.name}" />
+            <jvmarg value="-Xmx256m" />
+            <jvmarg value="-Xss64M" />
+            <classpath>
+                <path refid="compile.path" />
+            </classpath>
+    	</java>
+  	</target>
+
+	<target name="copy" 
+		description="Copy front-end files (static html, images, etc) to the exploded zip directory" >
+		  <copy todir="${explodedzip.dir}/images">
+		    <fileset dir="${war.dir}/images">
+		    	<exclude name="**/**/.svn" />
+		    </fileset>
+		  </copy>
+		  <copy todir="${explodedzip.dir}/stylesheets">
+		    <fileset dir="${war.dir}/stylesheets">
+		    	<exclude name="**/**/.svn" />
+		    </fileset>
+		  </copy>
+		  <copy todir="${explodedzip.dir}" file="${war.dir}/index.html">
+			<fileset dir="${war.dir}">
+				<include name="*.html"/>
+			</fileset>
+		  </copy>
+	</target>
+	
+	<target name="zip" depends="clean,prepare,compile.gwt,copy"
+	  description="builds the zip file">
+	  <delete file="${zip.file}"/>
+	  <zip destfile="${zip.file}"
+	       basedir="${target.dir}"
+	    />
+	</target>
+
+	<target name="checkstyle"
+	        description="Generates a report of code convention violations.">
+		
+		<checkstyle config="${checkstyle.dir}/glimmpse_sun_checks.xml">
+		  <fileset dir="${source.dir}" includes="**/*.java"/>
+		  <formatter type="plain"/>
+		  <!--Save output to file:
+		   <formatter type="xml" toFile="./checkstyle_errors.xml"/>-->
+		</checkstyle>
+	</target>
+	
+	<target name="deploy" description="This target moves the glimmpse.zip 
+		to the user's apache.home/htdocs directory." >
+		<!-- if="${apache.home}" -->
+		<copy todir="${apache.home}\htdocs">
+			<fileset dir="${basedir}">
+				<include name="glimmpse.zip"/>
+			</fileset>
+		</copy>
+		<echo>Deployed the glimmpse.zip to ${apache.home}/htdocs</echo>
+	</target>
+	
+	<target name="buildDeploy" depends="zip, deploy"/>
+		
+	<!--This is a debugging target which prints all env variable values -->
+	<target name="showProperties">
+		<echoproperties />
+	</target>	
+	
+    <target name="javadoc" description="Generates the API specification (javadoc)">
+        <javadoc packagenames="edu.cudenver.bios.*"
+                 access="public"
+                 destdir="${javadoc.dir}"
+                 use="true"
+                 author="true"
+                 version="true"
+                 windowtitle="UC Denver Biostatistics - GLIMMPSE User Interface"
+                 doctitle="UC Denver Biostatistics -  GLIMMPSE User Interface">
+             <fileset dir="${source.dir}" defaultexcludes="yes">
+                 <include name="**/*.java"/>
+            </fileset>
+            <header><![CDATA[<p><b>power service</b></p>]]></header>
+            <bottom><![CDATA[<font size=1>CU Denver Biostatistic Department</font>]]></bottom>
+            <link href="http://java.sun.com/javase/6/docs/api"/>
+        </javadoc>
+    </target>
+	
+	<!-- Create the javadoc distribution  -->
+	<target name="javadoc-distribution" depends="javadoc">
+		<jar destfile="${basedir}/${svcname}-javadoc.jar" basedir="${javadocdir}/.." >
+			<manifest>
+				<attribute name="Author" value="Sarah Kreidler"/>
+				<section name="Shared">
+					<attribute name="Title" value="${svcname} Javadoc"/>
+					<attribute name="Vendor" value="CU Denver Biostatistics Department"/>
+				</section>
+				<section name="Copyright">
+					<attribute name="Copy" value="(C) CU Denver Biostatistics Department"/>
+				</section>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="source-distribution">
+		<jar destfile="${basedir}/${svcname}-source.jar" basedir="${basedir}/../.." 
+			includes="GlimmpseWeb/*,
+			GlimmpseWeb/build/build.xml,
+			GlimmpseWeb/src/**,
+			GlimmpseWeb/war/**">			
+			<manifest>
+				<attribute name="Author" value="Sarah Kreidler"/>
+				<section name="Shared">
+					<attribute name="Title" value="GLIMMPSE Web Interface Source Code"/>
+					<attribute name="Vendor" value="CU Denver Biostatistics Department"/>
+				</section>
+				<section name="Copyright">
+					<attribute name="Copy" value="(C) CU Denver Biostatistics Department"/>
+				</section>
+			</manifest>
+		</jar>
+	</target>
+</project>

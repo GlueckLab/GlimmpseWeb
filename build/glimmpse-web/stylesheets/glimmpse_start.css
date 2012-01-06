@@ -1,0 +1,81 @@
+/*
+ * GLIMMPSE (General Linear Multivariate Model Power and Sample size Estimator)
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+ 
+ /*
+ * Styles for the welcome/ start page
+ */
+
+div#start-container {
+	font-family:Arial, Helvetica, sans-serif;
+	background: #fff;	
+	padding: 5px;
+}
+
+div#start-container h1, h2, h3, h4 {
+	margin: 5px 20px;
+}
+
+
+div#start-container p {
+	margin-left: 20px;
+	text-align: left;
+}
+
+div.start-button {
+	border: 1px solid aaa;
+	padding: 5px;
+	background: #005C84;
+	margin: auto auto;
+	width: 150px;
+	height: 20px;
+	text-align: center;
+	-moz-box-shadow: 5px 5px 5px #aaa;
+  	-webkit-box-shadow: 5px 5px 5px #aaa;
+  	box-shadow: 5px 5px 5px #aaa;
+  	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div.start-button:hover {
+	background: #E0ECF8;
+	color: #005C84;
+}
+
+div.start-button:hover a {
+	color: #005C84;
+}
+
+div.start-button a {
+	text-decoration: none;
+	color: #fff;
+}
+
+div#navigationLinks {
+	margin: 5px 20px;	
+	align: vertical;
+}
+
+div#navigationLinks a {
+	margin: 0px 30px;
+	color:#005C84;
+}
+
+div#navigationLinks h3 {
+	font-size: 12pt;
+}
