@@ -6,19 +6,10 @@
          xmlns="http://java.sun.com/xml/ns/javaee">
 
   <!-- Servlets -->
-  <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>edu.ucdenver.bios.glimmpseweb.server.GreetingServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/glimmpseweb/greet</url-pattern>
-  </servlet-mapping>
   
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>GlimmpseWeb.html</welcome-file>
+    <welcome-file>start.html</welcome-file>
   </welcome-file-list>
 
 </web-app>
