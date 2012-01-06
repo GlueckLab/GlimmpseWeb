@@ -1,0 +1,144 @@
+/*
+ * GLIMMPSE (General Linear Multivariate Model Power and Sample size Estimator)
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+/** 
+* Styles for header, footers shared across all GLIMMPSE pages
+* 
+* Author: Sarah Kreidler
+*
+*/
+
+/* basic page style */
+
+body {
+	font-size:12px;
+	color:#000000;
+	background-color:#ffffff;
+	margin:0px;
+	overflow:auto;
+	background-image:url('/images/gradient.gif');
+	background-repeat:repeat-x;
+}
+
+/** header style **/
+
+.header {
+  width: 100%;
+  height: 100px;
+}
+
+.headerTitleBar {
+}
+
+/* logo image */
+.headerLogo {
+	width: 70px;
+	height: 70px;
+}
+
+.headerName {
+	font-family: Blippo, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 20pt;
+	margin-top: 18px;
+	padding-right: 20px;
+	padding-left: 5px;
+	border-right: 1px solid #999;
+	color: #333;
+}
+
+/* Software name text */
+.headerDescription {
+	font-family: Blippo, Arial, Helvetica, sans-serif;
+	margin-top: 18px;
+	padding-left: 20px;
+	color: #333;
+	font-size: 12pt;
+	text-align: center;
+}
+
+.headerOwner {
+	width: 100%;
+	border-top: 1px dotted black;
+    border-bottom: 2px solid black;
+	text-align: left;
+}
+
+.headerOwner a {
+	text-decoration: none;
+	color: #222;
+	font-size: 9pt;
+}
+
+.headerOwner a:hover {
+	text-decoration: none;
+	color: #005C84;
+}
+
+/** top navbar style **/
+
+.headerNavbar {
+	width: 100%;
+	/*background-color: #204d89;*/
+	background-color: #005C84;
+	text-align: left;
+	color: #d9e8ef;
+	border-bottom: 1px solid black;
+	padding: 5px 0px;
+}
+
+.headerNavbar  a {
+	font-family: Arial, Helvetica, sans-serif;
+	text-decoration: none;
+	color: #d9e8ef;
+	padding: 0px 24px;
+}
+
+.headerNavbar a:hover {
+	color:#fff;
+}
+
+ div.contentList {
+ 	margin-left: 20px;
+ }
+ 
+ div.contents1 {
+ 	margin-left: 40px;
+ }
+ 
+  div.contents2 {
+ 	margin-left: 60px;
+ }
+ 
+ div#content-container {
+  font-family: Arial, Helvetica, sans-serif;
+	background: #fff;	
+	margin: 5px 5px;
+	padding: 5px;
+}
+
+div#content-container h1, h2, h3, h4 {
+	margin: 5px 20px;
+}
+
+
+div#content-container p {
+	margin-left: 20px;
+	text-align: left;
+}

@@ -1,0 +1,442 @@
+/*
+ * GLIMMPSE (General Linear Multivariate Model Power and Sample size Estimator)
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+ 
+ /*
+ * Styles for the input wizard and all subpanels
+ */
+
+.body {
+	color:#000000;
+	background-color:#ffffff;
+	margin:0px;
+	overflow:auto;
+	background-image:url('/images/gradient.gif');
+	background-repeat:repeat-x;
+	font-size: 12pt;
+}
+
+/* style for initial mode selection screen */
+.modeSelectionInputContainer {
+	padding: 10px;
+	margin-left:20px;
+	background: #ebf0f5;
+	border: 1px solid #ccc;
+	-moz-border-radius: 5px;
+   border-radius: 5px;
+}
+
+.modeSelectionPanelHeader {
+	margin-left: 20px;
+	margin-top: 10px;
+	font-weight: bold;
+	font-size: large;
+	width: 90%;
+}
+
+.modeSelectionPanelDescription {
+	margin: 10px 20px;
+	width: 80%;
+}
+
+.modeSelectionPanelContainer {
+	background-color:  white;
+	height: 260px;
+	width: 240px;
+	border: 2px solid #ccc;
+}
+
+.modeSelectionPanelContainerTitle {
+	font-size: larger;
+	text-align: center;
+	width: 100%;
+	height: 30px;
+	padding-top: 6px;
+	background: #005C84;
+	border-bottom: 2px solid black;
+	color: white;
+}
+
+.modeSelectionPanelContainerDescription {
+	padding: 10px;
+	height: 150px;
+}
+
+.modeSelectionPanelGoButton {
+	float: right;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	cursor: pointer;
+}
+
+.modeSelectionPanelContainer .gwt-FileUpload {
+	width: 30px;
+	margin-left: 5px;
+	margin-top: 8px;
+}
+
+/* style for main wizard input panel (GWT class) */
+.glimmpseWizardPanel {
+	margin: 5px 5px;
+	padding: 5px;
+	background: #fff;
+	height: 100%;
+}
+
+/* Style for "steps left" banner above the input wizard. */
+
+.stepsLeftPanel {
+	width: 150px;
+}
+
+.stepsLeftLabel {
+	text-align: left;
+	padding: 5px 5px;
+    width: 150px;
+    border: 1px solid #d6e0eb;
+    font-size: 12pt;
+}
+
+.stepsLeftLabel-complete {
+	color: gray;
+	background: #ebf0f5;
+	font-weight: normal;
+}
+
+.stepsLeftLabel-selected {
+	color: black; 
+	font-weight: bold;
+	background: #fff;
+	border-right: none;
+}
+
+.stepsLeftLabel-deselected {
+	color: gray;
+	font-weight: normal;
+	background: #ebf0f5;
+}
+
+/* style for main wizard input panel (GWT class) */
+.wizardContentPanel {
+	width: 810px;
+}
+
+/* styles applied to steps in the input wizard */
+.wizardStepPanel {
+	width: 100%;
+	padding-left: 10px;
+}
+
+.wizardStepPanel-subpanel {
+	width: 100%;
+}
+
+.wizardStepHeader {
+	margin: 5px 5px;
+	font-weight: bold;
+	font-size: 14pt;
+	width: 80%;
+}
+
+.wizardStepDescription {
+	margin: 5px 5px;
+	font-size: 12pt;
+	width: 80%;
+}
+
+.wizardStepHeader-subpanel {
+	border-top: 1px solid #ccc;
+	font-weight: normal;
+	font-size: larger;
+	margin: 10px 0px;
+}
+
+/* tool buttons */
+.wizardToolsPanel {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	background: #fff;
+	text-align: left;
+	width: 100%;
+	border-right: 1px solid #d6e0eb;
+}
+
+.wizardToolsPanelButton {
+	font: smaller;
+	padding-top: 5px;
+	padding-left: 20px;
+	border: none;
+	color: #005C84;
+	cursor: pointer;
+}
+
+.wizardToolsPanelButton-save {
+	background: url(../images/save.png) no-repeat 4px 6px;
+}
+
+.wizardToolsPanelButton-cancel {
+	background: url(../images/cancel.png) no-repeat 4px 6px;
+}
+
+.wizardToolsPanelButton-help {
+	background: url(../images/help.png) no-repeat 4px 6px;
+}
+
+.wizardToolsPanelButton:hover {
+	text-decoration: underline;
+}
+
+.wizardNavigationPanel {
+	margin-top: 20px;
+	margin-left: 20px;
+}
+
+/* wizard navigation buttons */
+.wizardNavigationPanelButton {
+	background: #005C84;
+	color: #F9FCFF;
+	width: 100px;
+	font-size: 12pt;
+	height: 30px;
+	margin: 5px 5px;
+	border: 2px outset #ccc;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.wizardNavigationPanelButton:hover {
+	background: #E0ECF8;
+	color: #005C84;
+}
+
+.wizardNavigationPanelButton[disabled] {
+	background: #ccc;
+	color: #fff;	
+	
+}
+
+.wizardNavigationPanelButton[disabled]:hover {	
+}
+
+.rowMetaDataPanel {
+	border: 1px solid #ccc;
+	background: #ebf0f5;
+	width: 75px;
+}
+
+.rowMetaDataPanelData {
+	margin-top: 14px;
+	width: 50px;
+	border-collapse: collapse;
+}
+
+.rowMetaDataPanelData td {
+	background: white;
+	border: 1px solid #000;
+	height: 24px;
+}
+
+.matrixPanel {
+	border: 1px solid #ccc;
+	background: #ebf0f5;
+	margin-left: 5px;
+}
+
+.matrixData {
+	margin-top: 10px;
+	border-collapse: collapse;
+}
+
+.matrixData td {
+	background: white;
+	border: 1px solid #000;
+	height: 24px;
+}
+
+.matrixCell {
+	background: white;
+	border: 0;
+	width: 50px;
+}
+
+.matrixData-disabled {
+    background: #ebf0f5;
+    border: 1px solid #ccc;
+    height: 24px;
+}
+
+.matrixCell-disabled {
+    background: #ebf0f5;
+    border: 1px solid #ccc;
+    width: 50px;
+}
+
+.matrixHeader {
+	border-bottom: 1px solid #000;
+	margin-bottom: 10px;
+	font-weight: bold;
+}
+
+.matrixDimensions .gwt-HTML {
+	margin-right: 5px;
+	margin-left: 5px;
+}
+
+.matrixDimensions .gwt-TextBox {
+	width: 30px;
+}
+
+.waitDialog {
+	background: #fff url(../images/processing.gif) no-repeat 10px 12px;
+	padding: 10px;
+	border: 2px solid  #005C84;
+	width: 230px;
+	height: 40px;
+	position: relative;
+}
+
+.waitDialogText {
+	position: absolute;
+	left: 56px; top: 20px;
+	font-weight: bold;
+}
+
+.message-error {
+	color: maroon;
+	/* font-weight: bold; */
+	/* background: #fcc; */
+}
+
+.message-okay {
+	color: green;
+	font-weight: bold;
+	background: #fff;
+}
+
+.powerCurveFrame {
+	border: 0;
+	height: 320px;
+	width: 320px;
+	overflow: hidden;
+}
+    
+
+.wizardStepTablePanel {
+	border: 1px outset #14f;
+	background: #E0ECF8;
+}
+
+.wizardStepTable {
+	border-collapse:collapse;
+	background: #ebf0f5;
+}
+
+.wizardStepTableHeader .gwt-HTML {
+	font-weight: bold;
+	color: #000;
+}
+
+.wizardStepTableHeader td {
+	border: 1px solid #ccc;
+	padding: 5px;
+	text-align: center;
+}
+
+.wizardStepTableRow {
+	background: #fff;
+	/*width: 100%;*/
+}
+
+.wizardStepTableRow td {
+	border: 1px solid #ccc;
+	padding: 5px;
+}
+
+.wizardStepTableRow .gwt-TextBox {
+	width: 100%;
+}
+
+.wizardStepTableRow .gwt-ListBox {
+	width: 100%;
+	border: none;
+}
+
+.wizardStepTableRow-odd {
+	background: #fff;
+}
+
+.wizardStepTableRow-even {
+	background: #fff;
+}
+
+.wizardStepListPanel {
+	background: #ebf0f5;
+	width: 80%;
+	border: 1px solid #999;
+	border-collapse: collapse;
+}
+
+.wizardStepListPanel .gwt-ListBox {
+	border: none;
+	border-top: 1px solid #999;
+	width: 100%;
+	padding: 5px;
+}
+
+.wizardStepListHeader {
+	padding: 5px;
+	spacing: 5px;
+}
+
+.wizardStepListButton {
+	cursor: pointer;
+	margin-left: 5px;
+}
+
+.gwt-PopupPanel {
+	background: white;
+	border: 1px solid #000;
+	width: 50%;
+}
+
+.wizardStepContent {
+	width: 80%;
+}
+
+.wizardStepParagraph {
+	width: 80%;
+	margin-top: 10px;
+}
+
+.wizardStepIndentedContent {
+	margin-left: 20px;
+}
+
+.resultsPanelButton {
+	margin-top: 5px;
+	font: smaller;
+	border: none;
+	color: #005C84;
+	cursor: pointer;
+	background: white;
+}
+
+.resultsPanelButton-separator {
+	border-right: 1px solid #ccc;
+}
+
