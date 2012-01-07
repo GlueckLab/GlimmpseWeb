@@ -128,19 +128,12 @@ implements ClickHandler
 	@Override
 	public void onClick(ClickEvent event)
 	{		
-		SolvingForListener.SolutionType type = null;
 		if (solvingForPowerRadioButton.getValue())
 		{
-			type = SolvingForListener.SolutionType.POWER;
 			notifyComplete();
 		}
 		else if (solvingForSampleSizeRadioButton.getValue())
 		{
-			type = SolvingForListener.SolutionType.TOTAL_N;
-		}
-		if (type != null)
-		{
-			for(SolvingForListener listener: listeners) listener.onSolvingFor(type);
 		}
 	}
 	
@@ -191,28 +184,4 @@ implements ClickHandler
     		return "";
     }
     
-	@Override
-	public void loadFromNode(Node node)
-	{
-		if (node != null && GlimmpseConstants.TAG_SOLVING_FOR.equalsIgnoreCase(node.getNodeName()))
-		{
-			NamedNodeMap attrs = node.getAttributes();
-			Node typeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_TYPE);
-			if (typeNode != null)
-			{
-				String value = typeNode.getNodeValue();
-				if (GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE.equals(value))
-				{
-					solvingForSampleSizeRadioButton.setValue(true);
-					for(SolvingForListener listener: listeners) listener.onSolvingFor(SolutionType.TOTAL_N);
-				}
-				else
-				{
-					solvingForPowerRadioButton.setValue(true);
-					for(SolvingForListener listener: listeners) listener.onSolvingFor(SolutionType.POWER);
-				}
-			}
-		}
-		
-	}
 }

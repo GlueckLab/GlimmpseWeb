@@ -6,7 +6,15 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.BaselineCovariatePanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.IntroPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsConfidenceIntervalsPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsDisplayPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsPowerMethodsPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsTestsPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.PerGroupSampleSizePanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.PowerPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.SolvingForPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.TypeIErrorPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
@@ -16,12 +24,12 @@ public class MatrixWizardPanel extends Composite
 	// content panels 
 	protected IntroPanel introPanel = new IntroPanel("Intro", GlimmpseWeb.constants.matrixIntroTitle(),
 			GlimmpseWeb.constants.matrixIntroDescription());
-//	protected SolvingForPanel solvingForPanel = new SolvingForPanel(getModeName());
-//	protected PowerPanel powerPanel = new PowerPanel();
+	protected SolvingForPanel solvingForPanel = new SolvingForPanel("matrix");
+	protected PowerPanel powerPanel = new PowerPanel();
 	protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel();
     protected DesignPanel designPanel = new DesignPanel();
-//	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
-//	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel();
+	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
+	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel();
 	
     protected BetweenSubjectContrastPanel betweenContrastPanel = new BetweenSubjectContrastPanel();
     protected WithinSubjectContrastPanel withinContrastPanel = new WithinSubjectContrastPanel();
@@ -37,21 +45,18 @@ public class MatrixWizardPanel extends Composite
     protected SigmaCovariateMatrixPanel sigmaCovariatePanel = new SigmaCovariateMatrixPanel();
     protected SigmaScalePanel sigmaScalePanel = new SigmaScalePanel();
 	// options
-//	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(getModeName());
-//	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
-//		new OptionsPowerMethodsPanel(getModeName());
-//	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(getModeName());
-//	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
-//		new OptionsConfidenceIntervalsPanel(getModeName());
+	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel("matrix");
+	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
+		new OptionsPowerMethodsPanel("matrix");
+	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel("matrix");
+	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
+		new OptionsConfidenceIntervalsPanel("matrix");
 	// results
 //	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
 //	WizardStepPanel[][] panelList = {
-//			{introPanel, solvingForPanel, powerPanel},
-//			{alphaPanel},
-//			{designPanel, covariatePanel, perGroupSampleSizePanel},
-//			{betaPanel, betaScalePanel},
-//			{betweenContrastPanel, withinContrastPanel},
+
+
 //			{thetaPanel},
 //			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaCovariatePanel, 
 //				sigmaOutcomeCovariatePanel, sigmaScalePanel},
@@ -92,21 +97,45 @@ public class MatrixWizardPanel extends Composite
 	
 	private ArrayList<WizardStepPanelGroup> buildPanelGroups()
 	{
-		ArrayList<WizardStepPanelGroup> groups = new ArrayList<WizardStepPanelGroup>();
+		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
 		WizardStepPanelGroup group = new WizardStepPanelGroup("Start");
 		group.addPanel(introPanel);
-		groups.add(group);
+		group.addPanel(solvingForPanel);
+		group.addPanel(powerPanel);
+		groupList.add(group);
 		group = new WizardStepPanelGroup("Type I Error");
 		group.addPanel(typeIErrorPanel);
-		groups.add(group);
+		groupList.add(group);
 		group = new WizardStepPanelGroup("Design");
-		group.addPanel(this.designPanel);
-		groups.add(group);
+		group.addPanel(designPanel);
+		group.addPanel(covariatePanel);
+		group.addPanel(perGroupSampleSizePanel);
+		groupList.add(group);
 		group = new WizardStepPanelGroup("Coefficients");
-		group.addPanel(this.betaPanel);
-		group.addPanel(this.betaScalePanel);
-		groups.add(group);
-		
-		return groups;
+		group.addPanel(betaPanel);
+		group.addPanel(betaScalePanel);
+		groupList.add(group);
+		group = new WizardStepPanelGroup("Contrasts");
+		group.addPanel(betweenContrastPanel);
+		group.addPanel(withinContrastPanel);
+		groupList.add(group);
+		group = new WizardStepPanelGroup("Null Hypothesis");
+		group.addPanel(thetaPanel);
+		groupList.add(group);
+		group = new WizardStepPanelGroup("Variability");
+		group.addPanel(sigmaErrorPanel);
+		group.addPanel(sigmaOutcomesPanel);
+		group.addPanel(sigmaCovariatePanel);
+		group.addPanel(sigmaOutcomeCovariatePanel);
+		group.addPanel(sigmaScalePanel);
+		groupList.add(group);
+		group = new WizardStepPanelGroup("Options");
+		group.addPanel(optionsTestsPanel);
+		group.addPanel(optionsPowerMethodsPanel);
+		group.addPanel(optionsCIPanel);
+		group.addPanel(optionsDisplayPanel);
+		groupList.add(group);
+//		{optionsTestsPanel, optionsPowerMethodsPanel, optionsCIPanel, optionsDisplayPanel},
+		return groupList;
 	}
 }

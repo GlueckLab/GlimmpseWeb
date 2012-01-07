@@ -2,14 +2,10 @@ package edu.ucdenver.bios.glimmpseweb.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.Table;
 
 import edu.ucdenver.bios.glimmpseweb.client.guided.GuidedWizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.matrix.MatrixWizardPanel;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
 
 /**
  * Entry point class for the GLIMMPSE web interface.
@@ -36,11 +32,18 @@ public class GlimmpseWeb implements EntryPoint
 			glimmpseHeader.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
 		}
 		// add the main wizard
-		RootPanel glimmpseWizard = RootPanel.get("glimmpseWizard");
-		if (glimmpseWizard != null)
+		RootPanel glimmpseMatrixWizard = RootPanel.get("glimmpseMatrixWizard");
+		if (glimmpseMatrixWizard != null)
 		{
-			glimmpseWizard.add(new MatrixWizardPanel());
-			glimmpseWizard.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
+			glimmpseMatrixWizard.add(new MatrixWizardPanel());
+			glimmpseMatrixWizard.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
+		}
+		// add the main wizard
+		RootPanel glimmpseGuidedWizard = RootPanel.get("glimmpseGuidedWizard");
+		if (glimmpseGuidedWizard != null)
+		{
+			glimmpseGuidedWizard.add(new GuidedWizardPanel());
+			glimmpseGuidedWizard.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
 		}
 		// add the footer
 		RootPanel glimmpseFooter = RootPanel.get("glimmpseFooter");

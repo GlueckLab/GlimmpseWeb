@@ -54,7 +54,6 @@ public class WizardPanel extends Composite implements NavigationListener
 		leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
 		leftPanel.add(leftNavPanel);
 		leftPanel.add(createToolLinks());
-		leftNavPanel.setPixelSize(100, 300);
 		contentPanel.add(wizardDeck);
 		contentPanel.add(navPanel);
 		panel.add(leftPanel);		

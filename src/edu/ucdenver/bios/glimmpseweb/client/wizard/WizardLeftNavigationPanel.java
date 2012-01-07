@@ -28,6 +28,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.StackLayoutPanel;
@@ -44,10 +45,16 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
  * @author Sarah Kreidler
  * @see WizardPanel
  */
-public class WizardLeftNavigationPanel extends StackLayoutPanel implements NavigationListener
+public class WizardLeftNavigationPanel extends Composite implements NavigationListener
 {
+	protected static final String STYLE_LABEL = "stepsLeftLabel";
+	protected static final String STYLE_PANEL = "stepsLeftPanel";
+    protected static final String STYLE_COMPLETE = "complete";
+    
 	// list of classes listening for navigation events from this panel
 	protected ArrayList<NavigationListener> listeners = new ArrayList<NavigationListener>();
+	// stack panel to display panel links
+	protected StackLayoutPanel stackPanel = new StackLayoutPanel(Style.Unit.PX);
 	
 	/**
 	 * Button class added to the FlexTables displayed under each StackLayoutPanel
@@ -101,14 +108,23 @@ public class WizardLeftNavigationPanel extends StackLayoutPanel implements Navig
 	 */
 	public WizardLeftNavigationPanel(List<WizardStepPanelGroup> panelGroups)
 	{
-		super(Style.Unit.PX);
+		VerticalPanel panel = new VerticalPanel();
+	    stackPanel.setPixelSize(150, 400);
+
 		// add groups to the stack panel
 		for(WizardStepPanelGroup panelGroup: panelGroups)
 		{
 			// add the heading and group items to the stack
-			add(createGroupItems(panelGroup.getPanelList()), 
+			stackPanel.add(createGroupItems(panelGroup.getPanelList()), 
 					createGroupWidget(panelGroup.getName()), 32);
 		}
+		panel.add(stackPanel);
+		
+		// set style
+		//stackPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_LEFT_NAV_PANEL);
+		panel.setStyleName(STYLE_PANEL);
+		
+		initWidget(panel);
 	}
 	
 	/**
@@ -129,6 +145,7 @@ public class WizardLeftNavigationPanel extends StackLayoutPanel implements Navig
 			row++;
 		}
 		container.add(table);
+		container.setStyleName(GlimmpseConstants.STYLE_WIZARD_LEFT_NAV_CONTENT);
 		return container;
 	}
 	
@@ -152,7 +169,7 @@ public class WizardLeftNavigationPanel extends StackLayoutPanel implements Navig
 			}
 		}); 
 		// set style
-		item.setStyleName(GlimmpseConstants.STYLE_WIZARD_TOOL_BUTTON);
+		item.setStyleName(GlimmpseConstants.STYLE_WIZARD_LEFT_NAV_LINK);
 		// add to the container
 		container.add(item);
 		return container;

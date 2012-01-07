@@ -55,7 +55,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_LIST_BUTTON = "wizardStepListButton";
     public static final String STYLE_WIZARD_STEP_LIST_TEXTBOX = "wizardStepListTextBox";
     public static final String STYLE_WIZARD_STEP_LIST_HEADER = "wizardStepListHeader";
-
+    public static final String STYLE_WIZARD_LEFT_NAV_LINK = "wizardLeftNavLink";
+    public static final String STYLE_WIZARD_LEFT_NAV_PANEL = "wizardLeftNavPanel";
+    public static final String STYLE_WIZARD_LEFT_NAV_CONTENT = "wizardLeftNavContent";
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
