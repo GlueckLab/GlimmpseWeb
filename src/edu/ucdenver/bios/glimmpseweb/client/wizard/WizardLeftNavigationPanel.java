@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.dom.client.Style;
@@ -35,8 +36,6 @@ import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
-
 /**
  * Generic left navigation panel for a WizardPanel.  Panels are organized
  * into groups using a StackLayoutPanel.  Users may jump directly to a
@@ -45,16 +44,28 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
  * @author Sarah Kreidler
  * @see WizardPanel
  */
-public class WizardLeftNavigationPanel extends Composite implements NavigationListener
+public class WizardLeftNavigationPanel extends Composite 
 {
-	protected static final String STYLE_LABEL = "stepsLeftLabel";
-	protected static final String STYLE_PANEL = "stepsLeftPanel";
+	protected static final String STYLE_PANEL = "wizardLeftNavPanel";
+	protected static final String STYLE_ITEM_CONTAINER = "wizardLeftNavContent";
+	protected static final String STYLE_ITEM = "wizardLeftNavLink";
+	// dependent style for active and completed items
+    protected static final String STYLE_ACTIVE = "active";
     protected static final String STYLE_COMPLETE = "complete";
     
 	// list of classes listening for navigation events from this panel
-	protected ArrayList<NavigationListener> listeners = new ArrayList<NavigationListener>();
+	protected ArrayList<WizardActionListener> listeners = new ArrayList<WizardActionListener>();
 	// stack panel to display panel links
 	protected StackLayoutPanel stackPanel = new StackLayoutPanel(Style.Unit.PX);
+	// maps panels to their associated button to avoid a traversal through the entire stack panel
+	protected HashMap<WizardStepPanel,WizardStepPanelButton> panelToButtonMap = 
+		new HashMap<WizardStepPanel,WizardStepPanelButton>();
+	protected HashMap<WizardStepPanel,Widget> panelToContainerMap = 
+		new HashMap<WizardStepPanel,Widget>();
+	// TODO: better solution than hashmap?
+	
+	// currenly active item
+	protected Widget currentItem = null;
 	
 	/**
 	 * Button class added to the FlexTables displayed under each StackLayoutPanel
@@ -121,7 +132,6 @@ public class WizardLeftNavigationPanel extends Composite implements NavigationLi
 		panel.add(stackPanel);
 		
 		// set style
-		//stackPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_LEFT_NAV_PANEL);
 		panel.setStyleName(STYLE_PANEL);
 		
 		initWidget(panel);
@@ -142,10 +152,11 @@ public class WizardLeftNavigationPanel extends Composite implements NavigationLi
 		for(WizardStepPanel panel: panelList)
 		{
 			table.setWidget(row, 0, createNavigationItem(row, panel));
+			panelToContainerMap.put(panel, container);
 			row++;
 		}
 		container.add(table);
-		container.setStyleName(GlimmpseConstants.STYLE_WIZARD_LEFT_NAV_CONTENT);
+		container.setStyleName(STYLE_ITEM_CONTAINER);
 		return container;
 	}
 	
@@ -165,13 +176,18 @@ public class WizardLeftNavigationPanel extends Composite implements NavigationLi
 			public void onClick(ClickEvent event)
 			{
 				WizardStepPanelButton button = (WizardStepPanelButton) event.getSource();
-				for(NavigationListener listener: listeners) listener.onPanel(button.getPanel());
+				for(WizardActionListener listener: listeners) listener.onPanel(button.getPanel());
+				if (currentItem != null) currentItem.removeStyleDependentName(STYLE_ACTIVE);
+				currentItem = button;
+				currentItem.addStyleDependentName(STYLE_ACTIVE);
 			}
 		}); 
 		// set style
-		item.setStyleName(GlimmpseConstants.STYLE_WIZARD_LEFT_NAV_LINK);
+		item.setStyleName(STYLE_ITEM);
 		// add to the container
 		container.add(item);
+		// setup mappings
+		panelToButtonMap.put(panel, item);
 		return container;
 	}
 	
@@ -192,50 +208,34 @@ public class WizardLeftNavigationPanel extends Composite implements NavigationLi
 	 * 
 	 * @param listener
 	 */
-	public void addNavigationListener(NavigationListener listener)
+	public void addActionListener(WizardActionListener listener)
 	{
 		listeners.add(listener);
 	}
 
 	/**
-	 * Respond to next button events from the parent WizardPanel.
-	 * The left nav panel will highlight the panel button for the next
-	 * panel.  If at the end of a group, the next group will be
-	 * opened and the first item highlighted
-	 * 
-	 * @see WizardPanel
+	 * Display the specific panel and open the group
+	 * @param panel panel to display
 	 */
-	@Override
-	public void onNext()
+	public void showPanel(WizardStepPanel panel)
 	{
-		// TODO Auto-generated method stub
-		
+		Widget container = panelToContainerMap.get(panel);
+		if (container != null) stackPanel.showWidget(container, false);
+		// update styles
+		Widget item = panelToButtonMap.get(panel);
+		if (item != null)
+		{
+			if (currentItem != null) currentItem.removeStyleDependentName(STYLE_ACTIVE);
+			currentItem = item;
+			currentItem.addStyleDependentName(STYLE_ACTIVE);
+		}
 	}
-
-	/**
-	 * Respond to previous button events from the parent WizardPanel.
-	 * The left nav panel will highlight the panel button for the previous
-	 * panel.  If at the start of a group, the previous group will be
-	 * opened and the last item in that group highlighted
-	 * 
-	 * @see WizardPanel
-	 */
-	@Override
-	public void onPrevious()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	/**
-	 * Respond to a navigation event when a user clicks on a panel name.
-	 * No action taken by the WizardLeftNavigationPanel class for this event
-	 * @param panel the panel associated with the name clicked by the user
-	 */
-	@Override
-	public void onPanel(WizardStepPanel panel)
-	{
-		// No action required since this event is only triggered 
-		// by the WizardLeftNavigationPanel
-	}
+	
+	// TODO
+//	public void setPanelComplete(WizardStepPanel panel, boolean complete)
+//	{
+//		Widget item = panelToButtonMap.get(panel);
+//		item.removeStyleDependentName(STYLE_COMPLETE);
+//	}
+	
 }
