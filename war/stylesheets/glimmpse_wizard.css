@@ -20,7 +20,7 @@
  /*
  * Styles for the input wizard and all subpanels
  */
-
+/*
 .body {
 	color:#000000;
 	background-color:#ffffff;
@@ -29,7 +29,7 @@
 	background-image:url('/images/gradient.gif');
 	background-repeat:repeat-x;
 	font-size: 12pt;
-}
+}*/
 
 /* style for initial mode selection screen */
 .modeSelectionInputContainer {

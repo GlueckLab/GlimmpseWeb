@@ -26,14 +26,14 @@
 
 /* basic page style */
 
-body {
-	font-size:12px;
-	color:#000000;
-	background-color:#ffffff;
+.body {
+/*	font-size:12px; */
+	/*color:#000000;*/
+	background-color:#999;
 	margin:0px;
 	overflow:auto;
-	background-image:url('/images/gradient.gif');
-	background-repeat:repeat-x;
+	/*background-image:url('/images/gradient.gif');*/
+	/* background-repeat:repeat-x; */
 }
 
 /** header style **/
@@ -41,35 +41,38 @@ body {
 .header {
   width: 100%;
   height: 100px;
+  background-image:url(http://samplesizeshop.com/wp-content/themes/SampleSizeShop/images/Content-BKGR.jpg);
+  background-repeat:repeat;
 }
 
 .headerTitleBar {
+
+	
 }
 
 /* logo image */
 .headerLogo {
-	width: 70px;
-	height: 70px;
+	padding: 10px;
 }
 
 .headerName {
-	font-family: Blippo, Arial, Helvetica, sans-serif;
+	font-family: serif;
 	font-weight: bold;
-	font-size: 20pt;
+	font-size: 40pt;
 	margin-top: 18px;
 	padding-right: 20px;
 	padding-left: 5px;
-	border-right: 1px solid #999;
-	color: #333;
+	border-right: 1px solid #f47735;
+	color: #d0b87d;
 }
 
 /* Software name text */
 .headerDescription {
-	font-family: Blippo, Arial, Helvetica, sans-serif;
+	font-family: serif;
 	margin-top: 18px;
 	padding-left: 20px;
-	color: #333;
-	font-size: 12pt;
+	color: white;
+	font-size: 18pt;
 	text-align: center;
 }
 
@@ -95,11 +98,14 @@ body {
 
 .headerNavbar {
 	width: 100%;
+	background-image:url(http://samplesizeshop.com/wp-content/themes/SampleSizeShop/images/Content-BKGR.jpg);
+    background-repeat:repeat;
 	/*background-color: #204d89;*/
 	background-color: #005C84;
 	text-align: left;
 	color: #d9e8ef;
 	border-bottom: 1px solid black;
+	border-top: 1px dotted white;
 	padding: 5px 0px;
 }
 
@@ -112,6 +118,16 @@ body {
 
 .headerNavbar a:hover {
 	color:#fff;
+}
+
+.footer {
+	border-top: 1px dotted black;
+    height: 200px;	
+}
+
+.footer .gwt-HTML {
+	padding-top: 30px;
+	text-align: center;'
 }
 
  div.contentList {
