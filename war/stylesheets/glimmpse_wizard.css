@@ -134,10 +134,12 @@
 /* style for main wizard input panel (GWT class) */
 .wizardContentPanel {
 	width: 810px;
+	min-height: 400px;
 }
 
 /* styles applied to steps in the input wizard */
 .wizardStepPanel {
+	min-height: 500px;
 	width: 100%;
 	padding-left: 10px;
 }
@@ -171,7 +173,6 @@
 .wizardLeftNavContent {
   width: 100%;
   background-color: white;
-  border: 1px solid red;
 }
 
 .wizardLeftNavLink {
@@ -183,6 +184,15 @@
   width: 100%;
   background-color: white;
   text-align: left;
+}
+
+.wizardLeftNavLink-active {
+  color: black;
+  font-weight: bold;
+}
+
+.wizardLeftNavLink-complete {
+  color: green;
 }
 
 .wizardLeftNavLink:hover {
