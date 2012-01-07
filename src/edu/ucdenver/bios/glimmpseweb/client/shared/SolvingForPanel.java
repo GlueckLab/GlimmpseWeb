@@ -1,5 +1,5 @@
 /*
- * User Interface for the GLIMMPSE Software System.  Allows
+ * Web Interface for the GLIMMPSE Software System.  Allows
  * users to perform power, sample size, and detectable difference
  * calculations. 
  * 
@@ -21,21 +21,19 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.NamedNodeMap;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * WizardStepPanel which allows the user to select whether they are solving for
@@ -58,9 +56,9 @@ implements ClickHandler
 	 * 
 	 * @param radioGroupPrefix prefix to ensure uniqueness of the radio button group
 	 */
-	public SolvingForPanel(String radioGroupPrefix)
+	public SolvingForPanel(WizardContext context, String radioGroupPrefix)
 	{
-		super(GlimmpseWeb.constants.solvingForLink());
+		super(context, GlimmpseWeb.constants.solvingForLink());
 		// since one of the radio buttons will always be checked, this wizardsteppanel
 		// is always considered complete (complete member var is from superclass WizardStepPanel)
 		complete = true;
@@ -182,6 +180,22 @@ implements ClickHandler
     public String toRequestXML()
     {
     		return "";
+    }
+    
+    /**
+     * Update the context with the new solving for information
+     */
+    public void onExit()
+    {
+		if (solvingForPowerRadioButton.getValue())
+		{
+	    	((StudyDesignContext) context).setSolutionType(SolutionType.POWER);
+		}
+		else if (solvingForSampleSizeRadioButton.getValue())
+		{
+	    	((StudyDesignContext) context).setSolutionType(SolutionType.TOTAL_N);
+		}
+
     }
     
 }

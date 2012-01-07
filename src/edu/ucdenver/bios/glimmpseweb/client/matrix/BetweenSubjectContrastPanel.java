@@ -26,22 +26,27 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix mode panel which allows input of the between-subject contrast matrix (C)
  */
 public class BetweenSubjectContrastPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected ResizableMatrix betweenSubjectFixed = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST,
     			GlimmpseConstants.DEFAULT_A, 
     			GlimmpseConstants.DEFAULT_Q, "0", GlimmpseWeb.constants.betweenSubjectContrastMatrixName()); 
     protected boolean hasCovariate = false;
     
-	public BetweenSubjectContrastPanel()
+	public BetweenSubjectContrastPanel(WizardContext context)
 	{
-		super("C Contrast");
+		super(context, "C Contrast");
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		betweenSubjectFixed.setMaxRows(GlimmpseConstants.DEFAULT_A);

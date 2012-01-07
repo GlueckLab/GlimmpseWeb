@@ -27,6 +27,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -42,9 +43,9 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
     			GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_B, "1", GlimmpseWeb.constants.withinSubjectContrastMatrixName()); 
     
-	public WithinSubjectContrastPanel()
+	public WithinSubjectContrastPanel(WizardContext context)
 	{
-		super("Contrast U");
+		super(context, "Contrast U");
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		

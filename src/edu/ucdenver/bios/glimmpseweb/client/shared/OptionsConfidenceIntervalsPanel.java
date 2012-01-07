@@ -41,6 +41,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -69,9 +70,9 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	private VerticalPanel typePanel = null;
 	
 	
-	public OptionsConfidenceIntervalsPanel(String mode)
+	public OptionsConfidenceIntervalsPanel(WizardContext context, String mode)
 	{
-		super("Confidence Intervals");
+		super(context, "Confidence Intervals");
 	
 		ciTypeRadioGroup += mode;
 		VerticalPanel panel = new VerticalPanel();

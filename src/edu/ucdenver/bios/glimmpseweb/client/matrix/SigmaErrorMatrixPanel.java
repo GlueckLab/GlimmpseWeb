@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -44,9 +45,9 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
     			GlimmpseWeb.constants.sigmaErrorMatrixName(),
     			true); 
     
-    public SigmaErrorMatrixPanel()
+    public SigmaErrorMatrixPanel(WizardContext context)
     {
-		super("Sigma E");
+		super(context, "Sigma E");
 		// regardless of input, forward navigation is allowed from this panel
 		complete = true;
 		

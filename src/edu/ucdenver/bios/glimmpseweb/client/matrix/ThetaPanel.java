@@ -27,6 +27,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -42,9 +43,9 @@ public class ThetaPanel extends WizardStepPanel
     			GlimmpseConstants.DEFAULT_A, 
     			GlimmpseConstants.DEFAULT_B, "0", GlimmpseWeb.constants.thetaNullMatrixName()); 
     
-	public ThetaPanel()
+	public ThetaPanel(WizardContext context)
 	{
-		super("Theta null");
+		super(context, "Theta null");
 		// regardless of user input, this panel allows forward navigation
 		complete = true;
 		

@@ -33,6 +33,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -45,9 +46,9 @@ public class BaselineCovariatePanel extends WizardStepPanel
 {
     protected CheckBox covariateCheckBox = new CheckBox();
     
-    public BaselineCovariatePanel()
+    public BaselineCovariatePanel(WizardContext context)
     {
-    	super("Covariates");
+    	super(context, "Covariates");
     	// build covariate panel
         VerticalPanel panel = new VerticalPanel();
         

@@ -23,9 +23,9 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -36,9 +36,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 public class IntroPanel extends WizardStepPanel
 {
 
-	public IntroPanel(String name, String title, String description)
+	public IntroPanel(WizardContext context, String name, String title, String description)
 	{
-		super(name);
+		super(context, name);
 		notifyComplete();
 		VerticalPanel panel = new VerticalPanel();
 		

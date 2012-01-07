@@ -36,6 +36,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -49,9 +50,9 @@ implements ChangeHandler
 	protected TextBox standardDeviationTextBox = new TextBox();
 	protected HTML errorHTML = new HTML();
 
-	public VariabilityCovariatePanel()
+	public VariabilityCovariatePanel(WizardContext context)
 	{
-		super("Variability due to covariates");
+		super(context, "Variability due to covariates");
 		skip = true;
 		VerticalPanel panel = new VerticalPanel();
 		

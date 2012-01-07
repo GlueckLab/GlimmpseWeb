@@ -31,7 +31,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix Mode panel which allows entry of beta-scale factors
@@ -40,13 +42,16 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 public class BetaScalePanel extends WizardStepPanel
 implements ListValidator
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
    	// list of per group sample sizes
     protected ListEntryPanel betaScaleListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.betaScaleTableColumn(), this);
 
-	public BetaScalePanel()
+	public BetaScalePanel(WizardContext context)
 	{
-		super(GlimmpseWeb.constants.stepsLeftBeta());
+		super(context, GlimmpseWeb.constants.stepsLeftBeta());
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.betaScaleTitle());
         HTML description = new HTML(GlimmpseWeb.constants.betaScaleDescription());
@@ -111,5 +116,6 @@ implements ListValidator
     public void onExit()
     {
     	List<String> values = betaScaleListPanel.getValues();
+    	//studyDesignContext.getStudyDesign().setBetaScaleList(values);
     }
 }

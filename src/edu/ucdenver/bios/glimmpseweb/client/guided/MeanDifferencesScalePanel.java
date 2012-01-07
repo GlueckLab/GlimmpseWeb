@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -42,9 +43,9 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 {
     protected CheckBox scaleCheckBox = new CheckBox();
     
-	public MeanDifferencesScalePanel()
+	public MeanDifferencesScalePanel(WizardContext context)
 	{
-		super("Scaled Mean Differences");
+		super(context, "Scaled Mean Differences");
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		

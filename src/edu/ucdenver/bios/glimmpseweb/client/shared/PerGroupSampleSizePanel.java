@@ -31,6 +31,7 @@ import com.google.gwt.xml.client.Node;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -45,9 +46,9 @@ implements ListValidator
     protected ListEntryPanel perGroupNListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.perGroupSampleSizeTableColumn(), this);
     
-	public PerGroupSampleSizePanel()
+	public PerGroupSampleSizePanel(WizardContext context)
 	{
-		super("Per Group N");
+		super(context, "Per Group N");
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.perGroupSampleSizeTitle());
         HTML description = new HTML(GlimmpseWeb.constants.perGroupSampleSizeDescription());

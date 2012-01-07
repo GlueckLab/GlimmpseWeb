@@ -42,6 +42,7 @@ import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder.AxisType;
 import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder.StratificationType;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -108,9 +109,9 @@ implements ClickHandler
      * Constructor
      * @param mode mode identifier (needed for unique widget identifiers)
      */
-    public OptionsDisplayPanel(String radioGroupSuffix)
+    public OptionsDisplayPanel(WizardContext context, String radioGroupSuffix)
 	{
-		super("Power Curve");
+		super(context, "Power Curve");
 		this.radioGroupSuffix = radioGroupSuffix;
 		VerticalPanel panel = new VerticalPanel();
 

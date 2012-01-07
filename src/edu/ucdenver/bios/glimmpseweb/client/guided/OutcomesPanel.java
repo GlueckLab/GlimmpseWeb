@@ -26,6 +26,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -51,9 +52,9 @@ public class OutcomesPanel extends WizardStepPanel
     		}
     	});
 
-    public OutcomesPanel()
+    public OutcomesPanel(WizardContext context)
     {
-    	super("Responses");
+    	super(context, "Responses");
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text

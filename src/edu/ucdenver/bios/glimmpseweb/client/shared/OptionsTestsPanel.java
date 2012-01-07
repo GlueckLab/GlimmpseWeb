@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -60,9 +61,9 @@ implements ClickHandler
      * Constructor
      * @param mode mode identifier (needed for unique widget identifiers)
      */
-    public OptionsTestsPanel(String mode)
+    public OptionsTestsPanel(WizardContext context, String mode)
 	{
-		super("Statistical Test");
+		super(context, "Statistical Test");
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description

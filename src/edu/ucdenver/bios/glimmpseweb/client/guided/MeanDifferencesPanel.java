@@ -37,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -56,9 +57,9 @@ implements ChangeHandler
 	
 	protected ArrayList<String> uploadedValues = new ArrayList<String>();
 	
-	public MeanDifferencesPanel()
+	public MeanDifferencesPanel(WizardContext context)
 	{
-		super("Mean Differences");
+		super(context, "Mean Differences");
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 

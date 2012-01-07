@@ -42,6 +42,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 
@@ -69,9 +70,9 @@ implements ClickHandler, ChangeHandler
 
     protected HTML errorHTML = new HTML();
 
-	public RepeatedMeasuresPanel()
+	public RepeatedMeasuresPanel(WizardContext context)
 	{
-		super("Repeated Measures");
+		super(context, "Repeated Measures");
 		skip = true; // TODO: remove once we get repeated measures going.
     	VerticalPanel panel = new VerticalPanel();
     	

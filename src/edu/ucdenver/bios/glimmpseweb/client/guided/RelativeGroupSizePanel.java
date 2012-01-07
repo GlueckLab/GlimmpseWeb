@@ -36,6 +36,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -49,9 +50,9 @@ public class RelativeGroupSizePanel extends WizardStepPanel
     // data table to display possible groups
     protected FlexTable groupSizesTable = new FlexTable();
 
-	public RelativeGroupSizePanel()
+	public RelativeGroupSizePanel(WizardContext context)
 	{
-		super("Relative Group Sizes");
+		super(context, "Relative Group Sizes");
 		complete = true;
         VerticalPanel panel = new VerticalPanel();
         

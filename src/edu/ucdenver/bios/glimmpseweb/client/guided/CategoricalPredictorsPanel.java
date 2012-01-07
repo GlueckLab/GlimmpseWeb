@@ -43,6 +43,7 @@ import com.google.gwt.xml.client.NodeList;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -67,9 +68,9 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
     	new HashMap<String,ArrayList<String>>();
     
-    public CategoricalPredictorsPanel()
+    public CategoricalPredictorsPanel(WizardContext context)
     {
-    	super("Categorical Predictors");
+    	super(context, "Categorical Predictors");
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text

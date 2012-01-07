@@ -34,6 +34,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -52,9 +53,9 @@ implements ChangeHandler
 	protected List<Double> variancesOfOutcomes = null;
 	protected double varianceOfCovariate = 1;
 	
-	public VariabilityCovariateOutcomePanel()
+	public VariabilityCovariateOutcomePanel(WizardContext context)
 	{
-		super("Covariate Variability");
+		super(context, "Covariate Variability");
 		skip = true;
 		VerticalPanel panel = new VerticalPanel();
 		

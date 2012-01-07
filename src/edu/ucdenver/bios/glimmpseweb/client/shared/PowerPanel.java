@@ -21,6 +21,7 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Node;
@@ -28,7 +29,13 @@ import com.google.gwt.xml.client.Node;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Panel for entering nominal power values when performing
@@ -38,13 +45,17 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 public class PowerPanel extends WizardStepPanel
 implements ListValidator
 {
+	// study design context
+	StudyDesignContext studyDesignContext;
+	
 	// list of nominal power values.  Only displayed when solving for effect size or sample size
     protected ListEntryPanel nominalPowerListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.solvingForNominalPowerTableColumn(), this);
     
-	public PowerPanel()
+	public PowerPanel(WizardContext context)
 	{
-		super("Desired Power");
+		super(context, "Desired Power");
+		studyDesignContext = (StudyDesignContext) context;
 		skip=true;
 		VerticalPanel panel = new VerticalPanel();
 
@@ -115,4 +126,13 @@ implements ListValidator
     	skip = true;
 	}
 
+	@Override
+	public void onChange(WizardContextChangeEvent e)
+	{
+		if (((StudyDesignChangeEvent) e).getType() == StudyDesignChangeType.SOLVING_FOR)
+		{
+			skip = (studyDesignContext.getSolutionType() == SolutionType.POWER);
+			Window.alert("skip?" + skip);
+		}
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * User Interface for the GLIMMPSE Software System.  Allows
+ * Web Interface for the GLIMMPSE Software System.  Allows
  * users to perform power, sample size, and detectable difference
  * calculations. 
  * 
@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -45,9 +46,9 @@ public class BetaPanel extends WizardStepPanel
     
     boolean hasCovariate;
     
-	public BetaPanel()
+	public BetaPanel(WizardContext context)
 	{
-		super(GlimmpseWeb.constants.stepsLeftBeta());
+		super(context, GlimmpseWeb.constants.stepsLeftBeta());
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		
@@ -93,5 +94,7 @@ public class BetaPanel extends WizardStepPanel
     	betaFixed.reset(GlimmpseConstants.DEFAULT_Q, 
     			GlimmpseConstants.DEFAULT_P); 
     }
+    
+    
 
 }

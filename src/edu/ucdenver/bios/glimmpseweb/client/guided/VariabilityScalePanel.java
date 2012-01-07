@@ -34,6 +34,7 @@ import com.google.gwt.xml.client.NodeList;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -45,9 +46,9 @@ public class VariabilityScalePanel extends WizardStepPanel
 {
     protected CheckBox scaleCheckBox = new CheckBox();
     
-	public VariabilityScalePanel()
+	public VariabilityScalePanel(WizardContext context)
 	{
-		super("Scale Factors for Variability");
+		super(context, "Scale Factors for Variability");
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		

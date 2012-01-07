@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -47,9 +48,9 @@ implements ListValidator
     /**
      * Create an empty type I error panel
      */
-    public TypeIErrorPanel()
+    public TypeIErrorPanel(WizardContext context)
     {
-    	super(GlimmpseWeb.constants.stepsLeftAlpha());
+    	super(context, GlimmpseWeb.constants.stepsLeftAlpha());
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text

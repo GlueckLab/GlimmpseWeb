@@ -29,6 +29,7 @@ import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -44,9 +45,9 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE,
     			1, 1, "0", GlimmpseWeb.constants.sigmaCovariateMatrixName()); 
     
-    public SigmaCovariateMatrixPanel()
+    public SigmaCovariateMatrixPanel(WizardContext context)
     {
-		super("Sigma G");
+		super(context, "Sigma G");
 		// regardless of input, forward navigation is allowed from this panel
 		complete = true;
 		skip = true;

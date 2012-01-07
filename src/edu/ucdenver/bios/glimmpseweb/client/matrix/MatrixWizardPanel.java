@@ -18,39 +18,46 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.SolvingForPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.TypeIErrorPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 public class MatrixWizardPanel extends Composite
 {
+	// create a study design context
+	protected StudyDesignContext context = new StudyDesignContext();
 	// content panels 
-	protected IntroPanel introPanel = new IntroPanel("Intro", GlimmpseWeb.constants.matrixIntroTitle(),
+	protected IntroPanel introPanel = new IntroPanel(context, 
+			"Intro", GlimmpseWeb.constants.matrixIntroTitle(),
 			GlimmpseWeb.constants.matrixIntroDescription());
-	protected SolvingForPanel solvingForPanel = new SolvingForPanel("matrix");
-	protected PowerPanel powerPanel = new PowerPanel();
-	protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel();
-    protected DesignPanel designPanel = new DesignPanel();
-	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel();
-	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel();
+	protected SolvingForPanel solvingForPanel = new SolvingForPanel(context, "matrix");
+	protected PowerPanel powerPanel = new PowerPanel(context);
+	protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel(context);
+    protected DesignPanel designPanel = new DesignPanel(context);
+	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
+	protected PerGroupSampleSizePanel perGroupSampleSizePanel = 
+		new PerGroupSampleSizePanel(context);
 	
-    protected BetweenSubjectContrastPanel betweenContrastPanel = new BetweenSubjectContrastPanel();
-    protected WithinSubjectContrastPanel withinContrastPanel = new WithinSubjectContrastPanel();
+    protected BetweenSubjectContrastPanel betweenContrastPanel = 
+    	new BetweenSubjectContrastPanel(context);
+    protected WithinSubjectContrastPanel withinContrastPanel = 
+    	new WithinSubjectContrastPanel(context);
 
-    protected BetaPanel betaPanel = new BetaPanel();
-    protected BetaScalePanel betaScalePanel = new BetaScalePanel();
-    protected ThetaPanel thetaPanel = new ThetaPanel();
+    protected BetaPanel betaPanel = new BetaPanel(context);
+    protected BetaScalePanel betaScalePanel = new BetaScalePanel(context);
+    protected ThetaPanel thetaPanel = new ThetaPanel(context);
     
-    protected SigmaErrorMatrixPanel sigmaErrorPanel = new SigmaErrorMatrixPanel();
-    protected SigmaOutcomesMatrixPanel sigmaOutcomesPanel = new SigmaOutcomesMatrixPanel();
+    protected SigmaErrorMatrixPanel sigmaErrorPanel = new SigmaErrorMatrixPanel(context);
+    protected SigmaOutcomesMatrixPanel sigmaOutcomesPanel = new SigmaOutcomesMatrixPanel(context);
     protected SigmaOutcomeCovariateMatrixPanel sigmaOutcomeCovariatePanel = 
-    	new SigmaOutcomeCovariateMatrixPanel();
-    protected SigmaCovariateMatrixPanel sigmaCovariatePanel = new SigmaCovariateMatrixPanel();
-    protected SigmaScalePanel sigmaScalePanel = new SigmaScalePanel();
+    	new SigmaOutcomeCovariateMatrixPanel(context);
+    protected SigmaCovariateMatrixPanel sigmaCovariatePanel = new SigmaCovariateMatrixPanel(context);
+    protected SigmaScalePanel sigmaScalePanel = new SigmaScalePanel(context);
 	// options
-	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel("matrix");
+	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "matrix");
 	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
-		new OptionsPowerMethodsPanel("matrix");
-	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel("matrix");
+		new OptionsPowerMethodsPanel(context, "matrix");
+	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(context, "matrix");
 	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
-		new OptionsConfidenceIntervalsPanel("matrix");
+		new OptionsConfidenceIntervalsPanel(context, "matrix");
 	// results
 //	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
@@ -86,7 +93,7 @@ public class MatrixWizardPanel extends Composite
 		// set up the wizard for Guided Mode
 		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
 		wizardPanel = new WizardPanel(groups);
-		wizardPanel.setVisiblePanel(typeIErrorPanel);
+		wizardPanel.setVisiblePanel(introPanel);
 		// layout the overall panel
 		panel.add(wizardPanel);
 		// set style

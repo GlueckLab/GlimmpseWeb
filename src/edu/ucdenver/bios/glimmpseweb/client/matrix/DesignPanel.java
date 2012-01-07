@@ -30,6 +30,7 @@ import com.google.gwt.xml.client.Node;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -43,9 +44,9 @@ public class DesignPanel extends WizardStepPanel
     
    	boolean hasCovariate = false;
 
-	public DesignPanel()
+	public DesignPanel(WizardContext context)
 	{
-		super("Design Essence Matrix");
+		super(context, "Design Essence Matrix");
 		complete = true;
 		VerticalPanel panel = new VerticalPanel();
 		

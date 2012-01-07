@@ -33,6 +33,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -48,9 +49,9 @@ implements ListValidator
     protected ListEntryPanel sigmaScaleListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.sigmaScaleTableColumn(), this);
 
-	public SigmaScalePanel()
+	public SigmaScalePanel(WizardContext context)
 	{
-		super("Sigma Scale");
+		super(context, "Sigma Scale");
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.sigmaScaleTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaScaleDescription());

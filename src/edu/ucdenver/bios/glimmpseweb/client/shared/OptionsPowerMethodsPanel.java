@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 /**
@@ -86,9 +87,9 @@ implements ClickHandler
      * Constructor
      * @param mode mode identifier (needed for unique widget identifiers)
      */
-    public OptionsPowerMethodsPanel(String mode)
+    public OptionsPowerMethodsPanel(WizardContext context, String mode)
 	{
-		super("Power Method");
+		super(context, "Power Method");
 		skip = true;
 		VerticalPanel panel = new VerticalPanel();
 
