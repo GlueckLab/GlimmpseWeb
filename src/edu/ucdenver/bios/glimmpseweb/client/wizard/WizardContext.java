@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * @author Sarah Kreidler
  *
  */
-public class WizardContext
+public abstract class WizardContext
 {
 	// listeners for changes to the context object
 	ArrayList<WizardContextListener> contextListeners = new ArrayList<WizardContextListener>();
@@ -49,10 +49,24 @@ public class WizardContext
 	/**
 	 * Notify all listeners of a context change
 	 */
-	private void notifyChanged()
+	protected void notifyChanged(WizardContextChangeEvent e)
 	{
 		for(WizardContextListener listener: contextListeners)
-			listener.onChange();
+		{
+			listener.onChange(e);
+		}
+	}
+	
+	/**
+	 * Notify all listeners that the context has been loaded from
+	 * a file or database
+	 */
+	protected void notifyLoad()
+	{
+		for(WizardContextListener listener: contextListeners)
+		{
+			listener.onLoad();
+		}
 	}
 	
 	
