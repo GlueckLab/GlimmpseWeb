@@ -1,65 +1,80 @@
+/*
+ * Web Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.List;
 
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-
-public class WizardPanel extends Composite implements NavigationListener
+/**
+ * Generic wizard panel including a left navigation bar,
+ * panel display area, and toolbar
+ * 
+ * @author Sarah Kreidler
+ *
+ */
+public class WizardPanel extends Composite 
+implements WizardActionListener, WizardContextListener
 {
-	// style for tools
-	protected static final String STYLE_TOOL_PANEL = "wizardToolsPanel";
-	protected static final String STYLE_TOOL_BUTTON = "wizardToolsPanelButton";
-	protected static final String STYLE_CONTENT_PANEL = "wizardContentPanel";
-	protected static final String STYLE_SAVE = "save";
-	protected static final String STYLE_CANCEL = "cancel";
-	protected static final String STYLE_HELP = "help";
-	// uri for help manual
-	protected static final String HELP_URL = "/help/manual.pdf";
-
-	
+	// style for the main display area
+	public static final String STYLE_WIZARD_PANEL = "wizardPanel";
+	public static final String STYLE_WIZARD_CONTENT_PANEL = "wizardContentPanel";
 	// main panel
 	protected HorizontalPanel panel = new HorizontalPanel();
 	// left navigation / "steps left" panel
     protected WizardLeftNavigationPanel leftNavPanel;
-    // nav panel
-    protected NextPreviousNavigationPanel navPanel = new NextPreviousNavigationPanel();
-    // run panel
-    protected FinishPanel finishPanel = new FinishPanel();
-	// index of currently visible step
-    protected int currentStep = 0;  
+    // toolbar panel
+    protected WizardToolBarPanel toolbarPanel = new WizardToolBarPanel();
+	// currently visible panel
+    protected WizardStepPanel currentStep = null;  
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
     
-	/**
-	 * Create an empty matrix panel
-	 */
+    /**
+     * Create a wizard panel with the specified groups of panels
+     * 
+     * @param wizardPanelGroups list of panel groups to display in the wizard
+     */
 	public WizardPanel(List<WizardStepPanelGroup> wizardPanelGroups)
 	{		
+		// create overall panel layout containers
 		VerticalPanel contentPanel = new VerticalPanel();
 		VerticalPanel leftPanel = new VerticalPanel();
 		
-		// layout the wizard panel
-		//contentPanel.add(toolBar);
+		// layout the left navigation
 		leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
 		leftPanel.add(leftNavPanel);
-		leftPanel.add(createToolLinks());
+		// layout the display area and bottom toolbar
 		contentPanel.add(wizardDeck);
-		contentPanel.add(navPanel);
+		contentPanel.add(toolbarPanel);
+
+		// layout the overall  wizard panel
 		panel.add(leftPanel);		
 		panel.add(contentPanel);
 		
-		// add the panels to the deck
+		// add the panels to the display deck
 		for(WizardStepPanelGroup panelGroup: wizardPanelGroups)
 		{
 			for(WizardStepPanel step: panelGroup.getPanelList())
@@ -68,214 +83,153 @@ public class WizardPanel extends Composite implements NavigationListener
 			}
 		}
 		
-		// add navigtion callbacks amongst subpanels
-		leftNavPanel.addNavigationListener(this);
-
+		// add callbacks for events from the navigation and toolbar subpanels
+		leftNavPanel.addActionListener(this);
+		toolbarPanel.addActionListener(this);
+		
 		// add style
-		contentPanel.setStyleName(STYLE_CONTENT_PANEL);
-		panel.setStyleName(STYLE_CONTENT_PANEL);
+		panel.setStyleName(STYLE_WIZARD_PANEL);
+		wizardDeck.setStyleName(STYLE_WIZARD_CONTENT_PANEL);
 
 		// initialize
 		initWidget(panel);
 	}
-	
-	public VerticalPanel createToolLinks()
-	{
-		VerticalPanel panel = new VerticalPanel();
-		
-		Button saveButton = new Button(GlimmpseWeb.constants.toolsSaveStudy(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-//				notifyOnSave();
-			}
-		});
-		
-		Button cancelButton = new Button(GlimmpseWeb.constants.toolsCancel(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-//				notifyOnCancel();
-			}
-		});
-		Button helpButton = new Button(GlimmpseWeb.constants.toolsHelp(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				openHelpManual();
-			}
-		});
-		panel.add(saveButton);
-		panel.add(helpButton);
-		panel.add(cancelButton);
-		
-		// add style
-		panel.setStyleName(STYLE_TOOL_PANEL);
-		saveButton.setStyleName(STYLE_TOOL_BUTTON);
-		saveButton.addStyleDependentName(STYLE_SAVE);
-		cancelButton.setStyleName(STYLE_TOOL_BUTTON);
-		cancelButton.addStyleDependentName(STYLE_CANCEL);
-		helpButton.setStyleName(STYLE_TOOL_BUTTON);
-		helpButton.addStyleDependentName(STYLE_HELP);
-		return panel;
-	}
-	
-//    /**
-//     * Call back when "next" navigation button is clicked
-//     * Does nothing if already at end of step list
-//     */
-//    public void onNext()
-//    {
-//    	if (currentStep < wizardDeck.getWidgetCount()-1)
-//    	{
-//    		exitStep();
-//			// find the next panel which is not skipped, and is not a separator panel
-//    		WizardStepPanel w;
-//    		do
-//    		{
-//    			currentStep++;
-//    			w = ((WizardStepPanel) wizardDeck.getWidget(currentStep));
-//    			if (w.isSeparator()) stepsLeftPanel.onNext();
-//    		} 
-//    		while ((w.isSkipped() || w.isSeparator()) && 
-//    				currentStep < wizardDeck.getWidgetCount()-1);
-//    		enterStep();
-//    	}
-//    }
-//    
-//    /**
-//     * Call back when "previous" navigation button is clicked
-//     * Does nothing if already at start of step list
-//     */
-//    public void onPrevious()
-//    {
-//    	if (currentStep > 0)
-//    	{
-//    		exitStep();
-//			// find the next panel which is not skipped, and is not a separator panel
-//    		WizardStepPanel w;
-//    		do
-//    		{
-//    			currentStep--;
-//    			w = ((WizardStepPanel) wizardDeck.getWidget(currentStep));
-//    			if (w.isSeparator()) stepsLeftPanel.onPrevious();
-//    		} 
-//    		while ((w.isSkipped() || w.isSeparator()) && 
-//    				currentStep > 0);
-//    		enterStep();
-//    	}
-//    }
-//	
-//    /**
-//     * Navigate to a specific step
-//     */
-//    public void onStep(int stepIndex)
-//    {
-//    	if (stepIndex >= 0 && stepIndex < wizardDeck.getWidgetCount())
-//    	{
-//    		exitStep();
-//    		currentStep = stepIndex;
-//    		enterStep();
-//    	}
-//    }
-//    
-//    /**
-//     * Allow forward navigation when user input to the current step is complete.
-//     */
-//    public void onStepComplete()
-//    {
-//    	navPanel.setNext(true);
-//    }
-//    
-//    /**
-//     * Disallow forward navigation when user input to the current step is not complete.
-//     */
-//    public void onStepInProgress()
-//    {
-//    	navPanel.setNext(false);
-//    }
-//    
-//    /**
-//     * Clear data from all panels in the wizard 
-//     */
-//    public void reset()
-//    {
-//    	for(int i = 0; i < wizardDeck.getWidgetCount(); i++)
-//    	{
-//    		WizardStepPanel step = (WizardStepPanel) wizardDeck.getWidget(i);
-//    		step.reset();
-//    	}
-//    	stepsLeftPanel.reset();
-//    	onStep(0);
-//    }
-//
-//    /**
-//     * Call any exit functions as we leave the current step
-//     */
-//    private void exitStep()
-//    {
-//    	WizardStepPanel w = (WizardStepPanel) wizardDeck.getWidget(currentStep);
-//    	w.onExit();
-//    }
-//
-//    /**
-//     *  Enter the new step, calling any setup routines
-//     */
-//    private void enterStep()
-//    {
-//    	WizardStepPanel w = (WizardStepPanel) wizardDeck.getWidget(currentStep);
-//    	wizardDeck.showWidget(currentStep);
-//    	navPanel.setNext(w.isComplete());
-//    	w.onEnter();
-//    	navPanel.setPrevious(currentStep != 0);
-//    }
-//
-//	
-//
-//    
-//	/**
-//	 * Add a panel to the wizard within the specified subgroup.
-//	 * The panel will be added last to the subgroup
-//	 */
-//	public void addPanel(WizardStepPanel panel, String groupLabel)
-//	{
-//		wizardDeck.add(panel);
-//		leftNavPanel.addNavigationItem(groupLabel, panel);
-//	}
 
+	/**
+	 * Show the specified panel in the wizard
+	 * @param panel panel to display
+	 */
 	public void setVisiblePanel(WizardStepPanel panel)
 	{
+		if (currentStep != null) currentStep.onExit();
+		currentStep = panel;
+		currentStep.onEnter();
 		wizardDeck.showWidget(wizardDeck.getWidgetIndex(panel));
+		leftNavPanel.showPanel(panel);
 	}
-	
-    /**
-     * Open the help manual in a new tab/window
-     */
-    public void openHelpManual()
-    {
-		// open manual
-		Window.open(HELP_URL, "_blank", null);
-    }
 
+	/**
+	 * Move to the next panel in the deck when a "next" event
+	 * is received
+	 */
 	@Override
 	public void onNext()
 	{
-		// TODO Auto-generated method stub
-		
+		// exit the currently displayed step
+		int index = wizardDeck.getWidgetIndex(currentStep);
+		currentStep.onExit();
+		// display the next non-skipped panel in the deck
+		if (index < wizardDeck.getWidgetCount()-1)
+		{
+			do 
+			{
+				index++;
+				currentStep = (WizardStepPanel) wizardDeck.getWidget(index);
+			} 
+			while (currentStep.skip && index < wizardDeck.getWidgetCount());
+			
+			wizardDeck.showWidget(index);
+			leftNavPanel.showPanel(currentStep);
+		}	
 	}
 
+	/**
+	 * Move to the previous panel in the deck when a "previous" event
+	 * is received
+	 */
 	@Override
 	public void onPrevious()
 	{
+		int index = wizardDeck.getWidgetIndex(currentStep);
+		currentStep.onExit();
+		if (index > 0)
+		{
+			do 
+			{
+				index--;
+				currentStep = (WizardStepPanel) wizardDeck.getWidget(index);
+			} 
+			while (currentStep.skip && index > 0);
+			
+			wizardDeck.showWidget(index);
+			leftNavPanel.showPanel(currentStep);
+		}	
+	}
+
+	/**
+	 * Show the specified panel when the link is clicked in 
+	 * the left navigation bar
+	 * 
+	 * @param panel panel to display
+	 */
+	@Override
+	public void onPanel(WizardStepPanel panel)
+	{
+		// exit the currently displayed step
+		currentStep.onExit();
+		// show the new step
+		currentStep = panel;
+		wizardDeck.showWidget(wizardDeck.getWidgetIndex(panel));		
+	}
+
+	/**
+	 * Finish the wizard action
+	 */
+	@Override
+	public void onFinish()
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
+	/**
+	 * Display help information
+	 */
 	@Override
-	public void onPanel(WizardStepPanel panel)
+	public void onHelp()
 	{
 		// TODO Auto-generated method stub
-		setVisiblePanel(panel);
+		
+	}
+
+	/**
+	 * Save the user input
+	 */
+	@Override
+	public void onSave()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Cancel the current input
+	 */
+	@Override
+	public void onCancel()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Respond to a change in the wizard context
+	 */
+	@Override
+	public void onChange(WizardContextChangeEvent e)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/**
+	 * Fill the wizard context when loaded from a file or database
+	 */
+	@Override
+	public void onLoad()
+	{
+		// TODO Auto-generated method stub
+		
 	}
     
 }
