@@ -23,6 +23,7 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -51,6 +52,8 @@ implements WizardActionListener, WizardContextListener
     protected WizardStepPanel currentStep = null;  
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
+    // default help URL
+    protected String helpURL = "help/manual.pdf";
     
     /**
      * Create a wizard panel with the specified groups of panels
@@ -182,14 +185,15 @@ implements WizardActionListener, WizardContextListener
 		
 	}
 
-	/**
-	 * Display help information
-	 */
+    /**
+     * Open the help manual in a new tab/window when
+     * the toolbar help button is clicked.
+     */
 	@Override
 	public void onHelp()
 	{
-		// TODO Auto-generated method stub
-		
+		// open manual
+		Window.open(helpURL, "_blank", null);
 	}
 
 	/**
