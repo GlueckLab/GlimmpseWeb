@@ -7,7 +7,8 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.Table;
 
-import edu.ucdenver.bios.glimmpseweb.client.wizard.GuidedWizardPanel;
+import edu.ucdenver.bios.glimmpseweb.client.guided.GuidedWizardPanel;
+import edu.ucdenver.bios.glimmpseweb.client.matrix.MatrixWizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
 
 /**
@@ -38,7 +39,7 @@ public class GlimmpseWeb implements EntryPoint
 		RootPanel glimmpseWizard = RootPanel.get("glimmpseWizard");
 		if (glimmpseWizard != null)
 		{
-			glimmpseWizard.add(new GuidedWizardPanel());
+			glimmpseWizard.add(new MatrixWizardPanel());
 			glimmpseWizard.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
 		}
 		// add the footer

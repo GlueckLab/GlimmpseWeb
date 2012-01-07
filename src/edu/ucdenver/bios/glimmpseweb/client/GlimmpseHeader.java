@@ -44,18 +44,17 @@ public class GlimmpseHeader extends Composite
 		
 		// content widgets for title bar
 		final Image logo = new Image();
-		logo.setUrl("images/glimmpse.png");
+		logo.setUrl("images/logos.png");
 		final HTML name = new HTML("GLIMMPSE");
 		final HTML description = new HTML("Power and Sample Size for the<br/>General Linear Multivariate Model");
-		final Hyperlink ownerLink =
-			new Hyperlink("Colorado School of Public Health, Department of Biostatistics &amp; Informatics", 
-				true, "http://www.cudenver.edu/Academics/Colleges/PublicHealth");
+
 		// content widgets for navigation bar
-		final Hyperlink homeLink = new Hyperlink("Home", true, "index.html");
-		final Hyperlink aboutLink = new Hyperlink("About Us", true, "about.html");
-		final Hyperlink pubsLink = new Hyperlink("Related Publications", true, "publications.html");
-		final Hyperlink docsLink = new Hyperlink("Documentation", true, "documentation.html");
-		final Hyperlink downloadLink = new Hyperlink("Download", true, "download.html");
+		final Hyperlink homeLink = new Hyperlink("Home", true, "http://samplesizeshop.com/");
+		final Hyperlink aboutLink = new Hyperlink("Principle Investigators", true, "http://samplesizeshop.com/principle-investigators/");
+		final Hyperlink tutorialsLink = new Hyperlink("Tutorials", true, "http://samplesizeshop.com/tutorials/");
+		final Hyperlink pubsLink = new Hyperlink("Publications", true, "http://samplesizeshop.com/publications/");
+		final Hyperlink docsLink = new Hyperlink("Documentation", true, "http://samplesizeshop.com/documentation/");
+		final Hyperlink downloadLink = new Hyperlink("Download", true, "http://samplesizeshop.com/software-downloads/");
 		
 		// build the title bar
 		titleBar.add(logo);
@@ -63,13 +62,14 @@ public class GlimmpseHeader extends Composite
 		titleBar.add(description);
 		// build the nav bar
 		navBar.add(homeLink);
+		navBar.add(docsLink);
+		navBar.add(tutorialsLink);
+		navBar.add(downloadLink);
 		navBar.add(aboutLink);
 		navBar.add(pubsLink);
-		navBar.add(docsLink);
-		navBar.add(downloadLink);
+
 		// layout the panel
 		panel.add(titleBar);
-		panel.add(ownerLink);
 		panel.add(navBar);
 		
 		// set style
@@ -78,13 +78,13 @@ public class GlimmpseHeader extends Composite
 		logo.setStyleName(STYLE_LOGO);
 		name.setStyleName(STYLE_NAME);
 		description.setStyleName(STYLE_DESCRIPTION);
-		ownerLink.setStyleName(STYLE_OWNER);
 		navBar.setStyleName(STYLE_NAV_BAR);
 		homeLink.setStyleName(STYLE_NAV_BAR_LINK);
 		aboutLink.setStyleName(STYLE_NAV_BAR_LINK);
 		pubsLink.setStyleName(STYLE_NAV_BAR_LINK);
 		docsLink.setStyleName(STYLE_NAV_BAR_LINK);
 		downloadLink.setStyleName(STYLE_NAV_BAR_LINK);
+		tutorialsLink.setStyleName(STYLE_NAV_BAR_LINK);
 		initWidget(panel);
 	}
 }

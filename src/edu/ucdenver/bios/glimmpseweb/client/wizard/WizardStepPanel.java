@@ -5,7 +5,9 @@ import com.google.gwt.user.client.ui.Composite;
 //import edu.cudenver.bios.glimmpse.client.listener.StepStatusListener;
 
 public abstract class WizardStepPanel extends Composite
+implements WizardContextListener
 {
+	protected WizardContext context = null;
 	protected boolean skip = false;
 	protected boolean complete = false;
 	protected String name = "name";
@@ -13,6 +15,13 @@ public abstract class WizardStepPanel extends Composite
 	public WizardStepPanel(String name)
 	{
 		this.name = name;
+	}
+	
+	public WizardStepPanel(String name, WizardContext context)
+	{
+		this.name = name;
+		this.context = context;
+		this.context.addContextListener(this);
 	}
 	
 	abstract public void reset();
@@ -47,9 +56,19 @@ public abstract class WizardStepPanel extends Composite
      */
     public void onExit() {}
     
+    /**
+     * Returns the name of the panel
+     * @return panel name
+     */
     public String getName()
     {
     	return name;
     }
+   
+	/**
+	 * Respond to a change in the context object
+	 */
+    @Override
+	public void onChange() {}
     
 }

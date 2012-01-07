@@ -49,7 +49,8 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_CONTENT = "wizardStepContent";
     public static final String STYLE_WIZARD_PARAGRAPH = "wizardStepParagraph";
     public static final String STYLE_WIZARD_INDENTED_CONTENT = "wizardStepIndentedContent";
-
+    public static final String STYLE_WIZARD_TOOL_PANEL = "wizardToolsPanel";
+    public static final String STYLE_WIZARD_TOOL_BUTTON = "wizardToolsPanelButton";
     public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
     public static final String STYLE_WIZARD_STEP_LIST_BUTTON = "wizardStepListButton";
     public static final String STYLE_WIZARD_STEP_LIST_TEXTBOX = "wizardStepListTextBox";
@@ -189,6 +190,10 @@ public interface GlimmpseConstants extends Constants
     
     // toolbar separator keyword
     public static final String TOOLBAR_SEPARATOR = "_SEPARATOR_";
+    
+    // footer text
+    public String fundingStatement();
+    
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
@@ -237,6 +242,7 @@ public interface GlimmpseConstants extends Constants
     public String startTitle();
     public String startDescription();
     // "solving for" panel constants
+    public String solvingForLink();
     public String solvingForTitle();
     public String solvingForDescription();
     public String solvingForPowerLabel();

@@ -1,4 +1,4 @@
-package edu.ucdenver.bios.glimmpseweb.client.wizard;
+package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.shared.IntroPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.TypeIErrorPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
 
 public class GuidedWizardPanel extends Composite
 {
