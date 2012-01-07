@@ -199,6 +199,10 @@ public interface GlimmpseConstants extends Constants
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
+    public String buttonHelp();
+    public String buttonSave();
+    public String buttonCancel();
+    public String buttonFinish();
     // other buttons
     public String buttonDelete();
     public String buttonAdd();
