@@ -3,6 +3,7 @@ package edu.ucdenver.bios.glimmpseweb.context;
 import java.util.List;
 
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
 
@@ -20,10 +21,22 @@ public class StudyDesignContext extends WizardContext
 		return studyDesign.getAlphaList();
 	}
 
-	public void setAlphaList(List<Double> alphaList)
+	public void setAlphaList(WizardStepPanel panel, List<Double> alphaList)
 	{
 		studyDesign.setAlphaList(alphaList);
-		notifyChanged(new StudyDesignChangeEvent(StudyDesignChangeType.ALPHA_LIST));
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, StudyDesignChangeType.ALPHA_LIST));
+	}
+	
+	public List<Double> getPowerList()
+	{
+		return studyDesign.getPowerList();
+	}
+
+	public void setPowerList(WizardStepPanel panel, List<Double> powerList)
+	{
+		studyDesign.setPowerList(powerList);
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+				StudyDesignChangeType.POWER_LIST));
 	}
 
 	public SolutionType getSolutionType()
@@ -31,10 +44,10 @@ public class StudyDesignContext extends WizardContext
 		return studyDesign.getSolutionType();
 	}
 
-	public void setSolutionType(SolutionType solutionType)
+	public void setSolutionType(WizardStepPanel panel, SolutionType solutionType)
 	{
 		studyDesign.setSolutionType(solutionType);
-		notifyChanged(new StudyDesignChangeEvent(StudyDesignChangeType.SOLVING_FOR));
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, StudyDesignChangeType.SOLVING_FOR));
 	}
 
 	public boolean hasCovariate()

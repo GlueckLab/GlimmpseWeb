@@ -31,11 +31,11 @@ public interface WizardContextListener
 	/**
 	 * Respond to a change in the context object
 	 */
-	public void onChange(WizardContextChangeEvent e);
+	public void onWizardContextChange(WizardContextChangeEvent e);
 	
 	/**
 	 * Respond to initial load of the context from the database
 	 * or a file upload
 	 */
-	public void onLoad();
+	public void onWizardContextLoad();
 }

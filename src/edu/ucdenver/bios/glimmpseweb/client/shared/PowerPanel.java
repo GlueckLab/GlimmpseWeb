@@ -21,10 +21,11 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import com.google.gwt.user.client.Window;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -34,7 +35,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
@@ -51,6 +51,9 @@ implements ListValidator
 	// list of nominal power values.  Only displayed when solving for effect size or sample size
     protected ListEntryPanel nominalPowerListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.solvingForNominalPowerTableColumn(), this);
+    
+    // avoids reallocating this everytime we exit
+    ArrayList<Double> powerList = new ArrayList<Double>();
     
 	public PowerPanel(WizardContext context)
 	{
@@ -103,21 +106,10 @@ implements ListValidator
     	else
     		notifyInProgress();
     }
-    
-    /**
-     * Return an XML representation of the nominal power list, or null if 
-     * solving for power
-     * 
-     * @return XML representation of the nominal power list
-     */
-    public String toXML()
-    {
-    	if (skip)
-    		return "";
-    	else
-    		return nominalPowerListPanel.toXML(GlimmpseConstants.TAG_POWER_LIST);
-    }
 	
+    /**
+     * Clear the power panel.
+     */
 	@Override
 	public void reset()
 	{
@@ -126,13 +118,58 @@ implements ListValidator
     	skip = true;
 	}
 
+	/**
+	 * Respond to context changes.
+	 */
 	@Override
-	public void onChange(WizardContextChangeEvent e)
+	public void onWizardContextChange(WizardContextChangeEvent e)
 	{
-		if (((StudyDesignChangeEvent) e).getType() == StudyDesignChangeType.SOLVING_FOR)
+		StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+		switch (changeEvent.getType())
 		{
+		case SOLVING_FOR:
 			skip = (studyDesignContext.getSolutionType() == SolutionType.POWER);
-			Window.alert("skip?" + skip);
+			break;
+		case POWER_LIST:
+			if (this != changeEvent.getSource())
+			{
+				loadFromContext();
+			}
+			break;
 		}
 	}
+	
+	/**
+	 * Respond to context load events
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+		loadFromContext();
+	}
+	
+    /**
+     * Load the power panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+    	List<Double> contextPowerList = studyDesignContext.getPowerList();
+    	nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
+    }
+    
+    /**
+     * Notify context of any changes as we exit the screen
+     */
+    @Override
+    public void onExit()
+    {
+    	List<String> stringValues = nominalPowerListPanel.getValues();
+    	powerList.clear();
+    	for(String value: stringValues)
+    	{
+    		powerList.add(Double.parseDouble(value));
+    	}
+    	// save to context object
+    	studyDesignContext.setPowerList(this, powerList);
+    }
 }

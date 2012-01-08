@@ -30,6 +30,27 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
  */
 public abstract class WizardContextChangeEvent
 {
+	// panel that initiated the context change
+	private WizardStepPanel source = null;
+	
+	/**
+	 * Create a context change event from the specified source panel
+	 * @param source
+	 */
+	public WizardContextChangeEvent(WizardStepPanel source)
+	{
+		this.source = source;
+	}
+
+	/**
+	 * Get the panel that initiated the change
+	 * @return panel which changed the context
+	 */
+	public WizardStepPanel getSource()
+	{
+		return source;
+	}
+	
 	
 }
 

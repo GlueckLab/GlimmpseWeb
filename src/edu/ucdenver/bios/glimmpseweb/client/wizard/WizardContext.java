@@ -49,11 +49,11 @@ public abstract class WizardContext
 	/**
 	 * Notify all listeners of a context change
 	 */
-	protected void notifyChanged(WizardContextChangeEvent e)
+	protected void notifyWizardContextChanged(WizardContextChangeEvent e)
 	{
 		for(WizardContextListener listener: contextListeners)
 		{
-			listener.onChange(e);
+			listener.onWizardContextChange(e);
 		}
 	}
 	
@@ -61,11 +61,11 @@ public abstract class WizardContext
 	 * Notify all listeners that the context has been loaded from
 	 * a file or database
 	 */
-	protected void notifyLoad()
+	protected void notifyWizardContextLoad()
 	{
 		for(WizardContextListener listener: contextListeners)
 		{
-			listener.onLoad();
+			listener.onWizardContextLoad();
 		}
 	}
 	

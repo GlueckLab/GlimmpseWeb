@@ -21,6 +21,7 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -30,7 +31,11 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Panel for entering type I error values
@@ -41,10 +46,14 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 public class TypeIErrorPanel extends WizardStepPanel
 implements ListValidator
 {
+	// context object
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     // list of alpha values
     protected ListEntryPanel alphaListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.alphaTableColumn() , this);
-
+    // caches the entered values as doubles
+    ArrayList<Double> alphaList = new ArrayList<Double>();
+    
     /**
      * Create an empty type I error panel
      */
@@ -122,37 +131,51 @@ implements ListValidator
     	onValidRowCount(alphaListPanel.getValidRowCount());
     }
 
-//    /**
-//     * Load the alpha panel from an "alphaList" Dom node
-//     * 
-//     * @param node "alphalist" node
-//     */
-//    @Override
-//    public void loadFromNode(Node node)
-//    {
-//    	if (GlimmpseConstants.TAG_ALPHA_LIST.equalsIgnoreCase(node.getNodeName()))
-//    	{
-//    		alphaListPanel.loadFromNode(node);
-//        	onValidRowCount(alphaListPanel.getValidRowCount());
-//    	}
-//    }
+    /**
+     * Load the alpha panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+    	List<Double> contextAlphaList = studyDesignContext.getAlphaList();
+    	alphaListPanel.loadFromDoubleList(contextAlphaList, true);
+    }
+    
+	/**
+	 * Respond to a change in the context object
+	 */
+    @Override
+	public void onWizardContextChange(WizardContextChangeEvent e) 
+    {
+    	if (((StudyDesignChangeEvent) e).getType() ==
+    		StudyDesignChangeType.ALPHA_LIST &&
+    		this != e.getSource())
+    	{
+        	loadFromContext();
+    	}
+    };
     
     /**
-     * Fill the alpha list from the context object
+     * Response to a context load event
      */
     @Override
-    public void onEnter()
+	public void onWizardContextLoad() 
     {
-    	// TODO: read from context object
+    	loadFromContext();
     }
     
     /**
-     * Notify alpha listeners as we exit the screen
+     * Notify context of any changes as we exit the screen
      */
     @Override
     public void onExit()
     {
-    	List<String> values = alphaListPanel.getValues();
-    	// TODO: save to context object
+    	List<String> stringValues = alphaListPanel.getValues();
+    	alphaList.clear();
+    	for(String value: stringValues)
+    	{
+    		alphaList.add(Double.parseDouble(value));
+    	}
+    	// save to context object
+    	studyDesignContext.setAlphaList(this, alphaList);
     }
 }

@@ -220,7 +220,7 @@ implements WizardActionListener, WizardContextListener
 	 * Respond to a change in the wizard context
 	 */
 	@Override
-	public void onChange(WizardContextChangeEvent e)
+	public void onWizardContextChange(WizardContextChangeEvent e)
 	{
 		// TODO Auto-generated method stub
 		
@@ -230,7 +230,7 @@ implements WizardActionListener, WizardContextListener
 	 * Fill the wizard context when loaded from a file or database
 	 */
 	@Override
-	public void onLoad()
+	public void onWizardContextLoad()
 	{
 		// TODO Auto-generated method stub
 		

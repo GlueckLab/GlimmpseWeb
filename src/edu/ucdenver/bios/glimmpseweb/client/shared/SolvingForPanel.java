@@ -189,11 +189,11 @@ implements ClickHandler
     {
 		if (solvingForPowerRadioButton.getValue())
 		{
-	    	((StudyDesignContext) context).setSolutionType(SolutionType.POWER);
+	    	((StudyDesignContext) context).setSolutionType(this, SolutionType.POWER);
 		}
 		else if (solvingForSampleSizeRadioButton.getValue())
 		{
-	    	((StudyDesignContext) context).setSolutionType(SolutionType.TOTAL_N);
+	    	((StudyDesignContext) context).setSolutionType(this, SolutionType.TOTAL_N);
 		}
 
     }

@@ -24,6 +24,7 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -35,11 +36,9 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 
 /**
@@ -67,6 +66,7 @@ public class ListEntryPanel extends Composite
     protected int validRowCount = 0;
     // optional maximum number of entries for list
     protected int maxRows = -1;
+    
     /**
      * Construct a new list entry panel
      * @param columnName title/label for list entry items
@@ -257,21 +257,49 @@ public class ListEntryPanel extends Composite
     }
     
     /**
-     * Load the list from an XML representation of the list values.
+     * Load the list of doubles into the list box widget.
      * 
-     * @param node DOM node
+     * @param valueList list of doubles
      */
-    public void loadFromNode(Node node)
+    public void loadFromDoubleList(List<Double> valueList, boolean clear)
     {
-		NodeList children = node.getChildNodes();
-		for(int i = 0; i < children.getLength(); i++)
+    	if (clear) reset();
+		for(Double value: valueList)
 		{
-			Node child = children.item(i);
-			Node valueNode = child.getFirstChild();
-			if (valueNode != null)
-			{
-				add(valueNode.getNodeValue());
-			}
+			add(Double.toString(value));
 		}
+		validator.onValidRowCount(listBox.getItemCount());
     }
+    
+    /**
+     * Load the list of integers into the list box widget.
+     * 
+     * @param valueList list of integers
+     */
+    public void loadFromIntegerList(List<Integer> valueList, boolean clear)
+    {
+    	if (clear) reset();
+		for(Integer value: valueList)
+		{
+			add(Integer.toString(value));
+		}
+		validator.onValidRowCount(listBox.getItemCount());
+    }
+    
+    /**
+     * Load the list of String values into the list box widget.
+     * 
+     * @param valueList list of Strings
+     */
+    public void loadFromStringList(List<String> valueList, boolean clear)
+    {
+    	if (clear) reset();
+		for(String value: valueList)
+		{
+			add(value);
+		}
+		validator.onValidRowCount(listBox.getItemCount());
+    }
+    
+    
 }

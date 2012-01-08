@@ -1,6 +1,7 @@
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 public class StudyDesignChangeEvent extends WizardContextChangeEvent
 {
@@ -9,6 +10,7 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
 		SOLVING_FOR,
 		ALPHA_LIST,
 		TEST_LIST,
+		POWER_LIST,
 		DESIGN_ESSENCE_MATRIX,
 		BETWEEN_CONTRAST_MATRIX,
 		WITHIN_CONTRAST_MATRIX,
@@ -24,8 +26,9 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
 	
 	protected StudyDesignChangeType type;
 	
-	public StudyDesignChangeEvent(StudyDesignChangeType type)
+	public StudyDesignChangeEvent(WizardStepPanel panel, StudyDesignChangeType type)
 	{
+		super(panel);
 		this.type = type;
 	}
 

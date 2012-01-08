@@ -61,30 +61,7 @@ public class MatrixWizardPanel extends Composite
 	// results
 //	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
     // list of panels for the wizard
-//	WizardStepPanel[][] panelList = {
-
-
-//			{thetaPanel},
-//			{sigmaErrorPanel, sigmaOutcomesPanel, sigmaCovariatePanel, 
-//				sigmaOutcomeCovariatePanel, sigmaScalePanel},
-//			{optionsTestsPanel, optionsPowerMethodsPanel, optionsCIPanel, optionsDisplayPanel},
-//			{resultsPanel}
-//	};
-	
-	String[] groupLabels = {
-		GlimmpseWeb.constants.stepsLeftStart(),
-		GlimmpseWeb.constants.stepsLeftAlpha(),
-		GlimmpseWeb.constants.stepsLeftDesign(),
-		GlimmpseWeb.constants.stepsLeftBeta(),
-		GlimmpseWeb.constants.stepsLeftContrast(),
-		GlimmpseWeb.constants.stepsLeftTheta(),
-		GlimmpseWeb.constants.stepsLeftVariability(),
-		GlimmpseWeb.constants.stepsLeftOptions(),
-		GlimmpseWeb.constants.stepsLeftResults()
-	};
-
-
-	
+	// the wizard panel widget
 	protected WizardPanel wizardPanel;
 	
 	public MatrixWizardPanel()
@@ -97,7 +74,7 @@ public class MatrixWizardPanel extends Composite
 		// layout the overall panel
 		panel.add(wizardPanel);
 		// set style
-		
+
 		// initialize
 		initWidget(panel);
 	}
