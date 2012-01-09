@@ -45,9 +45,12 @@ public class StudyDesign
 	private List<Double> powerList;
 	// list of alpha values
 	private List<Double> alphaList;
+	// list of beta scale values
+	private List<Double> betaScaleList;
+	// list of sigma scale values
+	private List<Double> sigmaScaleList;
 	// list of statistical tests values
 	private List<String> testList;
-	
 	
 	/*** Getters and Setters ***/
 	
@@ -190,6 +193,36 @@ public class StudyDesign
 	public void setTestList(List<String> testList)
 	{
 		this.testList = testList;
+	}
+
+	public boolean isHasCovariate()
+	{
+		return hasCovariate;
+	}
+
+	public void setHasCovariate(boolean hasCovariate)
+	{
+		this.hasCovariate = hasCovariate;
+	}
+
+	public List<Double> getBetaScaleList()
+	{
+		return betaScaleList;
+	}
+
+	public void setBetaScaleList(List<Double> betaScaleList)
+	{
+		this.betaScaleList = betaScaleList;
+	}
+
+	public List<Double> getSigmaScaleList()
+	{
+		return sigmaScaleList;
+	}
+
+	public void setSigmaScaleList(List<Double> sigmaScaleList)
+	{
+		this.sigmaScaleList = sigmaScaleList;
 	}
 	
 	

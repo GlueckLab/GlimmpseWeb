@@ -31,13 +31,21 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.FixedRandomMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix mode panel which allows entry of the design essence matrix
  */
 public class DesignPanel extends WizardStepPanel
 {    	
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN,
 			GlimmpseConstants.DEFAULT_N, 
 			GlimmpseConstants.DEFAULT_Q, "0", GlimmpseWeb.constants.matrixCategoricalEffectsLabel(),false);
@@ -92,5 +100,38 @@ public class DesignPanel extends WizardStepPanel
 		else
 			notifyInProgress();
 	}
+	
+    /**
+     * Resize the beta matrix when the design matrix dimensions change
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+
+    	}   	
+    }
+    
+    /**
+     * Load the beta matrix information from the context
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+    	NamedMatrix designEssence = studyDesignContext.getDesignEssence();
+    	essenceFixed.loadFromNamedMatrix(designEssence);
+    }
+
+    /**
+     * Update the beta matrix in the context as we leave the screen
+     */
+    @Override
+    public void onExit()
+    {
+    	studyDesignContext.setDesignEssence(this, 
+    					new NamedMatrix("designEssence", essenceFixed));
+    }
 
 }

@@ -37,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.GridTextBox;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 
 /**
  * Resizable matrix widget
@@ -402,30 +403,21 @@ public class ResizableMatrix extends Composite
 	}
 
         
-    public void loadFromDomNode(Node matrixNode)
+    public void loadFromNamedMatrix(NamedMatrix matrix)
     {
-        NamedNodeMap attrs = matrixNode.getAttributes();
-        Node rowNode = attrs.getNamedItem("rows");
-        Node colNode = attrs.getNamedItem("columns");
-        if (rowNode != null && colNode != null)
+        if (matrix != null)
         {           
-        	int rows = Integer.parseInt(rowNode.getNodeValue());
-        	int cols = Integer.parseInt(colNode.getNodeValue());
-        	matrixData.resize(rows, cols);
-        	rowTextBox.setText(rowNode.getNodeValue());
-        	columnTextBox.setText(colNode.getNodeValue());
+        	int rows = matrix.getRows();
+        	int columns = matrix.getColumns();
+        	matrixData.resize(rows, columns);
+        	rowTextBox.setText(Integer.toString(rows));
+        	columnTextBox.setText(Integer.toString(columns));
         	
-            NodeList rowNodeList = matrixNode.getChildNodes();
-            for(int r = 0; r < rowNodeList.getLength(); r++)
+            for(int r = 0; r < rows; r++)
             {
-                NodeList colNodeList = rowNodeList.item(r).getChildNodes();
-                for(int c = 0; c < colNodeList.getLength(); c++)
+                for(int c = 0; c <  columns; c++)
                 {
-                    Node colItem = colNodeList.item(c).getFirstChild();
-                    if (colItem != null) 
-                    {
-                    	setData(r,c,colItem.getNodeValue(),true);
-                    }
+                	setData(r,c,matrix.getCellData(r, c).toString(),true);
                 }
             }
         }

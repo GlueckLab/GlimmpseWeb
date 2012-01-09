@@ -1,5 +1,5 @@
 /*
- * User Interface for the GLIMMPSE Software System.  Allows
+ * Web Interface for the GLIMMPSE Software System.  Allows
  * users to perform power, sample size, and detectable difference
  * calculations. 
  * 
@@ -21,6 +21,7 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -32,7 +33,10 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
@@ -49,6 +53,9 @@ implements ListValidator
     protected ListEntryPanel betaScaleListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.betaScaleTableColumn(), this);
 
+    // caches the entered values as doubles
+    ArrayList<Double> betaScaleList = new ArrayList<Double>();
+    
 	public BetaScalePanel(WizardContext context)
 	{
 		super(context, GlimmpseWeb.constants.stepsLeftBeta());
@@ -110,12 +117,50 @@ implements ListValidator
 //	}
 	
     /**
-     * Notify alpha listeners as we exit the screen
+     * Notify context of new beta scale list as we leave the panel
      */
     @Override
     public void onExit()
     {
-    	List<String> values = betaScaleListPanel.getValues();
-    	//studyDesignContext.getStudyDesign().setBetaScaleList(values);
+    	List<String> stringValues = betaScaleListPanel.getValues();
+    	betaScaleList.clear();
+    	for(String value: stringValues)
+    	{
+    		betaScaleList.add(Double.parseDouble(value));
+    	}
+    	studyDesignContext.setBetaScaleList(this, betaScaleList);
+    }
+
+    /**
+     * Skip this panel if the user is solving for detectable difference
+     */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case SOLVING_FOR:
+    		skip = (SolutionType.DETECTABLE_DIFFERENCE == studyDesignContext.getSolutionType());
+    		break;
+    	}
+	}
+
+	/**
+	 * Load the beta scale list from the context
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+		loadFromContext();
+	}
+	
+    /**
+     * Load the beta scale panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
+    	betaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
     }
 }

@@ -23,27 +23,32 @@ package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix mode panel for entering the null hypothesis matrix (theta null)
  * @author Sarah Kreidler
  *
  */
-public class ThetaPanel extends WizardStepPanel
+public class ThetaNullPanel extends WizardStepPanel
 {   
-    
-    protected ResizableMatrix theta = 
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
+    protected ResizableMatrix thetaNull = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_THETA,
     			GlimmpseConstants.DEFAULT_A, 
     			GlimmpseConstants.DEFAULT_B, "0", GlimmpseWeb.constants.thetaNullMatrixName()); 
     
-	public ThetaPanel(WizardContext context)
+	public ThetaNullPanel(WizardContext context)
 	{
 		super(context, "Theta null");
 		// regardless of user input, this panel allows forward navigation
@@ -56,12 +61,12 @@ public class ThetaPanel extends WizardStepPanel
         HTML description = new HTML(GlimmpseWeb.constants.thetaNullDescription());
 
         // disabled resizing to ensure matrix conformance
-        theta.setEnabledColumnDimension(false);
-        theta.setEnabledRowDimension(false);
+        thetaNull.setEnabledColumnDimension(false);
+        thetaNull.setEnabledRowDimension(false);
         
         panel.add(header);
         panel.add(description);
-        panel.add(theta);
+        panel.add(thetaNull);
         
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -72,8 +77,44 @@ public class ThetaPanel extends WizardStepPanel
 	
 	public void reset()
 	{
-		theta.reset(GlimmpseConstants.DEFAULT_A, 
+		thetaNull.reset(GlimmpseConstants.DEFAULT_A, 
     			GlimmpseConstants.DEFAULT_B);
 	}
 
+	/**
+	 * Update the theta null matrix in the context as we leave the
+	 * panel
+	 */
+	@Override
+	public void onExit()
+	{
+    	studyDesignContext.setThetaNull(this, new NamedMatrix("thetaNull", thetaNull));
+	}
+	
+	/**
+	 * Respond to changes in the between and within participant 
+	 * contrasts to maintain conformance with theta null.
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case WITHIN_CONTRAST_MATRIX:
+    		int withinContrastColumns = studyDesignContext.getWithinParticipantContrast().getColumns();
+    		thetaNull.setColumnDimension(withinContrastColumns);
+    		break;
+    	case BETWEEN_CONTRAST_MATRIX:
+    		break;
+    	}
+	}
+
+	@Override
+	public void onWizardContextLoad()
+	{
+    	NamedMatrix contextThetaNull = studyDesignContext.getThetaNull();
+    	thetaNull.loadFromNamedMatrix(contextThetaNull);
+	}
+	
 }

@@ -23,12 +23,15 @@ package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix mode panel for entering covariance of the outcomes
@@ -40,6 +43,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class SigmaOutcomesMatrixPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected ResizableMatrix sigmaY = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME,
     			GlimmpseConstants.DEFAULT_P, 
@@ -80,14 +86,45 @@ public class SigmaOutcomesMatrixPanel extends WizardStepPanel
     			GlimmpseConstants.DEFAULT_P);
 		skip = true;
 	}
-
-
-	public String toXML()
+	
+	/**
+	 * Respond to a context change - resize the matrix to conform to the 
+	 * beta matrix
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
 	{
-		if (skip)
-			return "";
-		else
-			return sigmaY.toXML(GlimmpseConstants.MATRIX_SIGMA_OUTCOME);
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case COVARIATE:
+    		skip = !studyDesignContext.hasCovariate();
+    		break;
+    	case BETA_MATRIX:
+    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
+    		sigmaY.setRowDimension(betaColumns);
+    		break;
+    	}
 	}
+
+	/**
+	 * Load the sigma error matrix from the context
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+    	NamedMatrix contextSigmaY = studyDesignContext.getSigmaOutcomes();
+    	sigmaY.loadFromNamedMatrix(contextSigmaY);
+	}
+
+	/**
+	 * Set the sigma error matrix in the context
+	 */
+    @Override 
+    public void onExit()
+    {
+    	studyDesignContext.setSigmaOutcomesCovariate(this, 
+    			new NamedMatrix("sigmaOutcomeCovariate", sigmaY));
+    }
 
 }

@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -34,7 +33,11 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 
 /**
  * Matrix mode panel allowing entry of scale factors for the error covariance
@@ -44,11 +47,17 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class SigmaScalePanel extends WizardStepPanel
 implements ListValidator
-{
+{    
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     // list of sigma scale factors
     protected ListEntryPanel sigmaScaleListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.sigmaScaleTableColumn(), this);
 
+    // caches the entered values as doubles
+    ArrayList<Double> sigmaScaleList = new ArrayList<Double>();
+    
 	public SigmaScalePanel(WizardContext context)
 	{
 		super(context, "Sigma Scale");
@@ -99,13 +108,38 @@ implements ListValidator
 	@Override
 	public void onExit()
 	{
-    	List<String> values = sigmaScaleListPanel.getValues();
+    	List<String> stringValues = sigmaScaleListPanel.getValues();
+    	sigmaScaleList.clear();
+    	for(String value: stringValues)
+    	{
+    		sigmaScaleList.add(Double.parseDouble(value));
+    	}
+    	studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
 	}
 
-    
-	public String toXML()
+    /**
+     * Skip this panel if the user is solving for detectable difference
+     */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{}
+
+	/**
+	 * Load the beta scale list from the context
+	 */
+	@Override
+	public void onWizardContextLoad()
 	{
-		return sigmaScaleListPanel.toXML(GlimmpseConstants.TAG_SIGMA_SCALE_LIST);
+		loadFromContext();
 	}
-    
+	
+    /**
+     * Load the beta scale panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
+    	sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+    }
+	
 }

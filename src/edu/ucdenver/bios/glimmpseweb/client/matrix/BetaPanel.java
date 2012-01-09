@@ -27,7 +27,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.FixedRandomMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix Mode panel which allows input of the regression coefficients
@@ -35,6 +40,11 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class BetaPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
+	// matrices holding the fixed and random portions of the 
+	// beta matrix
     protected ResizableMatrix betaFixed = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA,
     			GlimmpseConstants.DEFAULT_Q, 
@@ -44,6 +54,7 @@ public class BetaPanel extends WizardStepPanel
     			1, GlimmpseConstants.DEFAULT_P, 
     			"0", GlimmpseWeb.constants.betaGaussianMatrixName()); 
     
+    // boolean indicating that the study design includes a covariate
     boolean hasCovariate;
     
 	public BetaPanel(WizardContext context)
@@ -95,6 +106,45 @@ public class BetaPanel extends WizardStepPanel
     			GlimmpseConstants.DEFAULT_P); 
     }
     
+    /**
+     * Resize the beta matrix when the design matrix dimensions change
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case DESIGN_ESSENCE_MATRIX:
+    		NamedMatrix designMatrix = studyDesignContext.getDesignEssence();
+    		betaFixed.setRowDimension(designMatrix.getColumns());
+    		break;
+    	case COVARIATE:
+    		hasCovariate = studyDesignContext.hasCovariate();
+    		break;
+    	}   	
+    }
     
+    /**
+     * Load the beta matrix information from the context
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+    	FixedRandomMatrix beta = studyDesignContext.getBeta();
+    	betaFixed.loadFromNamedMatrix(beta.getFixedMatrix());
+    	betaRandom.loadFromNamedMatrix(beta.getRandomMatrix());
+    }
 
+    /**
+     * Update the beta matrix in the context as we leave the screen
+     */
+    @Override
+    public void onExit()
+    {
+    	studyDesignContext.setBeta(this, 
+    			new FixedRandomMatrix("beta",
+    					new NamedMatrix("fixed", betaFixed),
+    					new NamedMatrix("random", betaRandom)));
+    }
 }

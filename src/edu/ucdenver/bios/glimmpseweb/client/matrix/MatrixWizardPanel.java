@@ -43,7 +43,7 @@ public class MatrixWizardPanel extends Composite
 
     protected BetaPanel betaPanel = new BetaPanel(context);
     protected BetaScalePanel betaScalePanel = new BetaScalePanel(context);
-    protected ThetaPanel thetaPanel = new ThetaPanel(context);
+    protected ThetaNullPanel thetaPanel = new ThetaNullPanel(context);
     
     protected SigmaErrorMatrixPanel sigmaErrorPanel = new SigmaErrorMatrixPanel(context);
     protected SigmaOutcomesMatrixPanel sigmaOutcomesPanel = new SigmaOutcomesMatrixPanel(context);

@@ -8,9 +8,12 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
 	public enum StudyDesignChangeType
 	{
 		SOLVING_FOR,
+		COVARIATE,
 		ALPHA_LIST,
 		TEST_LIST,
 		POWER_LIST,
+		BETA_SCALE_LIST,
+		SIGMA_SCALE_LIST,
 		DESIGN_ESSENCE_MATRIX,
 		BETWEEN_CONTRAST_MATRIX,
 		WITHIN_CONTRAST_MATRIX,

@@ -23,12 +23,15 @@ package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix mode panel for entering the within-subject contrast matrix, U.
@@ -38,6 +41,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class WithinSubjectContrastPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected ResizableMatrix withinSubjectMatrix = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_WITHIN_CONTRAST,
     			GlimmpseConstants.DEFAULT_P, 
@@ -80,7 +86,42 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 		return withinSubjectMatrix.toXML();
 	}
 
-
+	/**
+	 * Update the within participant contrast matrix in the context as we leave the
+	 * panel
+	 */
+	@Override
+	public void onExit()
+	{
+    	studyDesignContext.setWithinParticipantContrast(this, 
+    			new NamedMatrix("withinSubjectContrast", withinSubjectMatrix));
+	}
 	
+	/**
+	 * Respond to changes in the beta matrix to maintain 
+	 * conformance.
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case BETA_MATRIX:
+    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
+			withinSubjectMatrix.setRowDimension(betaColumns);
+    		break;
+    	}
+	}
+
+	/**
+	 * Load the within subject contrast from the context
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+    	NamedMatrix contextWithinContrast = studyDesignContext.getWithinParticipantContrast();
+    	withinSubjectMatrix.loadFromNamedMatrix(contextWithinContrast);
+	}
 	
 }

@@ -27,7 +27,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix mode panel for entering the covariance of random errors
@@ -37,6 +41,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class SigmaErrorMatrixPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected ResizableMatrix sigmaError = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_ERROR,
     			GlimmpseConstants.DEFAULT_P, 
@@ -87,5 +94,44 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
 			return sigmaError.toXML();
 	}
 
+	/**
+	 * Respond to a context change - resize the matrix to conform to the 
+	 * beta matrix
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case COVARIATE:
+    		skip = studyDesignContext.hasCovariate();
+    		break;
+    	case BETA_MATRIX:
+    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
+			sigmaError.setRowDimension(betaColumns);
+    		break;
+    	}
+	}
+
+	/**
+	 * Load the sigma error matrix from the context
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+    	NamedMatrix contextSigmaError = studyDesignContext.getSigmaError();
+    	sigmaError.loadFromNamedMatrix(contextSigmaError);
+	}
+
+	/**
+	 * Set the sigma error matrix in the context
+	 */
+    @Override 
+    public void onExit()
+    {
+    	studyDesignContext.setSigmaCovariate(this, new NamedMatrix("sigmaError", sigmaError));
+    }
+	
 
 }

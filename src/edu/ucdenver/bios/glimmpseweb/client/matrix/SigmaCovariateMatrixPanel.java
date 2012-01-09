@@ -1,5 +1,5 @@
 /*
- * User Interface for the GLIMMPSE Software System.  Allows
+ * Web Interface for the GLIMMPSE Software System.  Allows
  * users to perform power, sample size, and detectable difference
  * calculations. 
  * 
@@ -21,16 +21,17 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
-import java.util.ArrayList;
-
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Matrix Mode panel for entering the variance of the Gaussian covariate
@@ -41,6 +42,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class SigmaCovariateMatrixPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected ResizableMatrix sigmaG = 
     	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE,
     			1, 1, "0", GlimmpseWeb.constants.sigmaCovariateMatrixName()); 
@@ -78,11 +82,6 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
 		complete = true;
 		skip = true;
 	}
-
-	public void loadFromNode(Node node)
-	{
-		sigmaG.loadFromDomNode(node);
-	}
 	
 	public String toXML()
 	{
@@ -95,6 +94,32 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     @Override 
     public void onExit()
     {
-//    	for(VariabilityListener listener: listeners) listener.onCovariateVariance(sigmaG.getData(0,0));
+    	studyDesignContext.setSigmaCovariate(this, new NamedMatrix("sigmaG", sigmaG));
     }
+    
+	/**
+	 * Respond to a change in the context object
+	 */
+    @Override
+	public void onWizardContextChange(WizardContextChangeEvent e) 
+    {
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case COVARIATE:
+    		skip = !studyDesignContext.hasCovariate();
+    		break;
+    	}
+    };
+    
+    /**
+     * Load the sigma covariate matrix from the context
+     */
+    @Override
+	public void onWizardContextLoad() 
+    {
+    	NamedMatrix sigmaCovariate = studyDesignContext.getSigmaCovariate();
+    	sigmaG.loadFromNamedMatrix(sigmaCovariate);
+    }
+
 }

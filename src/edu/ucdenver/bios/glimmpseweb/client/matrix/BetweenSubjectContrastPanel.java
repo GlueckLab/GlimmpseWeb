@@ -27,7 +27,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.FixedRandomMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
@@ -76,4 +80,56 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
     			GlimmpseConstants.DEFAULT_Q);
 	}
 
+	/**
+	 * Resize the between participant contrast to conform with
+	 * the design essence matrix and the beta matrix
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+    	switch (changeEvent.getType())
+    	{
+    	case DESIGN_ESSENCE_MATRIX:
+    		int designRows = studyDesignContext.getDesignEssence().getRows();
+			betweenSubjectFixed.setMaxRows(designRows - 1);
+			if (betweenSubjectFixed.getRowDimension() > designRows - 1)
+			{
+				betweenSubjectFixed.setRowDimension(designRows - 1);
+			}
+    		break;
+    	case BETA_MATRIX:
+    		int betaRows = studyDesignContext.getBeta().getFixedMatrix().getRows();
+			betweenSubjectFixed.setColumnDimension(betaRows);
+    		break;
+    	case COVARIATE:
+    		hasCovariate = studyDesignContext.hasCovariate();
+    		break;
+    	}
+	}
+
+	/**
+	 * Load the between subject contrast from the wizard context
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+    	FixedRandomMatrix betweenContrast = studyDesignContext.getBetweenParticipantContrast();
+    	betweenSubjectFixed.loadFromNamedMatrix(betweenContrast.getFixedMatrix());
+	}
+
+	/**
+	 * update the between participant contrast in the context
+	 * as we leave the panel
+	 */
+	@Override
+	public void onExit()
+	{
+    	studyDesignContext.setBeta(this, 
+    			new FixedRandomMatrix("betweenSubjectContrast",
+    					new NamedMatrix("fixed", betweenSubjectFixed),
+    					new NamedMatrix("random")));
+    	// TODO: create  matrix of zeros for random portion
+	}
+	
 }
