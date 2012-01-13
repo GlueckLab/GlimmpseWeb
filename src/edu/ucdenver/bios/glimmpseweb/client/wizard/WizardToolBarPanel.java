@@ -25,9 +25,9 @@ import java.util.ArrayList;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -105,22 +105,29 @@ public class WizardToolBarPanel extends Composite
 	 */
     public WizardToolBarPanel()
     {
-        HorizontalPanel panel = new HorizontalPanel();
+        DockPanel panel = new DockPanel();
 
-        panel.add(helpButton);
-        panel.add(saveButton);
-        panel.add(cancelButton);
-        panel.add(previousButton);
-        panel.add(nextButton);
-        panel.add(finishButton);
+        HorizontalPanel actionPanel = new HorizontalPanel();
+        actionPanel.add(helpButton);
+        actionPanel.add(saveButton);
+        actionPanel.add(cancelButton);
+        HorizontalPanel navPanel = new HorizontalPanel();
+        navPanel.add(previousButton);
+        navPanel.add(nextButton);
+        navPanel.add(finishButton);
+        
+        panel.add(actionPanel, DockPanel.WEST);
+        panel.add(navPanel, DockPanel.EAST);
         
         // add style
-//        helpButton.setStyleName("wizardNavigationPanelButton");
-//        saveButton.setStyleName("wizardNavigationPanelButton");
-//        cancelButton.setStyleName("wizardNavigationPanelButton");
-//        previousButton.setStyleName("wizardNavigationPanelButton");
-//        nextButton.setStyleName("wizardNavigationPanelButton");
-//        finishButton.setStyleName("wizardNavigationPanelButton");
+        panel.addStyleName(STYLE_TOOLBAR_PANEL);
+        
+        helpButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        saveButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        cancelButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        nextButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        finishButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         
         initWidget(panel);
     }
