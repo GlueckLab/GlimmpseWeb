@@ -49,6 +49,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_CONTENT = "wizardStepContent";
     public static final String STYLE_WIZARD_PARAGRAPH = "wizardStepParagraph";
     public static final String STYLE_WIZARD_INDENTED_CONTENT = "wizardStepIndentedContent";
+    public static final String STYLE_WIZARD_RESPONSES_PANEL_HORIZONTAL_PANEL = "responsesPanelHorizontalPanel";
     public static final String STYLE_WIZARD_TOOL_PANEL = "wizardToolsPanel";
     public static final String STYLE_WIZARD_TOOL_BUTTON = "wizardToolsPanelButton";
     public static final String STYLE_WIZARD_STEP_LIST_PANEL = "wizardStepListPanel";
@@ -304,6 +305,9 @@ public interface GlimmpseConstants extends Constants
     // repeated measures panel
     public String repeatedMeasuresTitle();
     public String repeatedMeasuresDescription();
+    public String repeatedMeasuresDescription1();
+    public String repeatedMeasuresInstructions();
+    public String repeatedMeasuresHeader();
     public String repeatedOverTableColumn();
     public String repetitionsTableColumn();
     public String singleMeasureLabel();
@@ -482,4 +486,34 @@ public interface GlimmpseConstants extends Constants
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();
+    
+    // web services urls
+    public String chartSvcHostScatter();
+    public String chartSvcHostLegend();
+    public String powerSvcHostPower();
+    public String powerSvcHostSampleSize();
+    public String fileSvcHostUpload();
+    public String fileSvcHostSaveAs();
+    
+    //response panel constants
+     public String responsesPanelTitle();
+     public String responsesPanelDescription();
+     public String responsesPanelPrefix();
+     public String responsesPanelSufix();
+     public String responsesPanelInstructions();
+     public String responsesTableColumn();
+     
+     //clustering panel constants
+     public String clusteringPanelTitle();
+     public String clusteringPanelHeader();
+     public String clusteringPanelDescription1();
+     public String clusteringPanelDescription2();
+     public String clusteringPanelAddClusteringRow1Column1();
+     public String clusteringPanelAddClusteringRow2Column1();
+     public String errorInvalidClusterGroupingNumber();
+     public String errorInvalidClusterGroupingName();
+     
+     //cancel Dialog Box
+     public String cancelDialogBoxQuery();
+     
 }

@@ -48,6 +48,8 @@ public class GuidedWizardPanel extends Composite
 			GlimmpseWeb.constants.outcomesIntroDescription());
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel(context);
 	protected RepeatedMeasuresPanel repeatedMeasuresPanel = new RepeatedMeasuresPanel(context);
+	//clustering 
+	protected ClusteringPanel clusteringPanel = new ClusteringPanel(context);
 	// hypotheses
 	protected IntroPanel hypothesisIntroPanel = new IntroPanel(context,
 			"Intro", GlimmpseWeb.constants.hypothesisIntroTitle(),
@@ -77,25 +79,7 @@ public class GuidedWizardPanel extends Composite
 	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(context, "guided");
 	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
 		new OptionsConfidenceIntervalsPanel(context, "guided");
-	// results
-//	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(this);
-	
-//    // list of panels for the wizard
-//	WizardStepPanel[][] panelList = {
-//			{startIntroPanel, solvingForPanel, powerPanel},
-//			{alphaPanel}, 
-//			{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
-//				relativeGroupSizePanel, perGroupSampleSizePanel}, 
-//			{outcomesIntroPanel, outcomesPanel, repeatedMeasuresPanel}, 
-//			{hypothesisIntroPanel, hypothesisIndependentPanel, hypothesisRepeatedPanel,
-//				hypothesisDoublyRepeatedPanel},
-//			{meanDifferencesIntroPanel, meanDifferencesPanel,
-//				meanDifferencesRepeatedPanel, meanDifferencesScalePanel},
-//			{variabilityIntroPanel, variabilityIndependentPanel, variabilityRepeatedPanel,
-//					variabilityCovariatePanel, variabilityCovariateOutcomePanel, variabilityScalePanel},
-//			{optionsTestsPanel, optionsPowerMethodsPanel, optionsDisplayPanel},
-//			{resultsPanel}
-//	};
+
 	
 	protected WizardPanel wizardPanel;
 	
@@ -134,7 +118,9 @@ public class GuidedWizardPanel extends Composite
 		group.addPanel(relativeGroupSizePanel);
 		group.addPanel(perGroupSampleSizePanel);
 		groupList.add(group);
+		
 		group = new WizardStepPanelGroup("Clustering");
+		group.addPanel(clusteringPanel);
 		groupList.add(group);
 		
 		group = new WizardStepPanelGroup("Responses");
