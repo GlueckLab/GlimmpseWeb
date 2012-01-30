@@ -27,6 +27,7 @@
 	<property name="thirdparty.dir" value="${basedir}/../../thirdparty" />
 	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.4.0/lib" />
 	<property name="gwt.visualization.dir" value="${thirdparty.dir}/gwt-visualization/1.1/lib" />
+	<property name="WebServiceCommon.dir" value="${basedir}/../../WebServiceCommon/build/bin" />
 	<property name="zip.file" value="${ant.project.name}.zip" />
 	<property name="war.dir" value="${basedir}/../war"/>
 	<property name="checkstyle.dir" value="${thirdparty.dir}/checkstyle/5.3"/>
@@ -40,6 +41,9 @@
   		</fileset>
   		<fileset dir="${gwt.visualization.dir}">
   			<include name="gwt-visualization.jar"/>
+  		</fileset>
+  		<fileset dir="${WebServiceCommon.dir}">
+  			<include name="edu.ucdenver.bios.webservice.common-gwt-1.0.0.jar"/>
   		</fileset>
   	</path>
 	
