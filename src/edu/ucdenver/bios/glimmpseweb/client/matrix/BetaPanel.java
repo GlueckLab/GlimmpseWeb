@@ -29,10 +29,10 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.FixedRandomMatrix;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesignNamedMatrix;
 
 /**
  * Matrix Mode panel which allows input of the regression coefficients
@@ -116,11 +116,11 @@ public class BetaPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case DESIGN_ESSENCE_MATRIX:
-    		NamedMatrix designMatrix = studyDesignContext.getDesignEssence();
-    		betaFixed.setRowDimension(designMatrix.getColumns());
+//    		StudyDesignNamedMatrix designMatrix = studyDesignContext.getDesignEssence();
+//    		betaFixed.setRowDimension(designMatrix.getColumns());
     		break;
     	case COVARIATE:
-    		hasCovariate = studyDesignContext.hasCovariate();
+    		hasCovariate = studyDesignContext.getStudyDesign().hasGaussianCovariate();
     		break;
     	}   	
     }
@@ -131,9 +131,9 @@ public class BetaPanel extends WizardStepPanel
     @Override
     public void onWizardContextLoad()
     {
-    	FixedRandomMatrix beta = studyDesignContext.getBeta();
-    	betaFixed.loadFromNamedMatrix(beta.getFixedMatrix());
-    	betaRandom.loadFromNamedMatrix(beta.getRandomMatrix());
+//    	FixedRandomMatrix beta = studyDesignContext.getBeta();
+//    	betaFixed.loadFromNamedMatrix(beta.getFixedMatrix());
+//    	betaRandom.loadFromNamedMatrix(beta.getRandomMatrix());
     }
 
     /**
@@ -144,7 +144,7 @@ public class BetaPanel extends WizardStepPanel
     {
     	studyDesignContext.setBeta(this, 
     			new FixedRandomMatrix("beta",
-    					new NamedMatrix("fixed", betaFixed),
-    					new NamedMatrix("random", betaRandom)));
+    					betaFixed.toNamedMatrix(),
+    					betaRandom.toNamedMatrix(), true));
     }
 }

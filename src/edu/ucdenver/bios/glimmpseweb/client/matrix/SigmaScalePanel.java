@@ -22,7 +22,6 @@
 package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -35,9 +34,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 
 /**
  * Matrix mode panel allowing entry of scale factors for the error covariance
@@ -108,13 +105,13 @@ implements ListValidator
 	@Override
 	public void onExit()
 	{
-    	List<String> stringValues = sigmaScaleListPanel.getValues();
-    	sigmaScaleList.clear();
-    	for(String value: stringValues)
-    	{
-    		sigmaScaleList.add(Double.parseDouble(value));
-    	}
-    	studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
+//    	List<String> stringValues = sigmaScaleListPanel.getValues();
+//    	sigmaScaleList.clear();
+//    	for(String value: stringValues)
+//    	{
+//    		sigmaScaleList.add(Double.parseDouble(value));
+//    	}
+//    	studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
 	}
 
     /**
@@ -138,8 +135,8 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
-    	sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+//    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
+//    	sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
     }
 	
 }

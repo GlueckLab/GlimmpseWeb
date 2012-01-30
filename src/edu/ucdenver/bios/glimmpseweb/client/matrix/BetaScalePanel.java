@@ -35,9 +35,9 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
 
 /**
  * Matrix Mode panel which allows entry of beta-scale factors
@@ -141,7 +141,8 @@ implements ListValidator
     	switch (changeEvent.getType())
     	{
     	case SOLVING_FOR:
-    		skip = (SolutionType.DETECTABLE_DIFFERENCE == studyDesignContext.getSolutionType());
+    		skip = (SolutionType.DETECTABLE_DIFFERENCE == 
+    			studyDesignContext.getStudyDesign().getSolutionType());
     		break;
     	}
 	}
@@ -160,7 +161,7 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
-    	betaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+//    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
+//    	betaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
     }
 }

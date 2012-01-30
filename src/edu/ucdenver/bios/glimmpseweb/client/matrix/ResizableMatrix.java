@@ -29,15 +29,12 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.NamedNodeMap;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.GridTextBox;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Resizable matrix widget
@@ -422,6 +419,21 @@ public class ResizableMatrix extends Composite
             }
         }
     }   
+    
+	public NamedMatrix toNamedMatrix()
+	{
+		int rows = matrixData.getRowCount();
+		int columns = matrixData.getColumnCount();
+		NamedMatrix namedMatrix = new NamedMatrix(name, rows, columns);
+		for(int r = 0; r < rows; r++)
+		{
+			for(int c = 0; c < columns; c++)
+			{
+				namedMatrix.setCellData(r, c, this.getData(r, c));
+			}
+		}
+		return namedMatrix;
+	}
 
     public void reset(int newRows, int newColumns)
     {

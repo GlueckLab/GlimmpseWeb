@@ -33,9 +33,9 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
 
 /**
  * Panel for entering nominal power values when performing
@@ -128,7 +128,7 @@ implements ListValidator
 		switch (changeEvent.getType())
 		{
 		case SOLVING_FOR:
-			skip = (studyDesignContext.getSolutionType() == SolutionType.POWER);
+			skip = (studyDesignContext.getStudyDesign().getSolutionType() == SolutionType.POWER);
 			break;
 		case POWER_LIST:
 			if (this != changeEvent.getSource())
@@ -153,8 +153,8 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> contextPowerList = studyDesignContext.getPowerList();
-    	nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
+//    	List<Double> contextPowerList = studyDesignContext.getPowerList();
+//    	nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
     }
     
     /**

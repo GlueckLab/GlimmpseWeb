@@ -29,10 +29,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.FixedRandomMatrix;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
 
 /**
  * Matrix mode panel which allows input of the between-subject contrast matrix (C)
@@ -91,19 +90,19 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case DESIGN_ESSENCE_MATRIX:
-    		int designRows = studyDesignContext.getDesignEssence().getRows();
-			betweenSubjectFixed.setMaxRows(designRows - 1);
-			if (betweenSubjectFixed.getRowDimension() > designRows - 1)
-			{
-				betweenSubjectFixed.setRowDimension(designRows - 1);
-			}
+//    		int designRows = studyDesignContext.getDesignEssence().getRows();
+//			betweenSubjectFixed.setMaxRows(designRows - 1);
+//			if (betweenSubjectFixed.getRowDimension() > designRows - 1)
+//			{
+//				betweenSubjectFixed.setRowDimension(designRows - 1);
+//			}
     		break;
     	case BETA_MATRIX:
-    		int betaRows = studyDesignContext.getBeta().getFixedMatrix().getRows();
-			betweenSubjectFixed.setColumnDimension(betaRows);
+//    		int betaRows = studyDesignContext.getBeta().getFixedMatrix().getRows();
+//			betweenSubjectFixed.setColumnDimension(betaRows);
     		break;
     	case COVARIATE:
-    		hasCovariate = studyDesignContext.hasCovariate();
+    		hasCovariate = studyDesignContext.getStudyDesign().hasGaussianCovariate();
     		break;
     	}
 	}
@@ -114,8 +113,8 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-    	FixedRandomMatrix betweenContrast = studyDesignContext.getBetweenParticipantContrast();
-    	betweenSubjectFixed.loadFromNamedMatrix(betweenContrast.getFixedMatrix());
+//    	FixedRandomMatrix betweenContrast = studyDesignContext.getBetweenParticipantContrast();
+//    	betweenSubjectFixed.loadFromNamedMatrix(betweenContrast.getFixedMatrix());
 	}
 
 	/**
@@ -127,8 +126,8 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
 	{
     	studyDesignContext.setBeta(this, 
     			new FixedRandomMatrix("betweenSubjectContrast",
-    					new NamedMatrix("fixed", betweenSubjectFixed),
-    					new NamedMatrix("random")));
+    					betweenSubjectFixed.toNamedMatrix(),
+    					null, false));
     	// TODO: create  matrix of zeros for random portion
 	}
 	

@@ -29,9 +29,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix Mode panel for entering the variance of the Gaussian covariate
@@ -94,7 +94,7 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     @Override 
     public void onExit()
     {
-    	studyDesignContext.setSigmaCovariate(this, new NamedMatrix("sigmaG", sigmaG));
+    	studyDesignContext.setSigmaCovariate(this, sigmaG.toNamedMatrix());
     }
     
 	/**
@@ -107,7 +107,7 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case COVARIATE:
-    		skip = !studyDesignContext.hasCovariate();
+    		skip = !studyDesignContext.getStudyDesign().hasGaussianCovariate();
     		break;
     	}
     };
@@ -118,8 +118,8 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     @Override
 	public void onWizardContextLoad() 
     {
-    	NamedMatrix sigmaCovariate = studyDesignContext.getSigmaCovariate();
-    	sigmaG.loadFromNamedMatrix(sigmaCovariate);
+//    	NamedMatrix sigmaCovariate = studyDesignContext.getSigmaCovariate();
+//    	sigmaG.loadFromNamedMatrix(sigmaCovariate);
     }
 
 }

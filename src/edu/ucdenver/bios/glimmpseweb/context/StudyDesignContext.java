@@ -96,12 +96,6 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.WITHIN_CONTRAST_MATRIX));
 	}
 
-	public FixedRandomMatrix getBeta()
-	{
-//		return studyDesign.getBeta();
-		return null;
-	}
-
 	public void setBeta(WizardStepPanel panel, FixedRandomMatrix beta)
 	{
 //		studyDesign.setBeta(beta);

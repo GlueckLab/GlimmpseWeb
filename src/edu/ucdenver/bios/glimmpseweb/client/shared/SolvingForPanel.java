@@ -32,8 +32,8 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesign.SolutionType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
 
 /**
  * WizardStepPanel which allows the user to select whether they are solving for
@@ -193,7 +193,7 @@ implements ClickHandler
 		}
 		else if (solvingForSampleSizeRadioButton.getValue())
 		{
-	    	((StudyDesignContext) context).setSolutionType(this, SolutionType.TOTAL_N);
+	    	((StudyDesignContext) context).setSolutionType(this, SolutionType.SAMPLE_SIZE);
 		}
 
     }

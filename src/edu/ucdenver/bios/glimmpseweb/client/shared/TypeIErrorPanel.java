@@ -136,8 +136,8 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> contextAlphaList = studyDesignContext.getAlphaList();
-    	alphaListPanel.loadFromDoubleList(contextAlphaList, true);
+//    	List<Double> contextAlphaList = studyDesignContext.getBeta().getAlphaList();
+//    	alphaListPanel.loadFromDoubleList(contextAlphaList, true);
     }
     
 	/**

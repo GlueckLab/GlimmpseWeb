@@ -33,10 +33,9 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.FixedRandomMatrix;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix mode panel which allows entry of the design essence matrix
@@ -120,8 +119,8 @@ public class DesignPanel extends WizardStepPanel
     @Override
     public void onWizardContextLoad()
     {
-    	NamedMatrix designEssence = studyDesignContext.getDesignEssence();
-    	essenceFixed.loadFromNamedMatrix(designEssence);
+//    	NamedMatrix designEssence = studyDesignContext.getDesignEssence();
+//    	essenceFixed.loadFromNamedMatrix(designEssence);
     }
 
     /**
@@ -131,7 +130,7 @@ public class DesignPanel extends WizardStepPanel
     public void onExit()
     {
     	studyDesignContext.setDesignEssence(this, 
-    					new NamedMatrix("designEssence", essenceFixed));
+    					essenceFixed.toNamedMatrix());
     }
 
 }

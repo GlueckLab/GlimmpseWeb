@@ -29,9 +29,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix mode panel for entering the within-subject contrast matrix, U.
@@ -94,7 +94,7 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 	public void onExit()
 	{
     	studyDesignContext.setWithinParticipantContrast(this, 
-    			new NamedMatrix("withinSubjectContrast", withinSubjectMatrix));
+    			withinSubjectMatrix.toNamedMatrix());
 	}
 	
 	/**
@@ -108,8 +108,8 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case BETA_MATRIX:
-    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
-			withinSubjectMatrix.setRowDimension(betaColumns);
+//    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
+//			withinSubjectMatrix.setRowDimension(betaColumns);
     		break;
     	}
 	}

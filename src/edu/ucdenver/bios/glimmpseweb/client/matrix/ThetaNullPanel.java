@@ -29,9 +29,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
-import edu.ucdenver.bios.glimmpseweb.context.NamedMatrix;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix mode panel for entering the null hypothesis matrix (theta null)
@@ -88,7 +88,7 @@ public class ThetaNullPanel extends WizardStepPanel
 	@Override
 	public void onExit()
 	{
-    	studyDesignContext.setThetaNull(this, new NamedMatrix("thetaNull", thetaNull));
+    	studyDesignContext.setThetaNull(this, thetaNull.toNamedMatrix());
 	}
 	
 	/**
@@ -113,8 +113,8 @@ public class ThetaNullPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-    	NamedMatrix contextThetaNull = studyDesignContext.getThetaNull();
-    	thetaNull.loadFromNamedMatrix(contextThetaNull);
+//    	NamedMatrix contextThetaNull = studyDesignContext.getThetaNull();
+//    	thetaNull.loadFromNamedMatrix(contextThetaNull);
 	}
 	
 }
