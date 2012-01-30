@@ -16,6 +16,8 @@
  <inherits name="com.google.gwt.xml.XML"/>
  <!-- visualization api -->
  <inherits name="com.google.gwt.visualization.Visualization"/>
+ <!-- UC Denver Web Service Common api -->
+ <inherits name="edu.ucdenver.bios.webservice.common.common"/>
   <!-- Specify the app entry point class.                         -->
   <entry-point class='edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb'/>
 
