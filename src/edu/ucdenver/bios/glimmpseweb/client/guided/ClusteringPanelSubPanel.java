@@ -32,24 +32,24 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 
 
 public class ClusteringPanelSubPanel extends Composite
 {
-	public String ERROR_STYLE = "message-error";
-	TextBox groupingTextBox = new TextBox();
-	TextBox numberOfgroupsTextBox = new TextBox();
-	ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
-	HTML errorHTML = new HTML();
-	
+	protected TextBox groupingTextBox = new TextBox();
+	protected TextBox numberOfgroupsTextBox = new TextBox();
+	protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+	protected HTML errorHTML = new HTML();
+
 	public ClusteringPanelSubPanel() 
 	{
-		
+
 		VerticalPanel flexTableVerticalPanel = new VerticalPanel();
 		Grid grid = new Grid(2,2);
-		
+
 		groupingTextBox.addChangeHandler(new ChangeHandler() 
 		{			
 			@Override
@@ -59,16 +59,15 @@ public class ClusteringPanelSubPanel extends Composite
 				String value = tb.getValue();
 				try
 				{
-				if (value == null && value.isEmpty() != false) throw new Exception();
-				for(ChangeHandler handler: handlerList) handler.onChange(event);
-				errorHTML.setHTML("");
+					if (value == null || value.isEmpty()) throw new Exception();
+					TextValidation.displayOkay(errorHTML, "");
 				}
 				catch (Exception e)
 				{
-					errorHTML.setHTML(GlimmpseWeb.constants.errorInvalidClusterGroupingName());
-					errorHTML.setVisible(true);
-					errorHTML.setStyleName(ERROR_STYLE);
+					TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterGroupingName());
+					tb.setText("");
 				}
+				for(ChangeHandler handler: handlerList) handler.onChange(event);
 			}
 		});
 		numberOfgroupsTextBox.addChangeHandler(new ChangeHandler() 
@@ -80,16 +79,14 @@ public class ClusteringPanelSubPanel extends Composite
 				String value = tb.getValue();
 				try
 				{
-				TextValidation.parseInteger(value, 0, true);
-				for(ChangeHandler handler: handlerList) handler.onChange(event);
-				errorHTML.setHTML("");
+					TextValidation.parseInteger(value, 0, true);
+					TextValidation.displayOkay(errorHTML, "");
 				}
 				catch (Exception e)
 				{
-					errorHTML.setHTML(GlimmpseWeb.constants.errorInvalidClusterGroupingNumber());
-					errorHTML.setVisible(true);
-					errorHTML.setStyleName(ERROR_STYLE);
+					TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterGroupingNumber());
 				}
+				for(ChangeHandler handler: handlerList) handler.onChange(event);
 			}
 		});
 		grid.setText(0, 0, GlimmpseWeb.constants.clusteringPanelAddClusteringRow1Column1());
@@ -97,13 +94,15 @@ public class ClusteringPanelSubPanel extends Composite
 		grid.setText(1, 0, GlimmpseWeb.constants.clusteringPanelAddClusteringRow2Column1());
 		grid.setWidget(1, 1, numberOfgroupsTextBox);
 
-		errorHTML.setVisible(false);
 		flexTableVerticalPanel.add(grid);
 		flexTableVerticalPanel.add(errorHTML);
+
+		// set style
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 		
 		// Initializing widget
 		initWidget(flexTableVerticalPanel);
-		
+
 	}
 	/**
 	 * A Change Handler method to add changes to the handler
@@ -113,24 +112,26 @@ public class ClusteringPanelSubPanel extends Composite
 	{
 		handlerList.add(handler);
 	}
-	
+
 	/**
 	 * A method that check the validation of the fields in the Clustering Panel Sub Panel 
 	 * @return It will return a boolean value, returns true if the sub panel is complete filled else returns false
 	 */
-	
 	public boolean checkComplete()
+	{
+		String checkGrouping = groupingTextBox.getText();
+		String checkNumberOfGroups = numberOfgroupsTextBox.getText();
+		try
 		{
-			String checkGrouping = groupingTextBox.getText();
-			String checkNumberOfGroups = numberOfgroupsTextBox.getText();
-			try
-			{
-			if (checkGrouping != null && checkGrouping.isEmpty() == false && checkNumberOfGroups != null) return true;
-			else return false;
-			}
-			catch (NumberFormatException nfe)
-			{
-			return false;
-			}
+			if (checkGrouping != null && !checkGrouping.isEmpty()
+					&& checkNumberOfGroups != null && !checkNumberOfGroups.isEmpty()) 
+				return true;
+			else 
+				return false;
 		}
+		catch (NumberFormatException nfe)
+		{
+			return false;
+		}
+	}
 }
