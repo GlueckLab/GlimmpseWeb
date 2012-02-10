@@ -97,7 +97,7 @@ public class SigmaOutcomesMatrixPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case COVARIATE:
-    		skip = !studyDesignContext.getStudyDesign().hasGaussianCovariate();
+    		skip = !studyDesignContext.getStudyDesign().isGaussianCovariate();
     		break;
     	case BETA_MATRIX:
 //    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();

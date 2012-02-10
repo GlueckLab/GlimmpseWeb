@@ -107,7 +107,7 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case COVARIATE:
-    		skip = !studyDesignContext.getStudyDesign().hasGaussianCovariate();
+    		skip = !studyDesignContext.getStudyDesign().isGaussianCovariate();
     		break;
     	}
     };

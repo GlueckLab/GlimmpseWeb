@@ -102,7 +102,7 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
 //			betweenSubjectFixed.setColumnDimension(betaRows);
     		break;
     	case COVARIATE:
-    		hasCovariate = studyDesignContext.getStudyDesign().hasGaussianCovariate();
+    		hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
     		break;
     	}
 	}

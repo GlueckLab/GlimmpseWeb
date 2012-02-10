@@ -32,7 +32,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesignNamedMatrix;
 
 /**
  * Matrix Mode panel which allows input of the regression coefficients
@@ -120,7 +119,7 @@ public class BetaPanel extends WizardStepPanel
 //    		betaFixed.setRowDimension(designMatrix.getColumns());
     		break;
     	case COVARIATE:
-    		hasCovariate = studyDesignContext.getStudyDesign().hasGaussianCovariate();
+    		hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
     		break;
     	}   	
     }
