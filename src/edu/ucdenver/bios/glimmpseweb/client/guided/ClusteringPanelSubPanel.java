@@ -19,7 +19,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+/**
+ * 
+ */
+/**
+ * 
+ */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -35,26 +40,45 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 
+/**
+ * Panel for tree item in clustering tree hierarchy
+ * @author VIJAY AKULA
+ *
+ */
 
 public class ClusteringPanelSubPanel extends Composite
 {
+	//text box for the name of the grouping
 	protected TextBox groupingTextBox = new TextBox();
+	
+	//text box for entering the number of groups in that particular grouping
 	protected TextBox numberOfgroupsTextBox = new TextBox();
+	
+	// Array list to capture the change handler
 	protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+	
+	//html widget to display the error message
 	protected HTML errorHTML = new HTML();
 
+	//constructor for the clustering panel sub panel class
 	public ClusteringPanelSubPanel() 
 	{
 
-		VerticalPanel flexTableVerticalPanel = new VerticalPanel();
+		// vertical panel to hold all the widgets within
+		VerticalPanel verticalPanel = new VerticalPanel();
+		
+		// grid to hold the html naming widgets and the text boxes
 		Grid grid = new Grid(2,2);
 
+		// Change handler method for the grouping text box
 		groupingTextBox.addChangeHandler(new ChangeHandler() 
 		{			
 			@Override
 			public void onChange(ChangeEvent event) 
 			{	
+				
 				TextBox tb = (TextBox)event.getSource();
 				String value = tb.getValue();
 				try
@@ -70,6 +94,8 @@ public class ClusteringPanelSubPanel extends Composite
 				for(ChangeHandler handler: handlerList) handler.onChange(event);
 			}
 		});
+		
+		//change handler for the number of groups text box
 		numberOfgroupsTextBox.addChangeHandler(new ChangeHandler() 
 		{
 			@Override
@@ -94,16 +120,16 @@ public class ClusteringPanelSubPanel extends Composite
 		grid.setText(1, 0, GlimmpseWeb.constants.clusteringPanelAddClusteringRow2Column1());
 		grid.setWidget(1, 1, numberOfgroupsTextBox);
 
-		flexTableVerticalPanel.add(grid);
-		flexTableVerticalPanel.add(errorHTML);
+		verticalPanel.add(grid);
+		verticalPanel.add(errorHTML);
 
 		// set style
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 		
 		// Initializing widget
-		initWidget(flexTableVerticalPanel);
-
+		initWidget(verticalPanel);
 	}
+	
 	/**
 	 * A Change Handler method to add changes to the handler
 	 * @param handler
@@ -134,4 +160,51 @@ public class ClusteringPanelSubPanel extends Composite
 			return false;
 		}
 	}
+	
+	public String getGroupingName()
+	{
+		return groupingTextBox.getText();
+	}
+	
+	public int getNumberOfGroups()
+	{
+		return Integer.parseInt(numberOfgroupsTextBox.getValue());
+	}
+	
+	public void setGroupingName(String name)
+	{
+		groupingTextBox.setText(name);
+	}
+	
+	public void setNumberOfGroups(int numGroups)
+	{
+		numberOfgroupsTextBox.setValue(Integer.toString(numGroups));
+	}
+	
+	
+	/**
+	 * toClusterNode method is used to convert the contents of 
+	 * clustering node sub panel into a Cluster Node domain object and 
+	 * return that object
+	 * @param count integer value to specify the depth of the node in which this
+	 * clustering panel widget is inserted
+	 * @return A clustering node instance
+	 */
+	
+	public ClusterNode toClusterNode(int count)
+	{
+		ClusterNode clusterNode = new ClusterNode();
+		
+		int groupSize = Integer.parseInt(numberOfgroupsTextBox.getValue());
+		clusterNode.setGroupeName(groupingTextBox.getValue());
+		clusterNode.setGroupeSize(groupSize);
+		clusterNode.setDepth(count);
+		return clusterNode;
+	}
+	
+	public void onWizardContextLoad() 
+    {
+    	
+		
+    }
 }

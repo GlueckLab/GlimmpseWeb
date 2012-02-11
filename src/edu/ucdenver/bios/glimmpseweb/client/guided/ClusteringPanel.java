@@ -21,6 +21,9 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -37,16 +40,20 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 
 /**
  * Panel which allows the user to enter information about clustering
  * in the study design
  * 
- * @author Vijay Akula
+ * @author VIJAY AKULA
  *
  */
 public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 {
+	// context object
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	// indicates whether the user had added clustering or not
 	protected boolean hasClustering = false;
 	// tree describing the clustering hierarchy
@@ -63,6 +70,11 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 	protected HorizontalPanel buttonPanel = new HorizontalPanel();
 	
 	private static final String BUTTON_STYLE = "buttonStyle";
+	
+	
+	
+	
+	/*ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel();*/
 	
 	// button to initiate entering of clustering information
 	protected Button addClusteringButton = new Button(buttonText,
@@ -129,6 +141,24 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 		addSubgroupButton.setStyleName(BUTTON_STYLE);
 		removeSubgroupButton.setStyleName(BUTTON_STYLE);
+		
+		/******** REMOVE THIS */
+		ArrayList<ClusterNode> clusterNodeArrayList = new ArrayList<ClusterNode>();
+		ClusterNode root = new ClusterNode();
+		root.setGroupeName("Foo");
+		root.setGroupeSize(10);
+		root.setDepth(1);
+		clusterNodeArrayList.add(root);
+		ClusterNode child = new ClusterNode();
+		child.setGroupeName("Bar");
+		child.setGroupeSize(20);
+		child.setDepth(1);
+		clusterNodeArrayList.add(child);
+			
+		studyDesignContext.setClusteringNodes(this, clusterNodeArrayList);
+		onWizardContextLoad();
+		/********** END REMOVE THIS */
+		
 		// Initializing widget
 		initWidget(panel);
 	}
@@ -138,22 +168,29 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 	 */
 	private void addSubgroup() 
 	{
-		ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel();
-		subpanel.addChangeHandler(this);
-		TreeItem newLeaf = new TreeItem(subpanel);
-		if (currentLeaf == null)
-		{
-			clusteringTree.addItem(newLeaf);
-			newLeaf.setState(true);
-		}
-		else
-		{
-			currentLeaf.addItem(newLeaf);
-			currentLeaf.setState(true);
-		}
-		itemCount++;
-		currentLeaf = newLeaf;
-		checkComplete();
+	
+			ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel();	
+			subpanel.addChangeHandler(this);
+			TreeItem newLeaf = new TreeItem(subpanel);
+			if (currentLeaf == null)
+			{
+				clusteringTree.addItem(newLeaf);
+				newLeaf.setState(true);
+			}
+			else
+			{
+				currentLeaf.addItem(newLeaf);
+				currentLeaf.setState(true);
+				if(itemCount == 2)
+				{
+					addSubgroupButton.setVisible(false);
+				}			
+			}
+			itemCount++;
+			currentLeaf = newLeaf;
+			checkComplete();
+		
+		
 	}
 
 	/**
@@ -172,40 +209,13 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 			{
 				toggleClustering();
 			}
+			else if (itemCount == 2)
+			{
+				addSubgroupButton.setVisible(true);
+			}
 		}
 		checkComplete();
-
-//			if(countTreeLeaves == 1)
-//			{
-//				buttonText = "Add Clustering";
-//				addClusteringButton.setText(buttonText);
-//				tree.clear();
-//				horizontalpanel.setVisible(false);
-//			}
-//			else
-//			{
-//				try
-//				{
-//					countTreeLeaves = countTreeLeaves-1;
-//					TreeItem parentLeaf = currentLeaf.getParentItem();
-//					currentLeaf.remove();
-//					currentLeaf = parentLeaf;	
-//				}
-//				catch(Exception e)
-//				{
-//					countTreeLeaves = countTreeLeaves-1;
-//					buttonText = "Add Clustering";
-//					addSubgroupButton.setVisible(false);
-//					removeSubgroupButton.setVisible(false);
-//					addClusteringButton.setText(buttonText);
-//					finishClustering.setVisible(false);
-//				}
-//			}
-//		}
 	};
-
-
-
 
 
 	/**
@@ -219,40 +229,8 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 		removeClusteringButton.setVisible(hasClustering);
 		addSubgroupButton.setVisible(hasClustering);
 		removeSubgroupButton.setVisible(hasClustering);
-	
-//		if (buttonText == "Add Clustering") 
-//		{
-//			notifyInProgress();
-//			cluster = true;
-//			finishClustering.setVisible(true);
-//			buttonText = "Remove Clustering";
-//			addSubgroupButton.setVisible(true);
-//			removeSubgroupButton.setVisible(true);
-//			addClusteringButton.setText(buttonText);
-//			description1 = GlimmpseWeb.constants.clusteringPanelDescription2();
-//			description.setHTML(description1);
-//			addClustering();
-//
-//		} 
-//		else if (buttonText == "Remove Clustering") 
-//		{
-//			cluster = false;
-//			buttonText = "Add Clustering";
-//			addSubgroupButton.setVisible(false);
-//			removeSubgroupButton.setVisible(false);
-//			addClusteringButton.setText(buttonText);
-//			description1 = GlimmpseWeb.constants.clusteringPanelDescription1();
-//			description.setHTML(description1);
-//			finishClustering.setVisible(false);
-//			tree.removeItems();
-//			notifyComplete();
-//			CancelDialogBox cb = new CancelDialogBox();
-//			((DialogBox) cb.cancelDialogBox()).center();
-//			//((DialogBox) cb.cancelDialogBox()).show();
-//		}
 		checkComplete();
 	}
-
 
 	/**
 	 *  Add Clustering Method initiates the Tree by adding a root node to the tree.
@@ -262,7 +240,6 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 		addSubgroup();
 		buttonPanel.setVisible(true);
 	}
-
 
 	/**
 	 * checkComplete() method is to check if all the instances of Clustering Panel Sub Panel Class added to the tree are
@@ -327,7 +304,84 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 		clusteringTree.removeItems();
 		currentLeaf = null;
 		itemCount = 0;
-		
 	}
+	 public void onExit()
+	 {
+		List <ClusterNode> clusterNodeArrayList = new ArrayList<ClusterNode>();
+		for (int i = 0; i < itemCount; i++)
+		{
+			TreeItem item = clusteringTree.getItem(i);
+			if (item != null) 
+			{
+				ClusteringPanelSubPanel subpanel = (ClusteringPanelSubPanel) item.getWidget();
+				clusterNodeArrayList.add(subpanel.toClusterNode(i+1));
+			}
+		} 
+		studyDesignContext.setClusteringNodes(this, clusterNodeArrayList);
+	 }
+	 
+	 /**
+	  * This function is called when a study design is uploaded
+	  */
+	 public void onWizardContextLoad()
+	 {
+		loadFromContext();
+	 }
+	 
+	 /**
+	  * This populates the screens based on the data in the study design uploaded.
+	  */
+	 public void loadFromContext()
+	 {
+		 List<ClusterNode> clusterNodeArrayList = studyDesignContext.getStudyDesign().getClusteringTree();
+		 if (clusterNodeArrayList != null)
+		 {
+			 int clusterNodeArraySize = clusterNodeArrayList.size();
+			 buttonPanel.setVisible(true);
 
+			 boolean first = true;
+			 for(ClusterNode clusterNode: clusterNodeArrayList)
+			 {
+				 if (first)
+				 {
+					 addClustering();
+					 first = false;
+				 }
+				 else
+				 {
+					 addSubgroup();
+				 }
+
+				 ClusteringPanelSubPanel currentPanel = (ClusteringPanelSubPanel) currentLeaf.getWidget();
+				 currentPanel.setGroupingName(clusterNode.getGroupeName());
+				 currentPanel.setNumberOfGroups(clusterNode.getGroupeSize());
+
+
+				 //			 ClusterNode clusterNodeInstance = clusterNodeArrayList.get(i);
+				 //			 ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel();
+				 //			 itemCount = clusterNodeInstance.getDepth();
+				 //			 subpanel.groupingTextBox.setValue(clusterNodeInstance.getGroupeName());
+				 //			 subpanel.numberOfgroupsTextBox.setValue(clusterNodeInstance.getGroupeSize().toString());
+				 //			 subpanel.addChangeHandler(this);
+				 //				TreeItem newLeaf = new TreeItem(subpanel);
+				 //				if (currentLeaf == null)
+				 //				{
+				 //					clusteringTree.addItem(newLeaf);
+				 //					newLeaf.setState(true);
+				 //				}
+				 //				else
+				 //				{
+				 //					currentLeaf.addItem(newLeaf);
+				 //					currentLeaf.setState(true);
+				 //					if(itemCount == 2)
+				 //					{
+				 //						addSubgroupButton.setVisible(false);
+				 //					}			
+				 //				}
+				 //				itemCount++;
+				 //				currentLeaf = newLeaf;
+				 //				checkComplete();
+			 }
+		 }
+	 }
 }
