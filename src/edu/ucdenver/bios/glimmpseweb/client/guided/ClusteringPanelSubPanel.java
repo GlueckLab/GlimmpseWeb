@@ -19,16 +19,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/**
- * 
- */
-/**
- * 
- */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -47,56 +42,55 @@ import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
  * @author VIJAY AKULA
  *
  */
-
 public class ClusteringPanelSubPanel extends Composite
 {
-	//text box for the name of the grouping
-	protected TextBox groupingTextBox = new TextBox();
-	
-	//text box for entering the number of groups in that particular grouping
-	protected TextBox numberOfgroupsTextBox = new TextBox();
-	
-	// Array list to capture the change handler
-	protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+	// text box for entering the name of the clustering level (ex. school, census tract, etc.)
+    protected TextBox groupingTextBox = new TextBox();
+
+    // text box for entering the number of groups/participants within each cluster
+    protected TextBox numberOfGroupsTextBox = new TextBox(); 
 	
 	//html widget to display the error message
 	protected HTML errorHTML = new HTML();
+	
+	// Parent panels, etc which listen for changes within the subpanel
+	protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
 
-	//constructor for the clustering panel sub panel class
+	/**
+	 * Constructor
+	 */
 	public ClusteringPanelSubPanel() 
 	{
-
 		// vertical panel to hold all the widgets within
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
 		// grid to hold the html naming widgets and the text boxes
 		Grid grid = new Grid(2,2);
-
-		// Change handler method for the grouping text box
+		
+		// Add handlers
+		// handler to validate clustering name
 		groupingTextBox.addChangeHandler(new ChangeHandler() 
 		{			
-			@Override
-			public void onChange(ChangeEvent event) 
-			{	
-				
-				TextBox tb = (TextBox)event.getSource();
-				String value = tb.getValue();
-				try
-				{
-					if (value == null || value.isEmpty()) throw new Exception();
-					TextValidation.displayOkay(errorHTML, "");
-				}
-				catch (Exception e)
-				{
-					TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterGroupingName());
-					tb.setText("");
-				}
-				for(ChangeHandler handler: handlerList) handler.onChange(event);
-			}
+		    @Override
+		    public void onChange(ChangeEvent event) 
+		    {	
+		        TextBox tb = (TextBox)event.getSource();
+		        String value = tb.getValue();
+		        try
+		        {
+		            TextValidation.parseString(value);
+		            TextValidation.displayOkay(errorHTML, "");
+		        }
+		        catch (Exception e)
+		        {
+		            TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
+		            tb.setText("");
+		        }
+		        for(ChangeHandler handler: handlerList) handler.onChange(event);
+		    }
 		});
-		
-		//change handler for the number of groups text box
-		numberOfgroupsTextBox.addChangeHandler(new ChangeHandler() 
+		// handler to validate integer inputs in the number of groups box
+		numberOfGroupsTextBox.addChangeHandler(new ChangeHandler() 
 		{
 			@Override
 			public void onChange(ChangeEvent event) 
@@ -110,19 +104,21 @@ public class ClusteringPanelSubPanel extends Composite
 				}
 				catch (Exception e)
 				{
-					TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterGroupingNumber());
+					TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterSize());
+	                   tb.setText("");
 				}
 				for(ChangeHandler handler: handlerList) handler.onChange(event);
 			}
 		});
-		grid.setText(0, 0, GlimmpseWeb.constants.clusteringPanelAddClusteringRow1Column1());
-		grid.setWidget(0, 1, groupingTextBox);
-		grid.setText(1, 0, GlimmpseWeb.constants.clusteringPanelAddClusteringRow2Column1());
-		grid.setWidget(1, 1, numberOfgroupsTextBox);
 
+		// layout the panel
+		grid.setText(0, 0, GlimmpseWeb.constants.clusteringNodePanelNameLabel());
+		grid.setWidget(0, 1, groupingTextBox);
+		grid.setText(1, 0, GlimmpseWeb.constants.clusteringNodePanelNumberOfGroupsLabel());
+		grid.setWidget(1, 1, numberOfGroupsTextBox);
 		verticalPanel.add(grid);
 		verticalPanel.add(errorHTML);
-
+        
 		// set style
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 		
@@ -146,19 +142,13 @@ public class ClusteringPanelSubPanel extends Composite
 	public boolean checkComplete()
 	{
 		String checkGrouping = groupingTextBox.getText();
-		String checkNumberOfGroups = numberOfgroupsTextBox.getText();
-		try
-		{
-			if (checkGrouping != null && !checkGrouping.isEmpty()
-					&& checkNumberOfGroups != null && !checkNumberOfGroups.isEmpty()) 
-				return true;
-			else 
-				return false;
-		}
-		catch (NumberFormatException nfe)
-		{
+		String checkNumberOfGroups = numberOfGroupsTextBox.getText();
+		GWT.log("name='" + checkGrouping + "' size=" + checkNumberOfGroups);
+		if (checkGrouping != null && !checkGrouping.isEmpty()
+				&& checkNumberOfGroups != null && !checkNumberOfGroups.isEmpty()) 
+			return true;
+		else 
 			return false;
-		}
 	}
 	
 	public String getGroupingName()
@@ -168,7 +158,7 @@ public class ClusteringPanelSubPanel extends Composite
 	
 	public int getNumberOfGroups()
 	{
-		return Integer.parseInt(numberOfgroupsTextBox.getValue());
+		return Integer.parseInt(numberOfGroupsTextBox.getValue());
 	}
 	
 	public void setGroupingName(String name)
@@ -178,27 +168,27 @@ public class ClusteringPanelSubPanel extends Composite
 	
 	public void setNumberOfGroups(int numGroups)
 	{
-		numberOfgroupsTextBox.setValue(Integer.toString(numGroups));
+		numberOfGroupsTextBox.setValue(Integer.toString(numGroups));
 	}
 	
 	
 	/**
-	 * toClusterNode method is used to convert the contents of 
-	 * clustering node sub panel into a Cluster Node domain object and 
-	 * return that object
-	 * @param count integer value to specify the depth of the node in which this
-	 * clustering panel widget is inserted
+	 * Convert the contents of  clustering node sub panel into a Cluster Node 
+	 * domain object
+	 * 
+	 * @param nodeId node identifier
+	 * @param parentId node identifier for the node's parent
 	 * @return A clustering node instance
 	 */
-	
-	public ClusterNode toClusterNode(int count)
+	public ClusterNode toClusterNode(int nodeId, int parentId)
 	{
 		ClusterNode clusterNode = new ClusterNode();
 		
-		int groupSize = Integer.parseInt(numberOfgroupsTextBox.getValue());
+		int groupSize = Integer.parseInt(numberOfGroupsTextBox.getValue());
 		clusterNode.setGroupeName(groupingTextBox.getValue());
 		clusterNode.setGroupeSize(groupSize);
-		clusterNode.setDepth(count);
+		clusterNode.setNode(nodeId);
+		clusterNode.setParent(parentId);
 		return clusterNode;
 	}
 	

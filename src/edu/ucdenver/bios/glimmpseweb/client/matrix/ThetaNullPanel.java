@@ -102,8 +102,8 @@ public class ThetaNullPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case WITHIN_CONTRAST_MATRIX:
-    		int withinContrastColumns = studyDesignContext.getWithinParticipantContrast().getColumns();
-    		thetaNull.setColumnDimension(withinContrastColumns);
+    		//int withinContrastColumns = studyDesignContext.getWithinParticipantContrast().getColumns();
+    		//thetaNull.setColumnDimension(withinContrastColumns);
     		break;
     	case BETWEEN_CONTRAST_MATRIX:
     		break;

@@ -477,12 +477,14 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidSampleSize();
     public String errorInvalidQuantile();
     public String errorInvalidPower();
+    public String errorInvalidString();
     public String errorInvalidNumber();
     public String errorInvalidPositiveNumber();
     public String errorMaxRows();
     public String errorInvalidMatrixDimension();
     public String errorInvalidTailProbability();
     public String errorSampleSizeLessThanRank();
+    public String errorInvalidClusterSize();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();
@@ -505,13 +507,14 @@ public interface GlimmpseConstants extends Constants
      
      //clustering panel constants
      public String clusteringPanelTitle();
-     public String clusteringPanelHeader();
-     public String clusteringPanelDescription1();
-     public String clusteringPanelDescription2();
-     public String clusteringPanelAddClusteringRow1Column1();
-     public String clusteringPanelAddClusteringRow2Column1();
-     public String errorInvalidClusterGroupingNumber();
-     public String errorInvalidClusterGroupingName();
+     public String clusteringPanelDescription();
+     public String clusteringPanelAddClusteringButton();
+     public String clusteringPanelRemoveClusteringButton();
+     public String clusteringPanelAddSubgroupButton();
+     public String clusteringPanelRemoveSubgroupButton();
+     // subpanels for individual clustering nodes
+     public String clusteringNodePanelNameLabel();
+     public String clusteringNodePanelNumberOfGroupsLabel();
      
      //cancel Dialog Box
      public String cancelDialogBoxQuery();

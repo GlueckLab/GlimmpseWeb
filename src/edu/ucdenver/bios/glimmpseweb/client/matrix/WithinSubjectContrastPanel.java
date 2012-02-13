@@ -120,8 +120,8 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-    	NamedMatrix contextWithinContrast = studyDesignContext.getWithinParticipantContrast();
-    	withinSubjectMatrix.loadFromNamedMatrix(contextWithinContrast);
+    	//NamedMatrix contextWithinContrast = studyDesignContext.getWithinParticipantContrast();
+    	//withinSubjectMatrix.loadFromNamedMatrix(contextWithinContrast);
 	}
 	
 }

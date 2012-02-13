@@ -21,6 +21,12 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client;
 
+
+import java.text.ParseException;
+import java.text.StringCharacterIterator;
+
+import org.apache.regexp.CharacterIterator;
+
 import com.google.gwt.user.client.ui.HTML;
 
 /**
@@ -28,6 +34,25 @@ import com.google.gwt.user.client.ui.HTML;
  */
 public class TextValidation
 {
+	private static final String validPunctuationChars = " ._-";
+	public static String parseString(String str)
+	throws ParseException
+	{
+		if (str == null || str.isEmpty()) throw new ParseException("empty string", 0);
+		
+		for (int pos = 0; pos < str.length(); pos++)
+		{
+		    char ch = str.charAt(pos);
+			if (!Character.isDigit(ch) && !Character.isLetter(ch) &&  
+					validPunctuationChars.indexOf(ch) != -1)
+				throw new ParseException("invalid character at ", pos);
+			pos++;
+		}
+		return str;
+
+	}
+	
+	
 	public static int parseInteger(String str, int lowerBound, int upperBound)
 	throws NumberFormatException
 	{
@@ -81,8 +106,6 @@ public class TextValidation
 
 	    return n;
 	}
-	
-	
 	
     public static void displayError(HTML widget, String msg)
     {
