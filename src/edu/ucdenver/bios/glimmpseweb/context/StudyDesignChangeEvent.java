@@ -24,7 +24,10 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
 		SIGMA_COVARIATE_MATRIX,
 		SIGMA_OUTCOME_COVARIATE_MATRIX,
 		CONFIDENCE_INTERVAL,
-		POWER_CURVE
+		POWER_CURVE,
+		CLUSTERING,
+		REPEATED_MEASURES,
+		HYPOTHESIS
 	};
 	
 	protected StudyDesignChangeType type;

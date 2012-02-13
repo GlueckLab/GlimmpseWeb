@@ -6,6 +6,7 @@ import java.util.List;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
@@ -83,12 +84,6 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.BETWEEN_CONTRAST_MATRIX));
 	}
 
-	public NamedMatrix getWithinParticipantContrast()
-	{
-//		return studyDesign.getWithinParticipantContrast();
-		return null;
-	}
-
 	public void setWithinParticipantContrast(WizardStepPanel panel, NamedMatrix withinParticipantContrast)
 	{
 //		studyDesign.setWithinParticipantContrast(withinParticipantContrast);
@@ -137,5 +132,18 @@ public class StudyDesignContext extends WizardContext
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.THETA_NULL_MATRIX));
 	}
-
+	
+	/**
+	 * Store clustering information to the local context and the study design service, and
+	 * notify all wizard panels of the change.
+	 * 
+	 * @param panel the panel which initiated the change
+	 * @param clusteringNodeList the updated list of clustering nodes.
+	 */
+	public void setClustering(WizardStepPanel panel, ArrayList<ClusterNode> clusteringNodeList)
+	{
+	    studyDesign.setClusteringTree(clusteringNodeList);
+	    notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+	            StudyDesignChangeType.CLUSTERING));
+	}
 }
