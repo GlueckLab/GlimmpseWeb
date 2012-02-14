@@ -519,4 +519,43 @@ public interface GlimmpseConstants extends Constants
      //cancel Dialog Box
      public String cancelDialogBoxQuery();
      
+     //hypothesis Panel
+     public String hypothesisPanelTitle();
+     public String hypothesisPanelDescription();
+     public String hypothesisPanelInstructions();
+     public String hypothesisPanelMainEffect();
+     public String hypothesisPanelInteraction();
+     public String hypothesisPanelTrend();
+     public String hypothesisPanelMainEffectExplination();
+     public String hypothesisPanelInteractionExplination();
+     public String hypothesisPanelTrendExplination();
+     public String hypothesisPanelSelectTypeOfTrend();
+     
+     //main effects Panel
+     public String mainEffectPanelText();
+     public String mainEffectPanelBetweenParticipantFactors();
+     public String mainEffectPanelWithinParticipantFactors();
+     
+     //interaction hypothesis Panel
+     public String interactionHypothesisPanelText();
+     public String interactionHypothesisPanelBetweenParticipantFactors();
+     public String interactionHypothesisPanelWithinParticipantFactors();
+
+     //trend hypothesis Panel
+     public String trendHypothesisPanelText();
+     public String trendHypothesisPanelBetweenParticipantFactors();
+     public String trendHypothesisPanelWithinParticipantFactors();
+     
+     //edit trend panel
+     public String editTrendNoTrend();
+     public String editTrendChangeFromBaseline();
+     public String editTrendAllPolynomialTrends();
+     public String editTrendLinearTrendOnly();
+     public String editTrendQudraticTrendOnly(); 
+     public String editTrendCubicTrendOnly();
+     public String editTrendChangeFromBaselineImage();
+     public String editTrendAllPolynomialTrendsImage();
+     public String editTrendLinearTrendOnlyImage();
+     public String editTrendQudraticTrendOnlyImage();
+     public String editTrendCubicTrendOnlyImage();
 }
