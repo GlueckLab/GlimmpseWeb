@@ -56,33 +56,34 @@ public class LearCorrelation
 	    if (spacingList == null || spacingList.size() < 2)
 	        throw new IllegalArgumentException("Failed to create Lear Correlation: invalid spacing");
 
-		minDistance = Math.abs(spacingList.get(1) - spacingList.get(0));
-		maxDistance = Math.abs(spacingList.get(spacingList.size()-1) - spacingList.get(0));
+	    // maximum spacing between any of the measurements, assuming the list is in
+	    // ascending order
+	    maxDistance = Math.abs(spacingList.get(spacingList.size()-1) - spacingList.get(0));
+	    // find the smallest distance increment between any of the measurements
+		calculateMinDistance();
 	}
-//
-//	//Method to calculate the mainimum distance between values in spacing list
-//	public int calculateMinDistance()
-//	{		
-//		for(int j = 0; j < spacingListSize; j++ )
-//		{
-//			for(int i = 0; i < spacingListSize; i++)
-//			{
-//				int difference = Math.abs(spacingList.get(j) - spacingList.get(i));
-//				if(difference < minDistance && difference > 0)
-//				{
-//					minDistance = difference;
-//				}
-//			}
-//		}
-//		return minDistance;
-//	}
-//
+
+	//Method to calculate the mainimum distance between values in spacing list
+	private void calculateMinDistance()
+	{		
+	    minDistance = maxDistance;
+	    for(int i = 0, j = 1; j < spacingList.size(); i++, j++ )
+	    {
+	        int difference = Math.abs(spacingList.get(j) - spacingList.get(i));
+	        if(difference < minDistance)
+	        {
+	            minDistance = difference;
+	        }
+	    }
+	}
+
 //	//Method to calculate the maximum distance between values in spacing list
-//	public int calculateMaxDistance()
+//	private void calculateMaxDistance()
 //	{
+//	    maxDistance = 0;
 //		for(int j = 0; j < spacingListSize; j++ )
 //		{
-//			for(int i = 0; i < spacingListSize; i++)
+//			for(int i = 0; i < j; i++)
 //			{
 //				int difference = Math.abs(spacingList.get(j) - spacingList.get(i));
 //				if(difference > minDistance && difference > 0)
@@ -91,7 +92,6 @@ public class LearCorrelation
 //				}
 //			}
 //		}
-//		return maxDistance;
 //	}
 
 	/**
