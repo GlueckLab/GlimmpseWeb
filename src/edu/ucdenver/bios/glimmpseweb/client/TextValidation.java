@@ -106,7 +106,12 @@ public class TextValidation
 
 	    return n;
 	}
-	
+	public static double parseDouble(String str) throws NumberFormatException
+	{
+		if (str == null || str.isEmpty()) throw new NumberFormatException();
+		double n = Double.parseDouble(str);
+		return n;
+	}
     public static void displayError(HTML widget, String msg)
     {
         widget.removeStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_OKAY);
