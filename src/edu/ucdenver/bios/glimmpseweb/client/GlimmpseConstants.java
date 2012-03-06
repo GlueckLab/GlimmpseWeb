@@ -558,4 +558,72 @@ public interface GlimmpseConstants extends Constants
      public String editTrendLinearTrendOnlyImage();
      public String editTrendQudraticTrendOnlyImage();
      public String editTrendCubicTrendOnlyImage();
+     
+     //structured correlation panel
+     public String standardDeviationLabel();
+     public String standardDeviationExplinationHeader();
+     public String standardDeviationExplinationText();
+     
+     
+     public String strongestCorrelationLabel();
+     public String strongestCorrelationExplinationHeader();
+     public String strongestCorrelationExplinationText();
+     
+     public String rateOfDecayOfCorrelationLabel();
+     public String rateOfDecayOfCorrelationExplinationHeader();
+     public String rateOfDecayOfCorrelationExplinationText();
+     
+     //structured correlation panel
+     public String structuredCorrelationPanelHeader();
+     public String structuredCorrelationPanelText();
+     
+     
+     //
+     public String useCustomVariablity();
+     public String useCustomCorrelation();
+     public String uploadCorrelationMatrix();
+     public String useStructuredVariability();
+     public String useCovarianceView();
+     public String uploadCovarianceMatrix();
+     public String useCorrelationView();
+     
+     public String explainButtonText();
+     
+     public String useCustomVariablityAlertHeader();
+     public String useCustomVariabilityAlertText();
+     public String useCustomCorrelationAlertHeader();
+     public String useCustomCorrelationAlertText();
+     public String useStructuredVariabilityAlertHeader();
+     public String useStructuredVariabilityAlertText();
+     public String useCovarianceViewAlertHeader();
+     public String useCovarianceViewAlertText();
+     
+     public String correlationMatrixAlertHeader();
+     public String correlationMatrixAlertText();
+     public String covarinceMatrixAlertHeader();
+     public String covarinceMatrixAlertText();
+     
+     
+     public String unstructuredCorrelationEnterExpectedStandardDeviation();
+     public String unstructuredCorrelationEnterExpectedCorrelation();
+     
+     //unstructured covariance panel
+     public String unstructuredCovarianceInstructions();
+     public String unstructuredCovarianceHeader();
+     
+     
+     //Within Subject Covariance Header
+     public String withinSubjectCovarianceHeader();
+     public String withinSubjectCovarianceInstructions();
+     public String uploadFullCovarianceMatrix();
+     public String fullCovarianceMatrixHeader();
+     public String fullCovarianceMatrixText();
+     
+     //random Covariate Covariance Panel
+     public String randomCovariateCovarianceHeader();
+     public String randomCovariateCovarianceDescription();
+     public String randomCovariateCovarianceEnterStandardDeviationExpectedInstruction();
+     public String randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction();
+     public String randomCovariateCovarianceCheckBoxLabel();
+     
 }
