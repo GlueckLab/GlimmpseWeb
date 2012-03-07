@@ -46,13 +46,15 @@ public class LearCorrelation
 	 * @param node repeated measures node object
 	 * @throws IllegalArgumentException
 	 */
-	public LearCorrelation(RepeatedMeasuresNode node)
+	public LearCorrelation(List<Integer> integerList)
 	throws IllegalArgumentException
 	{
-	    if (node == null)
+		spacingList = integerList;
+		
+	    if (spacingList == null)
 	        throw new IllegalArgumentException("Failed to create Lear Correlation: null repeated measures object");
 	    
-	    spacingList = node.getSpacingList();
+	    
 	    if (spacingList == null || spacingList.size() < 2)
 	        throw new IllegalArgumentException("Failed to create Lear Correlation: invalid spacing");
 
