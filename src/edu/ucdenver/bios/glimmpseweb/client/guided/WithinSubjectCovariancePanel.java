@@ -17,6 +17,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.ResponseList;
 
 public class WithinSubjectCovariancePanel extends WizardStepPanel
 {
@@ -76,6 +77,18 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
         repeatedMeasuresNodeArrayList.add(child1);
         studyDesignContext.setRepeatedMeasuresNodes(this, repeatedMeasuresNodeArrayList);
         
+        
+        
+        ResponseList responseList = new ResponseList();
+        responseList.setName("Dogs");
+        List<String> dataList = new ArrayList<String>();
+        dataList.add("HR");
+        dataList.add("SBP");
+        dataList.add("DBP");
+        dataList.add("Temperature");
+        responseList.setDataList(dataList);
+        studyDesignContext.setResponsesPanelListEntryPanel(this, dataList);
+        
         /*******END OF REMOVE THIS*/
         
         
@@ -120,7 +133,8 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 	public TabLayoutPanel constructTabPanel()
 	{
 		
-		List<RepeatedMeasuresNode> repeatedMeasuresNodeList = studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+		List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
+				studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
 		int size = repeatedMeasuresNodeList.size();
 		for(int i = 0; i < size; i++)
 		{
@@ -129,7 +143,8 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		tabPanel.add(new CovarianceCorrelationDeckPanel(obj), obj.getDimension());
 		if(i == size-1)
 		{
-			tabPanel.add(new CovarianceCorrelationDeckPanel(obj),"Responses");
+			List<String> responseList = studyDesignContext.getStudyDesign().getResponseList();
+			tabPanel.add(new CovarianceCorrelationDeckPanel(responseList),"Responses");
 		}
 		}
 		
