@@ -30,6 +30,9 @@ public class ToolsMenuPanel extends Composite
 	public ToolsMenuPanel()
 	{
 		DockPanel panel = new DockPanel();
+		panel.setStyleName(GlimmpseConstants.STYLE_TOOLS_MENU_PANEL);
+		panel.setSpacing(4);
+		panel.setHorizontalAlignment(DockPanel.ALIGN_RIGHT);
 		MenuBar menu = new MenuBar();
 	    menu.setAutoOpen(true);
 	    menu.setAnimationEnabled(true);
@@ -50,7 +53,6 @@ public class ToolsMenuPanel extends Composite
 	    
 	    // set style
 	    
-	    panel.setStyleName(GlimmpseConstants.STYLE_TOOLS_MENU_PANEL);
 	    toolsMenu.setStyleName(GlimmpseConstants.STYLE_TOOLS_MENU_HEADER);
 	    initWidget(panel);
 	}

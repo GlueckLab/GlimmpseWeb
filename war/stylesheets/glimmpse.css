@@ -55,24 +55,28 @@ div#bottom-navbar a:hover {
 .titleBar .gwt-HTML {
 	width: 96%;
 	text-align: right;
-	margin-right: 5px;
+	margin-right: 50px;
 	font-size: 14pt;
 }
 
 /* tool bar for save, help, etc */
 .toolsMenuPanel {
-	width: 100%;
+	width: 80%;
 	background-color: white;
-	border: 1px solid green;
+	background-image: none;
+}
+
+.toolsMenuPanel .gwt-MenuBar {
+	background: white;
+	border: none;
 }
 
 .toolsMenuHeader {
-	width: 200px;
+	width: 64px;
 	text-align: right;
 	background-image: url('/images/gear.png');
 	background-repeat:no-repeat;
 	background-position: 0px 0px; 
-	border: 1px solid red;
 	margin-right: 5px;
 }
 
@@ -145,7 +149,115 @@ div#bottom-navbar a:hover {
 .finishButton {
 	background-color: green;
 	color: e87439;
-	border: 1px solid white;	
+	border: 1px solid white;
+	width: 75px;
+	height: 32px;
+}
+
+/* mode selection screen */
+
+/* style for initial mode selection screen */
+.modeSelectionInputContainer {
+	padding: 10px;
+	margin-left:20px;
+	background: #ebf0f5;
+	border: 1px solid #ccc;
+	-moz-border-radius: 5px;
+   border-radius: 5px;
+}
+
+.modeSelectionPanelHeader {
+	margin-left: 20px;
+	margin-top: 10px;
+	font-weight: bold;
+	font-size: large;
+	width: 90%;
+}
+
+.modeSelectionPanelDescription {
+	margin: 10px 20px;
+	width: 80%;
+}
+
+.modeSelectionPanelContainer {
+	background-color:  white;
+	height: 260px;
+	width: 240px;
+	border: 2px solid #ccc;
+}
+
+.modeSelectionPanelContainerTitle {
+	font-size: larger;
+	text-align: center;
+	width: 100%;
+	height: 30px;
+	padding-top: 6px;
+	background: #005C84;
+	border-bottom: 2px solid black;
+	color: white;
+}
+
+.modeSelectionPanelContainerDescription {
+	padding: 10px;
+	height: 150px;
+}
+
+.modeSelectionPanelGoButton {
+	float: right;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	cursor: pointer;
+}
+
+.modeSelectionPanelContainer .gwt-FileUpload {
+	width: 75px;
+	margin-left: 5px;
+	margin-top: 8px;
+}
+
+/* style for main wizard input panel (GWT class) */
+.glimmpseWizardPanel {
+	margin: 5px 5px;
+	padding: 5px;
+	background: #fff;
+	height: 100%;
+}
+
+/* style for main wizard input panel (GWT class) */
+.wizardContentPanel {
+	width: 810px;
+	min-height: 400px;
+}
+
+/* styles applied to steps in the input wizard */
+.wizardStepPanel {
+	min-height: 500px;
+	width: 100%;
+	padding-left: 10px;
+}
+
+.wizardStepPanel-subpanel {
+	width: 100%;
+}
+
+.wizardStepHeader {
+	margin: 5px 5px;
+	font-weight: bold;
+	font-size: 14pt;
+	width: 80%;
+}
+
+.wizardStepDescription {
+	margin: 5px 5px;
+	font-size: 12pt;
+	width: 80%;
+}
+
+.wizardStepHeader-subpanel {
+	border-top: 1px solid #ccc;
+	font-weight: normal;
+	font-size: larger;
+	margin: 10px 0px;
 }
 
 

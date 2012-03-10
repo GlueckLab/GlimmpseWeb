@@ -14,16 +14,18 @@ public class WizardFinishPanel extends Composite
 	
 	public WizardFinishPanel(ClickHandler handler)
 	{
-		DockPanel panel = new DockPanel();
-		
+	    DockPanel dock = new DockPanel();
+	    dock.setStyleName(STYLE_PANEL);
+	    dock.setSpacing(4);
+	    dock.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
+	    
 		finishButton = new Button("Calculate", handler);
-		panel.add(finishButton, DockPanel.CENTER);
+		dock.add(finishButton, DockPanel.CENTER);
 		
 		// set style
-		panel.setStyleName(STYLE_PANEL);
 		finishButton.setStyleName(STYLE_BUTTON);
 		
-		initWidget(panel);
+		initWidget(dock);
 		
 	}
 	
