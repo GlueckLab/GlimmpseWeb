@@ -26,7 +26,7 @@ div#bottom-navbar a:hover {
 .glimmpseLogo {
 	color: white;
 	font-weight: bold;
-	background-image: url('/images/glimmpse-logo2.png');
+	background-image: url('/images/glimmpse-logo.png');
 	background-repeat:no-repeat;
 	background-position: 10px 0px; 
 	width: 164px;
@@ -45,7 +45,7 @@ div#bottom-navbar a:hover {
 }
 
 .titleBar {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 	color: white;
 	background-color: #112c71;
 	width: 100%;
@@ -60,30 +60,41 @@ div#bottom-navbar a:hover {
 }
 
 /* tool bar for save, help, etc */
-.toolsMenu {
-	width: 30px;
+.toolsMenuPanel {
+	width: 100%;
+	background-color: white;
+	border: 1px solid green;
+}
+
+.toolsMenuHeader {
+	width: 200px;
 	text-align: right;
 	background-image: url('/images/gear.png');
+	background-repeat:no-repeat;
+	background-position: 0px 0px; 
+	border: 1px solid red;
+	margin-right: 5px;
 }
 
 .toolsMenuItem {
 	
 }
 
-
-
 /* left nav panel */
-.wizardLeftNavHeader {
+.wizardLeftNavHeader .gwt-HTML {
 	height: 32px;
 	width: 200px;
 	text-align: center;
 	color: white;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 	border-bottom: 2px solid e87439;
+	text-decoration: none;
 }
 
-.wizardLeftNavHeader-open {
+.wizardLeftNavHeader-open .gwt-HTML {
 	color: e87439;
 	border-bottom: none;
+	text-decoration: none;
 }
 
 .wizardLeftNavContent {
@@ -100,7 +111,7 @@ div#bottom-navbar a:hover {
   color: #005C84;
   width: 100%;
   background-color: white;
-  text-align: left;
+  text-align: right;
 }
 
 .wizardLeftNavLink-skipped {
