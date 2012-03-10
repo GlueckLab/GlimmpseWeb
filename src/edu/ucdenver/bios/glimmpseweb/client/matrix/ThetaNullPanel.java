@@ -29,6 +29,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -50,9 +51,8 @@ public class ThetaNullPanel extends WizardStepPanel
     
 	public ThetaNullPanel(WizardContext context)
 	{
-		super(context, "Theta null");
+		super(context, "Theta null", WizardStepPanelState.COMPLETE);
 		// regardless of user input, this panel allows forward navigation
-		complete = true;
 		
 		VerticalPanel panel = new VerticalPanel();
 		

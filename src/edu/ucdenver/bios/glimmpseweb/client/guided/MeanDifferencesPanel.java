@@ -39,6 +39,7 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Entry screen for means by outcome and study subgroup
@@ -60,7 +61,8 @@ implements ChangeHandler
 	public MeanDifferencesPanel(WizardContext context)
 	{
 		super(context, "Mean Differences");
-		complete = true;
+		this.state = WizardStepPanelState.COMPLETE;
+		
 		VerticalPanel panel = new VerticalPanel();
 
 		HTML header = new HTML(GlimmpseWeb.constants.meanDifferenceTitle());
@@ -85,7 +87,7 @@ implements ChangeHandler
 	{
 		meansTable.removeAllRows();
 		uploadedValues.clear();
-		complete = true;
+		changeState(WizardStepPanelState.COMPLETE);
 	}
 
 //	@Override
@@ -191,7 +193,7 @@ implements ChangeHandler
 	public String toXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (!skip && complete)
+		if (WizardStepPanelState.COMPLETE == state)
 		{
 			XMLUtilities.fixedRandomMatrixOpenTag(buffer, GlimmpseConstants.MATRIX_BETA, false);
 

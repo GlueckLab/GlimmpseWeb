@@ -140,14 +140,14 @@ public class CovarianceCorrelationDeckPanel extends Composite
 */	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode)
 	{
 		String dimension = repeatedMeasuresNode.getDimension();
-		List<Integer> spacingList = repeatedMeasuresNode.getSpacingList();
-		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
-		int size = spacingList.size();
-		for(int i = 0; i < size; i++)
-		{
-			labelList.add(i, dimension+""+spacingList.get(i).toString());
-		}
-		buildDeckPanel(labelList, spacingList);
+//		List<Integer> spacingList = repeatedMeasuresNode.getSpacingList();
+//		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
+//		int size = spacingList.size();
+//		for(int i = 0; i < size; i++)
+//		{
+//			labelList.add(i, dimension+""+spacingList.get(i).toString());
+//		}
+//		buildDeckPanel(labelList, spacingList);
 	}
 	
 	public CovarianceCorrelationDeckPanel(List<String> responseList)

@@ -42,6 +42,7 @@ import edu.ucdenver.bios.glimmpseweb.client.TreeItemAction;
 import edu.ucdenver.bios.glimmpseweb.client.TreeItemIterator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 
@@ -64,6 +65,9 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
     protected int itemCount = 0;
     // pointer to the lower most leaf in the tree
     protected TreeItem currentLeaf = null;
+    // used to verify completeness
+    boolean complete;
+    
     // actions performed when iterating over the tree of clustering nodes
     // action to determine if the screen is complete
     TreeItemAction checkCompleteAction = new TreeItemAction() {
@@ -169,25 +173,6 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
         addSubgroupButton.setStyleName(BUTTON_STYLE);
         removeSubgroupButton.setStyleName(BUTTON_STYLE);
 
-        /******** REMOVE THIS */
-        ArrayList<ClusterNode> clusterNodeArrayList = new ArrayList<ClusterNode>();
-        ClusterNode root = new ClusterNode();
-        root.setGroupeName("Foo");
-        root.setGroupeSize(10);
-        root.setNode(1);
-        root.setParent(0);
-        clusterNodeArrayList.add(root);
-        ClusterNode child = new ClusterNode();
-        child.setGroupeName("Bar");
-        child.setGroupeSize(20);
-        child.setNode(2);
-        child.setParent(1);
-        clusterNodeArrayList.add(child);
-
-        studyDesignContext.setClustering(this, clusterNodeArrayList);
-        onWizardContextLoad();
-        /********** END REMOVE THIS */
-
         // Initializing widget
         initWidget(panel);
     }
@@ -273,44 +258,14 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
     private void checkComplete() 
     {
         // initialize to true
-        complete = true;
+        boolean complete = true;
         // set back to false if any subpanels are incomplete
         TreeItemIterator.traverseDepthFirst(clusteringTree, checkCompleteAction);
         if (complete)
-            notifyComplete();
+            changeState(WizardStepPanelState.COMPLETE);
         else
-            notifyInProgress();
+        	changeState(WizardStepPanelState.INCOMPLETE);
         GWT.log("clustering screen is complete? " + complete);
-//        
-//        if (itemCount <= 0)
-//        {
-//            // no clustering, so user may continue
-//            notifyComplete();
-//        }
-//        else
-//        {
-//            boolean complete = true;
-//
-//            for(int i = 0; i < itemCount; i++)
-//            {
-//                TreeItem item = clusteringTree.getItem(i);
-//                GWT.log("count=" + itemCount + ", got item " + i);
-//                if (item != null)
-//                {
-//                    ClusteringPanelSubPanel subpanel = (ClusteringPanelSubPanel) item.getWidget();
-//                    if (!subpanel.checkComplete()) 
-//                    {
-//                        complete = false;
-//                        break;
-//                    }
-//                }
-//            }
-//            if (complete)
-//                notifyComplete();
-//            else 
-//                notifyInProgress();
-//            GWT.log(System.currentTimeMillis() + " " + complete);
-//        }
     }
 
     /**
@@ -342,7 +297,7 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
     {
         boolean subpanelComplete = subpanel.checkComplete();
         GWT.log("subpanel complete? " + subpanelComplete);
-        if (complete)
+        if (WizardStepPanelState.COMPLETE == this.state)
         {
             complete = subpanelComplete;
         }
@@ -417,8 +372,8 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
                 }
 
                 ClusteringPanelSubPanel currentPanel = (ClusteringPanelSubPanel) currentLeaf.getWidget();
-                currentPanel.setGroupingName(clusterNode.getGroupeName());
-                currentPanel.setNumberOfGroups(clusterNode.getGroupeSize());
+//                currentPanel.setGroupingName(clusterNode.getGroupeName());
+//                currentPanel.setNumberOfGroups(clusterNode.getGroupeSize());
             }
         }
         checkComplete();

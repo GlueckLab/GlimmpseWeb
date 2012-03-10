@@ -30,6 +30,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
@@ -52,10 +53,9 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
     
     public SigmaOutcomeCovariateMatrixPanel(WizardContext context)
     {
-		super(context, "Sigma YG");
+		super(context, "Sigma YG", WizardStepPanelState.SKIPPED);
 		// regardless of input, forward navigation is allowed from this panel
-		complete = true;
-		skip = true;
+
         HTML header = new HTML(GlimmpseWeb.constants.sigmaOutcomeCovariateTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaOutcomeCovariateDescription());
 		VerticalPanel panel = new VerticalPanel();
@@ -81,13 +81,12 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
 	{
 		sigmaYG.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_P);
-		skip = true;
-		complete = true;
+		changeState(WizardStepPanelState.SKIPPED);
 	}
 	
 	public String toXML()
 	{
-		if (skip)
+		if (state == WizardStepPanelState.SKIPPED)
 			return "";
 		else
 			return sigmaYG.toXML(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
@@ -104,7 +103,10 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case COVARIATE:
-    	skip = !studyDesignContext.getStudyDesign().isGaussianCovariate();
+    		if (!studyDesignContext.getStudyDesign().isGaussianCovariate())
+    			changeState(WizardStepPanelState.SKIPPED);
+    		else
+    			changeState(WizardStepPanelState.COMPLETE);
     		break;
     	case BETA_MATRIX:
 //    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();

@@ -29,6 +29,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
@@ -58,8 +59,7 @@ public class BetaPanel extends WizardStepPanel
     
 	public BetaPanel(WizardContext context)
 	{
-		super(context, GlimmpseWeb.constants.stepsLeftBeta());
-		complete = true;
+		super(context, GlimmpseWeb.constants.stepsLeftBeta(), WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

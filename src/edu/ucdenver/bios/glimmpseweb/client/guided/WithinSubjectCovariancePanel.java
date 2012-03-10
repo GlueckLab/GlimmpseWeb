@@ -17,7 +17,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-import edu.ucdenver.bios.webservice.common.domain.ResponseList;
 
 public class WithinSubjectCovariancePanel extends WizardStepPanel
 {
@@ -34,60 +33,60 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		super(context, "Within Subject Covariance");
 		
 		/******REMOVE THIS LATER*/
-		ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeArrayList = new ArrayList<RepeatedMeasuresNode>();
-		List<Integer> rootSpacingList = new ArrayList<Integer>();
-		rootSpacingList.add(1);
-		rootSpacingList.add(5);
-		rootSpacingList.add(9);
-		RepeatedMeasuresNode root = new RepeatedMeasuresNode();
-        root.setDimension("Week");
-        root.setNode(0);
-        root.setNumberOfMeasurements(3);
-        root.setParent(0);
-        root.setType("Numeric");
-        root.setSpacingList(rootSpacingList);
-        repeatedMeasuresNodeArrayList.add(root);
-        RepeatedMeasuresNode child = new RepeatedMeasuresNode();
-        List<Integer> childSpacingList = new ArrayList<Integer>();
-        childSpacingList.add(1);
-        childSpacingList.add(2);
-        childSpacingList.add(3);
-        childSpacingList.add(4);
-        childSpacingList.add(5);
-        childSpacingList.add(6);
-        childSpacingList.add(7);
-        child.setSpacingList(childSpacingList);
-        child.setDimension("Day");
-		child.setType("Ordinal");
-        child.setNode(1);
-        child.setNumberOfMeasurements(7);
-        child.setParent(0);
-        repeatedMeasuresNodeArrayList.add(child);
-        RepeatedMeasuresNode child1 = new RepeatedMeasuresNode();
-        List<Integer> childSpacingList1 = new ArrayList<Integer>();
-        childSpacingList1.add(1);
-        childSpacingList1.add(5);
-        childSpacingList1.add(9);
-		child1.setDimension("Time");
-		child1.setType("Numeric");
-        child1.setNode(2);
-        child1.setNumberOfMeasurements(3);
-        child1.setParent(1);
-        child1.setSpacingList(childSpacingList1);
-        repeatedMeasuresNodeArrayList.add(child1);
-        studyDesignContext.setRepeatedMeasuresNodes(this, repeatedMeasuresNodeArrayList);
-        
-        
-        
-        ResponseList responseList = new ResponseList();
-        responseList.setName("Dogs");
-        List<String> dataList = new ArrayList<String>();
-        dataList.add("HR");
-        dataList.add("SBP");
-        dataList.add("DBP");
-        dataList.add("Temperature");
-        responseList.setDataList(dataList);
-        studyDesignContext.setResponsesPanelListEntryPanel(this, dataList);
+//		ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeArrayList = new ArrayList<RepeatedMeasuresNode>();
+//		List<Integer> rootSpacingList = new ArrayList<Integer>();
+//		rootSpacingList.add(1);
+//		rootSpacingList.add(5);
+//		rootSpacingList.add(9);
+//		RepeatedMeasuresNode root = new RepeatedMeasuresNode();
+//        root.setDimension("Week");
+//        root.setNode(0);
+//        root.setNumberOfMeasurements(3);
+//        root.setParent(0);
+//        root.setType("Numeric");
+//        root.setSpacingList(rootSpacingList);
+//        repeatedMeasuresNodeArrayList.add(root);
+//        RepeatedMeasuresNode child = new RepeatedMeasuresNode();
+//        List<Integer> childSpacingList = new ArrayList<Integer>();
+//        childSpacingList.add(1);
+//        childSpacingList.add(2);
+//        childSpacingList.add(3);
+//        childSpacingList.add(4);
+//        childSpacingList.add(5);
+//        childSpacingList.add(6);
+//        childSpacingList.add(7);
+//        child.setSpacingList(childSpacingList);
+//        child.setDimension("Day");
+//		child.setType("Ordinal");
+//        child.setNode(1);
+//        child.setNumberOfMeasurements(7);
+//        child.setParent(0);
+//        repeatedMeasuresNodeArrayList.add(child);
+//        RepeatedMeasuresNode child1 = new RepeatedMeasuresNode();
+//        List<Integer> childSpacingList1 = new ArrayList<Integer>();
+//        childSpacingList1.add(1);
+//        childSpacingList1.add(5);
+//        childSpacingList1.add(9);
+//		child1.setDimension("Time");
+//		child1.setType("Numeric");
+//        child1.setNode(2);
+//        child1.setNumberOfMeasurements(3);
+//        child1.setParent(1);
+//        child1.setSpacingList(childSpacingList1);
+//        repeatedMeasuresNodeArrayList.add(child1);
+//        studyDesignContext.setRepeatedMeasuresNodes(this, repeatedMeasuresNodeArrayList);
+//        
+//        
+//        
+//        ResponseList responseList = new ResponseList();
+//        responseList.setName("Dogs");
+//        List<String> dataList = new ArrayList<String>();
+//        dataList.add("HR");
+//        dataList.add("SBP");
+//        dataList.add("DBP");
+//        dataList.add("Temperature");
+//        responseList.setDataList(dataList);
+//        studyDesignContext.setResponsesPanelListEntryPanel(this, dataList);
         
         /*******END OF REMOVE THIS*/
         
@@ -143,8 +142,8 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		tabPanel.add(new CovarianceCorrelationDeckPanel(obj), obj.getDimension());
 		if(i == size-1)
 		{
-			List<String> responseList = studyDesignContext.getStudyDesign().getResponseList();
-			tabPanel.add(new CovarianceCorrelationDeckPanel(responseList),"Responses");
+//			List<String> responseList = studyDesignContext.getStudyDesign().getResponseList();
+//			tabPanel.add(new CovarianceCorrelationDeckPanel(responseList),"Responses");
 		}
 		}
 		

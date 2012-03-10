@@ -185,8 +185,8 @@ public class ClusteringPanelSubPanel extends Composite
 		ClusterNode clusterNode = new ClusterNode();
 		
 		int groupSize = Integer.parseInt(numberOfGroupsTextBox.getValue());
-		clusterNode.setGroupeName(groupingTextBox.getValue());
-		clusterNode.setGroupeSize(groupSize);
+//		clusterNode.setGroupeName(groupingTextBox.getValue());
+//		clusterNode.setGroupeSize(groupSize);
 		clusterNode.setNode(nodeId);
 		clusterNode.setParent(parentId);
 		return clusterNode;

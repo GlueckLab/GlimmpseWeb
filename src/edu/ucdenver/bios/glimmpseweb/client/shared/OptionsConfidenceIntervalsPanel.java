@@ -43,6 +43,7 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Matrix Mode panel which allows the user to set options for confidence
@@ -371,7 +372,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (complete && !noCICheckbox.getValue())
+		if (WizardStepPanelState.COMPLETE == state && !noCICheckbox.getValue())
 		{
 			StringBuffer attrs = new StringBuffer();
 			attrs.append(GlimmpseConstants.ATTR_TYPE);

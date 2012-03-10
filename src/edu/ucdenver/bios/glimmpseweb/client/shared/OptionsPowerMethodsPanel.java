@@ -37,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Panel which allows user to select statistical tests, display options
@@ -89,8 +90,7 @@ implements ClickHandler
      */
     public OptionsPowerMethodsPanel(WizardContext context, String mode)
 	{
-		super(context, "Power Method");
-		skip = true;
+		super(context, "Power Method", WizardStepPanelState.SKIPPED);
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description
@@ -147,7 +147,7 @@ implements ClickHandler
 		quantileListPanel.setVisible(false);
 		numQuantiles = 0;
 		quantileListPanel.reset();
-		skip = true;
+		changeState(WizardStepPanelState.SKIPPED);
 		checkComplete();
 	}
 
@@ -163,7 +163,7 @@ implements ClickHandler
 		buffer.append("<");
 		buffer.append(GlimmpseConstants.TAG_POWER_METHOD_LIST);
 		buffer.append(">");
-		if (skip)
+		if (WizardStepPanelState.SKIPPED == state)
 		{
 			buffer.append("<v>");
 			buffer.append(GlimmpseConstants.POWER_METHOD_CONDITIONAL);

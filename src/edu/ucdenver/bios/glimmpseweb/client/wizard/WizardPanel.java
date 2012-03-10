@@ -23,11 +23,18 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.shared.GlimmpseLogoPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.GlimmpseTitleBarPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ToolsMenuPanel;
 
 /**
  * Generic wizard panel including a left navigation bar,
@@ -37,7 +44,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  *
  */
 public class WizardPanel extends Composite 
-implements WizardActionListener, WizardContextListener
+implements WizardActionListener, WizardContextListener, ClickHandler
 {
 	// style for the main display area
 	public static final String STYLE_WIZARD_PANEL = "wizardPanel";
@@ -68,8 +75,12 @@ implements WizardActionListener, WizardContextListener
 		
 		// layout the left navigation
 		leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
+		leftPanel.add(new GlimmpseLogoPanel());
 		leftPanel.add(leftNavPanel);
+		leftPanel.add(new WizardFinishPanel(this));
 		// layout the display area and bottom toolbar
+		contentPanel.add(new GlimmpseTitleBarPanel());
+		contentPanel.add(new ToolsMenuPanel());
 		contentPanel.add(wizardDeck);
 		contentPanel.add(toolbarPanel);
 
@@ -91,6 +102,8 @@ implements WizardActionListener, WizardContextListener
 		toolbarPanel.addActionListener(this);
 		
 		// add style
+		leftPanel.setStyleName(GlimmpseConstants.STYLE_LEFT_PANEL);
+		contentPanel.setStyleName(GlimmpseConstants.STYLE_RIGHT_PANEL);
 		panel.setStyleName(STYLE_WIZARD_PANEL);
 		wizardDeck.setStyleName(STYLE_WIZARD_CONTENT_PANEL);
 
@@ -129,7 +142,8 @@ implements WizardActionListener, WizardContextListener
 				index++;
 				currentStep = (WizardStepPanel) wizardDeck.getWidget(index);
 			} 
-			while (currentStep.skip && index < wizardDeck.getWidgetCount());
+			while (currentStep.state == WizardStepPanelState.SKIPPED 
+					&& index < wizardDeck.getWidgetCount());
 			
 			wizardDeck.showWidget(index);
 			leftNavPanel.showPanel(currentStep);
@@ -152,7 +166,7 @@ implements WizardActionListener, WizardContextListener
 				index--;
 				currentStep = (WizardStepPanel) wizardDeck.getWidget(index);
 			} 
-			while (currentStep.skip && index > 0);
+			while (currentStep.state == WizardStepPanelState.SKIPPED  && index > 0);
 			
 			wizardDeck.showWidget(index);
 			leftNavPanel.showPanel(currentStep);
@@ -231,6 +245,13 @@ implements WizardActionListener, WizardContextListener
 	 */
 	@Override
 	public void onWizardContextLoad()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClick(ClickEvent event)
 	{
 		// TODO Auto-generated method stub
 		

@@ -30,6 +30,11 @@ import com.google.gwt.i18n.client.Constants;
 public interface GlimmpseConstants extends Constants
 {
     // shared style names for input wizard steps
+	public static final String STYLE_LEFT_PANEL = "leftPanel";
+	public static final String STYLE_RIGHT_PANEL = "rightPanel";
+	public static final String STYLE_TOOLS_MENU_PANEL = "toolsMenuPanel";
+	public static final String STYLE_TOOLS_MENU_HEADER = "toolsMenuHeader";
+	public static final String STYLE_TOOLS_MENU_ITEM = "toolsMenuItem";
 	public static final String STYLE_DISABLED = "disabled";
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
@@ -197,6 +202,20 @@ public interface GlimmpseConstants extends Constants
     // footer text
     public String fundingStatement();
     
+    // title bar
+    public String titleBar();
+    
+    // tools menu
+    public String toolsMenu();
+    public String toolsMenuSave();
+    public String toolsMenuHelp();
+    public String toolsMenuAboutGlimmpse();
+    public String toolsMenuCancel();
+    public String toolsMenuSaveCSV();
+    public String toolsMenuSaveCurve();
+    public String toolsMenuSaveLegend();
+    public String toolsMenuViewMatrices();
+    
     // navigation buttons
     public String buttonNext();
     public String buttonPrevious();
@@ -207,14 +226,7 @@ public interface GlimmpseConstants extends Constants
     // other buttons
     public String buttonDelete();
     public String buttonAdd();
-    // tools
-    public String toolsSaveStudy();
-    public String toolsCancel();
-    public String toolsHelp();
-    public String toolsSaveCSV();
-    public String toolsSaveCurve();
-    public String toolsSaveLegend();
-    public String toolsViewMatrices();
+
     // miscellaneous words
     public String and();
     // left navigation / steps left panel

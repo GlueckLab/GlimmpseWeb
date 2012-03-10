@@ -10,8 +10,8 @@ import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesignNamedMatrix;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 public class StudyDesignContext extends WizardContext
 {
@@ -55,9 +55,9 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.POWER_LIST));
 	}
 
-	public void setSolutionType(WizardStepPanel panel, SolutionType solutionType)
+	public void setSolutionType(WizardStepPanel panel, SolutionTypeEnum solutionType)
 	{
-		studyDesign.setSolutionType(solutionType);
+//		studyDesign.setSolutionType(solutionType);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.SOLVING_FOR));
 	}

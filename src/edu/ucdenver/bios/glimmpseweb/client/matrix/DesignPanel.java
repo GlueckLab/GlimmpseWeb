@@ -33,6 +33,7 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -53,8 +54,7 @@ public class DesignPanel extends WizardStepPanel
 
 	public DesignPanel(WizardContext context)
 	{
-		super(context, "Design Essence Matrix");
-		complete = true;
+		super(context, "Design Essence Matrix", WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

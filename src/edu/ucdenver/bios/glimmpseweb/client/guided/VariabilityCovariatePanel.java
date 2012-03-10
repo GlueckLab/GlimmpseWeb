@@ -38,6 +38,7 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Guided mode panel for entering the s.d. of the covariate
@@ -52,8 +53,7 @@ implements ChangeHandler
 
 	public VariabilityCovariatePanel(WizardContext context)
 	{
-		super(context, "Variability due to covariates");
-		skip = true;
+		super(context, "Variability due to covariates", WizardStepPanelState.SKIPPED);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
@@ -86,7 +86,7 @@ implements ChangeHandler
 	@Override
 	public void reset()
 	{
-		skip = true;
+		changeState(WizardStepPanelState.SKIPPED);
 	}
 
 //	@Override
@@ -109,7 +109,7 @@ implements ChangeHandler
 	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (!skip && complete)
+		if (WizardStepPanelState.SKIPPED != state)
 		{
 			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_SIGMA_COVARIATE, 1, 1);
 			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW);
@@ -126,7 +126,7 @@ implements ChangeHandler
 	public String toStudyXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (!skip)
+		if (WizardStepPanelState.SKIPPED != state)
 		{
 			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);
 			buffer.append(standardDeviationTextBox.getValue());
@@ -163,7 +163,7 @@ implements ChangeHandler
 	
 	public void onExit()
 	{
-		if (complete)
+		if (WizardStepPanelState.COMPLETE == state)
 		{
 			double stddev = Double.parseDouble(standardDeviationTextBox.getText());
 			double variance = stddev * stddev;

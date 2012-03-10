@@ -29,6 +29,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -51,10 +52,8 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     
     public SigmaCovariateMatrixPanel(WizardContext context)
     {
-		super(context, "Sigma G");
+		super(context, "Sigma G", WizardStepPanelState.SKIPPED);
 		// regardless of input, forward navigation is allowed from this panel
-		complete = true;
-		skip = true;
         HTML header = new HTML(GlimmpseWeb.constants.sigmaCovariateTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaCovariateDescription());
 		VerticalPanel panel = new VerticalPanel();
@@ -79,13 +78,12 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
 	public void reset()
 	{
 		sigmaG.reset(1, 1);
-		complete = true;
-		skip = true;
+		changeState(WizardStepPanelState.SKIPPED);
 	}
 	
 	public String toXML()
 	{
-		if (skip)
+		if (state == WizardStepPanelState.SKIPPED)
 			return "";
 		else
 			return sigmaG.toXML(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
@@ -107,7 +105,10 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case COVARIATE:
-    		skip = !studyDesignContext.getStudyDesign().isGaussianCovariate();
+    		if (!studyDesignContext.getStudyDesign().isGaussianCovariate())
+    			changeState(WizardStepPanelState.SKIPPED);
+    		else
+    			changeState(WizardStepPanelState.COMPLETE);
     		break;
     	}
     };

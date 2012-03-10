@@ -33,6 +33,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Guided mode equivalent of beta scale panel
@@ -46,7 +47,7 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 	public MeanDifferencesScalePanel(WizardContext context)
 	{
 		super(context, "Scaled Mean Differences");
-		complete = true;
+		state = WizardStepPanelState.COMPLETE;
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

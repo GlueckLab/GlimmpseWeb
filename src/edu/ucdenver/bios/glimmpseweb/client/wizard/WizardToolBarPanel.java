@@ -77,7 +77,7 @@ public class WizardToolBarPanel extends Composite
             for(WizardActionListener listener: listeners) listener.onFinish();
         }
     });
-	Button saveButton = new Button(GlimmpseWeb.constants.toolsSaveStudy(), new ClickHandler() {
+	Button saveButton = new Button(GlimmpseWeb.constants.toolsMenuSave(), new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event)
 		{
@@ -85,14 +85,14 @@ public class WizardToolBarPanel extends Composite
 		}
 	});
 	
-	Button cancelButton = new Button(GlimmpseWeb.constants.toolsCancel(), new ClickHandler() {
+	Button cancelButton = new Button(GlimmpseWeb.constants.toolsMenuCancel(), new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event)
 		{
             for(WizardActionListener listener: listeners) listener.onCancel();
 		}
 	});
-	Button helpButton = new Button(GlimmpseWeb.constants.toolsHelp(), new ClickHandler() {
+	Button helpButton = new Button(GlimmpseWeb.constants.toolsMenuHelp(), new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event)
 		{
@@ -107,27 +107,27 @@ public class WizardToolBarPanel extends Composite
     {
         DockPanel panel = new DockPanel();
 
-        HorizontalPanel actionPanel = new HorizontalPanel();
-        actionPanel.add(helpButton);
-        actionPanel.add(saveButton);
-        actionPanel.add(cancelButton);
+//        HorizontalPanel actionPanel = new HorizontalPanel();
+//        actionPanel.add(helpButton);
+//        actionPanel.add(saveButton);
+//        actionPanel.add(cancelButton);
         HorizontalPanel navPanel = new HorizontalPanel();
-        navPanel.add(previousButton);
+//        navPanel.add(previousButton);
         navPanel.add(nextButton);
-        navPanel.add(finishButton);
+//        navPanel.add(finishButton);
         
-        panel.add(actionPanel, DockPanel.WEST);
+//        panel.add(actionPanel, DockPanel.WEST);
         panel.add(navPanel, DockPanel.EAST);
         
         // add style
         panel.addStyleName(STYLE_TOOLBAR_PANEL);
         
-        helpButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-        saveButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-        cancelButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-        previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+//        helpButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+//        saveButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+//        cancelButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+//        previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         nextButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-        finishButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+//        finishButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         
         initWidget(panel);
     }

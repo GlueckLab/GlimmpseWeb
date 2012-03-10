@@ -33,9 +33,10 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
  * Panel for entering nominal power values when performing
@@ -57,9 +58,8 @@ implements ListValidator
     
 	public PowerPanel(WizardContext context)
 	{
-		super(context, "Desired Power");
+		super(context, "Desired Power", WizardStepPanelState.SKIPPED);
 		studyDesignContext = (StudyDesignContext) context;
-		skip=true;
 		VerticalPanel panel = new VerticalPanel();
 
 		HTML header = new HTML(GlimmpseWeb.constants.solvingForNominalPowerTitle());
@@ -115,7 +115,7 @@ implements ListValidator
 	{
 		nominalPowerListPanel.reset();
     	onValidRowCount(nominalPowerListPanel.getValidRowCount());
-    	skip = true;
+    	changeState(WizardStepPanelState.SKIPPED);
 	}
 
 	/**
@@ -128,7 +128,7 @@ implements ListValidator
 		switch (changeEvent.getType())
 		{
 		case SOLVING_FOR:
-			skip = (studyDesignContext.getStudyDesign().getSolutionType() == SolutionType.POWER);
+//			skip = (studyDesignContext.getStudyDesign().getSolutionType() == SolutionTypeEnum.POWER);
 			break;
 		case POWER_LIST:
 			if (this != changeEvent.getSource())

@@ -404,35 +404,36 @@ public class ResizableMatrix extends Composite
     {
         if (matrix != null)
         {           
-        	int rows = matrix.getRows();
-        	int columns = matrix.getColumns();
-        	matrixData.resize(rows, columns);
-        	rowTextBox.setText(Integer.toString(rows));
-        	columnTextBox.setText(Integer.toString(columns));
-        	
-            for(int r = 0; r < rows; r++)
-            {
-                for(int c = 0; c <  columns; c++)
-                {
-                	setData(r,c,matrix.getCellData(r, c).toString(),true);
-                }
-            }
+//        	int rows = matrix.getRows();
+//        	int columns = matrix.getColumns();
+//        	matrixData.resize(rows, columns);
+//        	rowTextBox.setText(Integer.toString(rows));
+//        	columnTextBox.setText(Integer.toString(columns));
+//        	
+//            for(int r = 0; r < rows; r++)
+//            {
+//                for(int c = 0; c <  columns; c++)
+//                {
+//                	setData(r,c,matrix.getCellData(r, c).toString(),true);
+//                }
+//            }
         }
     }   
     
 	public NamedMatrix toNamedMatrix()
 	{
-		int rows = matrixData.getRowCount();
-		int columns = matrixData.getColumnCount();
-		NamedMatrix namedMatrix = new NamedMatrix(name, rows, columns);
-		for(int r = 0; r < rows; r++)
-		{
-			for(int c = 0; c < columns; c++)
-			{
-				namedMatrix.setCellData(r, c, this.getData(r, c));
-			}
-		}
-		return namedMatrix;
+//		int rows = matrixData.getRowCount();
+//		int columns = matrixData.getColumnCount();
+//		NamedMatrix namedMatrix = new NamedMatrix(name, rows, columns);
+//		for(int r = 0; r < rows; r++)
+//		{
+//			for(int c = 0; c < columns; c++)
+//			{
+//				namedMatrix.setCellData(r, c, this.getData(r, c));
+//			}
+//		}
+//		return namedMatrix;
+		return null;
 	}
 
     public void reset(int newRows, int newColumns)

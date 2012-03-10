@@ -21,6 +21,8 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
+import java.util.ArrayList;
+
 import com.google.gwt.user.client.ui.Composite;
 
 /**
@@ -35,10 +37,11 @@ implements WizardContextListener
 {
 	// context object coordinating user input across screens
 	protected WizardContext context = null;
-	// if true, this panel will be skipped in the wizard navigation
-	protected boolean skip = false;
-	// if true, all required input has been entered for this panel
-	protected boolean complete = false;
+	// panel completion state.  incomplete by default
+	protected WizardStepPanelState state = WizardStepPanelState.INCOMPLETE;
+	// handlers for state changes
+	ArrayList<WizardStepPanelStateChangeHandler> handlers = 
+		new ArrayList<WizardStepPanelStateChangeHandler>();
 	// name of the panel
 	protected String name = "";
 	
@@ -51,15 +54,66 @@ implements WizardContextListener
 	 */
 	public WizardStepPanel(WizardContext context, String name)
 	{
+		this(context, name, WizardStepPanelState.INCOMPLETE);
+	}
+	
+	/**
+	 * Create a wizard step panel.  Each step is required for filling
+	 * in a part of the "context" of the wizard.
+	 * 
+	 * @param context context object
+	 * @param name display name of the panel
+	 * @param initialState starting state of the panel
+	 */
+	public WizardStepPanel(WizardContext context, String name,
+			WizardStepPanelState initialState)
+	{
 		this.name = name;
 		this.context = context;
 		this.context.addContextListener(this);
+		this.state = initialState;
 	}
+	
 	
 	/**
 	 * Clear the panel.  Must be implemented in the subclass.
 	 */
 	public abstract void reset();
+	
+	/**
+	 * Notify any handlers that the panel state has changed
+	 * 
+	 * @param newState
+	 */
+	protected void changeState(WizardStepPanelState newState)
+	{
+		if (this.state != newState)
+		{
+			WizardStepPanelState oldState = this.state;
+			this.state = newState;
+			for(WizardStepPanelStateChangeHandler handler: handlers) 
+				handler.onStateChange(this, oldState, newState);
+		}
+	}
+	
+	/**
+	 * Get the current state of the panel
+	 * @return state
+	 */
+	public WizardStepPanelState getState()
+	{
+		return state;
+	}
+	
+	/**
+	 * Add a handler for panel state changes
+	 * 
+	 * @param handler a class implementing the WizardStepPanelStateChangeHandler interface
+	 */
+	protected void addChangeHandler(WizardStepPanelStateChangeHandler handler)
+	{
+		handlers.add(handler);
+	}
 	
     /**
      * Notify listeners that this step is complete and forward navigation
@@ -67,7 +121,7 @@ implements WizardContextListener
      */
     public void notifyComplete()
     {
-    	complete = true;
+//    	complete = true;
 //		for(StepStatusListener listener: stepStatusListeners) listener.onStepComplete();
     }
     

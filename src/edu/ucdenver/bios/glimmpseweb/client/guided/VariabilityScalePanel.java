@@ -36,6 +36,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Guided mode equivalent of sigma scale panel
@@ -48,8 +49,7 @@ public class VariabilityScalePanel extends WizardStepPanel
     
 	public VariabilityScalePanel(WizardContext context)
 	{
-		super(context, "Scale Factors for Variability");
-		complete = true;
+		super(context, "Scale Factors for Variability", WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

@@ -29,6 +29,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
@@ -53,9 +54,8 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
     
     public SigmaErrorMatrixPanel(WizardContext context)
     {
-		super(context, "Sigma E");
-		// regardless of input, forward navigation is allowed from this panel
-		complete = true;
+    	// regardless of input, forward navigation is allowed from this panel
+		super(context, "Sigma E", WizardStepPanelState.COMPLETE);
 		
         HTML header = new HTML(GlimmpseWeb.constants.sigmaErrorTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaErrorDescription());
@@ -82,12 +82,12 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
 	{
 		sigmaError.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_P);
-		complete = true;
+		changeState(WizardStepPanelState.COMPLETE);
 	}
 
 	public String toXML()
 	{
-		if (skip)
+		if (WizardStepPanelState.SKIPPED == state)
 			return "";
 		else
 			return sigmaError.toXML();
@@ -104,7 +104,10 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case COVARIATE:
-    		skip = studyDesignContext.getStudyDesign().isGaussianCovariate();
+    		if (studyDesignContext.getStudyDesign().isGaussianCovariate())
+    			changeState(WizardStepPanelState.SKIPPED);
+    		else
+    			changeState(WizardStepPanelState.COMPLETE);    			
     		break;
     	case BETA_MATRIX:
 //    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();

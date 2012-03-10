@@ -36,6 +36,7 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Guided model panel for entry of correlations between the covariate and the outcome
@@ -56,7 +57,7 @@ implements ChangeHandler
 	public VariabilityCovariateOutcomePanel(WizardContext context)
 	{
 		super(context, "Covariate Variability");
-		skip = true;
+		state = WizardStepPanelState.SKIPPED;
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
@@ -84,7 +85,7 @@ implements ChangeHandler
 	public void reset()
 	{
 		correlationTable.removeAllRows();
-		skip = true;
+		changeState(WizardStepPanelState.SKIPPED);
 	}
 
 //	@Override
@@ -134,7 +135,7 @@ implements ChangeHandler
 	public String toRequestXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (!skip && complete)
+		if (WizardStepPanelState.COMPLETE == state)
 		{
 			XMLUtilities.matrixOpenTag(buffer, 
 					GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE, 
@@ -158,7 +159,7 @@ implements ChangeHandler
 	public String toStudyXML()
 	{
 		StringBuffer buffer = new StringBuffer();
-		if (!skip)
+		if (state != WizardStepPanelState.SKIPPED)
 		{
 			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_YG);
 			for(int row = 0; row < correlationTable.getRowCount(); row++)

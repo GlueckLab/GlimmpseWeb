@@ -37,7 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
  * Matrix Mode panel which allows entry of beta-scale factors
@@ -141,8 +141,8 @@ implements ListValidator
     	switch (changeEvent.getType())
     	{
     	case SOLVING_FOR:
-    		skip = (SolutionType.DETECTABLE_DIFFERENCE == 
-    			studyDesignContext.getStudyDesign().getSolutionType());
+//    		skip = (SolutionTypeEnum.DETECTABLE_DIFFERENCE == 
+//    			studyDesignContext.getStudyDesign().getSolutionType());
     		break;
     	}
 	}

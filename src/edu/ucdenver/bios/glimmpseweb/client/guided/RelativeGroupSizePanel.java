@@ -38,6 +38,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Entry screen for relative group sizes
@@ -53,7 +54,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
 	public RelativeGroupSizePanel(WizardContext context)
 	{
 		super(context, "Relative Group Sizes");
-		complete = true;
+		state = WizardStepPanelState.NOT_ALLOWED;
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
@@ -78,7 +79,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
 	public void reset()
 	{
 		groupSizesTable.removeAllRows();
-		complete = true;
+		changeState(WizardStepPanelState.COMPLETE);
 	}
 
 //	@Override

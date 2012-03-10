@@ -29,6 +29,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
@@ -49,8 +50,7 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
     
 	public BetweenSubjectContrastPanel(WizardContext context)
 	{
-		super(context, "C Contrast");
-		complete = true;
+		super(context, "C Contrast", WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		betweenSubjectFixed.setMaxRows(GlimmpseConstants.DEFAULT_A);
         // create header/instruction text

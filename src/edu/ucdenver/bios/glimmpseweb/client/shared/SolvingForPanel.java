@@ -32,8 +32,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesign.SolutionType;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
  * WizardStepPanel which allows the user to select whether they are solving for
@@ -58,10 +59,9 @@ implements ClickHandler
 	 */
 	public SolvingForPanel(WizardContext context, String radioGroupPrefix)
 	{
-		super(context, GlimmpseWeb.constants.solvingForLink());
+		super(context, GlimmpseWeb.constants.solvingForLink(), WizardStepPanelState.COMPLETE);
 		// since one of the radio buttons will always be checked, this wizardsteppanel
 		// is always considered complete (complete member var is from superclass WizardStepPanel)
-		complete = true;
 		
 		VerticalPanel panel = new VerticalPanel();
 		
@@ -189,11 +189,11 @@ implements ClickHandler
     {
 		if (solvingForPowerRadioButton.getValue())
 		{
-	    	((StudyDesignContext) context).setSolutionType(this, SolutionType.POWER);
+//	    	((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.POWER);
 		}
 		else if (solvingForSampleSizeRadioButton.getValue())
 		{
-	    	((StudyDesignContext) context).setSolutionType(this, SolutionType.SAMPLE_SIZE);
+//	    	((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.SAMPLE_SIZE);
 		}
 
     }
