@@ -157,8 +157,10 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         inputContainer.setWidget(0, 0, guidedModeContainer);
         inputContainer.setWidget(0, 1,matrixModeContainer);
         inputContainer.setWidget(0, 2,uploadContainer);    
-        rightPanel.add(new GlimmpseTitleBarPanel());
-        rightPanel.add(new ToolsMenuPanel());
+		HorizontalPanel titleToolsPanel = new HorizontalPanel();
+		titleToolsPanel.add(new GlimmpseTitleBarPanel());
+		titleToolsPanel.add(new ToolsMenuPanel());
+        rightPanel.add(titleToolsPanel);
         rightPanel.add(header);
         rightPanel.add(description);
         rightPanel.add(inputContainer);
