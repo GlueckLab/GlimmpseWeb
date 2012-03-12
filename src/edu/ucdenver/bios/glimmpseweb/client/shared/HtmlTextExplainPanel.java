@@ -21,15 +21,18 @@ public class HtmlTextExplainPanel extends Composite
 	protected DialogBox dialogBox = new DialogBox();
 	public HtmlTextExplainPanel(String descriptiontext, String headertext, String explinationtext)
 	{
+		String descriptionTextLabel = descriptiontext;
+		String alertTextHeader = headertext;
+		String labelExplinationText = explinationtext;
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
 		VerticalPanel verticalPanel = new VerticalPanel();
 		HTML descriptionText = new HTML();
 		HTML explainationText = new HTML();
 		HTML headerText = new HTML();
 		
-		descriptionText.setText(descriptiontext);
-		explainationText.setText(explinationtext);
-		headerText.setText(headertext);
+		descriptionText.setText(descriptionTextLabel);
+		explainationText.setText(labelExplinationText);
+		headerText.setText(alertTextHeader);
 		
 		ScrollPanel scrollPanel = new ScrollPanel(explainationText);
 		scrollPanel.setSize("150px", "100px");
