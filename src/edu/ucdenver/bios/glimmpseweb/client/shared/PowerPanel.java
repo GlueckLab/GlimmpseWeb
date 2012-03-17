@@ -102,9 +102,9 @@ implements ListValidator
     public void onValidRowCount(int validRowCount)
     {
     	if (validRowCount > 0)
-    		notifyComplete();
+    		changeState(WizardStepPanelState.COMPLETE);
     	else
-    		notifyInProgress();
+    		changeState(WizardStepPanelState.INCOMPLETE);
     }
 	
     /**
@@ -128,7 +128,14 @@ implements ListValidator
 		switch (changeEvent.getType())
 		{
 		case SOLVING_FOR:
-//			skip = (studyDesignContext.getStudyDesign().getSolutionType() == SolutionTypeEnum.POWER);
+			if (SolutionTypeEnum.POWER == studyDesignContext.getStudyDesign().getSolutionTypeEnum())
+			{
+				changeState(WizardStepPanelState.SKIPPED);
+			}
+			else
+			{
+				onValidRowCount(nominalPowerListPanel.getValidRowCount());
+			}			
 			break;
 		case POWER_LIST:
 			if (this != changeEvent.getSource())
@@ -153,8 +160,8 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-//    	List<Double> contextPowerList = studyDesignContext.getPowerList();
-//    	nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
+    	List<Double> contextPowerList = studyDesignContext.getStudyDesign().getNominalPowerListValues();
+    	nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
     }
     
     /**
