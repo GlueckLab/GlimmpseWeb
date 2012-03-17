@@ -26,13 +26,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix Mode panel which allows input of the regression coefficients
@@ -45,14 +46,11 @@ public class BetaPanel extends WizardStepPanel
 	
 	// matrices holding the fixed and random portions of the 
 	// beta matrix
-    protected ResizableMatrix betaFixed = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA,
-    			GlimmpseConstants.DEFAULT_Q, 
-    			GlimmpseConstants.DEFAULT_P, "0", GlimmpseWeb.constants.betaFixedMatrixName()); 
-    protected ResizableMatrix betaRandom = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM,
-    			1, GlimmpseConstants.DEFAULT_P, 
-    			"0", GlimmpseWeb.constants.betaGaussianMatrixName()); 
+    protected ResizableMatrixPanel betaFixed = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_Q, 
+    			GlimmpseConstants.DEFAULT_P); 
+    protected ResizableMatrixPanel betaRandom = 
+    	new ResizableMatrixPanel(1, GlimmpseConstants.DEFAULT_P); 
     
     // boolean indicating that the study design includes a covariate
     boolean hasCovariate;
@@ -115,8 +113,9 @@ public class BetaPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case DESIGN_ESSENCE_MATRIX:
-//    		StudyDesignNamedMatrix designMatrix = studyDesignContext.getDesignEssence();
-//    		betaFixed.setRowDimension(designMatrix.getColumns());
+    		NamedMatrix designMatrix = 
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_DESIGN);
+    		if (designMatrix != null) betaFixed.setRowDimension(designMatrix.getColumns());
     		break;
     	case COVARIATE:
     		hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
@@ -130,9 +129,10 @@ public class BetaPanel extends WizardStepPanel
     @Override
     public void onWizardContextLoad()
     {
-//    	FixedRandomMatrix beta = studyDesignContext.getBeta();
-//    	betaFixed.loadFromNamedMatrix(beta.getFixedMatrix());
-//    	betaRandom.loadFromNamedMatrix(beta.getRandomMatrix());
+    	betaFixed.loadFromNamedMatrix(
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETA));
+    	betaRandom.loadFromNamedMatrix(
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM));
     }
 
     /**
@@ -141,9 +141,7 @@ public class BetaPanel extends WizardStepPanel
     @Override
     public void onExit()
     {
-    	studyDesignContext.setBeta(this, 
-    			new FixedRandomMatrix("beta",
-    					betaFixed.toNamedMatrix(),
-    					betaRandom.toNamedMatrix(), true));
+    	studyDesignContext.setBeta(this, betaFixed.toNamedMatrix(GlimmpseConstants.MATRIX_BETA),
+    					betaRandom.toNamedMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM));
     }
 }
