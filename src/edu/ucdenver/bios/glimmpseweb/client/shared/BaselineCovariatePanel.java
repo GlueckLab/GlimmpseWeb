@@ -21,20 +21,17 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
-
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
  * Panel for indicating of a baseline covariate should be included.
@@ -44,6 +41,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
  */
 public class BaselineCovariatePanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     protected CheckBox covariateCheckBox = new CheckBox();
     
     public BaselineCovariatePanel(WizardContext context)
@@ -89,4 +89,41 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	{
 		covariateCheckBox.setValue(false);
 	}
+	
+    /**
+     * Resize the beta matrix when the design matrix dimensions change
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+    	// no action needed
+    }
+    
+    /**
+     * Load the covariate info from the context
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+    	loadFromContext();
+    }
+    
+    /**
+     * Load the covariate info from the context
+     */
+    private void loadFromContext()
+    {
+    	boolean hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
+    	covariateCheckBox.setValue(hasCovariate);
+    }
+
+    /**
+     * Update the between participant factors in the context
+     */
+    @Override
+    public void onExit()
+    {
+    	studyDesignContext.setCovariate(this, covariateCheckBox.getValue());
+    }
+	
 }
