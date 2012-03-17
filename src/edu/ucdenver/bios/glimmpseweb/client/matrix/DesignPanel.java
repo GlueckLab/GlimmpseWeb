@@ -95,9 +95,9 @@ public class DesignPanel extends WizardStepPanel
 	public void onValidRowCount(int validRowCount)
 	{
 		if (validRowCount > 0)
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 		else
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 	}
 	
     /**

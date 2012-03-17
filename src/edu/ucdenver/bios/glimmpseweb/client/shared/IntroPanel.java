@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Generic panel for subsection introduction screens
@@ -38,8 +39,7 @@ public class IntroPanel extends WizardStepPanel
 
 	public IntroPanel(WizardContext context, String name, String title, String description)
 	{
-		super(context, name);
-		notifyComplete();
+		super(context, name, WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
 		HTML titleHTML = new HTML(title);

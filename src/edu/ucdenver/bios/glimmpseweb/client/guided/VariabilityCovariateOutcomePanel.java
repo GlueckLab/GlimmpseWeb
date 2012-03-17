@@ -242,9 +242,9 @@ implements ChangeHandler
 			}
 		}
 		if (noEmpty)
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 		else
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 
 	}
 

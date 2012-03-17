@@ -59,7 +59,7 @@ implements ClickHandler
 	 */
 	public SolvingForPanel(WizardContext context, String radioGroupPrefix)
 	{
-		super(context, GlimmpseWeb.constants.solvingForLink(), WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.solvingForLink(), WizardStepPanelState.INCOMPLETE);
 		// since one of the radio buttons will always be checked, this wizardsteppanel
 		// is always considered complete (complete member var is from superclass WizardStepPanel)
 		
@@ -83,8 +83,6 @@ implements ClickHandler
 		grid.setWidget(0, 0, solvingForPowerRadioButton);
 		grid.setWidget(1, 0, solvingForSampleSizeRadioButton);
 		//grid.setWidget(2, 0, solvingForEffectSizeRadioButton);
-		// select power by default
-		solvingForPowerRadioButton.setValue(true);
 		
 		// notify the listeners when a radio button is selected
 		solvingForPowerRadioButton.addClickHandler(this);
@@ -111,8 +109,9 @@ implements ClickHandler
 	 */
 	public void reset()
 	{
-		solvingForPowerRadioButton.setValue(true);
-		notifyComplete();
+		solvingForPowerRadioButton.setValue(false);
+		solvingForSampleSizeRadioButton.setValue(false);
+		changeState(WizardStepPanelState.INCOMPLETE);
 	}
 	
 
@@ -126,17 +125,17 @@ implements ClickHandler
 	@Override
 	public void onClick(ClickEvent event)
 	{		
+		changeState(WizardStepPanelState.COMPLETE);
 		if (solvingForPowerRadioButton.getValue())
 		{
-			notifyComplete();
+			((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.POWER);
 		}
 		else if (solvingForSampleSizeRadioButton.getValue())
 		{
+			((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.SAMPLE_SIZE);
 		}
 	}
 	
-
-    
     /**
      * Return an XML representation of this panel for saving the study design
      * @return XML of solving for information
@@ -180,22 +179,6 @@ implements ClickHandler
     public String toRequestXML()
     {
     		return "";
-    }
-    
-    /**
-     * Update the context with the new solving for information
-     */
-    public void onExit()
-    {
-		if (solvingForPowerRadioButton.getValue())
-		{
-//	    	((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.POWER);
-		}
-		else if (solvingForSampleSizeRadioButton.getValue())
-		{
-//	    	((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.SAMPLE_SIZE);
-		}
-
     }
     
 }

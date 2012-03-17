@@ -33,6 +33,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Entry panel for per group sample sizes
@@ -69,9 +70,9 @@ implements ListValidator
 	public void onValidRowCount(int validRowCount)
 	{
 		if (validRowCount > 0)
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 		else
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 	}
 
 	@Override

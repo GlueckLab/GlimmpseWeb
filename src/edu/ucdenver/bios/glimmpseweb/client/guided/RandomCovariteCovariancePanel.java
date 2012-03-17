@@ -139,7 +139,7 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 			
 			List<String> labelList = new ArrayList<String>();
 			
-			List <Integer> spacingList = repeatedMeasuresNode.getSpacingList();
+			List <Integer> spacingList = null; //repeatedMeasuresNode.getSpacingList();
 			
 			String dimension = repeatedMeasuresNode.getDimension();
 			
@@ -172,7 +172,7 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 		flexTable.setWidget(0, dataListSize, responses);
 		flexTable.setWidget(0, dataListSize+1, correlation);
 		
-		List <String> responseList = studyDesignContext.getStudyDesign().getResponseList();
+		List <String> responseList = null; // studyDesignContext.getStudyDesign().getResponseList();
 		//adding responseList to the dataList
 		dataList.add(responseList);
 		

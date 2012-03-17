@@ -427,11 +427,11 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 								!sampleSizeTextBox.getText().isEmpty() &&
 								!rankTextBox.getText().isEmpty())))
 		{
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 		}
 		else
 		{
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 		}
 	}
 

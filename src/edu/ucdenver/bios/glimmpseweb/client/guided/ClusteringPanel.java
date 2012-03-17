@@ -142,8 +142,7 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
      */
     public ClusteringPanel(WizardContext context)
     {
-        super(context, "Clustering");
-        notifyComplete(); // user can proceed forward by default
+        super(context, "Clustering", WizardStepPanelState.COMPLETE);
         VerticalPanel panel = new VerticalPanel();
         // title and header text
         HTML title = new HTML(GlimmpseWeb.constants.clusteringPanelTitle());

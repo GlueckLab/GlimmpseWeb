@@ -156,9 +156,9 @@ implements ChangeHandler
 	{
 		String value = standardDeviationTextBox.getText();
 		if (value == null || value.isEmpty())
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 		else
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 	}
 	
 	public void onExit()

@@ -45,6 +45,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Fixed predictor entry screen
@@ -360,9 +361,9 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     		}
     	}
     	if (isComplete)
-    		notifyComplete();
+    		changeState(WizardStepPanelState.COMPLETE);
     	else
-    		notifyInProgress();
+    		changeState(WizardStepPanelState.INCOMPLETE);
     }
     
     public void reset() 

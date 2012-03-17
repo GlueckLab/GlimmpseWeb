@@ -34,6 +34,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Panel for selecting statistical tests
@@ -224,11 +225,11 @@ implements ClickHandler
 				unirepGGCheckBox.getValue() || unirepHFCheckBox.getValue() ||
 				unirepBoxCheckBox.getValue()))
 		{
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 		}
 		else
 		{
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 		}
 	}
 

@@ -34,67 +34,66 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 
 
 public class ResponsesPanel extends WizardStepPanel {
 
 	TextBox textbox = new TextBox();
-/**
- * Constructor for the class Response Panel
- */
+	/**
+	 * Constructor for the class Response Panel
+	 */
 	public ResponsesPanel(WizardContext context)
-    {
-    	super(context, "Responses");
-        VerticalPanel panel = new VerticalPanel();
-        // create header/instruction text
-        HTML header = new HTML(GlimmpseWeb.constants.responsesPanelTitle());
-        HTML description = new HTML(GlimmpseWeb.constants.responsesPanelDescription());
-        HorizontalPanel hp = new HorizontalPanel();
-        HTML prefix = new HTML(GlimmpseWeb.constants.responsesPanelPrefix());
-        
-        HTML sufix = new HTML(GlimmpseWeb.constants.responsesPanelSufix());
-        HTML instructions = new HTML(GlimmpseWeb.constants.responsesPanelInstructions());              
-        ListEntryPanel responsesPanel = 
-            	new ListEntryPanel(GlimmpseWeb.constants.responsesTableColumn(), 
-            			new ListValidator() {
-            		public void validate(String value) throws IllegalArgumentException {}
+	{
+		super(context, "Responses");
+		VerticalPanel panel = new VerticalPanel();
+		// create header/instruction text
+		HTML header = new HTML(GlimmpseWeb.constants.responsesPanelTitle());
+		HTML description = new HTML(GlimmpseWeb.constants.responsesPanelDescription());
+		HorizontalPanel hp = new HorizontalPanel();
+		HTML prefix = new HTML(GlimmpseWeb.constants.responsesPanelPrefix());
 
-            		public void onValidRowCount(int validRowCount)
-            		{
-            			
-            			if (validRowCount > 0)
-            				checkComplete();
-            			
-            			else
-            				notifyInProgress();
-            		}
-            	});
-        
-        //layout horizontal panel
-        hp.setWidth("56%");
-        hp.add(prefix);
-        hp.add(textbox);
-        hp.add(sufix);
-        
-        // layout the overall panel
-        panel.add(header);
-        panel.add(description);
-        panel.add(hp);
-        panel.add(instructions);
-        panel.add(responsesPanel);
-                
-       // Set Styles
-        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        //hp.setStyleName(GlimmpseConstants.STYLE_WIZARD_RESPONSES_PANEL_HORIZONTAL_PANEL);
-        prefix.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        sufix.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        
-        //Initializing Panel
-        initWidget(panel);
+		HTML sufix = new HTML(GlimmpseWeb.constants.responsesPanelSufix());
+		HTML instructions = new HTML(GlimmpseWeb.constants.responsesPanelInstructions());              
+		ListEntryPanel responsesPanel = 
+			new ListEntryPanel(GlimmpseWeb.constants.responsesTableColumn(), 
+					new ListValidator() {
+				public void validate(String value) throws IllegalArgumentException {}
+
+				public void onValidRowCount(int validRowCount)
+				{
+					if (validRowCount > 0)
+						checkComplete();
+					else
+						changeState(WizardStepPanelState.INCOMPLETE);
+				}
+			});
+
+		//layout horizontal panel
+		hp.setWidth("56%");
+		hp.add(prefix);
+		hp.add(textbox);
+		hp.add(sufix);
+
+		// layout the overall panel
+		panel.add(header);
+		panel.add(description);
+		panel.add(hp);
+		panel.add(instructions);
+		panel.add(responsesPanel);
+
+		// Set Styles
+		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		//hp.setStyleName(GlimmpseConstants.STYLE_WIZARD_RESPONSES_PANEL_HORIZONTAL_PANEL);
+		prefix.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		sufix.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+
+		//Initializing Panel
+		initWidget(panel);
 	}
 	/**
 	 * This method is used to check if the text box is filled or not
@@ -106,14 +105,16 @@ public class ResponsesPanel extends WizardStepPanel {
 		{
 			if(checkText.isEmpty() == false)
 			{
-				notifyComplete();
+				changeState(WizardStepPanelState.COMPLETE);
 			}
 		}
 		else
-			notifyInProgress();
+		{
+			changeState(WizardStepPanelState.INCOMPLETE);
+		}
 	}
 
-	
+
 	/**
 	 * It is a method from the extended class Wizard 
 	 */

@@ -28,6 +28,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * OutcomesPanel
@@ -46,9 +47,9 @@ public class OutcomesPanel extends WizardStepPanel
     		public void onValidRowCount(int validRowCount)
     		{
     			if (validRowCount > 0)
-    				notifyComplete();
+    				changeState(WizardStepPanelState.COMPLETE);
     			else
-    				notifyInProgress();
+    				changeState(WizardStepPanelState.INCOMPLETE);
     		}
     	});
 

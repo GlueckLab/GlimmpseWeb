@@ -34,6 +34,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
@@ -97,9 +98,9 @@ implements ListValidator
 	public void onValidRowCount(int validRowCount)
 	{
 		if (validRowCount > 0)
-			notifyComplete();
+			changeState(WizardStepPanelState.COMPLETE);
 		else
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 	}
 
 	@Override

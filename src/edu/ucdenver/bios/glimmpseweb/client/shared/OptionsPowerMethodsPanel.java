@@ -240,16 +240,16 @@ implements ClickHandler
 		{
 			if (!quantilePowerCheckBox.getValue() || numQuantiles > 0)
 			{
-				notifyComplete();
+				changeState(WizardStepPanelState.COMPLETE);
 			}
 			else
 			{
-				notifyInProgress();
+				changeState(WizardStepPanelState.INCOMPLETE);
 			}
 		}
 		else
 		{
-			notifyInProgress();
+			changeState(WizardStepPanelState.INCOMPLETE);
 		}
 	}
 

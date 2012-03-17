@@ -44,6 +44,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
 /**
  * Panel which allows user to select display options
@@ -330,7 +331,7 @@ implements ClickHandler
 		xAxisListBox.setSelectedIndex(0);
 		stratifyListBox.setSelectedIndex(1);
 		
-		notifyComplete();
+		changeState(WizardStepPanelState.COMPLETE);
 	}
 
 	/**
