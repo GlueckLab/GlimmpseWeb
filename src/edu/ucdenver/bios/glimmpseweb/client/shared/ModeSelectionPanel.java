@@ -76,13 +76,8 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
      */
     public ModeSelectionPanel()
     {
-    	HorizontalPanel layoutPanel = new HorizontalPanel();
-    	
-    	// place holder to preserve visual theme where steps left panel will go 
-    	// once an input mode is selected
-    	VerticalPanel leftPanel = buildLeftPanel();
-    	// contents of the mode selection panel
-        VerticalPanel rightPanel = new VerticalPanel();
+        VerticalPanel panel = new VerticalPanel();
+    	HorizontalPanel selectPanel = new HorizontalPanel();
         
         // layout the widgets        
         // add introductory text
@@ -157,22 +152,16 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         inputContainer.setWidget(0, 0, guidedModeContainer);
         inputContainer.setWidget(0, 1,matrixModeContainer);
         inputContainer.setWidget(0, 2,uploadContainer);    
-		HorizontalPanel titleToolsPanel = new HorizontalPanel();
-		titleToolsPanel.add(new GlimmpseTitleBarPanel());
-		titleToolsPanel.add(new ToolsMenuPanel());
-        rightPanel.add(titleToolsPanel);
-        rightPanel.add(header);
-        rightPanel.add(description);
-        rightPanel.add(inputContainer);
-        
-        layoutPanel.add(leftPanel);
-        layoutPanel.add(rightPanel);
+
+        panel.add(header);
+        panel.add(description);
+        panel.add(inputContainer);
         
         
         // add style
         header.setStyleName(STYLE_HEADER);
         description.setStyleName(STYLE_DESCRIPTION);
-        rightPanel.setStyleName(STYLE_PANEL);
+        panel.setStyleName(STYLE_PANEL);
         inputContainer.setStyleName(STYLE_INPUT_CONTAINER);
         // guided subpanel style
         guidedModeContainer.setStyleName(STYLE_CONTAINER);
@@ -189,10 +178,8 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         uploadTitle.setStyleName(STYLE_CONTAINER_TITLE);
         uploadDescription.setStyleName(STYLE_CONTAINER_DESC);
         
-        
-        
         // initialize the panel
-        initWidget(layoutPanel);
+        initWidget(panel);
     }
     
     
