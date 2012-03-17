@@ -26,13 +26,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix mode panel which allows input of the between-subject contrast matrix (C)
@@ -42,15 +43,14 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix betweenSubjectFixed = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST,
-    			GlimmpseConstants.DEFAULT_A, 
-    			GlimmpseConstants.DEFAULT_Q, "0", GlimmpseWeb.constants.betweenSubjectContrastMatrixName()); 
+    protected ResizableMatrixPanel betweenSubjectFixed = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_A, 
+    			GlimmpseConstants.DEFAULT_Q); 
     protected boolean hasCovariate = false;
     
 	public BetweenSubjectContrastPanel(WizardContext context)
 	{
-		super(context, "C Contrast", WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.stepsLeftContrast(), WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		betweenSubjectFixed.setMaxRows(GlimmpseConstants.DEFAULT_A);
         // create header/instruction text
@@ -90,16 +90,17 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case DESIGN_ESSENCE_MATRIX:
-//    		int designRows = studyDesignContext.getDesignEssence().getRows();
-//			betweenSubjectFixed.setMaxRows(designRows - 1);
-//			if (betweenSubjectFixed.getRowDimension() > designRows - 1)
-//			{
-//				betweenSubjectFixed.setRowDimension(designRows - 1);
-//			}
+    		int designRows = 
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_DESIGN).getRows();
+			betweenSubjectFixed.setMaxRows(designRows - 1);
+			if (betweenSubjectFixed.getRowDimension() > designRows - 1)
+			{
+				betweenSubjectFixed.setRowDimension(designRows - 1);
+			}
     		break;
     	case BETA_MATRIX:
-//    		int betaRows = studyDesignContext.getBeta().getFixedMatrix().getRows();
-//			betweenSubjectFixed.setColumnDimension(betaRows);
+    		int betaRows = studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETA).getRows();
+			betweenSubjectFixed.setColumnDimension(betaRows);
     		break;
     	case COVARIATE:
     		hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
@@ -113,8 +114,9 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-//    	FixedRandomMatrix betweenContrast = studyDesignContext.getBetweenParticipantContrast();
-//    	betweenSubjectFixed.loadFromNamedMatrix(betweenContrast.getFixedMatrix());
+    	NamedMatrix betweenContrast = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST);
+    	betweenSubjectFixed.loadFromNamedMatrix(betweenContrast);
 	}
 
 	/**
@@ -124,10 +126,9 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
 	@Override
 	public void onExit()
 	{
-    	studyDesignContext.setBeta(this, 
-    			new FixedRandomMatrix("betweenSubjectContrast",
-    					betweenSubjectFixed.toNamedMatrix(),
-    					null, false));
+    	studyDesignContext.setBetweenParticipantContrast(this, 
+    					betweenSubjectFixed.toNamedMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST), 
+    					null);
     	// TODO: create  matrix of zeros for random portion
 	}
 	
