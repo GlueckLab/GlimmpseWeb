@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -46,9 +47,8 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix sigmaG = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE,
-    			1, 1, "0", GlimmpseWeb.constants.sigmaCovariateMatrixName()); 
+    protected ResizableMatrixPanel sigmaG = 
+    	new ResizableMatrixPanel(1, 1, true, true, true, true); 
     
     public SigmaCovariateMatrixPanel(WizardContext context)
     {
@@ -80,19 +80,12 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
 		sigmaG.reset(1, 1);
 		changeState(WizardStepPanelState.SKIPPED);
 	}
-	
-	public String toXML()
-	{
-		if (state == WizardStepPanelState.SKIPPED)
-			return "";
-		else
-			return sigmaG.toXML(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
-	}
     
     @Override 
     public void onExit()
     {
-    	studyDesignContext.setSigmaCovariate(this, sigmaG.toNamedMatrix());
+    	studyDesignContext.setSigmaCovariate(this, 
+    			sigmaG.toNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE));
     }
     
 	/**
@@ -119,8 +112,9 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     @Override
 	public void onWizardContextLoad() 
     {
-//    	NamedMatrix sigmaCovariate = studyDesignContext.getSigmaCovariate();
-//    	sigmaG.loadFromNamedMatrix(sigmaCovariate);
+    	NamedMatrix sigmaCovariate = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+    	sigmaG.loadFromNamedMatrix(sigmaCovariate);
     }
 
 }

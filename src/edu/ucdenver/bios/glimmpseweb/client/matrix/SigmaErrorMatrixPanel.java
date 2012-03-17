@@ -26,12 +26,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix mode panel for entering the covariance of random errors
@@ -44,13 +46,9 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix sigmaError = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_ERROR,
-    			GlimmpseConstants.DEFAULT_P, 
-    			GlimmpseConstants.DEFAULT_P,
-    			"0",
-    			GlimmpseWeb.constants.sigmaErrorMatrixName(),
-    			true); 
+    protected ResizableMatrixPanel sigmaError = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_P, 
+    			GlimmpseConstants.DEFAULT_P, true, true, true, true); 
     
     public SigmaErrorMatrixPanel(WizardContext context)
     {
@@ -85,14 +83,6 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
 		changeState(WizardStepPanelState.COMPLETE);
 	}
 
-	public String toXML()
-	{
-		if (WizardStepPanelState.SKIPPED == state)
-			return "";
-		else
-			return sigmaError.toXML();
-	}
-
 	/**
 	 * Respond to a context change - resize the matrix to conform to the 
 	 * beta matrix
@@ -110,8 +100,9 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
     			changeState(WizardStepPanelState.COMPLETE);    			
     		break;
     	case BETA_MATRIX:
-//    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
-//			sigmaError.setRowDimension(betaColumns);
+    		int betaColumns = 
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETA).getColumns();
+			sigmaError.setRowDimension(betaColumns);
     		break;
     	}
 	}
@@ -122,8 +113,9 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-//    	NamedMatrix contextSigmaError = studyDesignContext.getSigmaError();
-//    	sigmaError.loadFromNamedMatrix(contextSigmaError);
+    	NamedMatrix contextSigmaError = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_ERROR);
+    	sigmaError.loadFromNamedMatrix(contextSigmaError);
 	}
 
 	/**
@@ -132,7 +124,8 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
     @Override 
     public void onExit()
     {
-    	studyDesignContext.setSigmaCovariate(this, sigmaError.toNamedMatrix());
+    	studyDesignContext.setSigmaCovariate(this, 
+    			sigmaError.toNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_ERROR));
     }
 	
 

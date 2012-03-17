@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -45,10 +46,9 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix withinSubjectMatrix = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_WITHIN_CONTRAST,
-    			GlimmpseConstants.DEFAULT_P, 
-    			GlimmpseConstants.DEFAULT_B, "1", GlimmpseWeb.constants.withinSubjectContrastMatrixName()); 
+    protected ResizableMatrixPanel withinSubjectMatrix = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_P, 
+    			GlimmpseConstants.DEFAULT_B); 
     
 	public WithinSubjectContrastPanel(WizardContext context)
 	{
@@ -80,11 +80,6 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 		withinSubjectMatrix.reset(GlimmpseConstants.DEFAULT_P, 
     			GlimmpseConstants.DEFAULT_B);
 	}
-	
-	public String toXML()
-	{
-		return withinSubjectMatrix.toXML();
-	}
 
 	/**
 	 * Update the within participant contrast matrix in the context as we leave the
@@ -94,7 +89,7 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 	public void onExit()
 	{
     	studyDesignContext.setWithinParticipantContrast(this, 
-    			withinSubjectMatrix.toNamedMatrix());
+    			withinSubjectMatrix.toNamedMatrix(GlimmpseConstants.MATRIX_WITHIN_CONTRAST));
 	}
 	
 	/**
@@ -108,8 +103,9 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case BETA_MATRIX:
-//    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
-//			withinSubjectMatrix.setRowDimension(betaColumns);
+    		int betaColumns = 
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETA).getColumns();
+			withinSubjectMatrix.setRowDimension(betaColumns);
     		break;
     	}
 	}
@@ -120,8 +116,9 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-    	//NamedMatrix contextWithinContrast = studyDesignContext.getWithinParticipantContrast();
-    	//withinSubjectMatrix.loadFromNamedMatrix(contextWithinContrast);
+    	NamedMatrix contextWithinContrast = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_WITHIN_CONTRAST);
+    	withinSubjectMatrix.loadFromNamedMatrix(contextWithinContrast);
 	}
 	
 }

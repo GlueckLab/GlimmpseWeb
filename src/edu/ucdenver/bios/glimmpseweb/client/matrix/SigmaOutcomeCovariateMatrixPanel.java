@@ -27,12 +27,14 @@ import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix mode panel for entering the covariance between the outcomes
@@ -46,10 +48,9 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix sigmaYG = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE,
-    			GlimmpseConstants.DEFAULT_P, 
-    			GlimmpseConstants.DEFAULT_P, "0", GlimmpseWeb.constants.sigmaOutcomeCovariateMatrixName()); 
+    protected ResizableMatrixPanel sigmaYG = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_P, 
+    			GlimmpseConstants.DEFAULT_P); 
     
     public SigmaOutcomeCovariateMatrixPanel(WizardContext context)
     {
@@ -84,14 +85,6 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
 		changeState(WizardStepPanelState.SKIPPED);
 	}
 	
-	public String toXML()
-	{
-		if (state == WizardStepPanelState.SKIPPED)
-			return "";
-		else
-			return sigmaYG.toXML(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
-	}
-	
 	/**
 	 * Respond to a context change - resize the matrix to conform to the 
 	 * beta matrix
@@ -109,8 +102,9 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
     			changeState(WizardStepPanelState.COMPLETE);
     		break;
     	case BETA_MATRIX:
-//    		int betaColumns = studyDesignContext.getBeta().getFixedMatrix().getColumns();
-//    		sigmaYG.setRowDimension(betaColumns);
+    		int betaColumns = 
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETA).getColumns();
+    		sigmaYG.setRowDimension(betaColumns);
     		break;
     	}
 	}
@@ -121,8 +115,9 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-//    	NamedMatrix contextSigmaYG = studyDesignContext.getSigmaOutcomesCovariate();
-//    	sigmaYG.loadFromNamedMatrix(contextSigmaYG);
+    	NamedMatrix contextSigmaYG = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+    	sigmaYG.loadFromNamedMatrix(contextSigmaYG);
 	}
 
 	/**
@@ -132,7 +127,7 @@ public class SigmaOutcomeCovariateMatrixPanel extends WizardStepPanel
     public void onExit()
     {
     	studyDesignContext.setSigmaOutcomesCovariate(this, 
-    			sigmaYG.toNamedMatrix());
+    			sigmaYG.toNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE));
     }
 
 

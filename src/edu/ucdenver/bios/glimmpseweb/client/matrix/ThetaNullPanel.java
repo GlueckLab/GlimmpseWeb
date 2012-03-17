@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -44,10 +45,9 @@ public class ThetaNullPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix thetaNull = 
-    	new ResizableMatrix(GlimmpseConstants.MATRIX_THETA,
-    			GlimmpseConstants.DEFAULT_A, 
-    			GlimmpseConstants.DEFAULT_B, "0", GlimmpseWeb.constants.thetaNullMatrixName()); 
+    protected ResizableMatrixPanel thetaNull = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_A, 
+    			GlimmpseConstants.DEFAULT_B); 
     
 	public ThetaNullPanel(WizardContext context)
 	{
@@ -88,7 +88,7 @@ public class ThetaNullPanel extends WizardStepPanel
 	@Override
 	public void onExit()
 	{
-    	studyDesignContext.setThetaNull(this, thetaNull.toNamedMatrix());
+    	studyDesignContext.setThetaNull(this, thetaNull.toNamedMatrix(GlimmpseConstants.MATRIX_THETA));
 	}
 	
 	/**
@@ -102,8 +102,9 @@ public class ThetaNullPanel extends WizardStepPanel
     	switch (changeEvent.getType())
     	{
     	case WITHIN_CONTRAST_MATRIX:
-    		//int withinContrastColumns = studyDesignContext.getWithinParticipantContrast().getColumns();
-    		//thetaNull.setColumnDimension(withinContrastColumns);
+    		int withinContrastColumns = 
+    			studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_WITHIN_CONTRAST).getColumns();
+    		thetaNull.setColumnDimension(withinContrastColumns);
     		break;
     	case BETWEEN_CONTRAST_MATRIX:
     		break;
@@ -113,8 +114,9 @@ public class ThetaNullPanel extends WizardStepPanel
 	@Override
 	public void onWizardContextLoad()
 	{
-//    	NamedMatrix contextThetaNull = studyDesignContext.getThetaNull();
-//    	thetaNull.loadFromNamedMatrix(contextThetaNull);
+    	NamedMatrix contextThetaNull = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_THETA);
+    	thetaNull.loadFromNamedMatrix(contextThetaNull);
 	}
 	
 }
