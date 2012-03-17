@@ -254,7 +254,6 @@ body {
   cursor: hand;
   font: smaller;
   border: none;
-  color: #005C84;
   background-color: white;
   text-align: left;
   padding-left: 20px;
@@ -262,14 +261,10 @@ body {
 }
 
 .wizardLeftNavLink-open {
-	font-weight: bond;
+	font-weight: bold;
 	background-image: url('/images/rightArrow.png');
 	background-repeat: no-repeat;
 	background-position: 0px 2px;
-}
-
-.wizardLeftNavLink-skipped {
-  display: none;
 }
 
 .wizardLeftNavLink-incomplete {
