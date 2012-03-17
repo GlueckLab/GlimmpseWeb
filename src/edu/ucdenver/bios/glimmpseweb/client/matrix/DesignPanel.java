@@ -21,20 +21,17 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
-import java.util.ArrayList;
-
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
@@ -46,9 +43,9 @@ public class DesignPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrix essenceFixed = new ResizableMatrix(GlimmpseConstants.MATRIX_DESIGN,
-			GlimmpseConstants.DEFAULT_N, 
-			GlimmpseConstants.DEFAULT_Q, "0", GlimmpseWeb.constants.matrixCategoricalEffectsLabel(),false);
+    protected ResizableMatrixPanel essenceFixed = new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_N, 
+    		GlimmpseConstants.DEFAULT_Q);
+    
     
    	boolean hasCovariate = false;
 
@@ -106,11 +103,7 @@ public class DesignPanel extends WizardStepPanel
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e)
     {
-    	StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
-    	switch (changeEvent.getType())
-    	{
-
-    	}   	
+    	// no action needed
     }
     
     /**
@@ -119,8 +112,9 @@ public class DesignPanel extends WizardStepPanel
     @Override
     public void onWizardContextLoad()
     {
-//    	NamedMatrix designEssence = studyDesignContext.getDesignEssence();
-//    	essenceFixed.loadFromNamedMatrix(designEssence);
+    	NamedMatrix designEssence = 
+    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_DESIGN);
+    	essenceFixed.loadFromNamedMatrix(designEssence);
     }
 
     /**
@@ -129,8 +123,9 @@ public class DesignPanel extends WizardStepPanel
     @Override
     public void onExit()
     {
-    	studyDesignContext.setDesignEssence(this, 
-    					essenceFixed.toNamedMatrix());
+    	studyDesignContext.setDesignEssenceMatrix(this, 
+    					essenceFixed.toNamedMatrix(GlimmpseConstants.MATRIX_DESIGN), 
+    					null);
     }
 
 }
