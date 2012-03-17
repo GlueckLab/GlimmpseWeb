@@ -27,7 +27,8 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
 		POWER_CURVE,
 		CLUSTERING,
 		REPEATED_MEASURES,
-		HYPOTHESIS
+		HYPOTHESIS,
+		BETWEEN_PARTICIPANT_FACTORS
 	};
 	
 	protected StudyDesignChangeType type;

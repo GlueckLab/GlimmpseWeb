@@ -6,8 +6,8 @@ import java.util.List;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
-import edu.ucdenver.bios.webservice.common.domain.FixedRandomMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
@@ -148,5 +148,18 @@ public class StudyDesignContext extends WizardContext
 		studyDesign.setClusteringTree(clusteringNodeList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.CLUSTERING));
+	}
+	
+	/**
+	 * Set the between participant factor list
+	 * @param panel the panel changing the between participant factor list
+	 * @param factorList the list of between participant factors
+	 */
+	public void setBetweenParticipantFactorList(WizardStepPanel panel, 
+			List<BetweenParticipantFactor> factorList)
+	{
+		studyDesign.setBetweenParticipantFactorList(factorList);
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+				StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
 	}
 }
