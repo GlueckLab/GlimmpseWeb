@@ -66,12 +66,35 @@ implements WizardStepPanelStateChangeHandler
 	// currenly active item
 	protected Widget currentItem = null;
 	// maps panels to their associated button to avoid a traversal through the entire stack panel
+	// maps the Wizard step to the associated wizard step button
 	protected HashMap<WizardStepPanel,WizardStepPanelButton> panelToButtonMap = 
 		new HashMap<WizardStepPanel,WizardStepPanelButton>();
+	// maps the Wizard step to the associated disclosure panel container
 	protected HashMap<WizardStepPanel,Widget> panelToContainerMap = 
 		new HashMap<WizardStepPanel,Widget>();
 	// TODO: better solution than hashmap?
-
+	
+	/**
+	 * Header HTML for the disclosure panel which knows the first/ WizardStepPanel
+	 * associated with the panel group.  Allows us to properly highlight the first 
+	 * WizardStepPanel when someone clicks on the header
+	 */
+	private class WizardStepPanelHTML extends HTML 
+	{
+		WizardStepPanel wizardStepPanel;
+		
+		public WizardStepPanelHTML(String label, WizardStepPanel wizardStepPanel)
+		{
+			super(label);
+			this.wizardStepPanel = wizardStepPanel;
+		}
+		
+		public WizardStepPanel getWizardStepPanel()
+		{
+			return wizardStepPanel;
+		}
+	}
+	
 	/**
 	 * Button class added to the FlexTables displayed under each StackLayoutPanel
 	 * heading.  The button stores information about its position in the FlexTable
@@ -145,9 +168,15 @@ implements WizardStepPanelStateChangeHandler
 			}
 		});
 
-		HTML header = new HTML(panelGroup.getName());
-		panel.setHeader(header);
-		panel.setContent(createGroupItems(panel, panelGroup.getPanelList()));
+		// add the header bar of the disclosure panel
+		List<WizardStepPanel> panelList = panelGroup.getPanelList();
+		if (panelList != null && panelList.size() > 0)
+		{
+			WizardStepPanelHTML header = new WizardStepPanelHTML(panelGroup.getName(),
+					panelList.get(0));
+			panel.setHeader(header);
+			panel.setContent(createGroupItems(panel, panelGroup.getPanelList()));
+		}
 		
 		// set style
 		panel.setStyleName(STYLE_GROUP_HEADER);
@@ -162,14 +191,16 @@ implements WizardStepPanelStateChangeHandler
 	 * @param panelList list of panels
 	 * @return widget containing the list
 	 */
-	private VerticalPanel createGroupItems(DisclosurePanel parent, List<WizardStepPanel> panelList)
+	private VerticalPanel createGroupItems(DisclosurePanel parent, 
+			List<WizardStepPanel> panelList)
 	{
 		VerticalPanel container = new VerticalPanel();
 		int row = 0;
 		for(WizardStepPanel panel: panelList)
 		{
+			WizardStepPanelButton firstWidget = createNavigationItem(row, panel);
 			panel.addChangeHandler(this);
-			container.add(createNavigationItem(row, panel));
+			container.add(firstWidget);
 			panelToContainerMap.put(panel, parent);
 			row++;
 		}
@@ -184,9 +215,8 @@ implements WizardStepPanelStateChangeHandler
 	 * @param panel the panel
 	 * @return
 	 */
-	private VerticalPanel createNavigationItem(int row, WizardStepPanel panel)
+	private WizardStepPanelButton createNavigationItem(int row, WizardStepPanel panel)
 	{
-		VerticalPanel container = new VerticalPanel();
 		WizardStepPanelButton item =
 			new WizardStepPanelButton(panel, new ClickHandler() {
 			@Override
@@ -202,22 +232,9 @@ implements WizardStepPanelStateChangeHandler
 		// set style
 		item.setStyleName(STYLE_GROUP_ITEM);
 		item.addStyleDependentName(getStyleByState(panel.getState()));
-		// add to the container
-		container.add(item);
 		// setup mappings
 		panelToButtonMap.put(panel, item);
-		return container;
-	}
-	
-	/**
-	 * Create the heading widget for each panel group
-	 * 
-	 * @param groupName Name of the group
-	 * @return heading widget
-	 */
-	private Widget createGroupWidget(String groupName) 
-	{
-		return new HTML(groupName);
+		return item;
 	}
 
 	/**
@@ -237,6 +254,9 @@ implements WizardStepPanelStateChangeHandler
 			panel.addStyleDependentName(STYLE_OPEN);
 			currentOpenPanel = panel;
 			// now show the first panel in this group
+			WizardStepPanelHTML header = (WizardStepPanelHTML) panel.getHeader();
+			WizardStepPanelButton button = panelToButtonMap.get(header.getWizardStepPanel());
+			button.click();
 		}
 	}
 	
@@ -277,7 +297,7 @@ implements WizardStepPanelStateChangeHandler
 			WizardStepPanelState oldState, WizardStepPanelState newState)
 	{
 		Widget item = panelToButtonMap.get(source);
-		if (item != null)
+		if (item != null && item != currentItem)
 		{
 			if (currentItem != null) currentItem.removeStyleDependentName(getStyleByState(oldState));
 			currentItem = item;
