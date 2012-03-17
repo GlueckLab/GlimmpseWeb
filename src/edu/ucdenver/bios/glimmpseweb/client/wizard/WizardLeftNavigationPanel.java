@@ -32,13 +32,9 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
-import edu.ucdenver.bios.glimmpseweb.client.shared.GlimmpseLogoPanel;
 
 /**
  * Generic left navigation panel for a WizardPanel.  Panels are organized
@@ -65,8 +61,6 @@ implements WizardStepPanelStateChangeHandler
     
 	// list of classes listening for navigation events from this panel
 	protected ArrayList<WizardActionListener> listeners = new ArrayList<WizardActionListener>();
-	// stack panel to display panel links
-	protected FlexTable panelGroupTable = new FlexTable();
 	// pointer to currently open disclosure panel - used to enforce only one open at a time
 	protected DisclosurePanel currentOpenPanel = null;
 	// currenly active item
@@ -86,7 +80,6 @@ implements WizardStepPanelStateChangeHandler
 	private class WizardStepPanelButton extends Button
 	{
 		private WizardStepPanel panel;
-		private int row;
 		
 		/**
 		 * Creates a button which stored meta information about the current panel
@@ -96,10 +89,9 @@ implements WizardStepPanelStateChangeHandler
 		 * @param panel panel associated with the button
 		 * @param handler click handler function
 		 */
-		public WizardStepPanelButton(int row, WizardStepPanel panel, ClickHandler handler)
+		public WizardStepPanelButton(WizardStepPanel panel, ClickHandler handler)
 		{
 			super(panel.getName(), handler);
-			this.row = row;
 			this.panel = panel;
 		}
 		
@@ -110,15 +102,6 @@ implements WizardStepPanelStateChangeHandler
 		public WizardStepPanel getPanel()
 		{
 			return panel;
-		}
-		
-		/**
-		 * Get the row of the FlexTable in which this button appears
-		 * @return WizardStepPanel
-		 */
-		public int getRow()
-		{
-			return row;
 		}
 	}
 	
@@ -136,9 +119,8 @@ implements WizardStepPanelStateChangeHandler
 		for(WizardStepPanelGroup panelGroup: panelGroups)
 		{
 			// add the heading and group items to the stack
-			buildPanelGroup(panelGroup);
+			panel.add(buildPanelGroup(panelGroup));
 		}
-		panel.add(panelGroupTable);
 		
 		// set style
 		panel.setStyleName(STYLE_PANEL);
@@ -146,9 +128,12 @@ implements WizardStepPanelStateChangeHandler
 		initWidget(panel);
 	}
 	
-	
-	
-	private void buildPanelGroup(WizardStepPanelGroup panelGroup)
+	/**
+	 * Build the disclosure panel for a panel group
+	 * @param panelGroup
+	 * @return
+	 */
+	private DisclosurePanel buildPanelGroup(WizardStepPanelGroup panelGroup)
 	{
 		// create disclosure panel for the group
 		DisclosurePanel panel = new DisclosurePanel();
@@ -163,10 +148,11 @@ implements WizardStepPanelStateChangeHandler
 		HTML header = new HTML(panelGroup.getName());
 		panel.setHeader(header);
 		panel.setContent(createGroupItems(panel, panelGroup.getPanelList()));
-		panelGroupTable.setWidget(panelGroupTable.getRowCount(), 0, panel);
 		
 		// set style
 		panel.setStyleName(STYLE_GROUP_HEADER);
+		
+		return panel;
 	}
 	
 	/**
@@ -179,16 +165,14 @@ implements WizardStepPanelStateChangeHandler
 	private VerticalPanel createGroupItems(DisclosurePanel parent, List<WizardStepPanel> panelList)
 	{
 		VerticalPanel container = new VerticalPanel();
-		FlexTable table = new FlexTable();
 		int row = 0;
 		for(WizardStepPanel panel: panelList)
 		{
 			panel.addChangeHandler(this);
-			table.setWidget(row, 0, createNavigationItem(row, panel));
+			container.add(createNavigationItem(row, panel));
 			panelToContainerMap.put(panel, parent);
 			row++;
 		}
-		container.add(table);
 		container.setStyleName(STYLE_GROUP_CONTAINER);
 		return container;
 	}
@@ -204,7 +188,7 @@ implements WizardStepPanelStateChangeHandler
 	{
 		VerticalPanel container = new VerticalPanel();
 		WizardStepPanelButton item =
-			new WizardStepPanelButton(row, panel, new ClickHandler() {
+			new WizardStepPanelButton(panel, new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event)
 			{
