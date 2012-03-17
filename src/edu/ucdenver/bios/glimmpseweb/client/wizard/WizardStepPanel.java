@@ -114,26 +114,6 @@ implements WizardContextListener
 	{
 		handlers.add(handler);
 	}
-	
-    /**
-     * Notify listeners that this step is complete and forward navigation
-     * is allowed.
-     */
-    public void notifyComplete()
-    {
-//    	complete = true;
-//		for(StepStatusListener listener: stepStatusListeners) listener.onStepComplete();
-    }
-    
-    /**
-     * Notify listeners that this step is in-progress and forward navigation
-     * is not allowed.
-     */
-    public void notifyInProgress()
-    {
-//    	complete = false;
-//		for(StepStatusListener listener: stepStatusListeners) listener.onStepInProgress();
-    }
     
     /**
      * Perform any setup when first entering this step in the wizard

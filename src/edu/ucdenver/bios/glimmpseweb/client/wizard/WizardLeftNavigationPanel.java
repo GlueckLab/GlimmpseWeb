@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -64,7 +65,7 @@ implements WizardStepPanelStateChangeHandler
 	// pointer to currently open disclosure panel - used to enforce only one open at a time
 	protected DisclosurePanel currentOpenPanel = null;
 	// currenly active item
-	protected Widget currentItem = null;
+	protected WizardStepPanelButton currentItem = null;
 	// maps panels to their associated button to avoid a traversal through the entire stack panel
 	// maps the Wizard step to the associated wizard step button
 	protected HashMap<WizardStepPanel,WizardStepPanelButton> panelToButtonMap = 
@@ -224,12 +225,11 @@ implements WizardStepPanelStateChangeHandler
 			{
 				WizardStepPanelButton button = (WizardStepPanelButton) event.getSource();
 				for(WizardActionListener listener: listeners) listener.onPanel(button.getPanel());
-				if (currentItem != null) currentItem.removeStyleDependentName(STYLE_OPEN);
-				currentItem = button;
-				currentItem.addStyleDependentName(STYLE_OPEN);
+				updateCurrentItem(button);
 			}
 		}); 
 		// set style
+		item.setVisible(panel.getState() != WizardStepPanelState.SKIPPED);
 		item.setStyleName(STYLE_GROUP_ITEM);
 		item.addStyleDependentName(getStyleByState(panel.getState()));
 		// setup mappings
@@ -237,6 +237,21 @@ implements WizardStepPanelStateChangeHandler
 		return item;
 	}
 
+	/**
+	 * Set the specified button as current and update styles
+	 */
+	private void updateCurrentItem(WizardStepPanelButton button)
+	{
+		if (currentItem != null) 
+		{
+			currentItem.removeStyleDependentName(STYLE_OPEN);
+			currentItem.addStyleDependentName(getStyleByState(currentItem.panel.getState()));
+		}
+		currentItem = button;
+		currentItem.removeStyleDependentName(getStyleByState(button.panel.getState()));
+		currentItem.addStyleDependentName(STYLE_OPEN);
+	}
+	
 	/**
 	 * Forces only one panel to be open at a time.
 	 * @param panel
@@ -280,12 +295,10 @@ implements WizardStepPanelStateChangeHandler
 		DisclosurePanel container = (DisclosurePanel) panelToContainerMap.get(panel);
 		if (container != null && !container.isOpen()) container.setOpen(true);
 		// update styles
-		Widget item = panelToButtonMap.get(panel);
+		WizardStepPanelButton item = panelToButtonMap.get(panel);
 		if (item != null)
 		{
-			if (currentItem != null) currentItem.removeStyleDependentName(STYLE_OPEN);
-			currentItem = item;
-			currentItem.addStyleDependentName(STYLE_OPEN);
+			updateCurrentItem(item);
 		}
 	}
 
@@ -296,12 +309,13 @@ implements WizardStepPanelStateChangeHandler
 	public void onStateChange(WizardStepPanel source,
 			WizardStepPanelState oldState, WizardStepPanelState newState)
 	{
+		GWT.log(source.getName() + " state change old=" + oldState + " new=" + newState);
 		Widget item = panelToButtonMap.get(source);
 		if (item != null && item != currentItem)
 		{
-			if (currentItem != null) currentItem.removeStyleDependentName(getStyleByState(oldState));
-			currentItem = item;
-			currentItem.addStyleDependentName(getStyleByState(newState));
+			item.setVisible(newState != WizardStepPanelState.SKIPPED);
+			item.removeStyleDependentName(getStyleByState(oldState));
+			item.addStyleDependentName(getStyleByState(newState));
 		}
 	}
 	
