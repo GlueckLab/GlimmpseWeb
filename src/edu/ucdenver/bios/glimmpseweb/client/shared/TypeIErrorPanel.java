@@ -138,8 +138,12 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-//    	List<Double> contextAlphaList = studyDesignContext.getBeta().getAlphaList();
-//    	alphaListPanel.loadFromDoubleList(contextAlphaList, true);
+    	List<TypeIError> contextTypeIErrorList = studyDesignContext.getStudyDesign().getAlphaList();
+    	for(TypeIError typeIError: contextTypeIErrorList)
+    	{
+    		alphaListPanel.add(Double.toString(typeIError.getAlphaValue()));
+    	}
+    	onValidRowCount(alphaListPanel.getValidRowCount());
     }
     
 	/**
