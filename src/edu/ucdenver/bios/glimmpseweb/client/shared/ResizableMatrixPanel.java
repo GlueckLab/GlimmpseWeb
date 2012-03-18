@@ -23,6 +23,7 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -77,9 +78,33 @@ public class ResizableMatrixPanel extends Composite
 	protected TextBox rowTextBox = new TextBox();
 	// text box for column dimension
 	protected TextBox columnTextBox = new TextBox();
-	
+
 	// error html
 	HTML errorHTML = new HTML();
+
+	/**
+	 * Text box which knows its row/column position in the matrix
+	 * Used to manage symmetric matrices
+	 */
+	private class RowColumnTextBox extends TextBox 
+	{
+		public int row;
+		public int column;
+		private String defaultValue = "0";
+		
+		public RowColumnTextBox(int row, int column, String defaultValue)
+		{
+			super();
+			this.row = row;
+			this.column = column;
+			this.defaultValue = defaultValue;
+		}
+		
+		public void reset()
+		{
+			this.setText(defaultValue);
+		}
+	};
 	
 	/**
 	 * Create a ResizableMatrixPanel with the specified dimensions.  By default, dimensions
@@ -96,7 +121,7 @@ public class ResizableMatrixPanel extends Composite
 	{
 		this(rows, columns, true, true, true, false);
 	}
-	
+
 	/**
 	 * Create a ResizableMatrixPanel with the specified restrictions
 	 * 
@@ -111,122 +136,176 @@ public class ResizableMatrixPanel extends Composite
 			boolean allowEditOffDiagonal, boolean isSymmetric)
 	{
 		VerticalPanel verticalPanel = new VerticalPanel();
-		
+
 		this.rows = rows;
 		this.columns = columns;
 		this.isSymmetric = isSymmetric;
 		this.allowEditOffDiagonal = allowEditOffDiagonal;
 		this.allowEditDiagonal = allowEditDiagonal;
 		this.showDimensions = showDimensions;
-		
+
 		// build the matrix data
 		buildMatrixCellsAndLabels();
-		
+
 		// build the dimension display
 		buildDimensions();
-		
+
 		// layout the panel
 		verticalPanel.add(dimensionPanel);
 		verticalPanel.add(matrixCellAndLabelTable);
 		verticalPanel.add(errorHTML);
-		
+
 		// add style
 		// TODO
-		
+
 		// initialize
 		initWidget(verticalPanel);
 	}
-	
+
 	/**
 	 * Change the row dimension of the matrix display
 	 * @param newRows new row dimension
 	 */
 	public void setRowDimension(int newRows)
 	{
-		if (newRows >= MIN_ROW_COL && newRows <= maxRows)
+		if (newRows != rows && 
+				newRows >= MIN_ROW_COL && newRows <= maxRows)
 		{
-			int oldRows = rows;
+			int oldRows = rows;			
 			if (newRows > oldRows)
 			{
+				// add new rows if the new row dimension is larger than the old
 				for(int row = matrixCellAndLabelTable.getRowCount(); 
 				row <= newRows && row < maxRows; row++)
 				{
-					for(int column = 0; column <= columns; column++)
+					addRow(row);
+				}
+				if (isSymmetric)
+				{
+					for(int column = matrixCellAndLabelTable.getCellCount(0);
+							column <= newRows && columns <= maxCols; column++)
 					{
-						if (column == 0)
-						{
-							// add a label widget
-							matrixCellAndLabelTable.setWidget(row, column, createMatrixLabel(""));
-							if (isSymmetric) matrixCellAndLabelTable.setWidget(column, row, createMatrixLabel(""));
-						}
-						else
-						{
-							// add a cell widget
-							matrixCellAndLabelTable.setWidget(row, column, createMatrixCellWidget(row, column));
-							if (isSymmetric) 
-								matrixCellAndLabelTable.setWidget(column, row, createMatrixCellWidget(row, column));
-						}
+						addColumn(column);
 					}
 				}
+
 			}
 			else if (newRows < oldRows)
 			{
 				for(int row = matrixCellAndLabelTable.getRowCount()-1; 
-					row > newRows && row > 0; row--)
+				row > newRows && row > 0; row--)
 				{
 					matrixCellAndLabelTable.removeRow(row);
 					if (isSymmetric) removeColumn(row);
 				}
 			}
+			
+			// update the dimension value and display text
 			rows = newRows;
+			rowTextBox.setText(Integer.toString(rows));
+			if (isSymmetric)
+			{
+				columns = newRows;
+				columnTextBox.setText(Integer.toString(columns));
+			}
+			
 		}
 	}
-	
+
 	/**
 	 * Change the column dimension of the matrix
 	 * @param newCols new column dimension
 	 */
 	public void setColumnDimension(int newCols)
 	{
-		if (newCols >= MIN_ROW_COL && newCols <= maxCols)
+		if (newCols != columns &&
+				newCols >= MIN_ROW_COL && newCols <= maxCols)
 		{
-			int oldCols = columns;
+			int oldCols = columns;			
 			if (newCols > oldCols)
 			{
+				// add new columns if the new row dimension is larger than the old
 				for(int column = matrixCellAndLabelTable.getCellCount(0);
-					column <= newCols && column <= maxCols; column++)
+				column <= newCols && column <= maxCols; column++)
 				{
-					for(int row = 0; row <= rows; row++)
+					addColumn(column);
+				}
+				if (isSymmetric)
+				{
+					// for symmetric matrices, add columns to maintain equal row/col dimensions
+					for(int row = matrixCellAndLabelTable.getRowCount();
+					row <= newCols && row <= maxRows; row++)
 					{
-						if (row == 0)
-						{
-							// add a label widget
-							matrixCellAndLabelTable.setWidget(row, column, createMatrixLabel(""));
-							if (isSymmetric) matrixCellAndLabelTable.setWidget(column, row, createMatrixLabel(""));
-						}
-						else
-						{
-							// add a cell widget
-							matrixCellAndLabelTable.setWidget(row, column, createMatrixCellWidget(row, column));
-							if (isSymmetric) 
-								matrixCellAndLabelTable.setWidget(column, row, createMatrixCellWidget(row, column));
-						}
+						addRow(row);
 					}
 				}
 			}
 			else if (newCols < oldCols)
 			{
+				// delete columns when new dimension is smaller than the old
 				for(int column = matrixCellAndLabelTable.getCellCount(0)-1; 
 				column > newCols && column > 0; column--)
 				{
 					removeColumn(column);
+					// for symmetric matrices, remove the corresponding rows as well
 					if (isSymmetric) matrixCellAndLabelTable.removeRow(column);
 				}
 			}
+			// update the dimension value and display text
 			columns = newCols;
+			columnTextBox.setText(Integer.toString(columns));
+			if (isSymmetric)
+			{
+				rows = newCols;
+				rowTextBox.setText(Integer.toString(rows));
+			}
 		}
 	}
-	
+
+	/**
+	 * Add a new row to the matrix table
+	 * @param row row number
+	 */
+	private void addRow(int row)
+	{
+		int numColumns = matrixCellAndLabelTable.getCellCount(0);
+		for(int column = 0; column < numColumns; column++)
+		{
+			if (column == 0)
+			{
+				// add a label widget
+				matrixCellAndLabelTable.setWidget(row, column, createMatrixLabel(""));
+			}
+			else
+			{
+				// add a cell widget
+				matrixCellAndLabelTable.setWidget(row, column, createMatrixCellWidget(row, column));
+			}
+		}
+	}
+
+	/**
+	 * Add a new column to the matrix data
+	 * @param column column number
+	 */
+	public void addColumn(int column)
+	{
+		int numRows = matrixCellAndLabelTable.getRowCount();
+		for(int row = 0; row < numRows; row++)
+		{
+			if (row == 0)
+			{
+				// add a label widget
+				matrixCellAndLabelTable.setWidget(row, column, createMatrixLabel(""));
+			}
+			else
+			{
+				// add a cell widget
+				matrixCellAndLabelTable.setWidget(row, column, createMatrixCellWidget(row, column));
+			}
+		}
+	}
+
 	/**
 	 * Add row labels.  The number of labels must exactly match the number
 	 * of rows in the matrix
@@ -244,7 +323,7 @@ public class ResizableMatrixPanel extends Composite
 			}
 		}
 	}
-	
+
 	/**
 	 * Add column labels to the panel.  The list length must be exactly the
 	 * number of columns currently in the matrix
@@ -262,7 +341,7 @@ public class ResizableMatrixPanel extends Composite
 			}
 		}
 	}
-	
+
 	/**
 	 * Set the value of a specified cell in the matrix
 	 * @param row cell's row index
@@ -270,10 +349,9 @@ public class ResizableMatrixPanel extends Composite
 	 * @param value new cell value
 	 */
 	public void setCellValue(int row, int column, String value)
-	{
-		String labelValue = value;		
+	{	
 		TextBox tb = (TextBox) matrixCellAndLabelTable.getWidget(row+1, column+1);
-		tb.setValue(labelValue);
+		tb.setValue(value);
 	}
 
 	/**
@@ -288,7 +366,7 @@ public class ResizableMatrixPanel extends Composite
 		value = tb.getValue();
 		return value;
 	}
-	
+
 	/**
 	 * Specify whether editing of diagonal elements is allowed
 	 * @param editable if true, the diagonal cells can be edited
@@ -302,7 +380,7 @@ public class ResizableMatrixPanel extends Composite
 			tb.setEnabled(true);
 		}
 	}
-	
+
 	/**
 	 * Build the panel of matrix cells and surrounding labels.  Labels appear in
 	 * the left-most column and top row.
@@ -316,7 +394,8 @@ public class ResizableMatrixPanel extends Composite
 			{
 				if (row == 0 && column == 0)
 				{
-					// don't add a widget in the upper left corner
+					// add an empty widget in the upper left corned
+					matrixCellAndLabelTable.setWidget(row, column, new HTML(""));
 				}
 				else if (row == 0 || column == 0)
 				{
@@ -331,7 +410,7 @@ public class ResizableMatrixPanel extends Composite
 			}
 		}
 	}
-	
+
 	/**
 	 * Build the row/column dimension panel
 	 */
@@ -377,14 +456,14 @@ public class ResizableMatrixPanel extends Composite
 				}
 			}
 		});
-		
+
 		// layout the matrix dimensions
 		dimensionPanel.add(rowTextBox);
 		dimensionPanel.add(new HTML(GlimmpseWeb.constants.matrixDimensionSeparator()));
 		dimensionPanel.add(columnTextBox);
 	}
 
-	
+
 	/**
 	 * Create a matrix label widget
 	 * @param label the display label
@@ -394,7 +473,7 @@ public class ResizableMatrixPanel extends Composite
 	{
 		return new HTML(label);
 	}
-	
+
 	/**
 	 * Create a text box widget for the matrix
 	 * @param isDiagonalCell if true, the cell is on the diagonal
@@ -402,22 +481,29 @@ public class ResizableMatrixPanel extends Composite
 	 */
 	private TextBox createMatrixCellWidget(int row, int column)
 	{
-		TextBox cellTextBox = new TextBox();
+		String defaultValue = ((row == column) ? defaultDiagonalValue : defaultOffDiagonalValue);
+		// the row/column associated with the text box indicate the true position 
+		// in the matrix, so we subtract 1 here to adjust for the label row/column
+		RowColumnTextBox cellTextBox = 
+			new RowColumnTextBox(row-1, column-1, defaultValue);
 		cellTextBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event)
 			{
-				TextBox tb = (TextBox) event.getSource();
+				RowColumnTextBox tb = (RowColumnTextBox) event.getSource();
 				try
 				{
 					String value = tb.getValue();
 					TextValidation.parseDouble(value);
 					TextValidation.displayOkay(errorHTML, "");
+					if (isSymmetric && tb.row != tb.column) setCellValue(tb.column, tb.row, value);
+					
 				}
 				catch(Exception e)
 				{
 					TextValidation.displayError(errorHTML, "The value should not contain special characters");
-					tb.setText("0"); // TODO: make this the appropriate value for the diagonal/off-diagonal
+					tb.reset();
+					if (isSymmetric && tb.row != tb.column)  setCellValue(tb.column, tb.row, tb.getValue());
 				}
 			}
 		});
@@ -426,7 +512,7 @@ public class ResizableMatrixPanel extends Composite
 		cellTextBox.setValue((row == column) ? defaultDiagonalValue : defaultOffDiagonalValue);
 		return cellTextBox;
 	}
-	
+
 	/**
 	 * Determines whether a cell is editable.<p>
 	 *  A diagonal cell is editable if any of the following conditions hold
@@ -452,7 +538,7 @@ public class ResizableMatrixPanel extends Composite
 				(!isDiagonal && allowEditOffDiagonal))) ||
 				(isSymmetric && row <= column));
 	}
-	
+
 	/**
 	 * GWT's flex table doesn't provide a function to
 	 * remove a column, so here is it
@@ -463,7 +549,7 @@ public class ResizableMatrixPanel extends Composite
 		for(int row = 0; row < tableRows; row++) 
 			matrixCellAndLabelTable.removeCell(row, column);
 	}
-	
+
 	/**
 	 * Create a NamedMatrix object from the ResizableMatrixPanel
 	 * widgets
@@ -486,7 +572,7 @@ public class ResizableMatrixPanel extends Composite
 		namedMatrix.setData(data);
 		return namedMatrix;
 	}
-	
+
 	/**
 	 * Reset to the default cell value and remove all labels
 	 * 
@@ -495,89 +581,91 @@ public class ResizableMatrixPanel extends Composite
 	 */
 	public void reset(int rows, int columns)
 	{
-		
+
 	}
-	
+
 	/**
 	 * Specify whether the row dimension of the matrix is editable
 	 * @param enabled if true, edits are allowed in the row dimension
 	 */
-    public void setEnabledRowDimension(boolean enabled)
-    {
-    	rowTextBox.setEnabled(enabled);
-    }
-    
+	public void setEnabledRowDimension(boolean enabled)
+	{
+		rowTextBox.setEnabled(enabled);
+	}
+
 	/**
 	 * Specify whether the column dimension of the matrix is editable
 	 * @param enabled if true, edits are allowed in the column dimension
 	 */
-    public void setEnabledColumnDimension(boolean enabled)
-    {
-    	columnTextBox.setEnabled(enabled);
-    }
-    
-    /**
-     * Set maximum number of rows allowed in the matrix
-     * @param rows max allowed rows
-     */
-    public void setMaxRows(int rows)
-    {
-    	if (rows >= MIN_ROW_COL)
-    	{
-        	maxRows = rows;
-    	}
-    }
-    
-    /**
-     * Set maximum number of columns allowed in the matrix
-     * @param columns max allowed columns
-     */
-    public void setMaxColumns(int columns)
-    {
-    	if (columns >= MIN_ROW_COL)
-    	{
-        	maxCols = columns;
-    	}
-    }
-    
-    /**
-     * FIll in the matrix widgets from a NamedMatrix object
-     * @param matrix NamedMatrix object
-     */
-    public void loadFromNamedMatrix(NamedMatrix matrix)
-    {
-    	if (matrix != null)
-    	{
-    		setRowDimension(matrix.getRows());
-    		setColumnDimension(matrix.getColumns());
-    		double[][] data = matrix.getDataFromBlob();
-    		for(int row = 0; row < rows; row++)
-    		{
-    			for(int column = 0; column < columns; column++)
-    			{
-    				setCellValue(row, column, Double.toString(data[row][column]));
-    			}
-    		}
-    		rowTextBox.setValue(Integer.toString(rows));
-    		columnTextBox.setValue(Integer.toString(columns));
-    	}
-    }
-    
-    /**
-     * Get row dimension of the matrix
-     * @return row dimension
-     */
-    public int getRowDimension()
-    {
-    	return rows;
-    }
-    
-    /**
-     * Get column dimension of the matrix
-     * @return row dimension
-     */
-    public int getColumnDimension()
-    {
-    	return columns;
-    }
+	public void setEnabledColumnDimension(boolean enabled)
+	{
+		columnTextBox.setEnabled(enabled);
+	}
+
+	/**
+	 * Set maximum number of rows allowed in the matrix
+	 * @param rows max allowed rows
+	 */
+	public void setMaxRows(int rows)
+	{
+		if (rows >= MIN_ROW_COL)
+		{
+			maxRows = rows;
+			if (isSymmetric) maxCols = rows;
+		}
+	}
+
+	/**
+	 * Set maximum number of columns allowed in the matrix
+	 * @param columns max allowed columns
+	 */
+	public void setMaxColumns(int columns)
+	{
+		if (columns >= MIN_ROW_COL)
+		{
+			maxCols = columns;
+			if (isSymmetric) maxRows = columns;
+		}
+	}
+
+	/**
+	 * FIll in the matrix widgets from a NamedMatrix object
+	 * @param matrix NamedMatrix object
+	 */
+	public void loadFromNamedMatrix(NamedMatrix matrix)
+	{
+		if (matrix != null)
+		{
+			setRowDimension(matrix.getRows());
+			setColumnDimension(matrix.getColumns());
+			double[][] data = matrix.getDataFromBlob();
+			for(int row = 0; row < rows; row++)
+			{
+				for(int column = 0; column < columns; column++)
+				{
+					setCellValue(row, column, Double.toString(data[row][column]));
+				}
+			}
+			rowTextBox.setValue(Integer.toString(rows));
+			columnTextBox.setValue(Integer.toString(columns));
+		}
+	}
+
+	/**
+	 * Get row dimension of the matrix
+	 * @return row dimension
+	 */
+	public int getRowDimension()
+	{
+		return rows;
+	}
+
+	/**
+	 * Get column dimension of the matrix
+	 * @return row dimension
+	 */
+	public int getColumnDimension()
+	{
+		return columns;
+	}
 }
