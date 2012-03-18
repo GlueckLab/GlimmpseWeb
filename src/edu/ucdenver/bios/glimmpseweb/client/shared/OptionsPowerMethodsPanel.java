@@ -36,8 +36,14 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
+import edu.ucdenver.bios.webservice.common.domain.Quantile;
+import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 
 /**
  * Panel which allows user to select statistical tests, display options
@@ -51,13 +57,23 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 public class OptionsPowerMethodsPanel extends WizardStepPanel
 implements ClickHandler
 {
+	// study design context
+	StudyDesignContext studyDesignContext;
+	
 	// check boxes for power methods (only used when a baseline covariate is specified)
 	protected CheckBox unconditionalPowerCheckBox = new CheckBox();
+	protected PowerMethod unconditionalMethod = new PowerMethod(PowerMethodEnum.UNCONDITIONAL);
 	protected CheckBox quantilePowerCheckBox = new CheckBox(){
-		public void onChange(){
+		public void onChange() {
 			
 		}
 	};
+	protected PowerMethod quantileMethod = new PowerMethod(PowerMethodEnum.QUANTILE);
+	// list of current power methods
+	ArrayList<PowerMethod> powerMethodList = new ArrayList<PowerMethod>();
+	// list of quantile values
+	ArrayList<Quantile> quantileList = new ArrayList<Quantile>();
+	
 	protected int numQuantiles = 0;
 	
 	// dynamic list of quantile values
@@ -91,6 +107,7 @@ implements ClickHandler
     public OptionsPowerMethodsPanel(WizardContext context, String mode)
 	{
 		super(context, "Power Method", WizardStepPanelState.SKIPPED);
+		studyDesignContext = (StudyDesignContext) context;
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description
@@ -150,71 +167,6 @@ implements ClickHandler
 		changeState(WizardStepPanelState.SKIPPED);
 		checkComplete();
 	}
-
-	/**
-	 * Create an XML representation of the list of selected power methods
-	 * 
-	 * @return XML representation of the power methods
-	 */
-	public String powerMethodListToXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-
-		buffer.append("<");
-		buffer.append(GlimmpseConstants.TAG_POWER_METHOD_LIST);
-		buffer.append(">");
-		if (WizardStepPanelState.SKIPPED == state)
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.POWER_METHOD_CONDITIONAL);
-			buffer.append("</v>");
-		}
-		else
-		{
-			if (unconditionalPowerCheckBox.getValue())
-			{
-				buffer.append("<v>");
-				buffer.append(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
-				buffer.append("</v>");
-			}
-			if (quantilePowerCheckBox.getValue())
-			{
-				buffer.append("<v>");
-				buffer.append(GlimmpseConstants.POWER_METHOD_QUANTILE);
-				buffer.append("</v>");
-			}
-		}
-		buffer.append("</");
-		buffer.append(GlimmpseConstants.TAG_POWER_METHOD_LIST);
-		buffer.append(">");
-		return buffer.toString();
-	}
-
-
-	/**
-	 * Create an XML representation of the panel to be saved with
-	 * the study design
-	 * 
-	 * @return study XML
-	 */
-	public String toStudyXML()
-	{
-		return toRequestXML();
-	}
-	
-	/**
-	 * Create an XML representation of the panel for sending to the
-	 * Power web service
-	 * 
-	 * @return
-	 */
-	public String toRequestXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(powerMethodListToXML());
-		buffer.append(quantileListPanel.toXML(GlimmpseConstants.TAG_QUANTILE_LIST));
-		return buffer.toString();
-	}
 	
 	/**
 	 * Click handler for all checkboxes on the Options screen.
@@ -257,20 +209,111 @@ implements ClickHandler
     
 
     /**
-     * Notify power method and quantile listeners of any changes
-     * as we leave this screen
+     * Notify context of any changes when we leave this screen
      */
     @Override
     public void onExit()
     {
-    	ArrayList<String> powerMethods = new ArrayList<String>();
-    	
+    	// update the power methods
+    	powerMethodList.clear();
     	if (unconditionalPowerCheckBox.getValue())
-    		powerMethods.add(GlimmpseConstants.POWER_METHOD_UNCONDITIONAL);
+    		powerMethodList.add(unconditionalMethod);
     	if (quantilePowerCheckBox.getValue())
+    		powerMethodList.add(quantileMethod);
+    	studyDesignContext.setPowerMethodList(this, powerMethodList);
+   
+    	// update the quantile information
+    	quantileList.clear();
+		List<String> values = quantileListPanel.getValues();
+		for(String value: values)
+		{
+			quantileList.add(new Quantile(Double.parseDouble(value)));
+		}
+    }
+    
+    
+	/**
+	 * Respond to context changes.
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+		StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+		switch (changeEvent.getType())
+		{
+		case COVARIATE:
+			if (!studyDesignContext.getStudyDesign().isGaussianCovariate())
+			{
+				changeState(WizardStepPanelState.SKIPPED);
+			}		
+			else
+			{
+				checkComplete();
+			}
+			break;
+		case POWER_METHOD_LIST:
+			if (this != changeEvent.getSource())
+			{
+				loadPowerMethodListFromContext();
+				checkComplete();
+			}
+			break;
+		case QUANTILE_LIST:
+			if (this != changeEvent.getSource())
+			{
+				loadQuantileListFromContext();
+				checkComplete();
+			}
+			break;
+		}
+	}
+	
+	/**
+	 * Respond to context load events
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+		loadFromContext();
+	}
+	
+    /**
+     * Set the power method check boxes based on the context
+     */
+    private void loadPowerMethodListFromContext()
+    {
+    	List<PowerMethod> methodList = studyDesignContext.getStudyDesign().getPowerMethodList();
+    	for(PowerMethod method: methodList)
     	{
-    		powerMethods.add(GlimmpseConstants.POWER_METHOD_QUANTILE);
-    		List<String> values = quantileListPanel.getValues();
+    		switch (method.getPowerMethodEnum())
+    		{
+    		case UNCONDITIONAL:
+    			unconditionalPowerCheckBox.setValue(true);
+    			break;
+    		case QUANTILE:
+    			quantilePowerCheckBox.setValue(true);
+    			break;
+    		}
     	}
     }
+    
+    /**
+     * Set the quantile list information from the context
+     */
+    private void loadQuantileListFromContext()
+    {
+    	List<Quantile> contextQuantileList = studyDesignContext.getStudyDesign().getQuantileList();
+    	for(Quantile quantile: contextQuantileList) quantileListPanel.add(Double.toString(quantile.getValue()));
+    }
+	
+    /**
+     * Load the sample size panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+    	loadPowerMethodListFromContext();
+    	loadQuantileListFromContext();
+    	checkComplete();
+    }   
+    
 }

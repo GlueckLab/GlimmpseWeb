@@ -37,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 
 /**
  * Panel for entering type I error values
@@ -53,7 +54,7 @@ implements ListValidator
     protected ListEntryPanel alphaListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.alphaTableColumn() , this);
     // caches the entered values as doubles
-    ArrayList<Double> alphaList = new ArrayList<Double>();
+    ArrayList<TypeIError> alphaList = new ArrayList<TypeIError>();
     
     /**
      * Create an empty type I error panel
@@ -174,7 +175,7 @@ implements ListValidator
     	alphaList.clear();
     	for(String value: stringValues)
     	{
-    		alphaList.add(Double.parseDouble(value));
+    		alphaList.add(new TypeIError(Double.parseDouble(value)));
     	}
     	// save to context object
     	studyDesignContext.setAlphaList(this, alphaList);

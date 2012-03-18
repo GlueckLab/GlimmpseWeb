@@ -37,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
@@ -55,7 +56,7 @@ implements ListValidator
     	new ListEntryPanel(GlimmpseWeb.constants.solvingForNominalPowerTableColumn(), this);
     
     // avoids reallocating this everytime we exit
-    ArrayList<Double> powerList = new ArrayList<Double>();
+    ArrayList<NominalPower> powerList = new ArrayList<NominalPower>();
     
 	public PowerPanel(WizardContext context)
 	{
@@ -175,7 +176,7 @@ implements ListValidator
     	powerList.clear();
     	for(String value: stringValues)
     	{
-    		powerList.add(Double.parseDouble(value));
+    		powerList.add(new NominalPower(Double.parseDouble(value)));
     	}
     	// save to context object
     	studyDesignContext.setPowerList(this, powerList);

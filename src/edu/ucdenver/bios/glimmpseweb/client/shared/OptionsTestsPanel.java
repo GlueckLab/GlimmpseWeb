@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -33,8 +34,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
+import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 
 /**
  * Panel for selecting statistical tests
@@ -44,8 +50,8 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 public class OptionsTestsPanel extends WizardStepPanel
 implements ClickHandler
 {
-	// constants for xml parsing
-    private static final String TAG_TEST_LIST = "testList";
+	// study design context
+	StudyDesignContext studyDesignContext;
 	
 	// check boxes for statistical tests
 	protected CheckBox hotellingLawleyCheckBox = new CheckBox();
@@ -55,7 +61,20 @@ implements ClickHandler
 	protected CheckBox unirepGGCheckBox = new CheckBox();
 	protected CheckBox unirepHFCheckBox = new CheckBox();
 	protected CheckBox unirepBoxCheckBox = new CheckBox();
+	
+	// pre-allocate the test objects
+	protected StatisticalTest hotellingLawleyTraceTest = new StatisticalTest(StatisticalTestTypeEnum.HLT);
+	protected StatisticalTest pillaiBartlettTraceTest = new StatisticalTest(StatisticalTestTypeEnum.PBT);
+	protected StatisticalTest wilksLambdaTest = new StatisticalTest(StatisticalTestTypeEnum.WL);
+	protected StatisticalTest unirepTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREP);
+	protected StatisticalTest unirepBoxTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPBOX);
+	protected StatisticalTest unirepGGTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPGG);
+	protected StatisticalTest unirepHFTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPHF);
+	
+	// test list
+	ArrayList<StatisticalTest> testList = new ArrayList<StatisticalTest>();
 
+	// only a subset of tests is available for covariate designs
 	protected boolean hasCovariate = false;
 	
     /**
@@ -64,7 +83,8 @@ implements ClickHandler
      */
     public OptionsTestsPanel(WizardContext context, String mode)
 	{
-		super(context, "Statistical Test");
+		super(context, "Statistical Test", WizardStepPanelState.INCOMPLETE);
+		studyDesignContext = (StudyDesignContext) context;
 		VerticalPanel panel = new VerticalPanel();
 
 		// create header, description
@@ -125,80 +145,9 @@ implements ClickHandler
 		unirepGGCheckBox.setValue(false);
 		unirepHFCheckBox.setValue(false);
 		unirepBoxCheckBox.setValue(false);
+		testList.clear();
 		
 		checkComplete();
-	}
-
-	/**
-	 * Create an XML representation of the currently selected 
-	 * statistical test list
-	 * 
-	 * @return XML representation of statistical test list
-	 */
-	public String toRequestXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-
-		buffer.append("<");
-		buffer.append(TAG_TEST_LIST);
-		buffer.append(">");
-		if (hotellingLawleyCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_HOTELLING_LAWLEY_TRACE);
-			buffer.append("</v>");
-		}
-		if (pillaiBartlettCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_PILLAI_BARTLETT_TRACE);
-			buffer.append("</v>");
-		}
-		if (wilksCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_WILKS_LAMBDA);
-			buffer.append("</v>");
-		}
-		if (unirepCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_UNIREP);
-			buffer.append("</v>");
-		}
-		if (unirepGGCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_UNIREP_GEISSER_GRENNHOUSE);
-			buffer.append("</v>");
-		}
-		if (unirepHFCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_UNIREP_HUYNH_FELDT);
-			buffer.append("</v>");
-		}
-		if (unirepBoxCheckBox.getValue())
-		{
-			buffer.append("<v>");
-			buffer.append(GlimmpseConstants.TEST_UNIREP_BOX);
-			buffer.append("</v>");
-		}
-		buffer.append("</");
-		buffer.append(TAG_TEST_LIST);
-		buffer.append(">");
-		return buffer.toString();
-	}
-
-	/**
-	 * Create an XML representation of the panel to be saved with
-	 * the study design
-	 * 
-	 * @return study XML
-	 */
-	public String toStudyXML()
-	{
-		return toRequestXML();
 	}
 	
 	/**
@@ -239,73 +188,107 @@ implements ClickHandler
 	@Override
 	public void onExit()
 	{
-		ArrayList<String> testList = new ArrayList<String>();
-
+		testList.clear();
 		if (hotellingLawleyCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_HOTELLING_LAWLEY_TRACE);
+			testList.add(hotellingLawleyTraceTest);
 		}
 		if (pillaiBartlettCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_PILLAI_BARTLETT_TRACE);
+			testList.add(pillaiBartlettTraceTest);
 		}
 		if (wilksCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_WILKS_LAMBDA);
+			testList.add(wilksLambdaTest);
 		}
 		if (unirepCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_UNIREP);
+			testList.add(unirepTest);
 		}
 		if (unirepGGCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_UNIREP_GEISSER_GRENNHOUSE);
+			testList.add(unirepGGTest);
 		}
 		if (unirepHFCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_UNIREP_HUYNH_FELDT);
+			testList.add(unirepHFTest);
 		}
 		if (unirepBoxCheckBox.getValue())
 		{
-			testList.add(GlimmpseConstants.TEST_UNIREP_BOX);
+			testList.add(unirepBoxTest);
 		}
+		studyDesignContext.setStatisticalTestList(this, testList);
 	}
 
+	/**
+	 * Respond to context changes.
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+		StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+		switch (changeEvent.getType())
+		{
+		case COVARIATE:
+			hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
+			pillaiBartlettCheckBox.setEnabled(!hasCovariate);
+			if (pillaiBartlettCheckBox.getValue() && !hasCovariate) pillaiBartlettCheckBox.setValue(false);
+			wilksCheckBox.setEnabled(!hasCovariate);
+			if (wilksCheckBox.getValue() && !hasCovariate) wilksCheckBox.setValue(false);
+			break;
+		case STATISTICAL_TEST_LIST:
+			if (this != changeEvent.getSource())
+			{
+				loadFromContext();
+			}
+			break;
+		}
+	}
 	
+	/**
+	 * Respond to context load events
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+		loadFromContext();
+	}
 	
-//	/**
-//	 * Parse the saved study design information and set the appropriate options
-//	 */
-//	@Override
-//	public void loadFromNode(Node node)
-//	{
-//		if (TAG_TEST_LIST.equalsIgnoreCase(node.getNodeName()))
-//		{
-//			NodeList testChildren = node.getChildNodes();
-//			for(int ti = 0; ti < testChildren.getLength(); ti++)
-//			{
-//				Node testChild = testChildren.item(ti);
-//				Node testNode = testChild.getFirstChild();
-//				if (testNode != null)
-//				{
-//					if (GlimmpseConstants.TEST_HOTELLING_LAWLEY_TRACE.equals(testNode.getNodeValue()))
-//						hotellingLawleyCheckBox.setValue(true);
-//					else if (GlimmpseConstants.TEST_PILLAI_BARTLETT_TRACE.equals(testNode.getNodeValue()))
-//						pillaiBartlettCheckBox.setValue(true);
-//					else if (GlimmpseConstants.TEST_WILKS_LAMBDA.equals(testNode.getNodeValue()))
-//						wilksCheckBox.setValue(true);
-//					else if (GlimmpseConstants.TEST_UNIREP.equals(testNode.getNodeValue()))
-//						unirepCheckBox.setValue(true);
-//					else if (GlimmpseConstants.TEST_UNIREP_BOX.equals(testNode.getNodeValue()))
-//						unirepBoxCheckBox.setValue(true);
-//					else if (GlimmpseConstants.TEST_UNIREP_GEISSER_GRENNHOUSE.equals(testNode.getNodeValue()))
-//						unirepGGCheckBox.setValue(true);
-//					else if (GlimmpseConstants.TEST_UNIREP_HUYNH_FELDT.equals(testNode.getNodeValue()))
-//						unirepHFCheckBox.setValue(true);
-//				}
-//			}
-//		}
-//		// check if the options are complete
-//		checkComplete();
-//	}
+	/**
+	 * Set the test checkboxes based on the current context
+	 */
+	private void loadFromContext()
+	{
+		List<StatisticalTest> contextTestList = studyDesignContext.getStudyDesign().getStatisticalTestList();
+		for(StatisticalTest test: contextTestList)
+		{
+			switch(test.getType())
+			{
+			case HLT:
+				hotellingLawleyCheckBox.setValue(true);
+				break;
+			case PBT:
+				pillaiBartlettCheckBox.setValue(true);
+				break;
+			case WL:
+				wilksCheckBox.setValue(true);
+				break;
+			case UNIREP:
+				unirepCheckBox.setValue(true);
+				break;
+			case UNIREPBOX:
+				unirepBoxCheckBox.setValue(true);
+				break;
+			case UNIREPGG:
+				unirepGGCheckBox.setValue(true);
+				break;
+			case UNIREPHF:
+				unirepHFCheckBox.setValue(true);
+				break;
+			}			
+		}
+		checkComplete();
+	}
+	
+
 }

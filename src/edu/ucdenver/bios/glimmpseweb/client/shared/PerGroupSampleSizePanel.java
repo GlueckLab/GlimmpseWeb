@@ -26,14 +26,17 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
  * Entry panel for per group sample sizes
@@ -43,13 +46,19 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 public class PerGroupSampleSizePanel extends WizardStepPanel
 implements ListValidator
 {
+	// study design context
+	StudyDesignContext studyDesignContext;
+	
    	// list of per group sample sizes
     protected ListEntryPanel perGroupNListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.perGroupSampleSizeTableColumn(), this);
+    // list of sample sizes to be set into the context
+    ArrayList<Double> sampleSizeList = new ArrayList<Double>();
     
 	public PerGroupSampleSizePanel(WizardContext context)
 	{
-		super(context, "Per Group N");
+		super(context, "Per Group N", WizardStepPanelState.INCOMPLETE);
+		studyDesignContext = (StudyDesignContext) context;
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.perGroupSampleSizeTitle());
         HTML description = new HTML(GlimmpseWeb.constants.perGroupSampleSizeDescription());
@@ -94,17 +103,70 @@ implements ListValidator
 	{
 		perGroupNListPanel.reset();
 		onValidRowCount(perGroupNListPanel.getValidRowCount());
+		changeState(WizardStepPanelState.INCOMPLETE);
+	}    
+    
+	/**
+	 * Respond to context changes.
+	 */
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+		StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+		switch (changeEvent.getType())
+		{
+		case SOLVING_FOR:
+			if (SolutionTypeEnum.SAMPLE_SIZE == studyDesignContext.getStudyDesign().getSolutionTypeEnum())
+			{
+				changeState(WizardStepPanelState.SKIPPED);
+			}
+			else
+			{
+				onValidRowCount(perGroupNListPanel.getValidRowCount());
+			}			
+			break;
+		case PER_GROUP_N_LIST:
+			if (this != changeEvent.getSource())
+			{
+				loadFromContext();
+			}
+			break;
+		}
 	}
-
+	
+	/**
+	 * Respond to context load events
+	 */
+	@Override
+	public void onWizardContextLoad()
+	{
+		loadFromContext();
+	}
 	
     /**
-     * Notify sample size listeners as we exit the screen
+     * Load the sample size panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+    	List<Double> perGroupNList = studyDesignContext.getStudyDesign().getPerGroupSampleSizeList();
+    	perGroupNListPanel.loadFromDoubleList(perGroupNList, true);
+    }
+    
+    /**
+     * Notify context of any changes as we exit the screen
      */
     @Override
     public void onExit()
     {
-    	List<String> values = perGroupNListPanel.getValues();
-    	// TODO: update context
+    	List<String> stringValues = perGroupNListPanel.getValues();
+    	sampleSizeList.clear();
+    	for(String value: stringValues)
+    	{
+    		sampleSizeList.add(Double.parseDouble(value));
+    	}
+    	// save to context object
+    	studyDesignContext.setPerGroupSampleSizeList(this, sampleSizeList);
     }
+    
 	
 }
