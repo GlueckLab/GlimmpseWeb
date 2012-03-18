@@ -6,16 +6,33 @@ import java.util.List;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
+import edu.ucdenver.bios.webservice.common.domain.NominalPower;
+import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
+import edu.ucdenver.bios.webservice.common.domain.Quantile;
+import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
+import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
+import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 public class StudyDesignContext extends WizardContext
 {
+	// main study design object
 	private StudyDesign studyDesign;
 
+	/* connectors to the web service layer */
+	// power service connector
+	
+	// chart service connector
+	
+	// matrix service connector
+	
+	// study design service connector
+	
 	public StudyDesignContext()
 	{
 		studyDesign = new StudyDesign();
@@ -26,32 +43,60 @@ public class StudyDesignContext extends WizardContext
 		return studyDesign;
 	}
 
-	public void setAlphaList(WizardStepPanel panel, ArrayList<Double> alphaList)
+	public void setAlphaList(WizardStepPanel panel, ArrayList<TypeIError> alphaList)
 	{
-		//		studyDesign.setAlphaList(alphaList);
+		studyDesign.setAlphaList(alphaList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.ALPHA_LIST));
 	}
 
-	public void setBetaScaleList(WizardStepPanel panel, List<Double> betaScaleList)
+	public void setBetaScaleList(WizardStepPanel panel, List<BetaScale> betaScaleList)
 	{
-		//		studyDesign.setAlphaList(betaScaleList);
+		studyDesign.setBetaScaleList(betaScaleList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.BETA_SCALE_LIST));
 	}
 
-	public void setSigmaScaleList(WizardStepPanel panel, List<Double> sigmaScaleList)
+	public void setSigmaScaleList(WizardStepPanel panel, List<SigmaScale> sigmaScaleList)
 	{
-		//		studyDesign.setAlphaList(sigmaScaleList);
+		studyDesign.setSigmaScaleList(sigmaScaleList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.SIGMA_SCALE_LIST));
 	}
 
-	public void setPowerList(WizardStepPanel panel, ArrayList<Double> powerList)
+	public void setPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
 	{
-		//		studyDesign.setPowerList(powerList);
+		studyDesign.setNominalPowerList(powerList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.POWER_LIST));
+	}
+	
+	public void setPowerMethodList(WizardStepPanel panel, ArrayList<PowerMethod> powerMethodList)
+	{
+		studyDesign.setPowerMethodList(powerMethodList);
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+				StudyDesignChangeType.POWER_METHOD_LIST));
+	}
+	
+	public void setQuantileList(WizardStepPanel panel, ArrayList<Quantile> quantileList)
+	{
+		studyDesign.setQuantileList(quantileList);
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+				StudyDesignChangeType.QUANTILE_LIST));
+	}
+	
+	public void setPerGroupSampleSizeList(WizardStepPanel panel, ArrayList<Double> sampleSizeList)
+	{
+		studyDesign.setPerGroupSampleSizeList(sampleSizeList);
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+				StudyDesignChangeType.PER_GROUP_N_LIST));
+	}
+	
+	public void setStatisticalTestList(WizardStepPanel panel, ArrayList<StatisticalTest> statisticalTestList)
+	{
+		studyDesign.setStatisticalTestList(statisticalTestList);
+		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+				StudyDesignChangeType.STATISTICAL_TEST_LIST));
 	}
 
 	public void setSolutionType(WizardStepPanel panel, SolutionTypeEnum solutionType)
@@ -103,35 +148,35 @@ public class StudyDesignContext extends WizardContext
 
 	public void setSigmaCovariate(WizardStepPanel panel, NamedMatrix sigmaCovariate)
 	{
-		//		studyDesign.setSigmaCovariate(sigmaCovariate);
+		studyDesign.setNamedMatrix(sigmaCovariate);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.SIGMA_COVARIATE_MATRIX));
 	}
 
 	public void setSigmaError(WizardStepPanel panel, NamedMatrix sigmaError)
 	{
-		//		studyDesign.setSigmaError(sigmaError);
+		studyDesign.setNamedMatrix(sigmaError);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.SIGMA_ERROR_MATRIX));
 	}
 
 	public void setSigmaOutcomesCovariate(WizardStepPanel panel, NamedMatrix sigmaYG)
 	{
-		//		studyDesign.setSigmaOutcomesCovariate(sigmaYG);
+		studyDesign.setNamedMatrix(sigmaYG);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.SIGMA_OUTCOME_COVARIATE_MATRIX));
 	}
 
 	public void setSigmaOutcomes(WizardStepPanel panel, NamedMatrix sigmaY)
 	{
-		//		studyDesign.setSigmaOutcomes(sigmaY);
+		studyDesign.setNamedMatrix(sigmaY);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.SIGMA_OUTCOME_MATRIX));
 	}
 
 	public void setThetaNull(WizardStepPanel panel, NamedMatrix thetaNull)
 	{
-		//		studyDesign.setThetaNull(thetaNull);
+		studyDesign.setNamedMatrix(thetaNull);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.THETA_NULL_MATRIX));
 	}
