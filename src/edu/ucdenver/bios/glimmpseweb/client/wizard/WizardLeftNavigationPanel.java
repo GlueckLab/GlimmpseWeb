@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -309,7 +308,6 @@ implements WizardStepPanelStateChangeHandler
 	public void onStateChange(WizardStepPanel source,
 			WizardStepPanelState oldState, WizardStepPanelState newState)
 	{
-		GWT.log(source.getName() + " state change old=" + oldState + " new=" + newState);
 		Widget item = panelToButtonMap.get(source);
 		if (item != null && item != currentItem)
 		{
