@@ -38,6 +38,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
@@ -55,7 +56,7 @@ implements ListValidator
     	new ListEntryPanel(GlimmpseWeb.constants.betaScaleTableColumn(), this);
 
     // caches the entered values as doubles
-    ArrayList<Double> betaScaleList = new ArrayList<Double>();
+    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
     
 	public BetaScalePanel(WizardContext context)
 	{
@@ -103,19 +104,6 @@ implements ListValidator
 		else
 			changeState(WizardStepPanelState.INCOMPLETE);
 	}
-
-//	@Override
-//	public void onSolvingFor(SolutionType solutionType)
-//	{
-//		switch (solutionType)
-//		{
-//		case DETECTABLE_DIFFERENCE:
-//			skip = true;
-//			break;
-//		default:	
-//			skip = false;
-//		}
-//	}
 	
     /**
      * Notify context of new beta scale list as we leave the panel
@@ -127,7 +115,7 @@ implements ListValidator
     	betaScaleList.clear();
     	for(String value: stringValues)
     	{
-    		betaScaleList.add(Double.parseDouble(value));
+    		betaScaleList.add(new BetaScale(Double.parseDouble(value)));
     	}
     	studyDesignContext.setBetaScaleList(this, betaScaleList);
     }
@@ -142,8 +130,21 @@ implements ListValidator
     	switch (changeEvent.getType())
     	{
     	case SOLVING_FOR:
-//    		skip = (SolutionTypeEnum.DETECTABLE_DIFFERENCE == 
-//    			studyDesignContext.getStudyDesign().getSolutionType());
+    		if (SolutionTypeEnum.DETECTABLE_DIFFERENCE == 
+    			studyDesignContext.getStudyDesign().getSolutionTypeEnum())
+    		{
+    			changeState(WizardStepPanelState.SKIPPED);
+    		}
+    		else
+    		{
+    			onValidRowCount(betaScaleListPanel.getValidRowCount());
+    		}
+    		break;
+    	case BETA_SCALE_LIST:
+    		if (this != e.getSource())
+    		{
+    			loadFromContext();
+    		}
     		break;
     	}
 	}
@@ -162,7 +163,11 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-//    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
-//    	betaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+    	List<BetaScale> contextBetaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
+    	for(BetaScale scale: contextBetaScaleList)
+    	{
+    		betaScaleListPanel.add(Double.toString(scale.getValue()));
+    	}
+    	onValidRowCount(betaScaleListPanel.getValidRowCount());
     }
 }
