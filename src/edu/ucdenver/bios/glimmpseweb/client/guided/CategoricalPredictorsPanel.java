@@ -23,6 +23,7 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -44,8 +45,13 @@ import com.google.gwt.xml.client.NodeList;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Fixed predictor entry screen
@@ -53,6 +59,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
  */
 public class CategoricalPredictorsPanel extends WizardStepPanel
 {
+	// pointer to the study design context
+	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+	
     // list box displaying predictors
     protected ListBox predictorList = new ListBox();
     protected ListBox categoryList = new ListBox();
@@ -335,19 +344,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     		}
     	}
     	return data;
-    }
-    
-    
-    public void onExit()
-    {
-//    	if (changed)
-//    	{
-//    		DataTable groups = buildGroupTable();
-//    		for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap, groups);
-//    		changed = false;
-//    	}
-    }
-   
+    }  
     
     public void checkComplete()
     {
@@ -371,84 +368,73 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     	predictorList.clear();
     	categoryList.clear();
     	predictorCategoryMap.clear();
-//    	changed = false;
     	checkComplete();
     }
 
-//	@Override
-//	public void loadFromNode(Node node)
-//	{
-//		if (GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS.equalsIgnoreCase(node.getNodeName()))
-//		{
-//			NodeList children = node.getChildNodes();
-//			for(int i = 0; i < children.getLength(); i++)
-//			{
-//				Node child = children.item(i);
-//				String childName = child.getNodeName();
-//				if (GlimmpseConstants.TAG_PREDICTOR.equalsIgnoreCase(childName))
-//				{
-//					NamedNodeMap attrs = child.getAttributes();
-//					Node nameNode = attrs.getNamedItem(GlimmpseConstants.ATTR_NAME);
-//					if (nameNode != null && !nameNode.getNodeValue().isEmpty())
-//					{
-//						String predictor = nameNode.getNodeValue();
-//						addPredictor(predictor);
-//						loadCategoriesFromNode(child, predictor);
-//					}
-//				}
-//			}
-//			// notify listeners and reset changed to false after initial setup
-//    		DataTable groups = buildGroupTable();
-//    		for(PredictorsListener listener: listeners) listener.onPredictors(predictorCategoryMap, groups);
-//    		changed = false;
-//		}
-//		checkComplete();
-//	}
-	
-	private void loadCategoriesFromNode(Node node, String predictor)
-	{
-		NodeList children = node.getChildNodes();
-		ArrayList<String> categories = predictorCategoryMap.get(predictor);
-		for(int i = 0; i < children.getLength(); i++)
-		{
-			Node child = children.item(i);
-			String childName = child.getNodeName();
-			if (GlimmpseConstants.TAG_CATEGORY.equalsIgnoreCase(childName))
+    /**
+     * Resize the beta matrix when the design matrix dimensions change
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+    	// no action needed
+    }
+    
+    /**
+     * Load the between participant factor information from the context
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+    	loadFromContext();
+    }
+    
+    private void loadFromContext()
+    {
+    	List<BetweenParticipantFactor> factorList = 
+    		studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+    	for(BetweenParticipantFactor factor: factorList)
+    	{
+    		String predictor = factor.getPredictorName();
+			addPredictor(predictor);
+			List<Category> categoryList = factor.getCategoryList();
+			ArrayList<String> categories = predictorCategoryMap.get(predictor);
+			for(Category category: categoryList)
 			{
-				Node valueNode = child.getFirstChild();
-				if (valueNode != null)
-				{
-		    		categories.add(valueNode.getNodeValue());
-				}
+				categories.add(category.getCategory());
 			}
-		}
-	}
+    	}
+    	checkComplete();
+    }
 
-//	public String toStudyXML()
-//	{
-//		StringBuffer buffer = new StringBuffer();
-//		
-//		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS);
-//		
-//		for(String predictor: predictorCategoryMap.keySet())
-//		{
-//			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_PREDICTOR, 
-//					GlimmpseConstants.ATTR_NAME + "='" + predictor + "'");
-//			ArrayList<String> categories = predictorCategoryMap.get(predictor);
-//			if (categories != null)
-//			{
-//				for(String category: categories)
-//				{
-//					XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CATEGORY);
-//					buffer.append(category);
-//					XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CATEGORY);
-//				}
-//			}
-//			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_PREDICTOR);
-//		}
-//		
-//		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CATEGORICAL_PREDICTORS);
-//		return buffer.toString();
-//	}
+    /**
+     * Update the between participant factors in the context
+     */
+    @Override
+    public void onExit()
+    {
+    	studyDesignContext.setBetweenParticipantFactorList(this, 
+    			buildBetweenParticipantFactorList());
+    }
+    
+    /**
+     * Convert the screen information into a between participant factor list
+     * @return list of between participant factors
+     */
+    private List<BetweenParticipantFactor> buildBetweenParticipantFactorList()
+    {
+        ArrayList<BetweenParticipantFactor> factorList = new ArrayList<BetweenParticipantFactor>();
+        for(String predictor: predictorCategoryMap.keySet())
+        {
+        	BetweenParticipantFactor factor = new BetweenParticipantFactor();
+        	factor.setPredictorName(predictor);
+        	List<String> categoryNameList = predictorCategoryMap.get(predictor);
+        	ArrayList<Category> categoryList = new ArrayList<Category>();
+        	for(String category: categoryNameList) categoryList.add(new Category(category));
+        	factor.setCategoryList(categoryList);
+        	factorList.add(factor);
+        }
+        return factorList;
+    }
 	
 }
