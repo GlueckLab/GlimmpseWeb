@@ -133,10 +133,10 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 	{
 		// exit the currently displayed step
 		int index = wizardDeck.getWidgetIndex(currentStep);
-		currentStep.onExit();
 		// display the next non-skipped panel in the deck
 		if (index < wizardDeck.getWidgetCount()-1)
 		{
+			currentStep.onExit();
 			do 
 			{
 				index++;
@@ -158,9 +158,9 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 	public void onPrevious()
 	{
 		int index = wizardDeck.getWidgetIndex(currentStep);
-		currentStep.onExit();
 		if (index > 0)
 		{
+			currentStep.onExit();
 			do 
 			{
 				index--;

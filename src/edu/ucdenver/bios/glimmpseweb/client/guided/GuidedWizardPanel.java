@@ -89,7 +89,7 @@ public class GuidedWizardPanel extends Composite
 		// set up the wizard for Guided Mode
 		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
 		wizardPanel = new WizardPanel(groups);
-		wizardPanel.setVisiblePanel(typeIErrorPanel);
+		wizardPanel.setVisiblePanel(startIntroPanel);
 		// layout the overall panel
 		panel.add(wizardPanel);
 		// set style
@@ -105,8 +105,6 @@ public class GuidedWizardPanel extends Composite
 		group.addPanel(startIntroPanel);
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup("Type I Error");
 		group.addPanel(typeIErrorPanel);
 		groupList.add(group);
 //		{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
@@ -119,16 +117,11 @@ public class GuidedWizardPanel extends Composite
 		group.addPanel(perGroupSampleSizePanel);
 		groupList.add(group);
 		
-		group = new WizardStepPanelGroup("Clustering");
-		group.addPanel(clusteringPanel);
-		groupList.add(group);
-		
 		group = new WizardStepPanelGroup("Responses");
 		group.addPanel(outcomesIntroPanel);
 		group.addPanel(outcomesPanel);
+		group.addPanel(clusteringPanel);
 		group.addPanel(repeatedMeasuresPanel);
-		group.addPanel(relativeGroupSizePanel);
-		group.addPanel(perGroupSampleSizePanel);
 		groupList.add(group);
 
 		group = new WizardStepPanelGroup("Hypothesis");

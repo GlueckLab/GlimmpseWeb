@@ -86,8 +86,6 @@ public class MatrixWizardPanel extends Composite
 		group.addPanel(introPanel);
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup("Type I Error");
 		group.addPanel(typeIErrorPanel);
 		groupList.add(group);
 		group = new WizardStepPanelGroup("Design");

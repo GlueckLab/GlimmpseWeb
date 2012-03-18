@@ -112,7 +112,7 @@ public class WizardToolBarPanel extends Composite
 //        actionPanel.add(saveButton);
 //        actionPanel.add(cancelButton);
         HorizontalPanel navPanel = new HorizontalPanel();
-//        navPanel.add(previousButton);
+        navPanel.add(previousButton);
         navPanel.add(nextButton);
 //        navPanel.add(finishButton);
         
@@ -125,7 +125,7 @@ public class WizardToolBarPanel extends Composite
 //        helpButton.setStyleName(STYLE_TOOLBAR_BUTTON);
 //        saveButton.setStyleName(STYLE_TOOLBAR_BUTTON);
 //        cancelButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-//        previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         nextButton.setStyleName(STYLE_TOOLBAR_BUTTON);
 //        finishButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         

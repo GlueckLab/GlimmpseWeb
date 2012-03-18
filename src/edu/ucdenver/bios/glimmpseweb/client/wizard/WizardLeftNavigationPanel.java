@@ -70,8 +70,8 @@ implements WizardStepPanelStateChangeHandler
 	protected HashMap<WizardStepPanel,WizardStepPanelButton> panelToButtonMap = 
 		new HashMap<WizardStepPanel,WizardStepPanelButton>();
 	// maps the Wizard step to the associated disclosure panel container
-	protected HashMap<WizardStepPanel,Widget> panelToContainerMap = 
-		new HashMap<WizardStepPanel,Widget>();
+	protected HashMap<WizardStepPanel,DisclosurePanel> panelToContainerMap = 
+		new HashMap<WizardStepPanel,DisclosurePanel>();
 	// TODO: better solution than hashmap?
 	
 	/**
@@ -174,6 +174,15 @@ implements WizardStepPanelStateChangeHandler
 		{
 			WizardStepPanelHTML header = new WizardStepPanelHTML(panelGroup.getName(),
 					panelList.get(0));
+			header.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event)
+				{
+						WizardStepPanelHTML header = (WizardStepPanelHTML) event.getSource();
+						WizardStepPanelButton button = panelToButtonMap.get(header.getWizardStepPanel());
+						button.click();
+				}
+			});
 			panel.setHeader(header);
 			panel.setContent(createGroupItems(panel, panelGroup.getPanelList()));
 		}
@@ -252,7 +261,7 @@ implements WizardStepPanelStateChangeHandler
 	}
 	
 	/**
-	 * Forces only one panel to be open at a time.
+	 * Open the specified group panel.  Forces only one panel to be open at a time.
 	 * @param panel
 	 */
 	private void openPanel(DisclosurePanel panel)
@@ -267,10 +276,6 @@ implements WizardStepPanelStateChangeHandler
 			panel.removeStyleDependentName(STYLE_OPEN);
 			panel.addStyleDependentName(STYLE_OPEN);
 			currentOpenPanel = panel;
-			// now show the first panel in this group
-			WizardStepPanelHTML header = (WizardStepPanelHTML) panel.getHeader();
-			WizardStepPanelButton button = panelToButtonMap.get(header.getWizardStepPanel());
-			button.click();
 		}
 	}
 	
@@ -291,9 +296,10 @@ implements WizardStepPanelStateChangeHandler
 	 */
 	public void showPanel(WizardStepPanel panel)
 	{
+		// now open the group panel containing the item
 		DisclosurePanel container = (DisclosurePanel) panelToContainerMap.get(panel);
 		if (container != null && !container.isOpen()) container.setOpen(true);
-		// update styles
+		// update styles for current item 
 		WizardStepPanelButton item = panelToButtonMap.get(panel);
 		if (item != null)
 		{
