@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
-import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixWidget;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 
 public class UnStructuredCorrelationPanel extends Composite 
 {
@@ -26,7 +26,7 @@ public class UnStructuredCorrelationPanel extends Composite
 //	//Object Initilization for Repeated Measures Node
 //	RepeatedMeasuresNode repeatedMeasuresNode;
 	
-	ResizableMatrixWidget correlationMatrix;
+	ResizableMatrixPanel correlationMatrix;
 	
 	HorizontalPanel horizointalPanel = new HorizontalPanel();
 	
@@ -128,10 +128,9 @@ public class UnStructuredCorrelationPanel extends Composite
 	 public void constructCorrelationMatrix()
 	 {
 		 int size = spacingList.size();
-		 correlationMatrix = new ResizableMatrixWidget(size,
-				 size, false, true, true);
-		 
-		 correlationMatrix.setLabels(labelList);
+		 correlationMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
+		 correlationMatrix.setRowLabels(labelList);
+		 correlationMatrix.setColumnLabels(labelList);
 		 
 		 for(int i = 1; i <= size; i++)
 		 {

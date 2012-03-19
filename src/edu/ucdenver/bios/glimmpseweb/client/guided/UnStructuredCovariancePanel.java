@@ -8,11 +8,11 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixWidget;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 
 public class UnStructuredCovariancePanel extends Composite
 {
-	ResizableMatrixWidget covarianceMatrix;
+	ResizableMatrixPanel covarianceMatrix;
 
 	HorizontalPanel horizontalPanel = new HorizontalPanel();
 	
@@ -41,10 +41,9 @@ public class UnStructuredCovariancePanel extends Composite
 	public void constructCovarianceMatrix()
 	{
 		int size = spacingList.size();
-		covarianceMatrix = new ResizableMatrixWidget(size,
-				size, false, true, true);
-		covarianceMatrix.setLabels(labelList);
-		covarianceMatrix.diagonalsEditable();
+		covarianceMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
+		covarianceMatrix.setRowLabels(labelList);
+		covarianceMatrix.setColumnLabels(labelList);
 		horizontalPanel.add(covarianceMatrix);
 	}
 }

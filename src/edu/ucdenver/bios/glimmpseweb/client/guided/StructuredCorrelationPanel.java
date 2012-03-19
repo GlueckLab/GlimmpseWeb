@@ -16,7 +16,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.LearCorrelation;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextExplainPanel;
-import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixWidget;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 
 public class StructuredCorrelationPanel extends Composite 
@@ -38,7 +38,7 @@ public class StructuredCorrelationPanel extends Composite
 	
 	List<Integer> spacingList;
 	
-	ResizableMatrixWidget resizableMatrix;
+	ResizableMatrixPanel resizableMatrix;
 	/**
 	 * Constructor to the clas
 	 */
@@ -151,9 +151,10 @@ public class StructuredCorrelationPanel extends Composite
 	
 	public void addResizableMatrix()
 	{
-		int size = spacingList.size();
-		resizableMatrix = new ResizableMatrixWidget(size, size, false, false, true);
-		resizableMatrix.setLabels(labelList);
+		int size = spacingList.size();		
+		resizableMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
+		resizableMatrix.setRowLabels(labelList);
+		resizableMatrix.setColumnLabels(labelList);
 		horizontalPanel.add(resizableMatrix);
 	}
 	
