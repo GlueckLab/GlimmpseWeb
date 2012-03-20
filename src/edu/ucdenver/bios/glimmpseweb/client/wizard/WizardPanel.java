@@ -32,8 +32,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
-import edu.ucdenver.bios.glimmpseweb.client.shared.GlimmpseLogoPanel;
-import edu.ucdenver.bios.glimmpseweb.client.shared.GlimmpseTitleBarPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ToolsMenuPanel;
 
 /**

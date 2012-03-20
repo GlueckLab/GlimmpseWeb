@@ -57,7 +57,7 @@ public class BetaPanel extends WizardStepPanel
     
 	public BetaPanel(WizardContext context)
 	{
-		super(context, GlimmpseWeb.constants.stepsLeftBeta(), WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemBetaMatrix(), WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -36,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 
 /**
  * Matrix mode panel allowing entry of scale factors for the error covariance
@@ -54,11 +56,12 @@ implements ListValidator
     	new ListEntryPanel(GlimmpseWeb.constants.sigmaScaleTableColumn(), this);
 
     // caches the entered values as doubles
-    ArrayList<Double> sigmaScaleList = new ArrayList<Double>();
+    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
     
 	public SigmaScalePanel(WizardContext context)
 	{
-		super(context, "Sigma Scale");
+		super(context, GlimmpseWeb.constants.navItemSigmaScale(), 
+				WizardStepPanelState.INCOMPLETE);
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.sigmaScaleTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaScaleDescription());
@@ -106,13 +109,13 @@ implements ListValidator
 	@Override
 	public void onExit()
 	{
-//    	List<String> stringValues = sigmaScaleListPanel.getValues();
-//    	sigmaScaleList.clear();
-//    	for(String value: stringValues)
-//    	{
-//    		sigmaScaleList.add(Double.parseDouble(value));
-//    	}
-//    	studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
+    	List<String> stringValues = sigmaScaleListPanel.getValues();
+    	sigmaScaleList.clear();
+    	for(String value: stringValues)
+    	{
+    		sigmaScaleList.add(new SigmaScale(Double.parseDouble(value)));
+    	}
+    	studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
 	}
 
     /**
@@ -136,8 +139,9 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-//    	List<Double> contextBetaScaleList = studyDesignContext.getBetaScaleList();
-//    	sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+    	List<Double> contextBetaScaleList = 
+    		studyDesignContext.getStudyDesign().getBetaScaleListValues();
+    	sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
     }
 	
 }

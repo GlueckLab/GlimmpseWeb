@@ -50,7 +50,8 @@ public class BetweenSubjectContrastPanel extends WizardStepPanel
     
 	public BetweenSubjectContrastPanel(WizardContext context)
 	{
-		super(context, GlimmpseWeb.constants.stepsLeftContrast(), WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemBetweenParticipantContrast(), 
+				WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		betweenSubjectFixed.setMaxRows(GlimmpseConstants.DEFAULT_A);
         // create header/instruction text

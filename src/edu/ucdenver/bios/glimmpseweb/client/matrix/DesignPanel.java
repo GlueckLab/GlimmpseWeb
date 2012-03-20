@@ -43,15 +43,17 @@ public class DesignPanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	
-    protected ResizableMatrixPanel essenceFixed = new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_N, 
+    protected ResizableMatrixPanel essenceFixed = 
+    	new ResizableMatrixPanel(GlimmpseConstants.DEFAULT_N, 
     		GlimmpseConstants.DEFAULT_Q);
     
     
-   	boolean hasCovariate = false;
+   	protected boolean hasCovariate = false;
 
 	public DesignPanel(WizardContext context)
 	{
-		super(context, "Design Essence Matrix", WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemDesignEssenceMatrix(), 
+				WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text

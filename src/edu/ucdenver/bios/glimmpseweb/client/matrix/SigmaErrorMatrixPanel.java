@@ -53,7 +53,8 @@ public class SigmaErrorMatrixPanel extends WizardStepPanel
     public SigmaErrorMatrixPanel(WizardContext context)
     {
     	// regardless of input, forward navigation is allowed from this panel
-		super(context, "Sigma E", WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemSigmaErrorMatrix(), 
+				WizardStepPanelState.COMPLETE);
 		
         HTML header = new HTML(GlimmpseWeb.constants.sigmaErrorTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaErrorDescription());

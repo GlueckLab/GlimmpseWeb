@@ -52,7 +52,8 @@ public class SigmaCovariateMatrixPanel extends WizardStepPanel
     
     public SigmaCovariateMatrixPanel(WizardContext context)
     {
-		super(context, "Sigma G", WizardStepPanelState.SKIPPED);
+		super(context, GlimmpseWeb.constants.navItemSigmaCovariateMatrix(), 
+				WizardStepPanelState.SKIPPED);
 		// regardless of input, forward navigation is allowed from this panel
         HTML header = new HTML(GlimmpseWeb.constants.sigmaCovariateTitle());
         HTML description = new HTML(GlimmpseWeb.constants.sigmaCovariateDescription());

@@ -51,7 +51,8 @@ public class ThetaNullPanel extends WizardStepPanel
     
 	public ThetaNullPanel(WizardContext context)
 	{
-		super(context, "Theta null", WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemThetaNullMatrix(), 
+				WizardStepPanelState.COMPLETE);
 		// regardless of user input, this panel allows forward navigation
 		
 		VerticalPanel panel = new VerticalPanel();

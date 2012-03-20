@@ -60,7 +60,7 @@ implements ListValidator
     
 	public BetaScalePanel(WizardContext context)
 	{
-		super(context, GlimmpseWeb.constants.stepsLeftBeta());
+		super(context, GlimmpseWeb.constants.navItemBetaScale());
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.betaScaleTitle());
         HTML description = new HTML(GlimmpseWeb.constants.betaScaleDescription());

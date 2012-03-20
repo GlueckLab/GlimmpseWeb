@@ -185,25 +185,66 @@ public interface GlimmpseConstants extends Constants
     public static final int DEFAULT_P = 1;
     public static final int DEFAULT_A = 2;
     public static final int DEFAULT_B = 1;
-    
-    // power method names for the REST api
-    public static final String POWER_METHOD_CONDITIONAL = "conditional";
-    public static final String POWER_METHOD_UNCONDITIONAL = "unconditional";
-    public static final String POWER_METHOD_QUANTILE = "quantile";
-
-    // default solving for value
-    public static final String SOLUTION_TYPE_POWER = "power";
-    public static final String SOLUTION_TYPE_SAMPLE_SIZE = "sampleSize";
-    public static final String SOLUTION_TYPE_EFFECT_SIZE = "effectSize";
-    
+        
     // toolbar separator keyword
     public static final String TOOLBAR_SEPARATOR = "_SEPARATOR_";
     
     // footer text
     public String fundingStatement();
     
-    // title bar
-    public String titleBar();
+    // left navigation / steps left panel
+    // navigation group headers shared for matrix and guided mode
+    public String navGroupStart();
+    public String navGroupOptions();
+    public String navGroupVariability();
+    // navigation group headers for matrix mode
+    public String navGroupDesign();
+    public String navGroupCoefficients();
+    public String navGroupContrasts();
+    public String navGroupNullHypothesis();
+    // navigation group headers for guided mode
+    public String navGroupPredictors();
+    public String navGroupClustering();
+    public String navGroupResponses();
+    public String navGroupHypothesis();
+    public String navGroupMeans();
+    // navigation panel labels shared in both matrix/guided
+    public String navItemIntro();
+    public String navItemSolutionType();
+    public String navItemNominalPower();
+    public String navItemTypeIError();
+    public String navItemGaussianCovariate();
+    public String navItemPerGroupSampleSize();
+    public String navItemStatisticalTest();
+    public String navItemConfidenceIntervals();
+    public String navItemPowerCurve();
+    public String navItemPowerMethod();
+    
+    // navigation panel labels for matrix mode
+    public String navItemDesignEssenceMatrix();
+    public String navItemBetaMatrix();
+    public String navItemBetaScale();
+    public String navItemBetweenParticipantContrast();
+    public String navItemWithinParticipantContrast();
+    public String navItemThetaNullMatrix();
+    public String navItemSigmaErrorMatrix();
+    public String navItemSigmaOutcomesMatrix();
+    public String navItemSigmaCovariateOutcomesMatrix();
+    public String navItemSigmaCovariateMatrix();
+    public String navItemSigmaScale();
+    // navigation panel labels for guided mode
+    public String navItemFixedPredictors();
+    public String navItemRelativeGroupSize();
+    public String navItemResponses();
+    public String navItemClustering();
+    public String navItemRepeatedMeasure();
+    public String navItemHypothesis();
+    public String navItemNullHypothesis();
+    public String navItemMeans();
+    public String navItemMeansScaleFactors();
+    public String navItemVariabilityWithinParticipant();
+    public String navItemVariabilityGaussianCovariate();
+    public String navItemVariabilityScaleFactors();
     
     // tools menu
     public String toolsMenu();
@@ -229,21 +270,6 @@ public interface GlimmpseConstants extends Constants
 
     // miscellaneous words
     public String and();
-    // left navigation / steps left panel
-    public String stepsLeftStart();
-    public String stepsLeftAlpha();
-    public String stepsLeftPredictors();
-    public String stepsLeftResponses();
-    public String stepsLeftHypotheses();
-    public String stepsLeftMeanDifferences();
-    public String stepsLeftVariability();
-    public String stepsLeftOptions();
-    public String stepsLeftResults();
-    public String stepsLeftDesign();
-    public String stepsLeftContrast();
-    public String stepsLeftBeta();
-    public String stepsLeftTheta();
-    public String stepsLeftSigma();
     
     // mode selection panel constants
     public String modeSelectionTitle();

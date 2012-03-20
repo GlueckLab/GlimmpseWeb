@@ -54,7 +54,8 @@ public class SigmaOutcomesMatrixPanel extends WizardStepPanel
     
     public SigmaOutcomesMatrixPanel(WizardContext context)
     {
-		super(context, "Sigma Y", WizardStepPanelState.SKIPPED);
+		super(context, GlimmpseWeb.constants.navItemSigmaOutcomesMatrix(), 
+				WizardStepPanelState.SKIPPED);
 		// regardless of input, forward navigation is allowed from this panel
 
         HTML header = new HTML(GlimmpseWeb.constants.sigmaOutcomeTitle());

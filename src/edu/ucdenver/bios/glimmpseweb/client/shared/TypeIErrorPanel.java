@@ -61,7 +61,8 @@ implements ListValidator
      */
     public TypeIErrorPanel(WizardContext context)
     {
-    	super(context, GlimmpseWeb.constants.stepsLeftAlpha());
+    	super(context, GlimmpseWeb.constants.navItemTypeIError(), 
+    			WizardStepPanelState.INCOMPLETE);
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text

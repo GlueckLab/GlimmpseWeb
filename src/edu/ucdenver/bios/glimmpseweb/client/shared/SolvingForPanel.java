@@ -135,50 +135,5 @@ implements ClickHandler
 			((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.SAMPLE_SIZE);
 		}
 	}
-	
-    /**
-     * Return an XML representation of this panel for saving the study design
-     * @return XML of solving for information
-     */
-    public String toStudyXML()
-    {
-    	StringBuffer buffer = new StringBuffer();
-    	
-    	buffer.append("<");
-    	buffer.append(GlimmpseConstants.TAG_SOLVING_FOR);
-    	buffer.append(" " + GlimmpseConstants.ATTR_TYPE + "='");
-    	if (solvingForPowerRadioButton.getValue())
-    	{
-    		buffer.append(GlimmpseConstants.SOLUTION_TYPE_POWER);
-    	}
-    	else if (solvingForSampleSizeRadioButton.getValue())
-    	{
-    		buffer.append(GlimmpseConstants.SOLUTION_TYPE_SAMPLE_SIZE);
-    	}
-    	else
-    	{
-    		buffer.append(GlimmpseConstants.SOLUTION_TYPE_EFFECT_SIZE);
-    	}
-    	buffer.append("'>");
-    	
-    	buffer.append(toRequestXML());
-    	
-    	buffer.append("</");
-    	buffer.append(GlimmpseConstants.TAG_SOLVING_FOR);
-    	buffer.append(">");
-    	
-    	return buffer.toString();
-    }
-
-    /**
-     * Return an XML representation of the nominal power list, or null if 
-     * solving for power
-     * 
-     * @return XML representation of the nominal power list
-     */
-    public String toRequestXML()
-    {
-    		return "";
-    }
     
 }

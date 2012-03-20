@@ -26,7 +26,7 @@ public class MatrixWizardPanel extends Composite
 	protected StudyDesignContext context = new StudyDesignContext();
 	// content panels 
 	protected IntroPanel introPanel = new IntroPanel(context, 
-			"Intro", GlimmpseWeb.constants.matrixIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.matrixIntroTitle(),
 			GlimmpseWeb.constants.matrixIntroDescription());
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(context, "matrix");
 	protected PowerPanel powerPanel = new PowerPanel(context);
@@ -82,42 +82,39 @@ public class MatrixWizardPanel extends Composite
 	private ArrayList<WizardStepPanelGroup> buildPanelGroups()
 	{
 		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
-		WizardStepPanelGroup group = new WizardStepPanelGroup("Start");
+		WizardStepPanelGroup group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart());
 		group.addPanel(introPanel);
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
 		group.addPanel(typeIErrorPanel);
 		groupList.add(group);
-		group = new WizardStepPanelGroup("Design");
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupDesign());
 		group.addPanel(designPanel);
 		group.addPanel(covariatePanel);
 		group.addPanel(perGroupSampleSizePanel);
 		groupList.add(group);
-		group = new WizardStepPanelGroup("Coefficients");
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupCoefficients());
 		group.addPanel(betaPanel);
 		group.addPanel(betaScalePanel);
 		groupList.add(group);
-		group = new WizardStepPanelGroup("Contrasts");
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupHypothesis());
 		group.addPanel(betweenContrastPanel);
 		group.addPanel(withinContrastPanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup("Null Hypothesis");
 		group.addPanel(thetaPanel);
 		groupList.add(group);
-		group = new WizardStepPanelGroup("Variability");
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability());
 		group.addPanel(sigmaErrorPanel);
 		group.addPanel(sigmaOutcomesPanel);
 		group.addPanel(sigmaCovariatePanel);
 		group.addPanel(sigmaOutcomeCovariatePanel);
 		group.addPanel(sigmaScalePanel);
 		groupList.add(group);
-		group = new WizardStepPanelGroup("Options");
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupOptions());
 		group.addPanel(optionsTestsPanel);
 		group.addPanel(optionsPowerMethodsPanel);
 		group.addPanel(optionsCIPanel);
 		group.addPanel(optionsDisplayPanel);
 		groupList.add(group);
-//		{optionsTestsPanel, optionsPowerMethodsPanel, optionsCIPanel, optionsDisplayPanel},
 		return groupList;
 	}
 }

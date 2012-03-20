@@ -52,7 +52,8 @@ public class WithinSubjectContrastPanel extends WizardStepPanel
     
 	public WithinSubjectContrastPanel(WizardContext context)
 	{
-		super(context, "Contrast U", WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemWithinParticipantContrast(), 
+				WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
