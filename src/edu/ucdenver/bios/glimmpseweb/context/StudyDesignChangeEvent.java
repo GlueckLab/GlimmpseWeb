@@ -31,7 +31,8 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
 		CLUSTERING,
 		REPEATED_MEASURES,
 		HYPOTHESIS,
-		BETWEEN_PARTICIPANT_FACTORS
+		BETWEEN_PARTICIPANT_FACTORS,
+		RELATIVE_GROUP_SIZE_LIST
 	};
 	
 	protected StudyDesignChangeType type;

@@ -74,11 +74,8 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 		// layout the left navigation
 		leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
 		leftPanel.add(leftNavPanel);
-		leftPanel.add(new WizardFinishPanel(this));
+		leftPanel.add(new ToolsMenuPanel());
 		// layout the display area and bottom toolbar
-		HorizontalPanel titleToolsPanel = new HorizontalPanel();
-		titleToolsPanel.add(new ToolsMenuPanel());
-		contentPanel.add(titleToolsPanel);
 		contentPanel.add(wizardDeck);
 		contentPanel.add(toolbarPanel);
 

@@ -3,6 +3,8 @@ package edu.ucdenver.bios.glimmpseweb.context;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.visualization.client.DataTable;
+
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
@@ -13,6 +15,8 @@ import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
+import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
+import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
@@ -24,6 +28,9 @@ public class StudyDesignContext extends WizardContext
 	// main study design object
 	private StudyDesign studyDesign;
 
+	// cache of all possible study groups
+	private DataTable participantGroups = null;
+	
 	/* connectors to the web service layer */
 	// power service connector
 	
@@ -43,6 +50,11 @@ public class StudyDesignContext extends WizardContext
 		return studyDesign;
 	}
 
+	public DataTable getParticipantGroups()
+	{
+	    return participantGroups;
+	}
+	
 	public void setAlphaList(WizardStepPanel panel, ArrayList<TypeIError> alphaList)
 	{
 		studyDesign.setAlphaList(alphaList);
@@ -196,15 +208,44 @@ public class StudyDesignContext extends WizardContext
 	}
 	
 	/**
+	 * Store repeated measures information to the local context and the study design service, 
+	 * and notify all wizard panels of the change.
+	 * 
+	 * @param panel the panel which initiated the change
+	 * @param clusteringNodeList the updated list of clustering nodes.
+	 */
+    public void setRepeatedMeasures(WizardStepPanel panel, 
+            ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList)
+    {
+        studyDesign.setRepeatedMeasuresTree(repeatedMeasuresNodeList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.REPEATED_MEASURES));
+    }
+	
+	/**
 	 * Set the between participant factor list
 	 * @param panel the panel changing the between participant factor list
 	 * @param factorList the list of between participant factors
 	 */
 	public void setBetweenParticipantFactorList(WizardStepPanel panel, 
-			List<BetweenParticipantFactor> factorList)
+			List<BetweenParticipantFactor> factorList, DataTable participantGroups)
 	{
+	    this.participantGroups = participantGroups;
 		studyDesign.setBetweenParticipantFactorList(factorList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
 	}
+	
+	   /**
+     * Set the relative group size list.
+     * @param panel the panel changing the relative group size list
+     * @param relativeGroupSizeList the list of relative group sizes
+     */
+    public void setRelativeGroupSizeList(WizardStepPanel panel, 
+            List<RelativeGroupSize> relativeGroupSizeList)
+    {
+        studyDesign.setRelativeGroupSizeList(relativeGroupSizeList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
+    }
 }

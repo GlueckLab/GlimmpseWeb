@@ -24,6 +24,8 @@
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 
+import java.util.ArrayList;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -42,201 +44,243 @@ import com.google.gwt.xml.client.Node;
 
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
+import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 
 
 
 public class RepeatedMeasuresPanelSubPanel extends Composite {
-	
-	int index = 0;
-	int flexTableCellCount = 0;
-	int no_of_measurements;
-	DisclosurePanel disclosurePanel = new DisclosurePanel("Add Unequal Spacing");
-	FlexTable flexTable = new FlexTable();
-	TextBox noOfMeasurementsTextBox = new TextBox();
-	HTML htmlerror = new HTML();
-	HTML label = new HTML("Enter Spacing");
-	VerticalPanel verticalSubPanel = new VerticalPanel();
-	HorizontalPanel horizontalPanel = new HorizontalPanel();
-	ListBox listbox = new ListBox(false);
-	Button reset = new Button("Reset", new ClickHandler(){
 
-		@Override
-		public void onClick(ClickEvent event) 
-		{
-			clearFlexTableTextBoxes();
-		}
-		
-	});
-	public RepeatedMeasuresPanelSubPanel()
-	{
-		VerticalPanel panel = new VerticalPanel();
+    // Parent panels, etc which listen for changes within the subpanel
+    protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+    
+    int index = 0;
+    int flexTableCellCount = 0;
+    int no_of_measurements;
+    DisclosurePanel disclosurePanel = new DisclosurePanel("Add Unequal Spacing");
+    FlexTable flexTable = new FlexTable();
+    TextBox noOfMeasurementsTextBox = new TextBox();
+    HTML htmlerror = new HTML();
+    HTML label = new HTML("Enter Spacing");
+    VerticalPanel verticalSubPanel = new VerticalPanel();
+    HorizontalPanel horizontalPanel = new HorizontalPanel();
+    ListBox listbox = new ListBox(false);
+    Button reset = new Button("Reset", new ClickHandler(){
 
-		Grid grid = new Grid(3,2);
-		
-		//Grid Row 1
-		HTML dimension = new HTML("Dimension");
-		TextBox dimensionTextBox = new TextBox();
-		
-		//Grid Row 2
-		HTML type = new HTML("Type");
-		listbox.addItem("Numeric");
-		listbox.addItem("Ordinal");
-		listbox.addItem("Caterogiocal");
-		listbox.setItemSelected(0, true);
-		listbox.addChangeHandler(new ChangeHandler(){
-			@Override
-			public void onChange(ChangeEvent event) {
-				
-				ListBox lb = (ListBox)event.getSource();
-				index = lb.getSelectedIndex();
-				if(index == 0)
-				{
-					onSelectNumericItem();
-				}
-				else
-				{
-					onDeselectNumericItem();					
-				}
-			}
-		});
-		
-		//Grid Row 3
-		HTML noOfMeasurements = new HTML("No of Measurements");
-		noOfMeasurementsTextBox.addChangeHandler(new ChangeHandler() {
-			
-			@Override
-			public void onChange(ChangeEvent event) {
-				no_of_measurements = Integer.parseInt(noOfMeasurementsTextBox.getValue());
-				showSpacingBar();
-			}
-		});
-	
-		
-		grid.setWidget(0, 0, dimension);
-		grid.setWidget(0, 1, dimensionTextBox);
-		grid.setWidget(1, 0, type);
-		grid.setWidget(1, 1, listbox);
-		grid.setWidget(2, 0, noOfMeasurements);
-		grid.setWidget(2, 1, noOfMeasurementsTextBox);
-	
-		
-		panel.add(grid);
-		verticalSubPanel.setVisible(false);
-		verticalSubPanel.add(htmlerror);
-		verticalSubPanel.add(horizontalPanel);
-		verticalSubPanel.add(reset);
-		horizontalPanel.setWidth("100%");
-		horizontalPanel.add(label);
-		horizontalPanel.add(flexTable);
-		htmlerror.setVisible(false);
-		panel.add(verticalSubPanel);
-		
+        @Override
+        public void onClick(ClickEvent event) 
+        {
+            clearFlexTableTextBoxes();
+        }
 
-		/*Initializing Widget*/
-		initWidget(panel);
-		
-	}
-	public void clearFlexTableTextBoxes()
-	{
-		no_of_measurements = Integer.parseInt(noOfMeasurementsTextBox.getValue());
-		if(no_of_measurements > 0)
-		{
-			for(int i = 0; i < no_of_measurements; i++)
-			{
-				flexTable.setWidget(0, i ,unequalSizeTextBox(i));
-			}
-		}
-		else
-		{
-			
-		}
-	}
-	public void modifyFlexTable()
-	{
-		if(flexTable.getRowCount()>0)
-		{
-		flexTableCellCount = flexTable.getCellCount(0);
-		}
-		if(no_of_measurements > flexTableCellCount)
-		{
-			for(int i = flexTableCellCount; i < no_of_measurements; i++)
-			{
-				flexTable.setWidget(0, i ,unequalSizeTextBox(i));
-			}
-		}
-		else
-		{
-			for( int i = flexTableCellCount-1; i >= no_of_measurements; i--)
-			{
-				flexTable.removeCell(0, i);
-			}
-		}
-	}
-	public void onSelectNumericItem()
-	{
-		showSpacingBar();
-		noOfMeasurementsTextBox.setText("");
-	}
-	public void onDeselectNumericItem()
-	{
-		noOfMeasurementsTextBox.setText("");
-		verticalSubPanel.setVisible(false);
-	}
-	
-	public TextBox unequalSizeTextBox(int i)
-	{
-		TextBox measurementInputs = new TextBox();
-		measurementInputs.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event) {
-				TextBox textbox = (TextBox)event.getSource();
-				String value = textbox.getValue();
-				unEqualSpacingEntry(value);
-			}
-		});
-		i = i+1;
-		String value = String.valueOf(i);
-		measurementInputs.setWidth("50%");
-		measurementInputs.setText(value);
-		return measurementInputs;
-	}
+    });
+    public RepeatedMeasuresPanelSubPanel()
+    {
+        VerticalPanel panel = new VerticalPanel();
 
-	public void unEqualSpacingEntry(String value)
-	{
-		try
-		{
-			htmlerror.setText("");
-			htmlerror.setVisible(false);
-			TextValidation.parseDouble(value, 1, true);
-		}
-		catch(NumberFormatException e)
-		{
-			htmlerror.setText("The Spacing should be an Integer value greater than 0");
-			htmlerror.setVisible(true);
-		}
-		
-	}
+        Grid grid = new Grid(3,2);
 
-	public void reset() {
-		// TODO Auto-generated method stub
-		
-	}
+        //Grid Row 1
+        HTML dimension = new HTML("Dimension");
+        TextBox dimensionTextBox = new TextBox();
 
-	public void showSpacingBar()
-	{
-		try
-		{
-			int i = Integer.parseInt(noOfMeasurementsTextBox.getValue());
-			if(i > 0 && listbox.isItemSelected(0))
-			{
-				verticalSubPanel.setVisible(true);
-				modifyFlexTable();	
-			}
-		}
-		catch(Exception e)
-		{
-			verticalSubPanel.setVisible(false);
-		}
-		
-	}
+        //Grid Row 2
+        HTML type = new HTML("Type");
+        listbox.addItem("Numeric");
+        listbox.addItem("Ordinal");
+        listbox.addItem("Caterogiocal");
+        listbox.setItemSelected(0, true);
+        listbox.addChangeHandler(new ChangeHandler(){
+            @Override
+            public void onChange(ChangeEvent event) {
+
+                ListBox lb = (ListBox)event.getSource();
+                index = lb.getSelectedIndex();
+                if(index == 0)
+                {
+                    onSelectNumericItem();
+                }
+                else
+                {
+                    onDeselectNumericItem();					
+                }
+            }
+        });
+
+        //Grid Row 3
+        HTML noOfMeasurements = new HTML("No of Measurements");
+        noOfMeasurementsTextBox.addChangeHandler(new ChangeHandler() {
+
+            @Override
+            public void onChange(ChangeEvent event) {
+                no_of_measurements = Integer.parseInt(noOfMeasurementsTextBox.getValue());
+                showSpacingBar();
+            }
+        });
+
+
+        grid.setWidget(0, 0, dimension);
+        grid.setWidget(0, 1, dimensionTextBox);
+        grid.setWidget(1, 0, type);
+        grid.setWidget(1, 1, listbox);
+        grid.setWidget(2, 0, noOfMeasurements);
+        grid.setWidget(2, 1, noOfMeasurementsTextBox);
+
+
+        panel.add(grid);
+        verticalSubPanel.setVisible(false);
+        verticalSubPanel.add(htmlerror);
+        verticalSubPanel.add(horizontalPanel);
+        verticalSubPanel.add(reset);
+        horizontalPanel.setWidth("100%");
+        horizontalPanel.add(label);
+        horizontalPanel.add(flexTable);
+        htmlerror.setVisible(false);
+        panel.add(verticalSubPanel);
+
+
+        /*Initializing Widget*/
+        initWidget(panel);
+
+    }
+    public void clearFlexTableTextBoxes()
+    {
+        no_of_measurements = Integer.parseInt(noOfMeasurementsTextBox.getValue());
+        if(no_of_measurements > 0)
+        {
+            for(int i = 0; i < no_of_measurements; i++)
+            {
+                flexTable.setWidget(0, i ,unequalSizeTextBox(i));
+            }
+        }
+        else
+        {
+
+        }
+    }
+    public void modifyFlexTable()
+    {
+        if(flexTable.getRowCount()>0)
+        {
+            flexTableCellCount = flexTable.getCellCount(0);
+        }
+        if(no_of_measurements > flexTableCellCount)
+        {
+            for(int i = flexTableCellCount; i < no_of_measurements; i++)
+            {
+                flexTable.setWidget(0, i ,unequalSizeTextBox(i));
+            }
+        }
+        else
+        {
+            for( int i = flexTableCellCount-1; i >= no_of_measurements; i--)
+            {
+                flexTable.removeCell(0, i);
+            }
+        }
+    }
+    public void onSelectNumericItem()
+    {
+        showSpacingBar();
+        noOfMeasurementsTextBox.setText("");
+    }
+    public void onDeselectNumericItem()
+    {
+        noOfMeasurementsTextBox.setText("");
+        verticalSubPanel.setVisible(false);
+    }
+
+    public TextBox unequalSizeTextBox(int i)
+    {
+        TextBox measurementInputs = new TextBox();
+        measurementInputs.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                TextBox textbox = (TextBox)event.getSource();
+                String value = textbox.getValue();
+                unEqualSpacingEntry(value);
+            }
+        });
+        i = i+1;
+        String value = String.valueOf(i);
+        measurementInputs.setWidth("50%");
+        measurementInputs.setText(value);
+        return measurementInputs;
+    }
+
+    public void unEqualSpacingEntry(String value)
+    {
+        try
+        {
+            htmlerror.setText("");
+            htmlerror.setVisible(false);
+            TextValidation.parseDouble(value, 1, true);
+        }
+        catch(NumberFormatException e)
+        {
+            htmlerror.setText("The Spacing should be an Integer value greater than 0");
+            htmlerror.setVisible(true);
+        }
+
+    }
+
+    public void reset() {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void showSpacingBar()
+    {
+        try
+        {
+            int i = Integer.parseInt(noOfMeasurementsTextBox.getValue());
+            if(i > 0 && listbox.isItemSelected(0))
+            {
+                verticalSubPanel.setVisible(true);
+                modifyFlexTable();	
+            }
+        }
+        catch(Exception e)
+        {
+            verticalSubPanel.setVisible(false);
+        }
+
+    }
+
+    /**
+     * Check if the user has entered all required information
+     * @return true if complete, false if incomplete
+     */
+    public boolean checkComplete()
+    {
+        return true;
+    }
+
+    /**
+     * Convert the contents of  repeated measures sub panel into a 
+     * RepeatedMeasuresNode domain object
+     * 
+     * @param nodeId node identifier
+     * @param parentId node identifier for the node's parent
+     * @return A RepeatedMeasuresNode instance
+     */
+    public RepeatedMeasuresNode toRepeatedMeasuresNode(int nodeId, int parentId) {
+        RepeatedMeasuresNode repeatedMeasuresNode = new RepeatedMeasuresNode();
+
+        // TODO
+        return repeatedMeasuresNode;
+    }
+
+    public void loadFromRepeatedMeasuresNode(
+            RepeatedMeasuresNode repeatedMeasuresNode) {
+        // TODO: finish this function
+    }
+    
+    /**
+     * A Change Handler method to add changes to the handler
+     * @param handler
+     */
+    public void addChangeHandler(ChangeHandler handler) {
+        handlerList.add(handler);
+    }
 }

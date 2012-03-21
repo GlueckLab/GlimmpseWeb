@@ -25,18 +25,19 @@ public class GuidedWizardPanel extends Composite
 	// create a study design context
 	protected StudyDesignContext context = new StudyDesignContext();
 	// content panels 
-	protected IntroPanel startIntroPanel = new IntroPanel(context, "Intro", GlimmpseWeb.constants.startTitle(),
+	protected IntroPanel startIntroPanel = new IntroPanel(context, 
+	        GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.startTitle(),
 			GlimmpseWeb.constants.startDescription());
 	protected SolvingForPanel solvingForPanel = new SolvingForPanel(context, "guided");
 	protected PowerPanel powerPanel = new PowerPanel(context);
 	// type I error
 	protected IntroPanel alphaIntroPanel = new IntroPanel(context, 
-			"Intro", GlimmpseWeb.constants.alphaIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.alphaIntroTitle(),
 			GlimmpseWeb.constants.alphaIntroDescription());
 	protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel(context);
 	// predictors
 	protected IntroPanel predictorIntroPanel = new IntroPanel(context,
-			"Intro", GlimmpseWeb.constants.predictorsIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.predictorsIntroTitle(),
 			GlimmpseWeb.constants.predictorsIntroDescription());
 	protected CategoricalPredictorsPanel catPredictorsPanel = new CategoricalPredictorsPanel(context);
 	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
@@ -44,7 +45,7 @@ public class GuidedWizardPanel extends Composite
 	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel(context);
 	// outcomes
 	protected IntroPanel outcomesIntroPanel = new IntroPanel(context,
-			"Intro", GlimmpseWeb.constants.outcomesIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.outcomesIntroTitle(),
 			GlimmpseWeb.constants.outcomesIntroDescription());
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel(context);
 	protected RepeatedMeasuresPanel repeatedMeasuresPanel = new RepeatedMeasuresPanel(context);
@@ -52,19 +53,20 @@ public class GuidedWizardPanel extends Composite
 	protected ClusteringPanel clusteringPanel = new ClusteringPanel(context);
 	// hypotheses
 	protected IntroPanel hypothesisIntroPanel = new IntroPanel(context,
-			"Intro", GlimmpseWeb.constants.hypothesisIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.hypothesisIntroTitle(),
 			GlimmpseWeb.constants.hypothesisIntroDescription());
+	protected HypothesisPanel hypothesisPanel = new HypothesisPanel(context);
 
 	// mean differences
 	protected IntroPanel meanDifferencesIntroPanel = new IntroPanel(context,
-			"Intro", GlimmpseWeb.constants.meanDifferenceIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.meanDifferenceIntroTitle(),
 			GlimmpseWeb.constants.meanDifferenceIntroDescription());
 	protected MeanDifferencesPanel meanDifferencesPanel = new MeanDifferencesPanel(context);
 	protected MeanDifferencesScalePanel meanDifferencesScalePanel = 
 		new MeanDifferencesScalePanel(context);
 	// variability
 	protected IntroPanel variabilityIntroPanel = new IntroPanel(context,
-			"Intro", GlimmpseWeb.constants.variabilityIntroTitle(),
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.variabilityIntroTitle(),
 			GlimmpseWeb.constants.variabilityIntroDescription());
 	protected VariabilityWithinParticipantPanel variabilityWithinParticipantPanel = 
 		new VariabilityWithinParticipantPanel(context);
@@ -101,7 +103,8 @@ public class GuidedWizardPanel extends Composite
 	private ArrayList<WizardStepPanelGroup> buildPanelGroups()
 	{
 		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
-		WizardStepPanelGroup group = new WizardStepPanelGroup("Start");
+		WizardStepPanelGroup group = 
+		    new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart());
 		group.addPanel(startIntroPanel);
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
@@ -109,40 +112,44 @@ public class GuidedWizardPanel extends Composite
 		groupList.add(group);
 //		{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
 //			relativeGroupSizePanel, perGroupSampleSizePanel}, 
-		group = new WizardStepPanelGroup("Predictors");
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupPredictors());
 		group.addPanel(predictorIntroPanel);
 		group.addPanel(catPredictorsPanel);
 		group.addPanel(covariatePanel);
 		group.addPanel(relativeGroupSizePanel);
 		group.addPanel(perGroupSampleSizePanel);
 		groupList.add(group);
-		
-		group = new WizardStepPanelGroup("Responses");
+		// random effects
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupClustering());
+		group.addPanel(clusteringPanel);
+		groupList.add(group);
+		// outcomes
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupResponses());
 		group.addPanel(outcomesIntroPanel);
 		group.addPanel(outcomesPanel);
-		group.addPanel(clusteringPanel);
 		group.addPanel(repeatedMeasuresPanel);
 		groupList.add(group);
-
-		group = new WizardStepPanelGroup("Hypothesis");
+		// hypotheses
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupHypothesis());
 		group.addPanel(hypothesisIntroPanel);
+		group.addPanel(hypothesisPanel);
 		groupList.add(group);
-		
-		group = new WizardStepPanelGroup("Means");
+		// mean differences
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupMeans());
 		group.addPanel(meanDifferencesIntroPanel);
 		group.addPanel(meanDifferencesPanel);
 		group.addPanel(meanDifferencesScalePanel);
 		groupList.add(group);
-
-		group = new WizardStepPanelGroup("Variability");
+		// variability
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability());
 		group.addPanel(variabilityIntroPanel);
 		group.addPanel(variabilityWithinParticipantPanel);
 		group.addPanel(variabilityCovariatePanel);
 		group.addPanel(variabilityCovariateOutcomePanel);
 		group.addPanel(variabilityScalePanel);
 		groupList.add(group);
-
-		group = new WizardStepPanelGroup("Options");
+		// options panels
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupOptions());
 		group.addPanel(optionsTestsPanel);
 		group.addPanel(optionsPowerMethodsPanel);
 		group.addPanel(optionsCIPanel);

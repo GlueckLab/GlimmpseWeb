@@ -23,7 +23,6 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -33,6 +32,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -156,7 +156,10 @@ public class ResizableMatrixPanel extends Composite
 		verticalPanel.add(errorHTML);
 
 		// add style
-		// TODO
+		verticalPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_PANEL);
+		dimensionPanel.setStyleName(GlimmpseConstants.STYLE_MATRIX_DIMENSION);
+		matrixCellAndLabelTable.setStyleName(GlimmpseConstants.STYLE_MATRIX_DATA);
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 
 		// initialize
 		initWidget(verticalPanel);
@@ -409,6 +412,7 @@ public class ResizableMatrixPanel extends Composite
 				}
 			}
 		}
+		
 	}
 
 	/**
@@ -510,6 +514,11 @@ public class ResizableMatrixPanel extends Composite
 
 		cellTextBox.setEnabled(isCellEditAllowed(row, column));		
 		cellTextBox.setValue((row == column) ? defaultDiagonalValue : defaultOffDiagonalValue);
+		
+		// set style
+		cellTextBox.setStyleName(GlimmpseConstants.STYLE_MATRIX_CELL);
+		if (!cellTextBox.isEnabled()) cellTextBox.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+		
 		return cellTextBox;
 	}
 

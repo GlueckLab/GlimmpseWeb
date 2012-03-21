@@ -59,13 +59,16 @@ public class TreeItemIterator
     private static void traverseDepthFirst(TreeItem item, TreeItemAction action,
             int visitCount, int parentVisitCount)
     {
-        action.execute(item, visitCount, parentVisitCount);
-        visitCount++;
-        parentVisitCount++;
-        List<TreeItem> children = fetchChildren(item);
-        for(TreeItem child: children)
-        {
-            traverseDepthFirst(child, action, visitCount++,  parentVisitCount);
+        if (item != null) {
+            action.execute(item, visitCount, parentVisitCount);
+            visitCount++;
+            parentVisitCount++;
+            List<TreeItem> children = fetchChildren(item);
+            if (children != null) {
+                for(TreeItem child: children) {
+                    traverseDepthFirst(child, action, visitCount++,  parentVisitCount);
+                }
+            }
         }
     }
     
@@ -76,11 +79,12 @@ public class TreeItemIterator
      */
     private static List<TreeItem> fetchChildren(TreeItem item)
     {
-        List<TreeItem> children = new ArrayList<TreeItem>();
-
-        for (int i = 0; i < item.getChildCount(); ++i)
-            children.add(item.getChild(i));
-
+        List<TreeItem> children = null;
+        if (item != null) {
+            children = new ArrayList<TreeItem>();
+            for (int i = 0; i < item.getChildCount(); ++i)
+                children.add(item.getChild(i));
+        }
         return children;
     }
 

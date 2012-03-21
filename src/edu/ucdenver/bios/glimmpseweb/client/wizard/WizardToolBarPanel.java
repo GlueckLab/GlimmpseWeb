@@ -48,8 +48,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
  */
 public class WizardToolBarPanel extends Composite
 {
-	protected static final String STYLE_TOOLBAR_PANEL = "wizardToolbar";
+	protected static final String STYLE_TOOLBAR_PANEL = "wizardToolbarPanel";
 	protected static final String STYLE_TOOLBAR_BUTTON = "wizardToolbarButton";
+	protected static final String STYLE_FINISH_BUTTON = "wizardFinishButton";
 	// dependent styles for specific buttons
 	protected static final String STYLE_SAVE = "save";
 	protected static final String STYLE_CANCEL = "cancel";
@@ -114,7 +115,7 @@ public class WizardToolBarPanel extends Composite
         HorizontalPanel navPanel = new HorizontalPanel();
         navPanel.add(previousButton);
         navPanel.add(nextButton);
-//        navPanel.add(finishButton);
+        navPanel.add(finishButton);
         
 //        panel.add(actionPanel, DockPanel.WEST);
         panel.add(navPanel, DockPanel.EAST);
@@ -127,7 +128,7 @@ public class WizardToolBarPanel extends Composite
 //        cancelButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         nextButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-//        finishButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        finishButton.setStyleName(STYLE_FINISH_BUTTON);
         
         initWidget(panel);
     }

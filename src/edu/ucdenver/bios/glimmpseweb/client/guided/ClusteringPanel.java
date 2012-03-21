@@ -53,8 +53,8 @@ import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
  * @author VIJAY AKULA
  *
  */
-public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
-{
+public class ClusteringPanel extends WizardStepPanel 
+implements ChangeHandler {
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     // indicates whether the user had added clustering or not
@@ -82,7 +82,10 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
         @Override
         public void execute(TreeItem item, int visitCount, int parentVisitCount)
         {
-            buildClusteringNode((ClusteringPanelSubPanel) item.getWidget(), visitCount, parentVisitCount);
+            if (item != null) {
+                buildClusteringNode((ClusteringPanelSubPanel) item.getWidget(), 
+                        visitCount, parentVisitCount);
+            }
         }
     };
     
@@ -229,7 +232,7 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
 
 
     /**
-     * change() method is to check the text on the Button and perform the necessary actions
+     * toggle clustering on/off
      */
     public void toggleClustering()
     {
@@ -311,7 +314,9 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
      */
     private void buildClusteringNode(ClusteringPanelSubPanel subpanel, int nodeId, int parentId)
     {
-        clusteringNodeList.add(subpanel.toClusterNode(nodeId, parentId));
+        if (subpanel != null) {
+            clusteringNodeList.add(subpanel.toClusterNode(nodeId, parentId));
+        }
     }
     
     /**
@@ -371,8 +376,7 @@ public class ClusteringPanel extends WizardStepPanel implements ChangeHandler
                 }
 
                 ClusteringPanelSubPanel currentPanel = (ClusteringPanelSubPanel) currentLeaf.getWidget();
-//                currentPanel.setGroupingName(clusterNode.getGroupeName());
-//                currentPanel.setNumberOfGroups(clusterNode.getGroupeSize());
+                currentPanel.loadFromClusterNode(clusterNode);
             }
         }
         checkComplete();

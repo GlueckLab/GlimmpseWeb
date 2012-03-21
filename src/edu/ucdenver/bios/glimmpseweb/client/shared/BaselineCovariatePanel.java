@@ -31,6 +31,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 /**
@@ -48,7 +49,8 @@ public class BaselineCovariatePanel extends WizardStepPanel
     
     public BaselineCovariatePanel(WizardContext context)
     {
-    	super(context, "Covariates");
+    	super(context, GlimmpseWeb.constants.navItemGaussianCovariate(), 
+    	        WizardStepPanelState.COMPLETE);
     	// build covariate panel
         VerticalPanel panel = new VerticalPanel();
         

@@ -22,6 +22,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.Spacing;
 
 public class RandomCovariteCovariancePanel extends WizardStepPanel
 {
@@ -139,7 +140,7 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 			
 			List<String> labelList = new ArrayList<String>();
 			
-			List <Integer> spacingList = null; //repeatedMeasuresNode.getSpacingList();
+			List <Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
 			
 			String dimension = repeatedMeasuresNode.getDimension();
 			
@@ -172,7 +173,8 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 		flexTable.setWidget(0, dataListSize, responses);
 		flexTable.setWidget(0, dataListSize+1, correlation);
 		
-		List <String> responseList = null; // studyDesignContext.getStudyDesign().getResponseList();
+		List <String> responseList = studyDesignContext.getStudyDesign().getResponseListNames();
+
 		//adding responseList to the dataList
 		dataList.add(responseList);
 		

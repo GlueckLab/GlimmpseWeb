@@ -39,8 +39,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -51,7 +49,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
-import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Fixed predictor entry screen
@@ -293,6 +290,11 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
 		checkComplete();
     }
     
+    /**
+     * Build a cache table of all possible group combinations
+     * based on the predictors and categories.
+     * @return DataTable of study participant groups
+     */
     private DataTable buildGroupTable()
     {
     	DataTable data = DataTable.create();
@@ -391,6 +393,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     
     private void loadFromContext()
     {
+        reset();
     	List<BetweenParticipantFactor> factorList = 
     		studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
     	for(BetweenParticipantFactor factor: factorList)
@@ -414,7 +417,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     public void onExit()
     {
     	studyDesignContext.setBetweenParticipantFactorList(this, 
-    			buildBetweenParticipantFactorList());
+    			buildBetweenParticipantFactorList(), buildGroupTable());
     }
     
     /**
