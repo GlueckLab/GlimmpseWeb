@@ -192,7 +192,6 @@ body {
 
 /* tool bar for save, help, etc */
 .toolsMenuPanel {
-	float: right;
 	background-color: white;
 	background-image: none;
 }
@@ -200,17 +199,19 @@ body {
 .toolsMenuPanel .gwt-MenuBar {
 	background: white;
 	border: none;
-	margin-left: 20px;
 }
 
 .toolsMenuHeader {
-	width: 60px;
+	width: 100px;
 	height: 30px;
 	text-align: right;
 	background-image: url('/images/gear_pulldown.png');
 	background-repeat:no-repeat;
-	background-position: 2px 5px; 
+	background-position: 0px 5px; 
 	border: 1px solid #ddd;
+	font-size: 16pt;
+	padding-left: 50px;
+	color: #ddd;
 }
 
 .toolsMenuItem {
@@ -268,11 +269,11 @@ body {
 }
 
 .wizardLeftNavLink-incomplete {
-  color: black;
+  color: #e87439;
 }
 
 .wizardLeftNavLink-complete {
-  color: green;
+	color: black;
 }
 
 .wizardLeftNavLink-notAllowed {
@@ -283,20 +284,83 @@ body {
   text-decoration: underline;
 }
 
+/* next, previous buttons*/
+.wizardToolbarPanel {
+	margin-top: 20px;	
+	margin-bottom: 20px;	
+	margin-left: 20px;
+	width: 100%;
+}
+/*
+.wizardToolbarButton {
+	background-color:#508aae;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+	border:2px solid #b3b3b3;
+	color:#ffffff;
+	font-family:arial;
+	font-size:16px;
+	font-weight:bold;
+	text-align: center;
+	text-decoration:none;
+	width: 125px;
+	height: 36px;
+	margin-left: 5px;
+}*/
 
-/* panel containing the submit/finish button */
-.finishPanel {
-  	width: 100%;
+.wizardToolbarButton {
+	width: 100px;
+	height: 32px;	
+	background-color:#1d5d84;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+	border:1px solid #b3b3b3;
+	color: white;
+	font-family:arial;
+	font-size:14px;
+	font-weight:bold;
+	text-decoration:none;
+	/*text-shadow: 1px 1px 0px #000000;*/
+	margin-left: 10px;
+}
+.wizardToolbarButton:hover {
+	background-color:#74a6c2;
+}
+.wizardToolbarButton-disabled {
+	background-color: #b3b3b3;
+}
+.wizardToolbarButton-disabled:hover {
 }
 
-.finishButton {
-	background-color: green;
-	color: e87439;
-	border: 1px solid black;
-	width: 75px;
-	height: 32px;
-	border-radius: 5px;
-	margin-top: 50px;
+/* finish button */
+.wizardFInishButton {
+	background-color:#21944f;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+	border:1px solid #b3b3b3;
+	display:inline-block;
+	color:#ffffff;
+	font-family:arial;
+	font-size:16px;
+	font-weight:bold;
+	text-align: center;
+	text-decoration:none;
+	text-shadow: 1px 1px 0px #000000;
+	width: 150px;
+	height: 36px;
+	margin-left: 175px;
+}.wizardFInishButton:hover {
+	background-color:#48b373;
+}
+
+.wizardfinishButton-disabled {
+	background: gray;
+}
+.wizardfinishButton-disabled:hover {
+	background: gray;
 }
 
 /* style for main wizard input panel (GWT class) */
@@ -344,6 +408,119 @@ body {
 	font-weight: normal;
 	font-size: larger;
 	margin: 10px 0px;
+}
+
+
+/* List entry panel styles */
+.wizardStepListPanel {
+	background: #e4eaef;
+	width: 80%;
+	border: 1px solid #999;
+	border-collapse: collapse;
+}
+
+.wizardStepListPanel .gwt-ListBox {
+	border: none;
+	border-top: 1px solid #999;
+	width: 100%;
+	padding: 5px;
+}
+
+.wizardStepListHeader {
+	padding: 5px;
+	spacing: 5px;
+}
+
+.wizardStepListButton {
+	cursor: pointer;
+	margin-left: 5px;
+}
+
+/* Matrix displays */
+.matrixPanel {
+	border: 1px solid #ccc;
+	background: #e4eaef;
+	margin-left: 5px;
+}
+
+.matrixData {
+	border-collapse: collapse;
+}
+.matrixData-disabled {
+    background: #ebf0f5;
+    border: 1px solid #ccc;
+    height: 24px;
+}
+
+.matrixCell {
+	background: white;
+	border: 1px solid #ccc;
+	width: 50px;
+	margin: 0px;
+}
+
+.matrixCell-disabled {
+    background: #ccc;
+    border: 1px solid #ebf0f5;
+    width: 50px;
+}
+
+.matrixDimensions .gwt-HTML {
+	margin-right: 5px;
+	margin-left: 5px;
+}
+
+.matrixDimensions .gwt-TextBox {
+	width: 30px;
+}
+
+/* Table display styles */
+.wizardStepTablePanel {
+	border: 1px outset #14f;
+	background: #E0ECF8;
+}
+
+.wizardStepTable {
+	border-collapse:collapse;
+	background: #ebf0f5;
+}
+
+.wizardStepTableHeader .gwt-HTML {
+	font-weight: bold;
+	color: #000;
+}
+
+.wizardStepTableHeader td {
+	border: 1px solid #ccc;
+	padding: 5px;
+	text-align: center;
+}
+
+.wizardStepTableRow {
+	background: #fff;
+	/*width: 100%;*/
+}
+
+.wizardStepTableRow td {
+	border: 1px solid #ccc;
+	padding: 5px;
+}
+
+.wizardStepTableRow .gwt-TextBox {
+	width: 100%;
+}
+
+.wizardStepTableRow .gwt-ListBox {
+	width: 100%;
+	border: none;
+}
+
+.wizardStepTableRow-odd {
+	background: #fff;
+}
+
+.wizardStepTableRow-even {
+	background: #fff;
 }
 
 
