@@ -52,21 +52,16 @@ body {
 
 #top-navbar {
 	font-family: Arial, Helvetica, sans-serif;
-	background-color: #1d5c84;
-	width: 987px;
+	background-color: #fff;
 	height: 60px;
-	color: white;
-	spacing: 0px;
-	padding: 0px;
-	margin: 0px;
-	border-bottom: 4px solid #e87439;
-	text-align: left;
+	width: 550px;
+	float: right;
 }
 
 #site-title {
 	margin-top: 20px;
 	margin-left: 20px;
-	font-size: large;
+	font-size: small;
 	float: left;
 	font-weight: bold;	
 }
@@ -75,9 +70,10 @@ body {
 	margin-top: 20px;
 	margin-right: 5px;
 	padding-right: 5px;
-	border-right: 1px solid white;
+	border-right: 1px solid #ccc;
+	color: black;
 	float: right;
-	font-size: 16px;
+	font-size: small;
 }
 
 .selected {
@@ -89,33 +85,39 @@ body {
 }
 
 #glimmpse-topbar {
-	border-bottom: 1px dotted #999;
-	width: 947px;
-	margin-left: 20px;
+	width: 987px;
+	margin-left: 0px;
 	height: 80px;
 	background-color: white;
 }
 
 #glimmpse-logo {
 	font-family: Arial, Helvetica, sans-serif;
-	margin-top: 14px;
-	padding-left: 70px;
-	padding-top: 12px;
+	font-weight: bold;
+	padding-left: 65px;
+	padding-top: 20px;
+	padding-right: 10px;
 	font-size: 18pt;
-	float: left;
 	background-image: url('/images/glimmpse-logo.png');
 	background-repeat: no-repeat;
+	background-position: 10px 10px;
 	color: 1d5c84;
-	width: 200px;
-	height: 80px;
+	width: 130px;
+	height: 42px;
+	float: left;
 }
 
 #glimmpse-title {
 	font-family: Arial, Helvetica, sans-serif;
-	color: #999;
-	font-size: 14pt;
-	padding-top: 24px;
-    margin-left: 20px;
+	color: black;
+	font-size: 10pt;
+	margin-top: 20px;
+	padding-top: 2px;
+	padding-left: 10px;
+    border-left: 1px solid #ccc;
+    width: 200px;
+    height: 36px;
+    float: left;
 }
 
 /**** GLIMMPSE Application Styles ****/
@@ -180,14 +182,25 @@ body {
 }
 
 /*** Main wizard styles ***/
+/* overall wizard panel */
+.wizardPanel {
+	border-collapse: collapse;	
+}
+
 .leftPanel {
-	width: 180px;
+	width: 175px;
 	margin-left: 20px;
-	height: 100%;
+	margin-bottom: 10px;
+	border-collapse: collapse;	
 }
 
 .rightPanel {
-	width: 787px;
+	width: 777px;
+	border-top: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	border-collapse: collapse;	
 }
 
 /* tool bar for save, help, etc */
@@ -222,7 +235,9 @@ body {
 
 .wizardLeftNavPanel {
 	background-color: #e4eaef;
-	width: 180px;
+	width: 160px;
+	margin-top: 40px;
+	padding-top: 32px;
 }
 
 .wizardLeftNavHeader .gwt-HTML {
@@ -241,6 +256,7 @@ body {
 	background-color: white;
 	border-left: 4px solid #e87439;
 	border-top: 1px solid #ccc;
+	border-right: 1px solid white;
 	padding-left: 4px;
 }
 
@@ -263,17 +279,16 @@ body {
 
 .wizardLeftNavLink-open {
 	font-weight: bold;
-	background-image: url('/images/rightArrow.png');
-	background-repeat: no-repeat;
-	background-position: 0px 2px;
+	color: black;
+	border-right: 1px solid white;
 }
 
 .wizardLeftNavLink-incomplete {
-  color: #e87439;
+  color: gray;
 }
 
 .wizardLeftNavLink-complete {
-	color: black;
+	color: gray;
 }
 
 .wizardLeftNavLink-notAllowed {
@@ -313,9 +328,6 @@ body {
 	width: 100px;
 	height: 32px;	
 	background-color:#1d5d84;
-	-moz-border-radius:10px;
-	-webkit-border-radius:10px;
-	border-radius:10px;
 	border:1px solid #b3b3b3;
 	color: white;
 	font-family:arial;
@@ -326,7 +338,7 @@ body {
 	margin-left: 10px;
 }
 .wizardToolbarButton:hover {
-	background-color:#74a6c2;
+	background-color: #e4eaef;
 }
 .wizardToolbarButton-disabled {
 	background-color: #b3b3b3;
@@ -337,21 +349,15 @@ body {
 /* finish button */
 .wizardFInishButton {
 	background-color:#21944f;
-	-moz-border-radius:10px;
-	-webkit-border-radius:10px;
-	border-radius:10px;
-	border:1px solid #b3b3b3;
-	display:inline-block;
 	color:#ffffff;
 	font-family:arial;
 	font-size:16px;
 	font-weight:bold;
-	text-align: center;
+	text-align: left;
 	text-decoration:none;
 	text-shadow: 1px 1px 0px #000000;
-	width: 150px;
+	width: 180px;
 	height: 36px;
-	margin-left: 175px;
 }.wizardFInishButton:hover {
 	background-color:#48b373;
 }
@@ -365,7 +371,6 @@ body {
 
 /* style for main wizard input panel (GWT class) */
 .glimmpseWizardPanel {
-	padding: 5px;
 	background: #fff;
 	height: 100%;
 }
@@ -373,7 +378,7 @@ body {
 /* style for main wizard input panel (GWT class) */
 .wizardContentPanel {
 	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
-	width: 787px;
+	width: 757px;
 	min-height: 400px;
 }
 
@@ -382,7 +387,8 @@ body {
 	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
 	min-height: 400px;
 	width: 100%;
-	padding-left: 40px;
+	padding-top: 20px;
+	padding-left: 20px;
 }
 
 .wizardStepPanel-subpanel {
