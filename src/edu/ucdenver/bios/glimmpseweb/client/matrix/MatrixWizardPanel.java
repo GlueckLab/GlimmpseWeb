@@ -69,7 +69,7 @@ public class MatrixWizardPanel extends Composite
 		VerticalPanel panel = new VerticalPanel();
 		// set up the wizard for Guided Mode
 		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
-		wizardPanel = new WizardPanel(groups, resultsPanel);
+		wizardPanel = new WizardPanel(context, groups, resultsPanel);
 		wizardPanel.setVisiblePanel(introPanel);
 		// layout the overall panel
 		panel.add(wizardPanel);
