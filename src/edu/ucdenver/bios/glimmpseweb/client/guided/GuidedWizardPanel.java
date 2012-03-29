@@ -14,6 +14,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsPowerMethodsPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsTestsPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.PerGroupSampleSizePanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.PowerPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResultsDisplayPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.SolvingForPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.TypeIErrorPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
@@ -81,7 +82,8 @@ public class GuidedWizardPanel extends Composite
 	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(context, "guided");
 	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
 		new OptionsConfidenceIntervalsPanel(context, "guided");
-
+	// panel to display the results
+	protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(context);
 	
 	protected WizardPanel wizardPanel;
 	
@@ -90,7 +92,7 @@ public class GuidedWizardPanel extends Composite
 		VerticalPanel panel = new VerticalPanel();
 		// set up the wizard for Guided Mode
 		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
-		wizardPanel = new WizardPanel(groups);
+		wizardPanel = new WizardPanel(groups, resultsPanel);
 		wizardPanel.setVisiblePanel(startIntroPanel);
 		// layout the overall panel
 		panel.add(wizardPanel);

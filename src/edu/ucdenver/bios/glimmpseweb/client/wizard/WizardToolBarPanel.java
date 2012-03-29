@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 
 /**
@@ -37,10 +38,6 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
  * <ul>
  * <li>Next button - navigate to the next panel in the wizard</li>
  * <li>Previous button - navigate to the previous panel in the wizard</li>
- * <li>Finish button - submit all inputs and complete the wizard task</li>
- * <li>Cancel button - clear user inputs and start over</li>
- * <li>Save button - save current user inputs</li>
- * <li>Help button - access help information</li>
  * </ul>
  * 
  * @author Sarah Kreidler
@@ -50,11 +47,6 @@ public class WizardToolBarPanel extends Composite
 {
 	protected static final String STYLE_TOOLBAR_PANEL = "wizardToolbarPanel";
 	protected static final String STYLE_TOOLBAR_BUTTON = "wizardToolbarButton";
-	protected static final String STYLE_FINISH_BUTTON = "wizardFinishButton";
-	// dependent styles for specific buttons
-	protected static final String STYLE_SAVE = "save";
-	protected static final String STYLE_CANCEL = "cancel";
-	protected static final String STYLE_HELP = "help";
 	
 	// listeners for toolbar actions
     ArrayList<WizardActionListener> listeners = new ArrayList<WizardActionListener>();
@@ -72,34 +64,6 @@ public class WizardToolBarPanel extends Composite
             for(WizardActionListener listener: listeners) listener.onPrevious();
         }
     });
-    protected Button finishButton =  new Button(GlimmpseWeb.constants.buttonFinish(), 
-    		new ClickHandler() {
-        public void onClick(ClickEvent event) {
-            for(WizardActionListener listener: listeners) listener.onFinish();
-        }
-    });
-	Button saveButton = new Button(GlimmpseWeb.constants.toolsMenuSave(), new ClickHandler() {
-		@Override
-		public void onClick(ClickEvent event)
-		{
-            for(WizardActionListener listener: listeners) listener.onSave();
-		}
-	});
-	
-	Button cancelButton = new Button(GlimmpseWeb.constants.toolsMenuCancel(), new ClickHandler() {
-		@Override
-		public void onClick(ClickEvent event)
-		{
-            for(WizardActionListener listener: listeners) listener.onCancel();
-		}
-	});
-	Button helpButton = new Button(GlimmpseWeb.constants.toolsMenuHelp(), new ClickHandler() {
-		@Override
-		public void onClick(ClickEvent event)
-		{
-            for(WizardActionListener listener: listeners) listener.onHelp();
-		}
-	});
     
 	/**
 	 * Create a wizard toolbar
@@ -108,27 +72,15 @@ public class WizardToolBarPanel extends Composite
     {
         DockPanel panel = new DockPanel();
 
-//        HorizontalPanel actionPanel = new HorizontalPanel();
-//        actionPanel.add(helpButton);
-//        actionPanel.add(saveButton);
-//        actionPanel.add(cancelButton);
         HorizontalPanel navPanel = new HorizontalPanel();
         navPanel.add(previousButton);
         navPanel.add(nextButton);
-        navPanel.add(finishButton);
-        
-//        panel.add(actionPanel, DockPanel.WEST);
         panel.add(navPanel, DockPanel.EAST);
         
         // add style
         panel.addStyleName(STYLE_TOOLBAR_PANEL);
-        
-//        helpButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-//        saveButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-//        cancelButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
         nextButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-        finishButton.setStyleName(STYLE_FINISH_BUTTON);
         
         initWidget(panel);
     }
@@ -141,6 +93,7 @@ public class WizardToolBarPanel extends Composite
     public void allowNext(boolean allow)
     {
         nextButton.setEnabled(allow);
+        updateStyle(nextButton, allow);
     }
     
     /**
@@ -151,16 +104,7 @@ public class WizardToolBarPanel extends Composite
     public void allowPrevious(boolean allow)
     {
         previousButton.setEnabled(allow);
-    }
-    
-    /**
-     * Enable/disable the finish button
-     * 
-     * @param allow indicates if the finish button should be enabled
-     */
-    public void allowFinish(boolean allow)
-    {
-    	finishButton.setEnabled(allow);
+        updateStyle(previousButton, allow);
     }
 
     /**
@@ -171,6 +115,18 @@ public class WizardToolBarPanel extends Composite
     public void addActionListener(WizardActionListener listener)
     {
         listeners.add(listener);
+    }
+    
+    /**
+     * Reset the button style to enabled/disabled
+     * @param button the button
+     * @param enabled indicates if the button is enabled
+     */
+    private void updateStyle(Button button, boolean enabled) {
+        button.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+        if (!enabled) {
+            button.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+        }
     }
 
 }

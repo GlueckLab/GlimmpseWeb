@@ -144,7 +144,7 @@ implements WizardStepPanelStateChangeHandler
 			// add the heading and group items to the stack
 			panel.add(buildPanelGroup(panelGroup));
 		}
-		
+
 		// set style
 		panel.setStyleName(STYLE_PANEL);
 		
@@ -231,9 +231,12 @@ implements WizardStepPanelStateChangeHandler
 			@Override
 			public void onClick(ClickEvent event)
 			{
-				WizardStepPanelButton button = (WizardStepPanelButton) event.getSource();
-				for(WizardActionListener listener: listeners) listener.onPanel(button.getPanel());
-				updateCurrentItem(button);
+			    WizardStepPanelButton button = (WizardStepPanelButton) event.getSource();
+			    if (button.getPanel().state != WizardStepPanelState.NOT_ALLOWED 
+			            && 	button.getPanel().state != WizardStepPanelState.SKIPPED) {
+			        for(WizardActionListener listener: listeners) listener.onPanel(button.getPanel());
+			        updateCurrentItem(button);
+			    }
 			}
 		}); 
 		// set style

@@ -122,6 +122,7 @@ implements WizardContextListener
     
     /**
      * Perform any cleanup when first exiting this step in the wizard
+     * @return true if exit allowed
      */
     public void onExit() {}
     

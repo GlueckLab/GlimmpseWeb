@@ -34,8 +34,10 @@ import java.util.ArrayList;
 public abstract class WizardContext
 {
 	// listeners for changes to the context object
-	ArrayList<WizardContextListener> contextListeners = new ArrayList<WizardContextListener>();
-	
+	protected ArrayList<WizardContextListener> contextListeners = new ArrayList<WizardContextListener>();
+	// flag indicating if context is complete
+    protected boolean complete;
+    
 	/**
 	 * Add a listener for changes to the context
 	 * 
@@ -69,5 +71,19 @@ public abstract class WizardContext
 		}
 	}
 	
+	/**
+	 * Checks if the context is complete.  Implementing classes should
+	 * set the "complete" flag in this function call.
+	 */
+	public abstract void checkComplete();
 	
+    /**
+     * Returns true if the study design contains sufficient information
+     * to perform a power/sample size calculation
+     * 
+     * @return true if study design is complete, false otherwise
+     */
+    public boolean isComplete() {
+        return complete;
+    }
 }

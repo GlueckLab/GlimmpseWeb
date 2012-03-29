@@ -1,10 +1,13 @@
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.visualization.client.DataTable;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
@@ -14,9 +17,11 @@ import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
+import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
@@ -27,7 +32,7 @@ public class StudyDesignContext extends WizardContext
 {
 	// main study design object
 	private StudyDesign studyDesign;
-
+	
 	// cache of all possible study groups
 	private DataTable participantGroups = null;
 	
@@ -45,6 +50,11 @@ public class StudyDesignContext extends WizardContext
 		studyDesign = new StudyDesign();
 	}
 
+	public ArrayList<PowerResult> calculateResults()
+	{
+	    return null;
+	}
+	
 	public StudyDesign getStudyDesign()
 	{
 		return studyDesign;
@@ -97,9 +107,9 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.QUANTILE_LIST));
 	}
 	
-	public void setPerGroupSampleSizeList(WizardStepPanel panel, ArrayList<Double> sampleSizeList)
+	public void setPerGroupSampleSizeList(WizardStepPanel panel, ArrayList<SampleSize> sampleSizeList)
 	{
-		studyDesign.setPerGroupSampleSizeList(sampleSizeList);
+		studyDesign.setSampleSizeList(sampleSizeList);
 		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
 				StudyDesignChangeType.PER_GROUP_N_LIST));
 	}
@@ -248,4 +258,78 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
+    
+
+    
+    /**
+     * Checks if the study design is complete
+     */
+    @Override
+    public void checkComplete() {
+        if (studyDesign.isMatrixOnly()) {
+            checkCompleteMatrixOnly();
+        } else {
+            checkCompleteGuided();
+        }
+    }
+    
+    /**
+     * Checks if a "guided" study design is complete.
+     * @return true if complete, false otherwise
+     */
+    private void checkCompleteGuided() {
+        
+    }
+    
+    /**
+     * Returns true if a matrix only study design is complete
+     * with all required matrices.
+     * @return true if complete, false otherwise
+     */
+    private void checkCompleteMatrixOnly() {
+        Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
+        boolean gaussianCovariate = studyDesign.isGaussianCovariate();
+        // flags to make sure all matrices are present.  This avoids
+        // multiple calls to hasNamedMatrix so we limit traversal of the 
+        // matrix set.
+        boolean hasX = false;
+        boolean hasBeta = false;
+        boolean hasBetaRandom = !gaussianCovariate;
+        boolean hasC = false;
+        boolean hasCRandom = !gaussianCovariate;
+        boolean hasU = false;
+        boolean hasThetaNull = false;
+        boolean hasSigmaE = gaussianCovariate;
+        boolean hasSigmaY = !gaussianCovariate;
+        boolean hasSigmaYG = !gaussianCovariate;
+        boolean hasSigmaG = !gaussianCovariate;
+        
+        // spin over the matrices and make sure all are present
+        if (matrixSet != null) {
+            Iterator<NamedMatrix> iterator = matrixSet.iterator();
+            while (iterator.hasNext()) {
+                NamedMatrix matrix = iterator.next();
+                if (matrix != null) {
+                    hasX = (GlimmpseConstants.MATRIX_DESIGN.equals(matrix.getName()));
+                    hasBeta = (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName()));
+                    hasC = (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(matrix.getName()));
+                    hasU = (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(matrix.getName()));
+                    hasThetaNull = (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName()));
+                    if (gaussianCovariate) {
+                        hasBetaRandom = (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName()));
+                        hasCRandom = (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_RANDOM.equals(matrix.getName()));
+                        hasSigmaY = (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equals(matrix.getName()));
+                        hasSigmaYG = (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equals(matrix.getName()));
+                        hasSigmaG = (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equals(matrix.getName()));
+                    } else {
+                        hasSigmaE = (GlimmpseConstants.MATRIX_SIGMA_ERROR.equals(matrix.getName()));
+                    }
+                }
+            }
+        }
+        complete = (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
+                && hasU && hasThetaNull
+                && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
+    }
+    
 }

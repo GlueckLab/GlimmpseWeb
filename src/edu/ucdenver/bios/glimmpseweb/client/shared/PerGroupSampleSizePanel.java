@@ -36,6 +36,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
@@ -53,7 +54,7 @@ implements ListValidator
     protected ListEntryPanel perGroupNListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.perGroupSampleSizeTableColumn(), this);
     // list of sample sizes to be set into the context
-    ArrayList<Double> sampleSizeList = new ArrayList<Double>();
+    ArrayList<SampleSize> sampleSizeList = new ArrayList<SampleSize>();
     
 	public PerGroupSampleSizePanel(WizardContext context)
 	{
@@ -148,8 +149,10 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> perGroupNList = studyDesignContext.getStudyDesign().getPerGroupSampleSizeList();
-    	perGroupNListPanel.loadFromDoubleList(perGroupNList, true);
+    	List<SampleSize> perGroupNList = studyDesignContext.getStudyDesign().getSampleSizeList();
+    	for(SampleSize size: perGroupNList) {
+    	    perGroupNListPanel.add(Integer.toString(size.getValue()));
+    	}
     }
     
     /**
@@ -162,7 +165,7 @@ implements ListValidator
     	sampleSizeList.clear();
     	for(String value: stringValues)
     	{
-    		sampleSizeList.add(Double.parseDouble(value));
+    		sampleSizeList.add(new SampleSize(Integer.parseInt(value)));
     	}
     	// save to context object
     	studyDesignContext.setPerGroupSampleSizeList(this, sampleSizeList);

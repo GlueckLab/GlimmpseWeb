@@ -23,15 +23,18 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ToolsMenuPanel;
 
 /**
@@ -42,19 +45,30 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ToolsMenuPanel;
  *
  */
 public class WizardPanel extends Composite 
-implements WizardActionListener, WizardContextListener, ClickHandler
+implements WizardActionListener, WizardContextListener, 
+    WizardStepPanelStateChangeHandler, ClickHandler
 {
 	// style for the main display area
-	public static final String STYLE_WIZARD_PANEL = "wizardPanel";
-	public static final String STYLE_WIZARD_CONTENT_PANEL = "wizardContentPanel";
+    protected static final String STYLE_WIZARD_PANEL = "wizardPanel";
+    protected static final String STYLE_WIZARD_CONTENT_PANEL = "wizardContentPanel";
+	protected static final String STYLE_FINISH_BUTTON = "wizardFinishButton";
 	// main panel
 	protected HorizontalPanel panel = new HorizontalPanel();
 	// left navigation / "steps left" panel
     protected WizardLeftNavigationPanel leftNavPanel;
+    // finish button
+    protected Button finishButton =  new Button(GlimmpseWeb.constants.buttonFinish(), 
+            new ClickHandler() {
+        public void onClick(ClickEvent event) {
+            finish();
+        }
+    });
     // toolbar panel
     protected WizardToolBarPanel toolbarPanel = new WizardToolBarPanel();
 	// currently visible panel
     protected WizardStepPanel currentStep = null;  
+    // panel to display the results of the wizard
+    protected WizardStepPanel finishPanel = null;  
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
     // default help URL
@@ -65,8 +79,11 @@ implements WizardActionListener, WizardContextListener, ClickHandler
      * 
      * @param wizardPanelGroups list of panel groups to display in the wizard
      */
-	public WizardPanel(List<WizardStepPanelGroup> wizardPanelGroups)
+	public WizardPanel(List<WizardStepPanelGroup> wizardPanelGroups, WizardStepPanel finishPanel)
 	{		
+	    // save the finish panel
+	    this.finishPanel = finishPanel;
+	    
 		// create overall panel layout containers
 		VerticalPanel contentPanel = new VerticalPanel();
 		VerticalPanel leftPanel = new VerticalPanel();
@@ -74,6 +91,7 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 		// layout the left navigation
 		leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
 		leftPanel.add(leftNavPanel);
+		leftPanel.add(finishButton);
 		leftPanel.add(new ToolsMenuPanel());
 		// layout the display area and bottom toolbar
 		contentPanel.add(wizardDeck);
@@ -89,8 +107,11 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 			for(WizardStepPanel step: panelGroup.getPanelList())
 			{
 				wizardDeck.add(step);
+				step.addChangeHandler(this);
 			}
 		}
+		// add the finish panel to the deck
+		wizardDeck.add(finishPanel);
 		
 		// add callbacks for events from the navigation and toolbar subpanels
 		leftNavPanel.addActionListener(this);
@@ -99,6 +120,7 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 		// add style
 		leftPanel.setStyleName(GlimmpseConstants.STYLE_LEFT_PANEL);
 		contentPanel.setStyleName(GlimmpseConstants.STYLE_RIGHT_PANEL);
+		finishButton.setStyleName(STYLE_FINISH_BUTTON);
 		panel.setStyleName(STYLE_WIZARD_PANEL);
 		wizardDeck.setStyleName(STYLE_WIZARD_CONTENT_PANEL);
 
@@ -113,9 +135,7 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 	public void setVisiblePanel(WizardStepPanel panel)
 	{
 		if (currentStep != null) currentStep.onExit();
-		currentStep = panel;
-		currentStep.onEnter();
-		wizardDeck.showWidget(wizardDeck.getWidgetIndex(panel));
+        enterStep(panel);
 		leftNavPanel.showPanel(panel);
 	}
 
@@ -137,11 +157,14 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 				index++;
 				currentStep = (WizardStepPanel) wizardDeck.getWidget(index);
 			} 
-			while (currentStep.state == WizardStepPanelState.SKIPPED 
-					&& index < wizardDeck.getWidgetCount());
+			while ((currentStep.state == WizardStepPanelState.SKIPPED
+                    || currentStep.state == WizardStepPanelState.NOT_ALLOWED)
+					&& index < wizardDeck.getWidgetCount()-1);
 			
-			wizardDeck.showWidget(index);
-			leftNavPanel.showPanel(currentStep);
+			if (index < wizardDeck.getWidgetCount()) {
+			    enterStep(currentStep);
+			    leftNavPanel.showPanel(currentStep);
+			}
 		}	
 	}
 
@@ -161,9 +184,11 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 				index--;
 				currentStep = (WizardStepPanel) wizardDeck.getWidget(index);
 			} 
-			while (currentStep.state == WizardStepPanelState.SKIPPED  && index > 0);
+			while ((currentStep.state == WizardStepPanelState.SKIPPED
+			            || currentStep.state == WizardStepPanelState.NOT_ALLOWED)
+			            && index > 0);
 			
-			wizardDeck.showWidget(index);
+			enterStep(currentStep);
 			leftNavPanel.showPanel(currentStep);
 		}	
 	}
@@ -180,18 +205,42 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 		// exit the currently displayed step
 		currentStep.onExit();
 		// show the new step
-		currentStep = panel;
-		wizardDeck.showWidget(wizardDeck.getWidgetIndex(panel));		
+		enterStep(panel);
 	}
 
 	/**
-	 * Finish the wizard action
+	 * Finish the wizard action.
 	 */
 	@Override
 	public void onFinish()
 	{
-		// TODO Auto-generated method stub
-		
+	    finish();
+	}
+	
+	private void finish()
+	{
+        // exit the currently displayed step
+        currentStep.onExit();
+        // show the new step
+        enterStep(finishPanel);
+	}
+	
+	/**
+	 * Open the specified panel.
+	 * @param step the target panel
+	 */
+	private void enterStep(WizardStepPanel step) {
+	    currentStep = step;
+	    step.onEnter();
+	    // set the next/prev buttons
+	    toolbarPanel.allowNext((currentStep.state == WizardStepPanelState.COMPLETE 
+	            && finishPanel != step) 
+	            || (currentStep == wizardDeck.getWidget(wizardDeck.getWidgetCount()-1) 
+	                    && finishPanel.state == WizardStepPanelState.NOT_ALLOWED));
+	    // disabled previous if 1st widget
+	    toolbarPanel.allowPrevious(!(wizardDeck.getWidget(0) == step));
+	    // lastly, show the panel
+	    wizardDeck.showWidget(wizardDeck.getWidgetIndex(step));    
 	}
 
     /**
@@ -251,5 +300,15 @@ implements WizardActionListener, WizardContextListener, ClickHandler
 		// TODO Auto-generated method stub
 		
 	}
+
+    @Override
+    public void onStateChange(WizardStepPanel source,
+            WizardStepPanelState oldState, WizardStepPanelState newState) {
+        if (source == currentStep) {
+            toolbarPanel.allowNext(currentStep.state == WizardStepPanelState.COMPLETE);
+        }
+        // highlight the finish button if the study design is complete
+//        if (studyDesign.)
+    }
     
 }

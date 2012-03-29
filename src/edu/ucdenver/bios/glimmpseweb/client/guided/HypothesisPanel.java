@@ -165,5 +165,10 @@ public class HypothesisPanel extends WizardStepPanel {
     {
     	
     }
+    
+    public void onExit()
+    {
+        
+    }
 
 }
