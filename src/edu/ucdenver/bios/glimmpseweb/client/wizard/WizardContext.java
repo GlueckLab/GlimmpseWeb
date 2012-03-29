@@ -57,6 +57,7 @@ public abstract class WizardContext
 		{
 			listener.onWizardContextChange(e);
 		}
+		checkComplete();
 	}
 	
 	/**
@@ -69,6 +70,7 @@ public abstract class WizardContext
 		{
 			listener.onWizardContextLoad();
 		}
+		checkComplete();
 	}
 	
 	/**

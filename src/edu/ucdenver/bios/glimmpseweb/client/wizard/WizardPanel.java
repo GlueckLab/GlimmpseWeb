@@ -23,7 +23,6 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -52,6 +51,8 @@ implements WizardActionListener, WizardContextListener,
     protected static final String STYLE_WIZARD_PANEL = "wizardPanel";
     protected static final String STYLE_WIZARD_CONTENT_PANEL = "wizardContentPanel";
 	protected static final String STYLE_FINISH_BUTTON = "wizardFinishButton";
+    // wizard context
+    protected WizardContext context = null;
 	// main panel
 	protected HorizontalPanel panel = new HorizontalPanel();
 	// left navigation / "steps left" panel
@@ -79,9 +80,12 @@ implements WizardActionListener, WizardContextListener,
      * 
      * @param wizardPanelGroups list of panel groups to display in the wizard
      */
-	public WizardPanel(List<WizardStepPanelGroup> wizardPanelGroups, WizardStepPanel finishPanel)
+	public WizardPanel(WizardContext context, 
+	        List<WizardStepPanelGroup> wizardPanelGroups, WizardStepPanel finishPanel)
 	{		
-	    // save the finish panel
+	    // store the context
+	    this.context = context;
+	    // store the finish panel
 	    this.finishPanel = finishPanel;
 	    
 		// create overall panel layout containers
@@ -280,8 +284,23 @@ implements WizardActionListener, WizardContextListener,
 	@Override
 	public void onWizardContextChange(WizardContextChangeEvent e)
 	{
-		// TODO Auto-generated method stub
-		
+	    if (context.isComplete()) {
+	        finishPanel.state = WizardStepPanelState.COMPLETE;
+	    } else {
+	        finishPanel.state = WizardStepPanelState.NOT_ALLOWED;
+	    }
+	    enableFinishButton(context.isComplete());
+	}
+	
+	/**
+	 * Enable / disable the finish button and update styles.
+	 * @param enable true if enabled, false otherwise
+	 */
+	private void enableFinishButton(boolean enabled) {
+        finishButton.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+	    if (!enabled) {
+            finishButton.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+	    }
 	}
 	
 	/**

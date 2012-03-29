@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.visualization.client.DataTable;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
@@ -330,6 +331,7 @@ public class StudyDesignContext extends WizardContext
         complete = (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
                 && hasU && hasThetaNull
                 && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
+        GWT.log("Study design complete? " + complete);
     }
     
 }
