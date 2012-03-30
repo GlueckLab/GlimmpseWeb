@@ -7,5 +7,6 @@
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="lib" path="/WebServiceCommon/build/bin/edu.ucdenver.bios.webservice.common-gwt-1.0.0.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/restlet-gwt/2.0.11/lib/org.restlet.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
