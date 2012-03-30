@@ -5,28 +5,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.restlet.client.resource.Result;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.visualization.client.DataTable;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.glimmpseweb.server.MatrixResourceProxy;
+import edu.ucdenver.bios.glimmpseweb.server.PowerResourceProxy;
+import edu.ucdenver.bios.glimmpseweb.server.StudyDesignResourceProxy;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
-import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
-import edu.ucdenver.bios.webservice.common.domain.Covariance;
-import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
-import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
@@ -46,21 +47,45 @@ public class StudyDesignContext extends WizardContext
 	
 	/* connectors to the web service layer */
 	// power service connector
+	PowerResourceProxy powerResource = GWT.create(PowerResourceProxy.class);
+	
+	// matrix service connector
+	MatrixResourceProxy matrixResource = GWT.create(MatrixResourceProxy.class);
+	
+	// study design service connector
+	StudyDesignResourceProxy studyDesignResource = GWT.create(StudyDesignResourceProxy.class);
 	
 	// chart service connector
 	
-	// matrix service connector
-	
-	// study design service connector
 	
 	public StudyDesignContext()
 	{
 		studyDesign = new StudyDesign();
 	}
 
-	public ArrayList<PowerResult> calculateResults()
+	/**
+	 * Calculate sample size, power, or detectable difference via an
+	 * Ajax call to the power service
+	 * @return
+	 * @throws Exception
+	 */
+	public void calculateResults(Result<ArrayList<PowerResult>> powerResultList)
 	{
-	    return null;
+	    powerResource.getClientResource().setReference(GlimmpseWeb.constants.powerSvcHostPower());
+	    switch(studyDesign.getSolutionTypeEnum()) {
+	    case POWER:
+	        // calculate power
+	        powerResource.getPower(studyDesign, powerResultList);
+	        break;
+	    case SAMPLE_SIZE:
+            // calculate power
+            powerResource.getSampleSize(studyDesign, powerResultList);
+	        break;
+	    case DETECTABLE_DIFFERENCE:
+	           // calculate power
+            powerResource.getPower(studyDesign, powerResultList);
+	        break;
+	    }
 	}
 	
 	public StudyDesign getStudyDesign()

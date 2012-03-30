@@ -23,6 +23,9 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import java.util.ArrayList;
 
+import org.restlet.client.resource.Result;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
@@ -526,7 +529,16 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	{
 		showWorkingDialog();
 		StudyDesign studyDesign = studyDesignContext.getStudyDesign();
-		ArrayList<PowerResult> results = studyDesignContext.calculateResults();
+		studyDesignContext.calculateResults(new Result<ArrayList<PowerResult>>() {
+		    public void onFailure(Throwable caught) {
+		        // Handle the error
+		        GWT.log("error: " + caught.getMessage());
+		    }
+
+		    public void onSuccess(ArrayList<PowerResult> powerResultList) {
+		        GWT.log("got #results=" + powerResultList.size());
+		    }
+		});
 		matrixDisplayPanel.loadFromStudyDesign(studyDesign);
 		hideWorkingDialog();
 		if (studyDesign.getPowerCurveDescriptions() != null)

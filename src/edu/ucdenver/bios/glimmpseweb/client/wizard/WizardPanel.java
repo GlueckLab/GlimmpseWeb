@@ -291,7 +291,6 @@ implements WizardActionListener, WizardContextListener,
 	@Override
 	public void onWizardContextChange(WizardContextChangeEvent e)
 	{
-	    GWT.log("Complete?=" + context.isComplete());
 	    if (context.isComplete()) {
 	        finishPanel.state = WizardStepPanelState.COMPLETE;
 	    } else {
@@ -305,6 +304,7 @@ implements WizardActionListener, WizardContextListener,
 	 * @param enable true if enabled, false otherwise
 	 */
 	private void enableFinishButton(boolean enabled) {
+	    finishButton.setEnabled(enabled);
         finishButton.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
 	    if (!enabled) {
             finishButton.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
@@ -333,9 +333,11 @@ implements WizardActionListener, WizardContextListener,
             WizardStepPanelState oldState, WizardStepPanelState newState) {
         if (source == currentStep) {
             toolbarPanel.allowNext(currentStep.state == WizardStepPanelState.COMPLETE);
+            // highlight the finish button if the study design is complete
+            enableFinishButton(context.isComplete() 
+                    && currentStep.state == WizardStepPanelState.COMPLETE);
         }
-        // highlight the finish button if the study design is complete
-//        if (studyDesign.)
+
     }
     
 }
