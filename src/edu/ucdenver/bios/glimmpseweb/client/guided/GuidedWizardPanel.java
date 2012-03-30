@@ -20,6 +20,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.TypeIErrorPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
 public class GuidedWizardPanel extends Composite
 {
@@ -89,7 +90,11 @@ public class GuidedWizardPanel extends Composite
 	
 	public GuidedWizardPanel()
 	{
+        // indicate that this is a guided study design
+        context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.GUIDED_MODE);
+        
 		VerticalPanel panel = new VerticalPanel();
+
 		// set up the wizard for Guided Mode
 		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
 		wizardPanel = new WizardPanel(context, groups, resultsPanel);

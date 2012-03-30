@@ -23,6 +23,7 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -85,6 +86,8 @@ implements WizardActionListener, WizardContextListener,
 	{		
 	    // store the context
 	    this.context = context;
+	    // listen for context changes
+	    this.context.addContextListener(this);
 	    // store the finish panel
 	    this.finishPanel = finishPanel;
 	    
@@ -121,10 +124,14 @@ implements WizardActionListener, WizardContextListener,
 		leftNavPanel.addActionListener(this);
 		toolbarPanel.addActionListener(this);
 		
+		// disable the calculate button to start
+		finishButton.setEnabled(false);
+		
 		// add style
 		leftPanel.setStyleName(GlimmpseConstants.STYLE_LEFT_PANEL);
 		contentPanel.setStyleName(GlimmpseConstants.STYLE_RIGHT_PANEL);
 		finishButton.setStyleName(STYLE_FINISH_BUTTON);
+		finishButton.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
 		panel.setStyleName(STYLE_WIZARD_PANEL);
 		wizardDeck.setStyleName(STYLE_WIZARD_CONTENT_PANEL);
 
@@ -284,6 +291,7 @@ implements WizardActionListener, WizardContextListener,
 	@Override
 	public void onWizardContextChange(WizardContextChangeEvent e)
 	{
+	    GWT.log("Complete?=" + context.isComplete());
 	    if (context.isComplete()) {
 	        finishPanel.state = WizardStepPanelState.COMPLETE;
 	    } else {

@@ -15,19 +15,26 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignC
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
+import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
+import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
+import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
 public class StudyDesignContext extends WizardContext
 {
@@ -267,7 +274,7 @@ public class StudyDesignContext extends WizardContext
      */
     @Override
     public void checkComplete() {
-        if (studyDesign.isMatrixOnly()) {
+        if (StudyDesignViewTypeEnum.MATRIX_MODE == studyDesign.getViewTypeEnum()) {
             checkCompleteMatrixOnly();
         } else {
             checkCompleteGuided();
@@ -311,27 +318,105 @@ public class StudyDesignContext extends WizardContext
             while (iterator.hasNext()) {
                 NamedMatrix matrix = iterator.next();
                 if (matrix != null) {
-                    hasX = (GlimmpseConstants.MATRIX_DESIGN.equals(matrix.getName()));
-                    hasBeta = (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName()));
-                    hasC = (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(matrix.getName()));
-                    hasU = (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(matrix.getName()));
-                    hasThetaNull = (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName()));
+                    // check matrices used for both covariate/fixed designs
+                    if (GlimmpseConstants.MATRIX_DESIGN.equals(matrix.getName())) {
+                        hasX = true;
+                    } else if  (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName())) {
+                        hasBeta = true;
+                    } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(matrix.getName())) {
+                        hasC = true;
+                    } else if  (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(matrix.getName())) {
+                        hasU = true;
+                    } else if (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName())) {
+                        hasThetaNull = true;
+                    }
+
                     if (gaussianCovariate) {
-                        hasBetaRandom = (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName()));
-                        hasCRandom = (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_RANDOM.equals(matrix.getName()));
-                        hasSigmaY = (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equals(matrix.getName()));
-                        hasSigmaYG = (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equals(matrix.getName()));
-                        hasSigmaG = (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equals(matrix.getName()));
+                        // check matrices for covariate designs
+                        if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName())) {
+                            hasBetaRandom = true;
+                        } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_RANDOM.equals(matrix.getName())) {
+                            hasCRandom = true;
+                        } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equals(matrix.getName())) {
+                            hasSigmaY = true;
+                        } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equals(matrix.getName())) {
+                            hasSigmaYG = true;
+                        } else if (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equals(matrix.getName())) {
+                            hasSigmaG = true;
+                        }
                     } else {
-                        hasSigmaE = (GlimmpseConstants.MATRIX_SIGMA_ERROR.equals(matrix.getName()));
+                        if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equals(matrix.getName())) {
+                            hasSigmaE = true;
+                        }
                     }
                 }
             }
         }
-        complete = (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
+        complete = validLists() && (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
                 && hasU && hasThetaNull
                 && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
+        GWT.log("lists?=" + validLists() + " matrices?=" + (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
+                && hasU && hasThetaNull
+                && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG));
         GWT.log("Study design complete? " + complete);
+    }
+    
+    /**
+     * Checks if all required list inputs have been entered (used to validate both
+     * matrix and guided designs).
+     * @return true if all lists are valid, false otherwise
+     */
+    private boolean validLists() {       
+        // check for lists required by specific solution types
+        switch(studyDesign.getSolutionTypeEnum()) {
+        case POWER:
+            if (studyDesign.getSampleSizeList() == null
+                    || studyDesign.getSampleSizeList().size() < 1
+                    || studyDesign.getBetaScaleList() == null 
+                    || studyDesign.getBetaScaleList().size() < 1) {
+                return false;
+            }
+            break;
+        case SAMPLE_SIZE:
+            if (studyDesign.getNominalPowerList() == null
+                    || studyDesign.getNominalPowerList().size() < 1
+                    || studyDesign.getBetaScaleList() == null 
+                    || studyDesign.getBetaScaleList().size() < 1) {
+                return false;
+            }
+            break;
+        case DETECTABLE_DIFFERENCE:
+            if (studyDesign.getSampleSizeList() == null
+                    || studyDesign.getSampleSizeList().size() < 1
+                    || studyDesign.getNominalPowerList() == null 
+                    || studyDesign.getNominalPowerList().size() < 1) {
+                return false;
+            }
+            break;
+        default:
+                return false; // null or invalid
+        }
+
+        if (studyDesign.getAlphaList() == null || studyDesign.getAlphaList().size() < 1
+                ||studyDesign.getSigmaScaleList() == null || studyDesign.getSigmaScaleList().size() < 1
+                ||studyDesign.getStatisticalTestList() == null || studyDesign.getStatisticalTestList().size() < 1) {
+            return false;
+        }
+
+        if (studyDesign.isGaussianCovariate()) {
+            if (studyDesign.getPowerMethodList() == null || studyDesign.getPowerMethodList().size() < 1) {
+                return false;
+            } else {
+                for(PowerMethod method : studyDesign.getPowerMethodList()) {
+                    if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
+                            && (studyDesign.getPowerMethodList() == null 
+                                    || studyDesign.getPowerMethodList().size() < 1)){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
     
 }

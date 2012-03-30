@@ -53,11 +53,12 @@ public abstract class WizardContext
 	 */
 	protected void notifyWizardContextChanged(WizardContextChangeEvent e)
 	{
+	    checkComplete(); // !this needs to be called before the notification!
 		for(WizardContextListener listener: contextListeners)
 		{
 			listener.onWizardContextChange(e);
 		}
-		checkComplete();
+
 	}
 	
 	/**
@@ -66,11 +67,11 @@ public abstract class WizardContext
 	 */
 	protected void notifyWizardContextLoad()
 	{
+	    checkComplete(); // !this needs to be called before the notification!
 		for(WizardContextListener listener: contextListeners)
 		{
 			listener.onWizardContextLoad();
 		}
-		checkComplete();
 	}
 	
 	/**
