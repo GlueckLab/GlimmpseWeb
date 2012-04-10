@@ -41,11 +41,13 @@ public class EditTrendPanel extends Composite
 	RadioButton qudraticTrendOnlyRadioButton = new RadioButton(radioButtonGroup, GlimmpseWeb.constants.editTrendQudraticTrendOnly());
 	RadioButton cubicTrendOnlyRadioButton = new RadioButton(radioButtonGroup, GlimmpseWeb.constants.editTrendCubicTrendOnly());
 	
+	Grid grid = new Grid(6,2);
+	
 	public EditTrendPanel(boolean NO_TREND_DISPLAY_FLAG)
 	{
 		
 		VerticalPanel verticalPanel = new VerticalPanel();
-		Grid grid = new Grid(6,2);
+		
 		
 		//Creating Radio Buttons
 				
@@ -53,11 +55,16 @@ public class EditTrendPanel extends Composite
 		
 		
 		//Creating Image Widget
-		Image changeFromBaseLineImage = new Image(GlimmpseWeb.constants.editTrendChangeFromBaselineImage());
-		Image allPolynomialTrendsImage = new Image(GlimmpseWeb.constants.editTrendAllPolynomialTrendsImage());
-		Image linearTrendOnlyImage = new Image(GlimmpseWeb.constants.editTrendLinearTrendOnlyImage());
-		Image qudraticTrendOnlyImage = new Image(GlimmpseWeb.constants.editTrendQudraticTrendOnlyImage());
-		Image cubicTrendOnlyImage = new Image(GlimmpseWeb.constants.editTrendCubicTrendOnlyImage());
+		Image changeFromBaseLineImage = new Image(
+		        GlimmpseWeb.constants.editTrendChangeFromBaselineImage());
+		Image allPolynomialTrendsImage = new Image(
+		        GlimmpseWeb.constants.editTrendAllPolynomialTrendsImage());
+		Image linearTrendOnlyImage = new Image(
+		        GlimmpseWeb.constants.editTrendLinearTrendOnlyImage());
+		Image qudraticTrendOnlyImage = new Image(
+		        GlimmpseWeb.constants.editTrendQudraticTrendOnlyImage());
+		Image cubicTrendOnlyImage = new Image(
+		        GlimmpseWeb.constants.editTrendCubicTrendOnlyImage());
 		
 		
 		/*Adding Radio Button to Grid*/
@@ -85,12 +92,9 @@ public class EditTrendPanel extends Composite
 			noTrendTestRadioButton.setValue(false);
 		}
 		
-		
 		verticalPanel.add(grid);
 		
-		
 		initWidget(verticalPanel);
-			
 	}
 	public void addClickHandler(ClickHandler handler)
 	{
@@ -100,7 +104,18 @@ public class EditTrendPanel extends Composite
 		linearTrendOnlyRadioButton.addClickHandler(handler);
 		qudraticTrendOnlyRadioButton.addClickHandler(handler);
 		cubicTrendOnlyRadioButton.addClickHandler(handler);
-		
 	}
-	
+	public String getSelectedTrend()
+	{
+	    String selectedTrend = null;
+	    for(int i = 0; i <= 5; i++)
+	    {
+	        RadioButton radioButton = (RadioButton) grid.getWidget(i, 0);
+	        if(radioButton.isChecked())
+	        {
+	            selectedTrend = radioButton.getText();
+	        }
+	    }
+	    return selectedTrend;
+	}
 }

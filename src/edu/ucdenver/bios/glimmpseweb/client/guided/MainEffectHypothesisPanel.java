@@ -26,21 +26,38 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
+import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 
 
 public class MainEffectHypothesisPanel extends Composite  {
 
-	protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
+    StudyDesign studyDesign;
+    
+    protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
 	protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
+	
+	List<BetweenParticipantFactor> betweenParticipantFactors =
+            studyDesign.getBetweenParticipantFactorList();
+    List<String> betweenParticipantFactorDataList = new ArrayList<String>();
+    
+    List<RepeatedMeasuresNode> repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
+    List<String> withinParticipantFactorDataList = new ArrayList<String>();
+    
 	public MainEffectHypothesisPanel()
 	{
 		VerticalPanel verticalPanel = new VerticalPanel();
@@ -90,35 +107,73 @@ public class MainEffectHypothesisPanel extends Composite  {
     /*@Override*/
 	public void onWizardContextLoad() 
     {
-		/*BetweenParticipantFactor betweenParticipantFactorObject = new BetweenParticipantFactor();
-		List<String> list = new ArrayList<String>();
-		list  = betweenParticipantFactorObject.getCategoryList();*/
-		
-		
+
     }
 	
-	public void test()
+	public void load()
 	{
-		List<String> betweenParticipantFactorDataList = new ArrayList<String>();
-		betweenParticipantFactorDataList.add("Treatment");
-		betweenParticipantFactorDataList.add("Risk Group");
-		betweenParticipantFactorDataList.add("Risk Gfjghfdg");
+	    for(BetweenParticipantFactor factor : betweenParticipantFactors)
+	    {
+	        betweenParticipantFactorDataList.add(factor.getPredictorName());
+	    }
+	    
+		int size = betweenParticipantFactorDataList.size();
 		
-		int betweenParticipantFactorArrayListSize = betweenParticipantFactorDataList.size();
-		for(int i = 0; i < betweenParticipantFactorArrayListSize; i++)
+		for(int i = 0; i < size; i++)
 		{
-			betweenParticipantFactorsFlexTable.setWidget(i, 0, new RadioButton("Between Participant Factors Group", betweenParticipantFactorDataList.get(i)));
+			betweenParticipantFactorsFlexTable.setWidget(
+			        i, 0, new RadioButton(
+			                "Between Participant Factors Group",
+			                betweenParticipantFactorDataList.get(i)));
 		}
 		
-		List<String> withinParticipantFactorDataList = new ArrayList<String>();
-		withinParticipantFactorDataList.add("Time");
-		withinParticipantFactorDataList.add("Heart Beat");
-		
-		int withinParticipantFactorsArrayListSize = withinParticipantFactorDataList.size();
+		for(RepeatedMeasuresNode node : repeatedMeasuresNodes)
+	    {
+		    withinParticipantFactorDataList.add(node.getDimension());
+	    }
+		int withinParticipantFactorsArrayListSize =
+		        withinParticipantFactorDataList.size();
 		for(int i = 0; i < withinParticipantFactorsArrayListSize; i++)
 		{
-			withinParticipantFactorsFlexTable.setWidget(i, 0, new RadioButton("Within Participant Factors Group", withinParticipantFactorDataList.get(i)));
+			withinParticipantFactorsFlexTable.setWidget(
+			        i, 0, new RadioButton("Within Participant Factors Group",
+			                withinParticipantFactorDataList.get(i)));
 		}
 	}
+	
+	public ArrayList<BetweenParticipantFactor> getBetweenParticipantList()
+	{
+	    ArrayList<BetweenParticipantFactor> betweenParticipantFactorList = 
+	            new ArrayList<BetweenParticipantFactor>();
+	    int size = betweenParticipantFactorsFlexTable.getRowCount();
+	    for(int i = 0; i < size; i++ )
+	    {
+	        RadioButton radioButton = (RadioButton)
+	                betweenParticipantFactorsFlexTable.getWidget(i, 0);
+	        if(radioButton.isChecked())
+	        {
+	            betweenParticipantFactorList.
+	            add(betweenParticipantFactors.get(i));
+	        }   
+	    }
+	    return betweenParticipantFactorList;
+	}
+	
+	public ArrayList<RepeatedMeasuresNode> getRepeatedMeasuresNodeList()
+    {
+        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
+                new ArrayList<RepeatedMeasuresNode>();
+        int size = withinParticipantFactorsFlexTable.getRowCount();
+        for(int i = 0; i < size; i++ )
+        {
+            RadioButton radioButton = (RadioButton)
+                    withinParticipantFactorsFlexTable.getWidget(i, 0);
+            if(radioButton.isChecked())
+            {
+                repeatedMeasuresNodeList.add(repeatedMeasuresNodes.get(i));
+            }   
+        }
+        return repeatedMeasuresNodeList;
+    }
 
 }

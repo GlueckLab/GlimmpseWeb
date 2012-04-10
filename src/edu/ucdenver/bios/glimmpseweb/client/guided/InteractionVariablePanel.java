@@ -32,34 +32,35 @@ public class InteractionVariablePanel extends Composite
 	
 	HTML selectedTrendLabel = new HTML("Selected Trend");
 	
+	String checkBoxLabel;
+	
+	EditTrendPanel editTrendPanel;
+	
+	Grid grid = new Grid(1, 3);
+	
 	public InteractionVariablePanel(String label)
 	{
-
 		String button_Style = "buttonStyle";
+		
+		checkBoxLabel = label;
 		
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
-		Grid grid = new Grid(1, 3);
+		
 		grid.setCellPadding(5);
 		
-		
 		selectedTrendHorizontalPanel.setSpacing(10);
-		
-		
-		
-		/*selectedTrendLabel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);*/
-		
+
 		selectedTrendHorizontalPanel.add(selectedTrendLabel);
 		selectedTrendHorizontalPanel.add(trendSelected);
-		
-		/*hideTrend.setVisible(false);*/
-		
+	
 		editTrend.setEnabled(false);
 		buttonGroupHorizontalPanel.add(editTrend);
-		/*buttonGroupHorizontalPanel.add(hideTrend);*/
 
 		CheckBox checkBox = new CheckBox();
-		checkBox.setText(label);
+		
+		checkBox.setText(checkBoxLabel);
+		
 		checkBox.addClickHandler(new ClickHandler()
 		{
 			@Override
@@ -80,7 +81,6 @@ public class InteractionVariablePanel extends Composite
 					{
 						selectedTrendHorizontalPanel.setVisible(true);
 					}
-					
 				}
 				else
 				{
@@ -90,14 +90,13 @@ public class InteractionVariablePanel extends Composite
 					selectedTrendHorizontalPanel.setVisible(false);
 				}
 			}
-			
 		});
-
+		
 		grid.setWidget(0, 0, checkBox);
 		grid.setWidget(0, 1, buttonGroupHorizontalPanel);
 		grid.setWidget(0, 2, selectedTrendHorizontalPanel);
 
-		EditTrendPanel editTrendPanel = new EditTrendPanel(true);
+		editTrendPanel = new EditTrendPanel(true);
 		horizontalPanel.add(editTrendPanel);
 		editTrendPanel.addClickHandler(new ClickHandler ()
 		{
@@ -111,31 +110,38 @@ public class InteractionVariablePanel extends Composite
 					horizontalPanel.setVisible(false);
 					editTrend.setVisible(true);
 			}
-			
 		});
 		
 		editTrend.setStyleName(button_Style);
 		selectedTrendLabel.setVisible(false);
 		selectedTrendHorizontalPanel.setVisible(false);
 		horizontalPanel.setVisible(false);
-
 		verticalPanel.add(grid);
 		verticalPanel.add(horizontalPanel);
-		
 		initWidget(verticalPanel);
 	}
+	
 	public void editTrendClickEvent()
 	{
-		/*hideTrend.setVisible(true);*/
 		editTrend.setVisible(false);
 		horizontalPanel.setVisible(true);
-
 	}
+	
 	public void hideTrendClickEvent()
 	{
 		editTrend.setVisible(true);
-		/*hideTrend.setVisible(false);*/
 		horizontalPanel.setVisible(false);
 	}
 	
+	public String selectedTrend()
+	{
+	   String selectedTrend = editTrendPanel.getSelectedTrend();
+	   return selectedTrend;
+	}
+	
+	public CheckBox getCheckBox()
+	{
+	    CheckBox checkBox = (CheckBox) grid.getWidget(0, 0);
+	    return checkBox;
+	}
 }

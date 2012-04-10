@@ -35,12 +35,18 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 
 
 
 public class ResponsesPanel extends WizardStepPanel {
 
+ // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    
 	TextBox textbox = new TextBox();
+	
+	ListEntryPanel responsesPanel;
 	/**
 	 * Constructor for the class Response Panel
 	 */
@@ -56,7 +62,7 @@ public class ResponsesPanel extends WizardStepPanel {
 
 		HTML sufix = new HTML(GlimmpseWeb.constants.responsesPanelSufix());
 		HTML instructions = new HTML(GlimmpseWeb.constants.responsesPanelInstructions());              
-		ListEntryPanel responsesPanel = 
+		responsesPanel = 
 			new ListEntryPanel(GlimmpseWeb.constants.responsesTableColumn(), 
 					new ListValidator() {
 				public void validate(String value) throws IllegalArgumentException {}
@@ -114,7 +120,6 @@ public class ResponsesPanel extends WizardStepPanel {
 		}
 	}
 
-
 	/**
 	 * It is a method from the extended class Wizard 
 	 */
@@ -122,5 +127,10 @@ public class ResponsesPanel extends WizardStepPanel {
 	public void reset() {
 		// TODO Auto-generated method stub	
 	}
-
+	
+	public void onExit()
+	{
+	    studyDesignContext.setResponseVariables(this,
+	            textbox.getValue(), responsesPanel.getValues());
+	}
 }

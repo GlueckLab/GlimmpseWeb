@@ -1,26 +1,32 @@
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
-import org.restlet.client.resource.Result;
+/*import org.restlet.client.resource.Result;*/
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dev.util.collect.HashSet;
 import com.google.gwt.visualization.client.DataTable;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.proxy.MatrixResourceProxy;
+import edu.ucdenver.bios.glimmpseweb.client.proxy.PowerResourceProxy;
+import edu.ucdenver.bios.glimmpseweb.client.proxy.StudyDesignResourceProxy;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
-import edu.ucdenver.bios.glimmpseweb.server.MatrixResourceProxy;
-import edu.ucdenver.bios.glimmpseweb.server.PowerResourceProxy;
-import edu.ucdenver.bios.glimmpseweb.server.StudyDesignResourceProxy;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
@@ -33,6 +39,7 @@ import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
@@ -69,7 +76,7 @@ public class StudyDesignContext extends WizardContext
 	 * @return
 	 * @throws Exception
 	 */
-	public void calculateResults(Result<ArrayList<PowerResult>> powerResultList)
+/*	public void calculateResults(Result<ArrayList<PowerResult>> powerResultList)
 	{
 	    powerResource.getClientResource().setReference(GlimmpseWeb.constants.powerSvcHostPower());
 	    switch(studyDesign.getSolutionTypeEnum()) {
@@ -86,7 +93,7 @@ public class StudyDesignContext extends WizardContext
             powerResource.getPower(studyDesign, powerResultList);
 	        break;
 	    }
-	}
+	}*/
 	
 	public StudyDesign getStudyDesign()
 	{
@@ -292,7 +299,152 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
     
-
+    /**
+     * 
+     */
+    public void setResponseVariables(WizardStepPanel panel, String label,
+            List<String> varibleList)
+    {
+        studyDesign.setResponseListNames(varibleList);
+        studyDesign.setParticipantLabel(label);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.RESPONSES_LIST));
+    }
+    
+    public void setHypothesisMainEffectVariables(WizardStepPanel panel,
+            ArrayList<BetweenParticipantFactor> participantList,
+            ArrayList<RepeatedMeasuresNode> nodeList)
+    {
+        ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
+                participantList;
+        
+        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
+                nodeList;
+        
+        List<HypothesisBetweenParticipantMapping> participantMappingList =
+                new ArrayList<HypothesisBetweenParticipantMapping>();
+        for(int i = 0; i < betweenParticipantFactorList.size(); i++)
+        {
+            HypothesisBetweenParticipantMapping participant =
+                    new HypothesisBetweenParticipantMapping();
+            participant.setBetweenParticipantFactor(
+                    betweenParticipantFactorList.get(i));
+            participant.setType(null);
+            participantMappingList.add(participant);
+        }
+        List<HypothesisRepeatedMeasuresMapping> nodeMappingList =
+                new ArrayList<HypothesisRepeatedMeasuresMapping>();
+        for(int i = 0; i < repeatedMeasuresNodeList.size(); i++)
+        {
+            HypothesisRepeatedMeasuresMapping node =
+                    new HypothesisRepeatedMeasuresMapping();
+            node.setRepeatedMeasuresNode(repeatedMeasuresNodeList.get(i));
+            node.setType(null);
+            nodeMappingList.add(node);
+        }
+        Hypothesis hypothesis = new Hypothesis();
+        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
+        hypothesis.
+        setBetweenParticipantFactorMapList(participantMappingList);
+        hypothesis.setRepeatedMeasuresMapTree(nodeMappingList);
+        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
+        hypothesisList.add(hypothesis);
+        studyDesign.setHypothesis(hypothesisList);
+    }
+    
+    public void setHypothesisInteractionVariables(WizardStepPanel panel,
+            ArrayList<BetweenParticipantFactor> participantList, ArrayList<String> participantSelectedTrend,
+            ArrayList<RepeatedMeasuresNode> nodeList, ArrayList<String> nodeSelectedTrendList)
+    {
+        ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
+                participantList;
+        
+        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
+                nodeList;
+        
+        ArrayList<String> betweenParticipantSelectedTrendList =
+                participantSelectedTrend;
+        
+        ArrayList<String> repeatedMeasuresNodeSelectedTrendList =
+                nodeSelectedTrendList;
+        
+        
+        List<HypothesisBetweenParticipantMapping> participantMappingList =
+                new ArrayList<HypothesisBetweenParticipantMapping>();
+        for(int i = 0; i < betweenParticipantFactorList.size(); i++)
+        {
+            HypothesisBetweenParticipantMapping participant =
+                    new HypothesisBetweenParticipantMapping();
+            participant.setBetweenParticipantFactor(
+                    betweenParticipantFactorList.get(i));
+            participant.setType(null);
+            participantMappingList.add(participant);
+        }
+        
+        List<HypothesisRepeatedMeasuresMapping> nodeMappingList =
+                new ArrayList<HypothesisRepeatedMeasuresMapping>();
+        for(int i = 0; i < repeatedMeasuresNodeList.size(); i++)
+        {
+            HypothesisRepeatedMeasuresMapping node =
+                    new HypothesisRepeatedMeasuresMapping();
+            node.setRepeatedMeasuresNode(repeatedMeasuresNodeList.get(i));
+            node.setType(null);
+            nodeMappingList.add(node);
+        }
+        Hypothesis hypothesis = new Hypothesis();
+        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
+        hypothesis.
+        setBetweenParticipantFactorMapList(participantMappingList);
+        hypothesis.setRepeatedMeasuresMapTree(nodeMappingList);
+        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
+        hypothesisList.add(hypothesis);
+        studyDesign.setHypothesis(hypothesisList);
+    }
+    
+    
+    public void setHypothesisTrendVariables(WizardStepPanel panel,
+            BetweenParticipantFactor betweenParticipant,
+            RepeatedMeasuresNode repeatedNode, String trend)
+    {
+        ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
+                new ArrayList<BetweenParticipantFactor>();
+        betweenParticipantFactorList.add(betweenParticipant);
+        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
+                new ArrayList<RepeatedMeasuresNode>();
+        repeatedMeasuresNodeList.add(repeatedNode);
+        
+        String selectedTrend = trend;
+        List<HypothesisBetweenParticipantMapping> participantMappingList =
+                new ArrayList<HypothesisBetweenParticipantMapping>();
+        for(int i = 0; i < betweenParticipantFactorList.size(); i++)
+        {
+            HypothesisBetweenParticipantMapping participant =
+                    new HypothesisBetweenParticipantMapping();
+            participant.setBetweenParticipantFactor(
+                    betweenParticipantFactorList.get(i));
+            participant.setType(null);
+            participantMappingList.add(participant);
+        }
+        
+        List<HypothesisRepeatedMeasuresMapping> nodeMappingList =
+                new ArrayList<HypothesisRepeatedMeasuresMapping>();
+        for(int i = 0; i < repeatedMeasuresNodeList.size(); i++)
+        {
+            HypothesisRepeatedMeasuresMapping node =
+                    new HypothesisRepeatedMeasuresMapping();
+            node.setRepeatedMeasuresNode(repeatedMeasuresNodeList.get(i));
+            node.setType(null);
+            nodeMappingList.add(node);
+        }
+        Hypothesis hypothesis = new Hypothesis();
+        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
+        hypothesis.
+        setBetweenParticipantFactorMapList(participantMappingList);
+        hypothesis.setRepeatedMeasuresMapTree(nodeMappingList);
+        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
+        hypothesisList.add(hypothesis);
+        studyDesign.setHypothesis(hypothesisList);
+    }
     
     /**
      * Checks if the study design is complete
