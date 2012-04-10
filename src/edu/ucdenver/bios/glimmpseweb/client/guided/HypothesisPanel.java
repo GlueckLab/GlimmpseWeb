@@ -242,6 +242,7 @@ public class HypothesisPanel extends WizardStepPanel {
                     trendHypothesisPanelInstance
                     .getSelectedTrend();
             
+            studyDesignContext.setHypothesisTrendVariables(this, participant, node, selectedTrend);
         }
     }
 
