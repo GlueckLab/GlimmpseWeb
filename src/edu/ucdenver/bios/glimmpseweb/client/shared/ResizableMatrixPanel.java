@@ -578,7 +578,7 @@ public class ResizableMatrixPanel extends Composite
 				data[row][column] = Double.parseDouble(tb.getValue());
 			}
 		}
-		namedMatrix.setData(data);
+		namedMatrix.setDataFromArray(data);
 		return namedMatrix;
 	}
 
@@ -647,7 +647,7 @@ public class ResizableMatrixPanel extends Composite
 		{
 			setRowDimension(matrix.getRows());
 			setColumnDimension(matrix.getColumns());
-			double[][] data = matrix.getDataFromBlob();
+			double[][] data = matrix.getDataAsArray();
 			for(int row = 0; row < rows; row++)
 			{
 				for(int column = 0; column < columns; column++)
