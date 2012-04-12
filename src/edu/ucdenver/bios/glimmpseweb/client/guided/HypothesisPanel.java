@@ -192,13 +192,13 @@ public class HypothesisPanel extends WizardStepPanel {
     {
         if(mainEffectRadioButton.isChecked())
         {
-            ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
+            BetweenParticipantFactor betweenParticipantFactorList =
                     mainEffectHypothesisPanelInstance
-                    .getBetweenParticipantList();
+                    .getBetweenParticipant();
             
-            ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
+            RepeatedMeasuresNode repeatedMeasuresNodeList =
                     mainEffectHypothesisPanelInstance
-                    .getRepeatedMeasuresNodeList();
+                    .getRepeatedMeasuresNode();
             
             studyDesignContext.setHypothesisMainEffectVariables(this,
                     betweenParticipantFactorList, repeatedMeasuresNodeList);
