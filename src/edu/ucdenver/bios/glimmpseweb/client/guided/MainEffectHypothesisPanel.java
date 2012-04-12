@@ -141,10 +141,10 @@ public class MainEffectHypothesisPanel extends Composite  {
 		}
 	}
 	
-	public ArrayList<BetweenParticipantFactor> getBetweenParticipantList()
+	public BetweenParticipantFactor getBetweenParticipant()
 	{
-	    ArrayList<BetweenParticipantFactor> betweenParticipantFactorList = 
-	            new ArrayList<BetweenParticipantFactor>();
+	    BetweenParticipantFactor betweenParticipantFactor = 
+	            new BetweenParticipantFactor();
 	    int size = betweenParticipantFactorsFlexTable.getRowCount();
 	    for(int i = 0; i < size; i++ )
 	    {
@@ -152,17 +152,16 @@ public class MainEffectHypothesisPanel extends Composite  {
 	                betweenParticipantFactorsFlexTable.getWidget(i, 0);
 	        if(radioButton.isChecked())
 	        {
-	            betweenParticipantFactorList.
-	            add(betweenParticipantFactors.get(i));
+	            betweenParticipantFactor = betweenParticipantFactors.get(i);
 	        }   
 	    }
-	    return betweenParticipantFactorList;
+	    return betweenParticipantFactor;
 	}
 	
-	public ArrayList<RepeatedMeasuresNode> getRepeatedMeasuresNodeList()
+	public RepeatedMeasuresNode getRepeatedMeasuresNode()
     {
-        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
-                new ArrayList<RepeatedMeasuresNode>();
+        RepeatedMeasuresNode repeatedMeasuresNode = 
+                new RepeatedMeasuresNode();
         int size = withinParticipantFactorsFlexTable.getRowCount();
         for(int i = 0; i < size; i++ )
         {
@@ -170,10 +169,10 @@ public class MainEffectHypothesisPanel extends Composite  {
                     withinParticipantFactorsFlexTable.getWidget(i, 0);
             if(radioButton.isChecked())
             {
-                repeatedMeasuresNodeList.add(repeatedMeasuresNodes.get(i));
+                repeatedMeasuresNode = repeatedMeasuresNodes.get(i);
             }   
         }
-        return repeatedMeasuresNodeList;
+        return repeatedMeasuresNode;
     }
 
 }
