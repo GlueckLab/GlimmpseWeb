@@ -9,8 +9,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
 
-public class UnStructuredCovariancePanel extends Composite
+public class UnStructuredCovariancePanel extends Composite implements CovarianceBuilder
 {
 	ResizableMatrixPanel covarianceMatrix;
 
@@ -19,6 +20,8 @@ public class UnStructuredCovariancePanel extends Composite
 	List<String> labelList;
 	
 	List<Integer> spacingList;
+	
+	int size;
 	
 	public UnStructuredCovariancePanel(List<String> stringList, List<Integer> integerList)
 	{
@@ -38,12 +41,31 @@ public class UnStructuredCovariancePanel extends Composite
 		verticalPanel.add(horizontalPanel);
 		initWidget(verticalPanel);
 	}
+	
 	public void constructCovarianceMatrix()
 	{
-		int size = spacingList.size();
+		size = spacingList.size();
 		covarianceMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
 		covarianceMatrix.setRowLabels(labelList);
 		covarianceMatrix.setColumnLabels(labelList);
 		horizontalPanel.add(covarianceMatrix);
 	}
+	
+    @Override
+    public Covariance getCovariance() 
+    {
+        Covariance covariance = new Covariance();
+        
+        double [][] matrixData = new double[size][size];
+        
+        for(int i = 0; i < size; i++)
+        {
+            for( int j = 0; j < size; j++)
+            {
+                matrixData[i][j] = covarianceMatrix.getCellValue(i, j);
+            }
+        }
+        covariance.setBlobFromArray(matrixData);
+        return covariance;
+    }
 }

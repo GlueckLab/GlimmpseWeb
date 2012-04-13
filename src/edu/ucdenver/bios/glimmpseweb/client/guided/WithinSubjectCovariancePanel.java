@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Processes
+ * incoming HTTP requests for power, sample size, and detectable
+ * difference
+ * 
+ * Copyright (C) 2011 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -9,6 +30,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -16,8 +38,14 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplainationPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-
+import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
+/**
+ * 
+ * @author VIJAY AKULA
+ *
+ */
 public class WithinSubjectCovariancePanel extends WizardStepPanel
 {
 	// context object
@@ -27,71 +55,12 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 	
 	VerticalPanel verticalPanel = new VerticalPanel();
 	
+	List<ResponseNode> responseNodeList = studyDesignContext.getStudyDesign().getResponseList();
 
 	WithinSubjectCovariancePanel(WizardContext context) 
 	{
 		super(context, "Within Subject Covariance");
-		
-		/******REMOVE THIS LATER*/
-//		ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeArrayList = new ArrayList<RepeatedMeasuresNode>();
-//		List<Integer> rootSpacingList = new ArrayList<Integer>();
-//		rootSpacingList.add(1);
-//		rootSpacingList.add(5);
-//		rootSpacingList.add(9);
-//		RepeatedMeasuresNode root = new RepeatedMeasuresNode();
-//        root.setDimension("Week");
-//        root.setNode(0);
-//        root.setNumberOfMeasurements(3);
-//        root.setParent(0);
-//        root.setType("Numeric");
-//        root.setSpacingList(rootSpacingList);
-//        repeatedMeasuresNodeArrayList.add(root);
-//        RepeatedMeasuresNode child = new RepeatedMeasuresNode();
-//        List<Integer> childSpacingList = new ArrayList<Integer>();
-//        childSpacingList.add(1);
-//        childSpacingList.add(2);
-//        childSpacingList.add(3);
-//        childSpacingList.add(4);
-//        childSpacingList.add(5);
-//        childSpacingList.add(6);
-//        childSpacingList.add(7);
-//        child.setSpacingList(childSpacingList);
-//        child.setDimension("Day");
-//		child.setType("Ordinal");
-//        child.setNode(1);
-//        child.setNumberOfMeasurements(7);
-//        child.setParent(0);
-//        repeatedMeasuresNodeArrayList.add(child);
-//        RepeatedMeasuresNode child1 = new RepeatedMeasuresNode();
-//        List<Integer> childSpacingList1 = new ArrayList<Integer>();
-//        childSpacingList1.add(1);
-//        childSpacingList1.add(5);
-//        childSpacingList1.add(9);
-//		child1.setDimension("Time");
-//		child1.setType("Numeric");
-//        child1.setNode(2);
-//        child1.setNumberOfMeasurements(3);
-//        child1.setParent(1);
-//        child1.setSpacingList(childSpacingList1);
-//        repeatedMeasuresNodeArrayList.add(child1);
-//        studyDesignContext.setRepeatedMeasuresNodes(this, repeatedMeasuresNodeArrayList);
-//        
-//        
-//        
-//        ResponseList responseList = new ResponseList();
-//        responseList.setName("Dogs");
-//        List<String> dataList = new ArrayList<String>();
-//        dataList.add("HR");
-//        dataList.add("SBP");
-//        dataList.add("DBP");
-//        dataList.add("Temperature");
-//        responseList.setDataList(dataList);
-//        studyDesignContext.setResponsesPanelListEntryPanel(this, dataList);
-        
-        /*******END OF REMOVE THIS*/
-        
-        
-        
+
 		HTML header = new HTML();
 		HTML instructions = new HTML();
 		
@@ -101,7 +70,9 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		constructTabPanel();
 				
 		
-		ButtonWithExplainationPanel uploadFullCovarianceMatrixButton = new ButtonWithExplainationPanel(GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
+		ButtonWithExplainationPanel uploadFullCovarianceMatrixButton =
+		        new ButtonWithExplainationPanel(
+		                GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
 				GlimmpseWeb.constants.explainButtonText(), 
 				GlimmpseWeb.constants.fullCovarianceMatrixHeader(), 
 				GlimmpseWeb.constants.fullCovarianceMatrixText());
@@ -125,8 +96,6 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		verticalPanel.add(uploadFullCovarianceMatrixButton);
 			
 		initWidget(verticalPanel);
-		
-		
 	}
 	
 	public TabLayoutPanel constructTabPanel()
@@ -142,8 +111,14 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		tabPanel.add(new CovarianceCorrelationDeckPanel(obj), obj.getDimension());
 		if(i == size-1)
 		{
-//			List<String> responseList = studyDesignContext.getStudyDesign().getResponseList();
-//			tabPanel.add(new CovarianceCorrelationDeckPanel(responseList),"Responses");
+		    
+		    List<String> responseList = new ArrayList<String>();
+		    int responseNodeListSize = responseNodeList.size();
+		    for(int j = 0; j < responseNodeListSize; j++)
+		    {
+		        responseList.add(responseNodeList.get(j).getName());
+		    }
+		    tabPanel.add(new CovarianceCorrelationDeckPanel(responseList),"Responses");
 		}
 		}
 		
@@ -154,14 +129,35 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 		return tabPanel;
 	}
 	
-
 	@Override
 	public void reset() 
 	{
 		
 		
 	}
-
+	
+	@Override
+	public void onExit()
+	{
+	    for(int i = 0; i < tabPanel.getWidgetCount(); i++)
+	    {
+	        /*Widget widget = tabPanel.getWidget(i);*/
+	        CovarianceCorrelationDeckPanel panel = (CovarianceCorrelationDeckPanel) tabPanel.getWidget(i);
+	        Covariance covariance = new Covariance();
+	        covariance = panel.getCovariance();
+	        if( i == tabPanel.getWidgetCount() - 1)
+	        {
+	            covariance.setName("_RESPONSES_");
+	            studyDesignContext.setCovariance(this, covariance);
+	        }
+	        else
+	        {
+	            covariance.setName(responseNodeList.get(i).getName());
+	            studyDesignContext.setCovariance(this, covariance);
+	        }
+	        
+	    }
+	}
 }
 
 

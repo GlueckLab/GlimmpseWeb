@@ -1,3 +1,25 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Processes
+ * incoming HTTP requests for power, sample size, and detectable
+ * difference
+ * 
+ * Copyright (C) 2011 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -17,9 +39,14 @@ import edu.ucdenver.bios.glimmpseweb.client.LearCorrelation;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextExplainPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
-import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-
-public class StructuredCorrelationPanel extends Composite 
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
+import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
+/**
+ * 
+ * @author VIJAY AKULA
+ *
+ */
+public class StructuredCorrelationPanel extends Composite implements CovarianceBuilder
 {
 	boolean strongestCorrelationFlag = false;
 	boolean rateofDecayFlag = false;
@@ -157,7 +184,7 @@ public class StructuredCorrelationPanel extends Composite
 		resizableMatrix.setColumnLabels(labelList);
 		horizontalPanel.add(resizableMatrix);
 	}
-	
+
 	public void poplutateMatrix()
 	{
 		if(strongestCorrelationFlag && rateofDecayFlag)
@@ -188,5 +215,22 @@ public class StructuredCorrelationPanel extends Composite
 		{
 			
 		}
+	}
+	
+	public Covariance getCovariance()
+	{
+	    Covariance covariance = new Covariance();
+	    List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
+	    StandardDeviation sd = new StandardDeviation();
+	    
+	    sd.setValue(Double.parseDouble(standardDeviationTextBox.getValue()));
+	    sdList.add(sd);
+	    
+	    covariance.setDelta(Double.parseDouble(rateOfDecayOfCorrelationTextBox.getValue()));
+	    
+	    Double rho = Math.pow(Double.parseDouble(strongestCorrelationTextBox.getValue()), 2);
+	    covariance.setRho(rho);
+	    
+	    return covariance;
 	}
 }

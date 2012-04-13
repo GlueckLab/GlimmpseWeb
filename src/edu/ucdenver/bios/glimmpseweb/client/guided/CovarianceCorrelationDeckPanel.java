@@ -1,3 +1,25 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Processes
+ * incoming HTTP requests for power, sample size, and detectable
+ * difference
+ * 
+ * Copyright (C) 2011 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -12,142 +34,72 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplainationPanel;
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-
+import edu.ucdenver.bios.webservice.common.domain.Spacing;
+/**
+ * 
+ * @author VIJAY AKULA
+ *
+ */
 public class CovarianceCorrelationDeckPanel extends Composite
 {
 	protected DeckPanel deckPanel = new DeckPanel();
 	protected VerticalPanel controlButtonPanel = new VerticalPanel();
 	
-	protected ButtonWithExplainationPanel useCustomVariability = new ButtonWithExplainationPanel(GlimmpseWeb.constants.useCustomVariablity(),
+	protected ButtonWithExplainationPanel useCustomVariability =
+	        new ButtonWithExplainationPanel(
+	                GlimmpseWeb.constants.useCustomVariablity(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useCustomVariablityAlertHeader(), 
 			GlimmpseWeb.constants.useCustomVariabilityAlertText());
 	
-	protected ButtonWithExplainationPanel useCustomCorrelation = new ButtonWithExplainationPanel(GlimmpseWeb.constants.useCustomCorrelation(),
+	protected ButtonWithExplainationPanel useCustomCorrelation =
+	        new ButtonWithExplainationPanel(
+	                GlimmpseWeb.constants.useCustomCorrelation(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertHeader(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertText());
 	
-	protected ButtonWithExplainationPanel uploadCorrelationMatrix = new ButtonWithExplainationPanel(GlimmpseWeb.constants.uploadCorrelationMatrix(),
+	protected ButtonWithExplainationPanel uploadCorrelationMatrix =
+	        new ButtonWithExplainationPanel(
+	                GlimmpseWeb.constants.uploadCorrelationMatrix(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.correlationMatrixAlertHeader(), 
 			GlimmpseWeb.constants.correlationMatrixAlertText());
 	
-	protected ButtonWithExplainationPanel useStructuredVariability = new ButtonWithExplainationPanel(GlimmpseWeb.constants.useStructuredVariability(),
+	protected ButtonWithExplainationPanel useStructuredVariability =
+	        new ButtonWithExplainationPanel(
+	                GlimmpseWeb.constants.useStructuredVariability(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertHeader(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertText());
 	
 	
-	protected ButtonWithExplainationPanel uploadCovarianceMatrix = new ButtonWithExplainationPanel(GlimmpseWeb.constants.uploadCovarianceMatrix(),
+	protected ButtonWithExplainationPanel uploadCovarianceMatrix =
+	        new ButtonWithExplainationPanel(
+	                GlimmpseWeb.constants.uploadCovarianceMatrix(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.covarinceMatrixAlertHeader(), 
 			GlimmpseWeb.constants.covarinceMatrixAlertText());
 	
-	/*public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode obj)
-	{
-		VerticalPanel verticalPanel = new VerticalPanel();
+	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode)
 		
-		StructuredCorrelationPanel structuredCorrelationPanelInstance = new StructuredCorrelationPanel(labelList, spacingList);
-		UnStructuredCovariancePanel unstructuredCorrelationPanelInstance = new UnStructuredCovariancePanel(obj);
-		UnStructuredCorrelationPanel unstructuredCovariancePanelInstance = new UnStructuredCorrelationPanel(obj);
-		
-		deckPanel.add(structuredCorrelationPanelInstance);
-		deckPanel.add(unstructuredCovariancePanelInstance);
-		deckPanel.add(unstructuredCorrelationPanelInstance);
-		
-		
-		deckPanel.showWidget(0);
-		
-		createControlButtonPanel();
-		useCustomVariability.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				useCustomVariabilityEvent();				
-			}
-			
-		});
-			
-		useCustomCorrelation.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				useCustomCorrelationEvent();
-							
-			}
-			
-		});
-		
-		uploadCorrelationMatrix.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				uploadCorrelationMatrixEvent();
- 
-				
-			}
-			
-		});
-		
-		useStructuredVariability.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				useStructuredVariabilityEvent();
-			}
-			
-		});
-		
-		uploadCovarianceMatrix.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				
-				uploadCovarianceMatrixEvent();
-			}
-			
-		});
-		
-		uploadCorrelationMatrix.setVisible(false);
-		useStructuredVariability.setVisible(false);
-		uploadCovarianceMatrix.setVisible(false);
-		
-		
-		controlButtonPanel.add(useCustomVariability);
-		controlButtonPanel.add(useCustomCorrelation);
-		controlButtonPanel.add(uploadCorrelationMatrix);
-		controlButtonPanel.add(useStructuredVariability);
-		controlButtonPanel.add(uploadCovarianceMatrix);
-		
-		
-		controlButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		controlButtonPanel.setWidth("10");
-				
-		verticalPanel.add(deckPanel);
-		verticalPanel.add(controlButtonPanel);
-		
-		
-		initWidget(verticalPanel);
-	}
-	
-*/	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode)
 	{
 		String dimension = repeatedMeasuresNode.getDimension();
-//		List<Integer> spacingList = repeatedMeasuresNode.getSpacingList();
-//		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
-//		int size = spacingList.size();
-//		for(int i = 0; i < size; i++)
-//		{
-//			labelList.add(i, dimension+""+spacingList.get(i).toString());
-//		}
-//		buildDeckPanel(labelList, spacingList);
+		List<Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
+		List<Integer> integerSpacingList = new ArrayList<Integer>();
+		 
+		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
+		int size = spacingList.size();
+		for(int i = 0; i < size; i++)
+		{
+		    int value = spacingList.get(i).getValue();
+		    labelList.add(i, dimension+""+spacingList.get(i).toString());
+		    
+		    integerSpacingList.add(value);
+		}
+		buildDeckPanel(labelList, integerSpacingList);
 	}
 	
 	public CovarianceCorrelationDeckPanel(List<String> responseList)
@@ -160,7 +112,6 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		}
 		buildDeckPanel(labels, spacingList);
 	}
-	
 	
 	
 	private void buildDeckPanel(List<String> labelList, List<Integer>spacingList)
@@ -188,7 +139,6 @@ public class CovarianceCorrelationDeckPanel extends Composite
 			{
 				useCustomVariabilityEvent();				
 			}
-			
 		});
 			
 		useCustomCorrelation.addClickHandler(new ClickHandler()
@@ -199,7 +149,6 @@ public class CovarianceCorrelationDeckPanel extends Composite
 				useCustomCorrelationEvent();
 							
 			}
-			
 		});
 		
 		uploadCorrelationMatrix.addClickHandler(new ClickHandler()
@@ -208,10 +157,7 @@ public class CovarianceCorrelationDeckPanel extends Composite
 			public void onClick(ClickEvent event)
 			{
 				uploadCorrelationMatrixEvent();
- 
-				
 			}
-			
 		});
 		
 		useStructuredVariability.addClickHandler(new ClickHandler()
@@ -221,7 +167,6 @@ public class CovarianceCorrelationDeckPanel extends Composite
 			{
 				useStructuredVariabilityEvent();
 			}
-			
 		});
 		
 		uploadCovarianceMatrix.addClickHandler(new ClickHandler()
@@ -229,10 +174,8 @@ public class CovarianceCorrelationDeckPanel extends Composite
 			@Override
 			public void onClick(ClickEvent event) 
 			{
-				
 				uploadCovarianceMatrixEvent();
 			}
-			
 		});
 		
 		uploadCorrelationMatrix.setVisible(false);
@@ -248,7 +191,6 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		
 		
 		controlButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-		/*controlButtonPanel.setWidth("10");*/
 				
 		verticalPanel.add(deckPanel);
 		verticalPanel.add(controlButtonPanel);
@@ -258,13 +200,8 @@ public class CovarianceCorrelationDeckPanel extends Composite
 
 	}
 	
-	
-	
-	
 	public VerticalPanel createControlButtonPanel()
 	{
-		
-		
 		return createControlButtonPanel();		
 	}
 	
@@ -277,6 +214,7 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		useStructuredVariability.setVisible(true);
 		uploadCovarianceMatrix.setVisible(true);
 	}
+	
 	public void useCustomCorrelationEvent()
 	{
 		deckPanel.showWidget(1);
@@ -286,6 +224,7 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		useStructuredVariability.setVisible(true);
 		uploadCovarianceMatrix.setVisible(false);
 	}
+	
 	public void useStructuredVariabilityEvent()
 	{
 		deckPanel.showWidget(0);
@@ -300,9 +239,17 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	{
 		
 	}
+	
 	public void uploadCovarianceMatrixEvent()
 	{
 		
+	}
+	
+	public Covariance getCovariance()
+	{
+	    int visibleIndex = deckPanel.getVisibleWidget();
+	    CovarianceBuilder covariance = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
+	    return covariance.getCovariance();
 	}
 }
 
