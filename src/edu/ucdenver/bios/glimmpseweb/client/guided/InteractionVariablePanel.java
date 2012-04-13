@@ -139,9 +139,9 @@ public class InteractionVariablePanel extends Composite
 	   return selectedTrend;
 	}
 	
-	public CheckBox getCheckBox()
+	public boolean isChecked()
 	{
 	    CheckBox checkBox = (CheckBox) grid.getWidget(0, 0);
-	    return checkBox;
+	    return checkBox.isChecked();
 	}
 }

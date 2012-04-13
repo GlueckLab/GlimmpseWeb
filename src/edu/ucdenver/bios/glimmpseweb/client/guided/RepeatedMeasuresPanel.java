@@ -48,7 +48,7 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 
 /**
  * Panel for entering information about repeated measures.
- * @author Vijay Chander Akula
+ * @author Vijay Akula
  *
  */
 public class RepeatedMeasuresPanel extends WizardStepPanel

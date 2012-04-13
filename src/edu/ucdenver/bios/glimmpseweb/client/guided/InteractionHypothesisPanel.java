@@ -25,18 +25,20 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 
 public class InteractionHypothesisPanel extends Composite
 {
@@ -45,16 +47,23 @@ public class InteractionHypothesisPanel extends Composite
 	protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
 
 	List<BetweenParticipantFactor> betweenParticipantFactors =
-            studyDesign.getBetweenParticipantFactorList();
+	        new ArrayList<BetweenParticipantFactor>();
     List<String> betweenParticipantFactorDataList = new ArrayList<String>();
     
-    List<RepeatedMeasuresNode> repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
-    List<String> withinParticipantFactorDataList = new ArrayList<String>();
+    List<RepeatedMeasuresNode> repeatedMeasuresNodes =
+            new ArrayList<RepeatedMeasuresNode>();
     
-	public InteractionHypothesisPanel()
+    List<String> withinParticipantFactorDataList =
+            new ArrayList<String>();
+    
+	public InteractionHypothesisPanel(StudyDesign studyDesign)
 	{
 		VerticalPanel verticalPanel = new VerticalPanel();
+		this.studyDesign = studyDesign;
 		
+		betweenParticipantFactors = studyDesign.getBetweenParticipantFactorList();
+        
+        repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
 		HTML text = new HTML();
 		HTML betweenParticipantFactors = new HTML();
 		HTML withinParticipantFactors = new HTML();
@@ -65,7 +74,6 @@ public class InteractionHypothesisPanel extends Composite
 		        interactionHypothesisPanelBetweenParticipantFactors());
 		withinParticipantFactors.setText(GlimmpseWeb.constants.
 		        interactionHypothesisPanelWithinParticipantFactors());
-		
 		
 		//Style Sheets
 		text.setStyleName(
@@ -117,73 +125,56 @@ public class InteractionHypothesisPanel extends Composite
 			
 		}
 	}
-	public ArrayList<BetweenParticipantFactor> getBetweenParticipantList()
-	{
-        int size = betweenParticipantFactorsFlexTable.getRowCount();
-        ArrayList<BetweenParticipantFactor> participantList =
-                new ArrayList<BetweenParticipantFactor>();
-        for(int i = 0; i < size; i++ )
-        {
-            InteractionVariablePanel panel =
-                    (InteractionVariablePanel) betweenParticipantFactorsFlexTable.getWidget(i, 0);
-            CheckBox checkBox = panel.getCheckBox();
-            if(checkBox.isChecked())
-            {
-                participantList.add(betweenParticipantFactors.get(i));
-            }
-        }
-        return participantList;
-    }
 	
-    public ArrayList<String> getSelectedTrendListOfParticipants()
-    {
-        int size = betweenParticipantFactorsFlexTable.getRowCount();
-        ArrayList<String> selectedTrendList = new ArrayList<String>();
-        for(int i = 0; i < size; i++ )
-        {
-            InteractionVariablePanel panel =
-                    (InteractionVariablePanel) betweenParticipantFactorsFlexTable.getWidget(i, 0);
-            CheckBox checkBox = panel.getCheckBox();
-            if(checkBox.isChecked())
+	public Hypothesis getHypothesis()
+	{
+	    Hypothesis hypothesis = new Hypothesis();
+	    
+	    List<HypothesisBetweenParticipantMapping> participantList =
+	            new ArrayList<HypothesisBetweenParticipantMapping>();
+	    
+	    HypothesisBetweenParticipantMapping participant =
+                new HypothesisBetweenParticipantMapping();
+	    
+	    InteractionVariablePanel panel = null;
+	    for(int i = 0; i < betweenParticipantFactorsFlexTable.getRowCount(); i++)
+	    {
+	        panel = (InteractionVariablePanel)
+                    betweenParticipantFactorsFlexTable.getWidget(i, 0);
+            if(panel.isChecked())
             {
-                selectedTrendList.add(panel.selectedTrend());
+                participant.setBetweenParticipantFactor(betweenParticipantFactors.get(i));
+                String value = panel.selectedTrend();
+                participantList.add(participant);
+                EnumHelper enumHelper = new EnumHelper();
+                participant.setType(enumHelper.getEnum(value));
+                
             }
-        }
-        return selectedTrendList;
-    }
-    
-    public ArrayList<RepeatedMeasuresNode> getRepeatedMeasuresNodeList()
-    {
-        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
-                new ArrayList<RepeatedMeasuresNode>();
-        int size = withinParticipantFactorsFlexTable.getRowCount();
-        for(int i = 0; i < size; i++ )
+            participantList.add(participant);
+	    }
+	    
+	    List<HypothesisRepeatedMeasuresMapping> nodeList =
+                new ArrayList<HypothesisRepeatedMeasuresMapping>();
+        
+	    HypothesisRepeatedMeasuresMapping node =
+                new HypothesisRepeatedMeasuresMapping();
+        
+	    for(int i = 0; i < withinParticipantFactorsFlexTable.getRowCount(); i++)
         {
-            InteractionVariablePanel panel =
-                    (InteractionVariablePanel) betweenParticipantFactorsFlexTable.getWidget(i, 0);
-            CheckBox checkBox = panel.getCheckBox();
-            if(checkBox.isChecked())
+            panel = (InteractionVariablePanel)
+                    withinParticipantFactorsFlexTable.getWidget(i, 0);
+            if(panel.isChecked())
             {
-                repeatedMeasuresNodeList.add(repeatedMeasuresNodes.get(i));
+                node.setRepeatedMeasuresNode(repeatedMeasuresNodes.get(i));
+                String value = panel.selectedTrend();
+                nodeList.add(node);
+                EnumHelper enumHelper = new EnumHelper();
+                node.setType(enumHelper.getEnum(value));
             }
+            nodeList.add(node);
         }
-        return repeatedMeasuresNodeList;
-    }
-    
-    public ArrayList<String> getSelectedTrendListOfNodes()
-    {
-        int size = withinParticipantFactorsFlexTable.getRowCount();
-        ArrayList<String> selectedTrendList = new ArrayList<String>();
-        for(int i = 0; i < size; i++ )
-        {
-            InteractionVariablePanel panel =
-                    (InteractionVariablePanel) withinParticipantFactorsFlexTable.getWidget(i, 0);
-            CheckBox checkBox = panel.getCheckBox();
-            if(checkBox.isChecked())
-            {
-                selectedTrendList.add(panel.selectedTrend());
-            }
-        }
-        return selectedTrendList;
-    }
+	    hypothesis.setRepeatedMeasuresMapTree(nodeList);
+	    
+	    return hypothesis;
+	}
 }

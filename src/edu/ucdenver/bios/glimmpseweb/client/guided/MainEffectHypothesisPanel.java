@@ -26,24 +26,28 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
-import edu.ucdenver.bios.webservice.common.domain.Category;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
-
+/**
+ * 
+ * @author VIJAY AKULA
+ *
+ */
 public class MainEffectHypothesisPanel extends Composite  {
 
     StudyDesign studyDesign;
@@ -51,15 +55,20 @@ public class MainEffectHypothesisPanel extends Composite  {
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
 	protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
 	
-	List<BetweenParticipantFactor> betweenParticipantFactors =
-            studyDesign.getBetweenParticipantFactorList();
+	List<BetweenParticipantFactor> betweenParticipantFactors = null;
     List<String> betweenParticipantFactorDataList = new ArrayList<String>();
     
-    List<RepeatedMeasuresNode> repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
+    List<RepeatedMeasuresNode> repeatedMeasuresNodes = null;
     List<String> withinParticipantFactorDataList = new ArrayList<String>();
     
-	public MainEffectHypothesisPanel()
+	public MainEffectHypothesisPanel(StudyDesign studyDesign)
 	{
+	    this.studyDesign = studyDesign;
+	    
+	    betweenParticipantFactors = studyDesign.getBetweenParticipantFactorList();
+	    
+	    repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
+	    
 		VerticalPanel verticalPanel = new VerticalPanel();
 		HTML text = new HTML();
 		HTML betweenParticipantFactors = new HTML();
@@ -68,15 +77,20 @@ public class MainEffectHypothesisPanel extends Composite  {
 		
 		
 		text.setText(GlimmpseWeb.constants.mainEffectPanelText());
-		betweenParticipantFactors.setText(GlimmpseWeb.constants.mainEffectPanelBetweenParticipantFactors());
-		withinParticipantFactors.setText(GlimmpseWeb.constants.mainEffectPanelWithinParticipantFactors());
+		betweenParticipantFactors.setText(
+		        GlimmpseWeb.constants.mainEffectPanelBetweenParticipantFactors());
+		withinParticipantFactors.setText(
+		        GlimmpseWeb.constants.mainEffectPanelWithinParticipantFactors());
 	
 		
 		
 		//Style Sheets
-		text.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		text.setStyleName(
+		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		betweenParticipantFactors.setStyleName(
+		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		withinParticipantFactors.setStyleName(
+		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 		
 		
 		//Add individual widgets to vertical panel
@@ -107,7 +121,7 @@ public class MainEffectHypothesisPanel extends Composite  {
     /*@Override*/
 	public void onWizardContextLoad() 
     {
-
+	    load();
     }
 	
 	public void load()
@@ -123,7 +137,7 @@ public class MainEffectHypothesisPanel extends Composite  {
 		{
 			betweenParticipantFactorsFlexTable.setWidget(
 			        i, 0, new RadioButton(
-			                "Between Participant Factors Group",
+			                "RadioButtonsGroup",
 			                betweenParticipantFactorDataList.get(i)));
 		}
 		
@@ -136,15 +150,44 @@ public class MainEffectHypothesisPanel extends Composite  {
 		for(int i = 0; i < withinParticipantFactorsArrayListSize; i++)
 		{
 			withinParticipantFactorsFlexTable.setWidget(
-			        i, 0, new RadioButton("Within Participant Factors Group",
+			        i, 0, new RadioButton("RadioButtonsGroup",
 			                withinParticipantFactorDataList.get(i)));
 		}
 	}
 	
+	public Hypothesis getHypothesis()
+	{
+	    Hypothesis hypothesis = new Hypothesis();
+	    BetweenParticipantFactor participant = getBetweenParticipant();
+	    RepeatedMeasuresNode node = getRepeatedMeasuresNode();
+	    hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
+	    if(participant == null)
+	    {
+	       HypothesisRepeatedMeasuresMapping mappingNode =
+	               new HypothesisRepeatedMeasuresMapping();
+	       mappingNode.setRepeatedMeasuresNode(node);
+	       List<HypothesisRepeatedMeasuresMapping> mappingList =
+	               new ArrayList<HypothesisRepeatedMeasuresMapping>();
+	       mappingList.add(mappingNode);
+	       hypothesis.setRepeatedMeasuresMapTree(mappingList);
+	    }
+	    else
+	    {
+	        HypothesisBetweenParticipantMapping mappingParticipant =
+	                new HypothesisBetweenParticipantMapping();
+	        mappingParticipant.setBetweenParticipantFactor(participant);
+	        List<HypothesisBetweenParticipantMapping> mappingList = 
+	                new ArrayList<HypothesisBetweenParticipantMapping>();
+	        mappingList.add(mappingParticipant);
+	        hypothesis.setBetweenParticipantFactorMapList(mappingList);
+	    }
+	    
+	    return hypothesis;
+	}
+	
 	public BetweenParticipantFactor getBetweenParticipant()
 	{
-	    BetweenParticipantFactor betweenParticipantFactor = 
-	            new BetweenParticipantFactor();
+	    BetweenParticipantFactor betweenParticipantFactor = null;
 	    int size = betweenParticipantFactorsFlexTable.getRowCount();
 	    for(int i = 0; i < size; i++ )
 	    {
@@ -160,8 +203,7 @@ public class MainEffectHypothesisPanel extends Composite  {
 	
 	public RepeatedMeasuresNode getRepeatedMeasuresNode()
     {
-        RepeatedMeasuresNode repeatedMeasuresNode = 
-                new RepeatedMeasuresNode();
+        RepeatedMeasuresNode repeatedMeasuresNode = null;
         int size = withinParticipantFactorsFlexTable.getRowCount();
         for(int i = 0; i < size; i++ )
         {

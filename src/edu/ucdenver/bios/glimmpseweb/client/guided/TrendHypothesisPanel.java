@@ -20,7 +20,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -36,8 +35,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class TrendHypothesisPanel extends Composite
 {
@@ -46,18 +50,25 @@ public class TrendHypothesisPanel extends Composite
 	
 	StudyDesign studyDesign;
 	
-	List<BetweenParticipantFactor> betweenParticipantFactors =
-            studyDesign.getBetweenParticipantFactorList();
+	List<BetweenParticipantFactor> betweenParticipantFactors = new ArrayList<BetweenParticipantFactor>();
+            
     List<String> betweenParticipantFactorDataList = new ArrayList<String>();
     
-    List<RepeatedMeasuresNode> repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
+    List<RepeatedMeasuresNode> repeatedMeasuresNodes = new ArrayList<RepeatedMeasuresNode>();
     List<String> withinParticipantFactorDataList = new ArrayList<String>();
     
     EditTrendPanel editTrendPanel = new EditTrendPanel(false);
 	
-	public TrendHypothesisPanel()
+	public TrendHypothesisPanel(StudyDesign studyDesign)
 	{
 		VerticalPanel verticalPanel = new VerticalPanel();
+		
+		this.studyDesign = studyDesign;
+		
+		betweenParticipantFactors = studyDesign.getBetweenParticipantFactorList();
+		
+		repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
+		
 		HTML text = new HTML();
 		HTML betweenParticipantFactors = new HTML();
 		HTML withinParticipantFactors = new HTML();
@@ -84,9 +95,8 @@ public class TrendHypothesisPanel extends Composite
 		verticalPanel.add(withinParticipantFactorsFlexTable);
 		verticalPanel.add(selectTypeOfTrend);
 		verticalPanel.add(editTrendPanel);
-		
-		
 		initWidget(verticalPanel);
+		
 	}
 	public void load()
 	{
@@ -101,7 +111,7 @@ public class TrendHypothesisPanel extends Composite
 		for(int i = 0; i < betweenParticipantFactorArrayListSize; i++)
 		{
 			betweenParticipantFactorsFlexTable.setWidget(i, 0,
-			        new RadioButton("Between Participant Factors Group",
+			        new RadioButton("RadioButtonsGroup",
 			                betweenParticipantFactorDataList.get(i)));
 		}
 		for(RepeatedMeasuresNode node : repeatedMeasuresNodes)
@@ -115,11 +125,50 @@ public class TrendHypothesisPanel extends Composite
 		for(int i = 0; i < withinParticipantFactorsArrayListSize; i++)
 		{
 			withinParticipantFactorsFlexTable.setWidget(i, 0,
-			        new RadioButton("Within Participant Factors Group",
+			        new RadioButton("RadioButtonsGroup",
 			                withinParticipantFactorDataList.get(i)));
 		}
 	}
-	public BetweenParticipantFactor getSelectedBetweenParticipantFactor()
+	
+	
+	public Hypothesis getHypothesis()
+    {
+        Hypothesis hypothesis = new Hypothesis();
+        BetweenParticipantFactor participant = getBetweenParticipant();
+        RepeatedMeasuresNode node = getRepeatedMeasuresNode();
+        hypothesis.setType(HypothesisTypeEnum.TREND);
+        String value = editTrendPanel.getSelectedTrend();
+        EnumHelper enumHelper = new EnumHelper();
+        if(participant == null)
+        {
+           HypothesisRepeatedMeasuresMapping mappingNode =
+                   new HypothesisRepeatedMeasuresMapping();
+           mappingNode.setRepeatedMeasuresNode(node);
+           List<HypothesisRepeatedMeasuresMapping> mappingList =
+                   new ArrayList<HypothesisRepeatedMeasuresMapping>();
+           
+           mappingNode.setType(enumHelper.getEnum(value));
+           mappingList.add(mappingNode);
+           hypothesis.setRepeatedMeasuresMapTree(mappingList);
+        }
+        else
+        {
+            HypothesisBetweenParticipantMapping mappingParticipant =
+                    new HypothesisBetweenParticipantMapping();
+            mappingParticipant.setBetweenParticipantFactor(participant);
+            mappingParticipant.setType(null);
+            mappingParticipant.setType(enumHelper.getEnum(value));
+            List<HypothesisBetweenParticipantMapping> mappingList = 
+                    new ArrayList<HypothesisBetweenParticipantMapping>();
+            mappingList.add(mappingParticipant);
+            hypothesis.setBetweenParticipantFactorMapList(mappingList);
+        }
+        
+        return hypothesis;
+    }
+	
+	
+	public BetweenParticipantFactor getBetweenParticipant()
 	{
 	    BetweenParticipantFactor participant = new BetweenParticipantFactor();
 	    
@@ -137,7 +186,7 @@ public class TrendHypothesisPanel extends Composite
 	    return participant;
 	}
 	
-	public RepeatedMeasuresNode getSelectedRepeatedMeasuresNode()
+	public RepeatedMeasuresNode getRepeatedMeasuresNode()
 	{
 	    RepeatedMeasuresNode node =
 	            new RepeatedMeasuresNode();
@@ -160,4 +209,5 @@ public class TrendHypothesisPanel extends Composite
 	    String selectedTrend = editTrendPanel.getSelectedTrend();
 	    return selectedTrend;
 	}
+	
 }

@@ -22,8 +22,6 @@
 
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -39,8 +37,8 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
-import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 /**
  * 
  * @author VIJAY AKULA
@@ -51,20 +49,22 @@ public class HypothesisPanel extends WizardStepPanel {
  // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     
+    StudyDesign studyDesign = new StudyDesign();
+    
 	DeckPanel deckPanel = new DeckPanel();
 	
 	/*DeckPanel editTrendDeckPanel = new DeckPanel();*/
 	
 	VerticalPanel verticalPanel = new VerticalPanel();
 	
-	MainEffectHypothesisPanel
-	mainEffectHypothesisPanelInstance = new MainEffectHypothesisPanel();
+	MainEffectHypothesisPanel mainEffectHypothesisPanelInstance =
+	        new MainEffectHypothesisPanel(studyDesign);
 	
-	InteractionHypothesisPanel
-	interactionHypothesisPanelInstance = new InteractionHypothesisPanel();
+	InteractionHypothesisPanel interactionHypothesisPanelInstance =
+	        new InteractionHypothesisPanel(studyDesign);
 	
 	TrendHypothesisPanel trendHypothesisPanelInstance =
-	        new TrendHypothesisPanel();
+	        new TrendHypothesisPanel(studyDesign);
 	
 	RadioButton mainEffectRadioButton = new RadioButton(
 	        "HypothesisRadioButtonGroup",
@@ -88,9 +88,6 @@ public class HypothesisPanel extends WizardStepPanel {
 		        GlimmpseWeb.constants.hypothesisPanelDescription());
 		HTML instructions = new HTML(
 		        GlimmpseWeb.constants.hypothesisPanelInstructions());
-		
-		
-		
 		
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
 		
@@ -190,59 +187,23 @@ public class HypothesisPanel extends WizardStepPanel {
     
     public void onExit()
     {
+        Hypothesis hypothesis = new Hypothesis();
         if(mainEffectRadioButton.isChecked())
         {
-            BetweenParticipantFactor betweenParticipantFactorList =
-                    mainEffectHypothesisPanelInstance
-                    .getBetweenParticipant();
-            
-            RepeatedMeasuresNode repeatedMeasuresNodeList =
-                    mainEffectHypothesisPanelInstance
-                    .getRepeatedMeasuresNode();
-            
-            studyDesignContext.setHypothesisMainEffectVariables(this,
-                    betweenParticipantFactorList, repeatedMeasuresNodeList);
+            hypothesis = mainEffectHypothesisPanelInstance.getHypothesis();
+            studyDesignContext.setHypothesisMainEffectVariables(this, hypothesis);
         }
         
         if(interactionRadioButton.isChecked())
         {
-            ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
-                    interactionHypothesisPanelInstance
-                    .getBetweenParticipantList();
-            
-            ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
-                    interactionHypothesisPanelInstance
-                    .getRepeatedMeasuresNodeList();
-            
-            ArrayList<String> participantSelectedTrendList =
-                    interactionHypothesisPanelInstance
-                    .getSelectedTrendListOfParticipants();
-            
-            ArrayList<String> nodeSelectedTrendList = 
-                    interactionHypothesisPanelInstance
-                    .getSelectedTrendListOfNodes();
-            
-            studyDesignContext.setHypothesisInteractionVariables(this, 
-                    betweenParticipantFactorList,
-                    participantSelectedTrendList,
-                    repeatedMeasuresNodeList,
-                    nodeSelectedTrendList);
+            hypothesis = interactionHypothesisPanelInstance.getHypothesis();
+            studyDesignContext.setHypothesisInteractionVariables(this, hypothesis);
         }
+        
         if(trendRadioButton.isChecked())
         {
-            BetweenParticipantFactor participant =
-                    trendHypothesisPanelInstance
-                    .getSelectedBetweenParticipantFactor();
-            
-            RepeatedMeasuresNode node =
-                    trendHypothesisPanelInstance
-                    .getSelectedRepeatedMeasuresNode();
-            
-            String selectedTrend =
-                    trendHypothesisPanelInstance
-                    .getSelectedTrend();
-            
-            studyDesignContext.setHypothesisTrendVariables(this, participant, node, selectedTrend);
+            hypothesis = trendHypothesisPanelInstance.getHypothesis(); 
+            studyDesignContext.setHypothesisTrendVariables(this, hypothesis);
         }
     }
 
