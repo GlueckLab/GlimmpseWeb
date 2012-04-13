@@ -362,11 +362,11 @@ public class ResizableMatrixPanel extends Composite
 	 * @param row cell's row index
 	 * @param column cell's column index
 	 */
-	public String getCellValue(int row, int column)
+	public double getCellValue(int row, int column)
 	{
-		String value;
+		Double value;
 		TextBox tb = (TextBox) matrixCellAndLabelTable.getWidget(row+1, column+1);
-		value = tb.getValue();
+		value = Double.parseDouble(tb.getValue());
 		return value;
 	}
 
