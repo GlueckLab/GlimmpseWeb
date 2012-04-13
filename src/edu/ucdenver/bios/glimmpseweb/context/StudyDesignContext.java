@@ -24,6 +24,7 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignC
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
@@ -39,6 +40,7 @@ import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
@@ -298,9 +300,11 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
-    
     /**
      * 
+     * @param panel
+     * @param label
+     * @param varibleList
      */
     public void setResponseVariables(WizardStepPanel panel, String label,
             List<String> varibleList)
@@ -310,142 +314,49 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.RESPONSES_LIST));
     }
-    
-    public void setHypothesisMainEffectVariables(WizardStepPanel panel,
-            ArrayList<BetweenParticipantFactor> participantList,
-            ArrayList<RepeatedMeasuresNode> nodeList)
+    /**
+     * Set hypothesis to perform Main Effect.
+     * @param panel panel the panel changing the relative group size list
+     * @param hypothesis
+     */
+    public void setHypothesisMainEffectVariables(WizardStepPanel panel, Hypothesis hypothesis )
     {
-        ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
-                participantList;
-        
-        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
-                nodeList;
-        
-        List<HypothesisBetweenParticipantMapping> participantMappingList =
-                new ArrayList<HypothesisBetweenParticipantMapping>();
-        for(int i = 0; i < betweenParticipantFactorList.size(); i++)
-        {
-            HypothesisBetweenParticipantMapping participant =
-                    new HypothesisBetweenParticipantMapping();
-            participant.setBetweenParticipantFactor(
-                    betweenParticipantFactorList.get(i));
-            participant.setType(null);
-            participantMappingList.add(participant);
-        }
-        List<HypothesisRepeatedMeasuresMapping> nodeMappingList =
-                new ArrayList<HypothesisRepeatedMeasuresMapping>();
-        for(int i = 0; i < repeatedMeasuresNodeList.size(); i++)
-        {
-            HypothesisRepeatedMeasuresMapping node =
-                    new HypothesisRepeatedMeasuresMapping();
-            node.setRepeatedMeasuresNode(repeatedMeasuresNodeList.get(i));
-            node.setType(null);
-            nodeMappingList.add(node);
-        }
-        Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
-        hypothesis.
-        setBetweenParticipantFactorMapList(participantMappingList);
-        hypothesis.setRepeatedMeasuresMapTree(nodeMappingList);
         Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
         hypothesisList.add(hypothesis);
         studyDesign.setHypothesis(hypothesisList);
     }
-    
-    public void setHypothesisInteractionVariables(WizardStepPanel panel,
-            ArrayList<BetweenParticipantFactor> participantList, ArrayList<String> participantSelectedTrend,
-            ArrayList<RepeatedMeasuresNode> nodeList, ArrayList<String> nodeSelectedTrendList)
+    /**
+     * Sets hypothesis to perform Interaction.
+     * @param panel
+     * @param hypothesis
+     */
+    public void setHypothesisInteractionVariables(WizardStepPanel panel, Hypothesis hypothesis)
     {
-        ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
-                participantList;
-        
-        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
-                nodeList;
-        
-        ArrayList<String> betweenParticipantSelectedTrendList =
-                participantSelectedTrend;
-        
-        ArrayList<String> repeatedMeasuresNodeSelectedTrendList =
-                nodeSelectedTrendList;
-        
-        
-        List<HypothesisBetweenParticipantMapping> participantMappingList =
-                new ArrayList<HypothesisBetweenParticipantMapping>();
-        for(int i = 0; i < betweenParticipantFactorList.size(); i++)
-        {
-            HypothesisBetweenParticipantMapping participant =
-                    new HypothesisBetweenParticipantMapping();
-            participant.setBetweenParticipantFactor(
-                    betweenParticipantFactorList.get(i));
-            participant.setType(null);
-            participantMappingList.add(participant);
-        }
-        
-        List<HypothesisRepeatedMeasuresMapping> nodeMappingList =
-                new ArrayList<HypothesisRepeatedMeasuresMapping>();
-        for(int i = 0; i < repeatedMeasuresNodeList.size(); i++)
-        {
-            HypothesisRepeatedMeasuresMapping node =
-                    new HypothesisRepeatedMeasuresMapping();
-            node.setRepeatedMeasuresNode(repeatedMeasuresNodeList.get(i));
-            node.setType(null);
-            nodeMappingList.add(node);
-        }
-        Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
-        hypothesis.
-        setBetweenParticipantFactorMapList(participantMappingList);
-        hypothesis.setRepeatedMeasuresMapTree(nodeMappingList);
         Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
         hypothesisList.add(hypothesis);
         studyDesign.setHypothesis(hypothesisList);
     }
-    
-    
+    /**
+     * Set Hypothesis to perform trend.
+     * @param panel
+     * @param hypothesis
+     */
     public void setHypothesisTrendVariables(WizardStepPanel panel,
-            BetweenParticipantFactor betweenParticipant,
-            RepeatedMeasuresNode repeatedNode, String trend)
+            Hypothesis hypothesis)
     {
-        ArrayList<BetweenParticipantFactor> betweenParticipantFactorList =
-                new ArrayList<BetweenParticipantFactor>();
-        betweenParticipantFactorList.add(betweenParticipant);
-        ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList =
-                new ArrayList<RepeatedMeasuresNode>();
-        repeatedMeasuresNodeList.add(repeatedNode);
-        
-        String selectedTrend = trend;
-        List<HypothesisBetweenParticipantMapping> participantMappingList =
-                new ArrayList<HypothesisBetweenParticipantMapping>();
-        for(int i = 0; i < betweenParticipantFactorList.size(); i++)
-        {
-            HypothesisBetweenParticipantMapping participant =
-                    new HypothesisBetweenParticipantMapping();
-            participant.setBetweenParticipantFactor(
-                    betweenParticipantFactorList.get(i));
-            participant.setType(null);
-            participantMappingList.add(participant);
-        }
-        
-        List<HypothesisRepeatedMeasuresMapping> nodeMappingList =
-                new ArrayList<HypothesisRepeatedMeasuresMapping>();
-        for(int i = 0; i < repeatedMeasuresNodeList.size(); i++)
-        {
-            HypothesisRepeatedMeasuresMapping node =
-                    new HypothesisRepeatedMeasuresMapping();
-            node.setRepeatedMeasuresNode(repeatedMeasuresNodeList.get(i));
-            node.setType(null);
-            nodeMappingList.add(node);
-        }
-        Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
-        hypothesis.
-        setBetweenParticipantFactorMapList(participantMappingList);
-        hypothesis.setRepeatedMeasuresMapTree(nodeMappingList);
         Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
         hypothesisList.add(hypothesis);
         studyDesign.setHypothesis(hypothesisList);
     }
-    
+    /**
+     * Set covariances from WithinSubjectCovarianceScreen
+     * @param panel
+     * @param covariance
+     */
+    public void setCovariance(WizardStepPanel panel, Covariance covariance)
+    {
+        
+    }
     /**
      * Checks if the study design is complete
      */
