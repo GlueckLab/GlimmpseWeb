@@ -14,8 +14,12 @@
   <!-- Other module inherits                                      -->
  <!--  xml -->
  <inherits name="com.google.gwt.xml.XML"/>
- <!-- Restlet connector to web services -->
- <inherits name="org.restlet.Restlet" /> 
+ <!-- JSON interface -->
+ <inherits name="com.google.gwt.json.JSON" />
+ <!-- Piriti library includes (JSON encoder/decoder) -->
+ <inherits name="name.pehl.piriti.json.JSON" />
+ <inherits name="com.google.gwt.inject.Inject"/> 
+ 
  <!-- visualization api -->
  <inherits name="com.google.gwt.visualization.Visualization"/>
  <!-- UC Denver Web Service Common api -->
@@ -25,6 +29,5 @@
 
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
-  <source path='server'/>
   <source path='context'/>
 </module>

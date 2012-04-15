@@ -1,23 +1,16 @@
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
-
-/*import org.restlet.client.resource.Result;*/
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dev.util.collect.HashSet;
 import com.google.gwt.visualization.client.DataTable;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.proxy.MatrixResourceProxy;
-import edu.ucdenver.bios.glimmpseweb.client.proxy.PowerResourceProxy;
-import edu.ucdenver.bios.glimmpseweb.client.proxy.StudyDesignResourceProxy;
+import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
@@ -26,12 +19,9 @@ import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
-import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
-import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
-import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
@@ -40,8 +30,6 @@ import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
-import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
-import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
@@ -54,48 +42,10 @@ public class StudyDesignContext extends WizardContext
 	// cache of all possible study groups
 	private DataTable participantGroups = null;
 	
-	/* connectors to the web service layer */
-	// power service connector
-	PowerResourceProxy powerResource = GWT.create(PowerResourceProxy.class);
-	
-	// matrix service connector
-	MatrixResourceProxy matrixResource = GWT.create(MatrixResourceProxy.class);
-	
-	// study design service connector
-	StudyDesignResourceProxy studyDesignResource = GWT.create(StudyDesignResourceProxy.class);
-	
-	// chart service connector
-	
-	
 	public StudyDesignContext()
 	{
 		studyDesign = new StudyDesign();
 	}
-
-	/**
-	 * Calculate sample size, power, or detectable difference via an
-	 * Ajax call to the power service
-	 * @return
-	 * @throws Exception
-	 */
-/*	public void calculateResults(Result<ArrayList<PowerResult>> powerResultList)
-	{
-	    powerResource.getClientResource().setReference(GlimmpseWeb.constants.powerSvcHostPower());
-	    switch(studyDesign.getSolutionTypeEnum()) {
-	    case POWER:
-	        // calculate power
-	        powerResource.getPower(studyDesign, powerResultList);
-	        break;
-	    case SAMPLE_SIZE:
-            // calculate power
-            powerResource.getSampleSize(studyDesign, powerResultList);
-	        break;
-	    case DETECTABLE_DIFFERENCE:
-	           // calculate power
-            powerResource.getPower(studyDesign, powerResultList);
-	        break;
-	    }
-	}*/
 	
 	public StudyDesign getStudyDesign()
 	{
@@ -321,9 +271,7 @@ public class StudyDesignContext extends WizardContext
      */
     public void setHypothesisMainEffectVariables(WizardStepPanel panel, Hypothesis hypothesis )
     {
-        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
-        hypothesisList.add(hypothesis);
-        studyDesign.setHypothesis(hypothesisList);
+//        studyDesign.addHypothesis(hypothesis);
     }
     /**
      * Sets hypothesis to perform Interaction.
@@ -332,9 +280,9 @@ public class StudyDesignContext extends WizardContext
      */
     public void setHypothesisInteractionVariables(WizardStepPanel panel, Hypothesis hypothesis)
     {
-        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
-        hypothesisList.add(hypothesis);
-        studyDesign.setHypothesis(hypothesisList);
+//        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
+//        hypothesisList.add(hypothesis);
+//        studyDesign.setHypothesis(hypothesisList);
     }
     /**
      * Set Hypothesis to perform trend.
@@ -344,9 +292,9 @@ public class StudyDesignContext extends WizardContext
     public void setHypothesisTrendVariables(WizardStepPanel panel,
             Hypothesis hypothesis)
     {
-        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
-        hypothesisList.add(hypothesis);
-        studyDesign.setHypothesis(hypothesisList);
+//        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
+//        hypothesisList.add(hypothesis);
+//        studyDesign.setHypothesis(hypothesisList);
     }
     /**
      * Set covariances from WithinSubjectCovarianceScreen

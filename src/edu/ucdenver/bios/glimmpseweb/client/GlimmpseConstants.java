@@ -154,7 +154,7 @@ public interface GlimmpseConstants extends Constants
     public static final String MATRIX_SIGMA_OUTCOME = "sigmaOutcome";
     public static final String MATRIX_SIGMA_OUTCOME_COVARIATE = "sigmaOutcomeGaussianRandom";
     public static final String MATRIX_SIGMA_COVARIATE = "sigmaGaussianRandom";
-    public static final String MATRIX_THETA = "theta";
+    public static final String MATRIX_THETA = "thetaNull";
     
     // test names
     public static final String TEST_UNIREP = "unirep";
@@ -532,6 +532,8 @@ public interface GlimmpseConstants extends Constants
     public String chartSvcHostLegend();
     public String powerSvcHostPower();
     public String powerSvcHostSampleSize();
+    public String powerSvcHostDetectableDifference();
+    public String powerSvcHostMatrices();
     public String fileSvcHostUpload();
     public String fileSvcHostSaveAs();
     

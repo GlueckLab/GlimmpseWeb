@@ -1,14 +1,20 @@
 package edu.ucdenver.bios.glimmpseweb.client.connector;
 
+import java.util.List;
+
 import name.pehl.piriti.json.client.JsonReader;
 import name.pehl.piriti.json.client.JsonWriter;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
+import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -81,10 +87,10 @@ public class DomainObjectSerializer {
     public static final BetweenParticipantFactorWriter betweenParticipantFactorWriter = GWT.create(BetweenParticipantFactorWriter.class);    
     
     // confidence intervals
-    public interface ConfidenceIntervalReader extends JsonReader<ConfidenceInterval> {}
-    public static final ConfidenceIntervalReader confidenceIntervalReader = GWT.create(ConfidenceIntervalReader.class);
-    public interface ConfidenceIntervalWriter extends JsonWriter<ConfidenceInterval> {}
-    public static final ConfidenceIntervalWriter confidenceIntervalWriter = GWT.create(ConfidenceIntervalWriter.class);    
+    public interface ConfidenceIntervalDescriptionReader extends JsonReader<ConfidenceIntervalDescription> {}
+    public static final ConfidenceIntervalDescriptionReader confidenceIntervalDescriptionReader = GWT.create(ConfidenceIntervalDescriptionReader.class);
+    public interface ConfidenceIntervalDescriptionWriter extends JsonWriter<ConfidenceInterval> {}
+    public static final ConfidenceIntervalDescriptionWriter confidenceIntervalDescriptionWriter = GWT.create(ConfidenceIntervalDescriptionWriter.class);    
     
     // power curve description
     public interface PowerCurveDescriptionReader extends JsonReader<PowerCurveDescription> {}
@@ -157,7 +163,15 @@ public class DomainObjectSerializer {
     public static final PowerResultReader powerResultReader = GWT.create(PowerResultReader.class);
     public interface PowerResultWriter extends JsonWriter<PowerResult> {}
     public static final PowerResultWriter powerResultWriter = GWT.create(PowerResultWriter.class);
-      
+    
+    // power result list
+    public interface PowerResultListReader extends JsonReader<PowerResultList> {}
+    public static final PowerResultListReader powerResultListReader = GWT.create(PowerResultListReader.class);
+    // confidence interval objects contained in power results
+    public interface ConfidenceIntervalReader extends JsonReader<ConfidenceInterval> {}
+    public static final ConfidenceIntervalReader confidenceIntervalReader = GWT.create(ConfidenceIntervalReader.class);
+    
+    
     /** 
      * The piriti library does not support multidimensional arrays.  Thus, we had to write 
      * our own extension for handling the Blob2DArray class.  
@@ -176,12 +190,14 @@ public class DomainObjectSerializer {
         return json;
     }
     
-
-    
-    
-    public PowerResultList powerResultListFromJSON(String jsonString) {
-        PowerResultList results = new PowerResultList();
-        
+    public List<PowerResult> powerResultListFromJSON(String jsonString) {
+        List<PowerResult> results = null;
+        try
+        {
+            JSONArray array = JSONParser.parseStrict(jsonString).isArray();
+            results = powerResultReader.readList(array);
+        } catch (Exception e) {
+        }
         return results;
     }
 }

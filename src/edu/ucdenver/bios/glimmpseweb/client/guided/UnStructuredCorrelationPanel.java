@@ -126,9 +126,9 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
 					catch (Exception e)
 					{
 						GWT.log(e.getMessage());
-						TextValidation.displayError(errorHTML,
-						        GlimmpseWeb.constants.
-						        unstructuredCorrelationStandardDeviationError());
+						TextValidation.displayError(errorHTML, "FIXME");
+//						        GlimmpseWeb.constants.
+//						        unstructuredCorrelationStandardDeviationError());
 					}
 				
 				}

@@ -21,12 +21,15 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.connector;
 
+import java.util.List;
+
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
+import com.google.gwt.user.client.Window;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.webservice.common.domain.PowerResultList;
+import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 
 public class PowerSvcConnector {
@@ -50,6 +53,7 @@ public class PowerSvcConnector {
     throws RequestException {
 
         String entity = serializer.toJSON(studyDesign);   
+        Window.alert(entity);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, GlimmpseWeb.constants.powerSvcHostPower());
 
         builder.setHeader("Content-Type", MEDIA_TYPE);
@@ -80,7 +84,7 @@ public class PowerSvcConnector {
      * @param entity JSON encoded entity body
      * @return PowerResultList
      */
-    public PowerResultList parsePowerResultList(String entity) {
+    public List<PowerResult> parsePowerResultList(String entity) {
         return serializer.powerResultListFromJSON(entity);
     }
     

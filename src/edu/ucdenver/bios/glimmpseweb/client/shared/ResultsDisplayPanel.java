@@ -22,8 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import java.util.ArrayList;
-
-import org.restlet.client.resource.Result;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -32,7 +31,11 @@ import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -55,12 +58,17 @@ import com.google.gwt.xml.client.XMLParser;
 import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
+import edu.ucdenver.bios.webservice.common.domain.PowerResultList;
+import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
+import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 
 /**
  * Final results display panel
@@ -69,34 +77,37 @@ import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
  */
 public class ResultsDisplayPanel extends WizardStepPanel
 {	
+    // columns associated with each quantity in the data table
+    private static final int COLUMN_ID_TEST = 0;
+    private static final int COLUMN_ID_ACTUAL_POWER = 1;
+    private static final int COLUMN_ID_TOTAL_SAMPLE_SIZE = 2;
+    private static final int COLUMN_ID_BETA_SCALE = 3;
+    private static final int COLUMN_ID_SIGMA_SCALE = 4;
+    private static final int COLUMN_ID_ALPHA = 5;
+    private static final int COLUMN_ID_NOMINAL_POWER = 6;
+    private static final int COLUMN_ID_POWER_METHOD = 7;
+    private static final int COLUMN_ID_QUANTILE = 8;
+    private static final int COLUMN_ID_CI_LOWER = 9;
+    private static final int COLUMN_ID_CI_UPPER = 10;
+    
+    private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
+    private static final String STYLE_SEPARATOR = "separator";
+    private static final int STATUS_CODE_OK = 200;
+    private static final int STATUS_CODE_CREATED = 201;
+    private static final String POWER_URL = "/webapps/power/power";
+    private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
+
+    private static final String CHART_INPUT_NAME = "chart";
+    private static final String SAVE_INPUT_NAME = "save";
+    private static final String FILENAME_INPUT_NAME = "filename";
+    private static final String SAVE_CSV_FILENAME = "powerResults.csv";
+    private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
+    
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     
-	// columns associated with each quantity in the data table
-	private static final int COLUMN_ID_TEST = 0;
-	private static final int COLUMN_ID_ACTUAL_POWER = 1;
-	private static final int COLUMN_ID_TOTAL_SAMPLE_SIZE = 2;
-	private static final int COLUMN_ID_BETA_SCALE = 3;
-	private static final int COLUMN_ID_SIGMA_SCALE = 4;
-	private static final int COLUMN_ID_ALPHA = 5;
-	private static final int COLUMN_ID_NOMINAL_POWER = 6;
-	private static final int COLUMN_ID_POWER_METHOD = 7;
-	private static final int COLUMN_ID_QUANTILE = 8;
-	private static final int COLUMN_ID_CI_LOWER = 9;
-	private static final int COLUMN_ID_CI_UPPER = 10;
-	
-	private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
-	private static final String STYLE_SEPARATOR = "separator";
-	private static final int STATUS_CODE_OK = 200;
-	private static final int STATUS_CODE_CREATED = 201;
-	private static final String POWER_URL = "/webapps/power/power";
-	private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
-
-	private static final String CHART_INPUT_NAME = "chart";
-	private static final String SAVE_INPUT_NAME = "save";
-	private static final String FILENAME_INPUT_NAME = "filename";
-	private static final String SAVE_CSV_FILENAME = "powerResults.csv";
-	private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
+    // connector to the power service
+    PowerSvcConnector powerSvcConnector = new PowerSvcConnector();
 
 	// wait dialog
 	protected DialogBox waitDialog;
@@ -359,138 +370,64 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		hideWorkingDialog();
 	}
 
-	private void showResults(String resultXML)
+	private void showResults(List<PowerResult> results)
 	{
-		try
-		{
-			// parse the returned XML
-			Document doc = XMLParser.parse(resultXML);
-			NodeList powerListTags = doc.getElementsByTagName("powerList");
-			if (powerListTags == null || powerListTags.getLength() != 1)
-				throw new IllegalArgumentException("No results returned");
-			NamedNodeMap attrList = powerListTags.item(0).getAttributes();
-			if (attrList == null)
-				throw new IllegalArgumentException("Invalid response from power server");
+	    for(PowerResult result: results) {
+            // add a blank row to the data table
+            int row = resultsData.addRow();
+            resultsData.setCell(row, COLUMN_ID_TEST, result.getTest().getType().toString(), 
+                    formatTestName(result.getTest()), null);
+            resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
+                    result.getActualPower(), doubleFormatter.format(result.getActualPower()), null);
+            resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
+                    result.getTotalSampleSize(), Integer.toString(result.getTotalSampleSize()), null);
+            resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
+                    result.getBetaScale().getValue(), doubleFormatter.format(result.getBetaScale().getValue()), null);
+            resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
+                    result.getSigmaScale().getValue(), doubleFormatter.format(result.getSigmaScale().getValue()), null);
+            resultsData.setCell(row, COLUMN_ID_ALPHA, 
+                    result.getAlpha().getAlphaValue(), doubleFormatter.format(result.getAlpha().getAlphaValue()), null);
+            resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
+                    result.getNominalPower().getValue(), 
+                    doubleFormatter.format(result.getNominalPower().getValue()), null);
+            resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
+                    result.getPowerMethod().getPowerMethodEnum().toString(), 
+                    formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()), null);
+            if (result.getQuantile() != null) {
+                resultsData.setCell(row, COLUMN_ID_QUANTILE, 
+                        result.getQuantile().getValue(), doubleFormatter.format(result.getQuantile().getValue()), null);
+            }
+            if (result.getConfidenceInterval() != null) {
+                ConfidenceInterval ci = result.getConfidenceInterval();
+                resultsData.setCell(row, COLUMN_ID_CI_LOWER, 
+                        ci.getLowerLimit(), 
+                        doubleFormatter.format(ci.getLowerLimit()), null);
+                resultsData.setCell(row, COLUMN_ID_CI_UPPER, 
+                        ci.getUpperLimit(), 
+                        doubleFormatter.format(ci.getUpperLimit()), null);
+            }
+	    }
+	    
+        resultsTable.draw(resultsData);
+        resultsTablePanel.setVisible(true);
+	    
+//		try
+//		{      	
+//
+//			if (chartRequestBuilder != null)
+//			{
+//				showCurveResults();
+//			}
+//			else
+//			{
+//				hideWorkingDialog();
+//			}
 
-			Node countAttr = attrList.getNamedItem("count");
-			if (countAttr == null)
-				throw new IllegalArgumentException("Invalid response from power server");
-
-			int count = Integer.parseInt(countAttr.getNodeValue());
-
-			// fill the google visualization data table
-			NodeList glmmPowerList = doc.getElementsByTagName("glmmPower");
-			for(int powerIdx = 0; powerIdx < count; powerIdx++)
-			{
-				Node glmmPower = glmmPowerList.item(powerIdx);
-				NamedNodeMap attrs = glmmPower.getAttributes();
-
-				// add a blank row to the data table
-				int row = resultsData.addRow();
-
-				Node testNode = attrs.getNamedItem("test");
-				if (testNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_TEST, testNode.getNodeValue(), 
-							formatTestName(testNode.getNodeValue()), null);
-				}
-
-				Node actualPowerNode = attrs.getNamedItem("actualPower");
-				if (actualPowerNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
-							Double.parseDouble(actualPowerNode.getNodeValue()), 
-							formatDouble(actualPowerNode.getNodeValue()), null);
-				}
-
-				Node sampleSizeNode = attrs.getNamedItem("sampleSize");
-				if (sampleSizeNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
-							Integer.parseInt(sampleSizeNode.getNodeValue()), 
-							sampleSizeNode.getNodeValue(), null);
-				}
-
-				Node betaScaleNode = attrs.getNamedItem("betaScale");
-				if (betaScaleNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
-							Double.parseDouble(betaScaleNode.getNodeValue()), 
-							betaScaleNode.getNodeValue(), null);
-				}
-
-				Node sigmaScaleNode = attrs.getNamedItem("sigmaScale");
-				if (sigmaScaleNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
-							Double.parseDouble(sigmaScaleNode.getNodeValue()), 
-							sigmaScaleNode.getNodeValue(), null);
-				}
-
-				Node alphaNode = attrs.getNamedItem("alpha");
-				if (alphaNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_ALPHA, 
-							Double.parseDouble(alphaNode.getNodeValue()), 
-							alphaNode.getNodeValue(), null);
-				}
-
-				Node nominalPowerNode = attrs.getNamedItem("nominalPower");
-				if (nominalPowerNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
-							Double.parseDouble(nominalPowerNode.getNodeValue()), 
-							formatDouble(nominalPowerNode.getNodeValue()), null);
-				} 
-
-				Node powerMethodNode = attrs.getNamedItem("powerMethod");
-				if (powerMethodNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
-							powerMethodNode.getNodeValue(), 
-							formatPowerMethodName(powerMethodNode.getNodeValue()), null);
-				}
-
-				Node quantileNode = attrs.getNamedItem("quantile");
-				if (quantileNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_QUANTILE, 
-							Double.parseDouble(quantileNode.getNodeValue()), 
-							quantileNode.getNodeValue(), null);
-				}
-				
-				Node ciLowerNode = attrs.getNamedItem("ciLower");
-				if (ciLowerNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_CI_LOWER, 
-							Double.parseDouble(ciLowerNode.getNodeValue()), 
-							formatDouble(ciLowerNode.getNodeValue()), null);
-				}
-				
-				Node ciUpperNode = attrs.getNamedItem("ciUpper");
-				if (ciUpperNode != null) 
-				{
-					resultsData.setCell(row, COLUMN_ID_CI_UPPER, 
-							Double.parseDouble(ciUpperNode.getNodeValue()), 
-							formatDouble(ciUpperNode.getNodeValue()), null);
-				}
-			}            	
-
-			if (chartRequestBuilder != null)
-			{
-				showCurveResults();
-			}
-			else
-			{
-				hideWorkingDialog();
-			}
-			resultsTable.draw(resultsData);
-			resultsTablePanel.setVisible(true);
-		}
-		catch (Exception e)
-		{
-			showError(e.getMessage());
-		}
+//		}
+//		catch (Exception e)
+//		{
+//			showError(e.getMessage());
+//		}
 	}
 
 	private void showCurveResults()
@@ -502,14 +439,14 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		legendImage.setUrl(chartRequestBuilder.buildLegendRequestURL());
 	}
 
-	private String formatPowerMethodName(String name)
+	private String formatPowerMethodName(PowerMethodEnum name)
 	{
-		return name; // TODO
+		return name.toString(); // TODO
 	}
 
-	private String formatTestName(String name)
+	private String formatTestName(StatisticalTest name)
 	{
-		return name; // TODO
+		return name.toString(); // TODO
 	}
 
 	private String formatDouble(String valueStr)
@@ -529,22 +466,35 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	{
 		showWorkingDialog();
 		StudyDesign studyDesign = studyDesignContext.getStudyDesign();
-		studyDesignContext.calculateResults(new Result<ArrayList<PowerResult>>() {
-		    public void onFailure(Throwable caught) {
-		        // Handle the error
-		        GWT.log("error: " + caught.getMessage());
-		    }
+		
+		try {
+		    powerSvcConnector.getPower(studyDesign, new RequestCallback() {
 
-		    public void onSuccess(ArrayList<PowerResult> powerResultList) {
-		        GWT.log("got #results=" + powerResultList.size());
-		    }
-		});
-		matrixDisplayPanel.loadFromStudyDesign(studyDesign);
-		hideWorkingDialog();
-		if (studyDesign.getPowerCurveDescriptions() != null)
-		{
-		    
+		        @Override
+		        public void onResponseReceived(Request request, Response response) {
+		            // TODO Auto-generated method stub
+		            hideWorkingDialog();
+		            List<PowerResult> results = powerSvcConnector.parsePowerResultList(response.getText());
+		            showResults(results);
+		        }
+
+		        @Override
+		        public void onError(Request request, Throwable exception) {
+		            // TODO Auto-generated method stub
+		            hideWorkingDialog();
+		        }
+		    });
+		} catch (Exception e) {
+
 		}
+
+
+//		matrixDisplayPanel.loadFromStudyDesign(studyDesign);
+//
+//		if (studyDesign.getPowerCurveDescriptions() != null)
+//		{
+//		    
+//		}
 	}
 	
 	/**
