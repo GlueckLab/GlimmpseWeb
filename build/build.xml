@@ -45,6 +45,17 @@
   		<fileset dir="${WebServiceCommon.dir}">
   			<include name="edu.ucdenver.bios.webservice.common-gwt-1.0.0.jar"/>
   		</fileset>
+  		<fileset dir="${thirdparty.dir}">
+  			<include name="gin/1.5/lib/gin-1.5-post-gwt-2.2.jar"/>
+  			<include name="gin/1.5/lib/guice-assistedinject-snapshot.jar"/>
+  			<include name="gin/1.5/lib/guice-snapshot.jar"/>
+  			<include name="gin/1.5/lib/aopalliance.jar"/>
+  			<include name="gin/1.5/lib/javax.inject.jar"/>
+			<include name="piriti/0.8/lib/piriti-dev-0.8.jar"/>
+			<include name="piriti/0.8/lib/piriti-user-0.8.jar"/>
+			<include name="totoe/0.4/lib/totoe-0.4.jar"/>
+			<include name="velocity/2.0/lib/velocity-1.6.2.jar"/>
+  		</fileset>
   	</path>
 	
 	<!--For checkstyle -->
