@@ -7,6 +7,14 @@
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="lib" path="/WebServiceCommon/build/bin/edu.ucdenver.bios.webservice.common-gwt-1.0.0.jar"/>
-	<classpathentry kind="lib" path="/thirdparty/restlet-gwt/2.0.11/lib/org.restlet.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/piriti-dev-0.8.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/piriti-user-0.8.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/gin/1.5/lib/gin-1.5-post-gwt-2.2.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/gin/1.5/lib/guice-assistedinject-snapshot.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/gin/1.5/lib/guice-snapshot.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/gin/1.5/lib/javax.inject.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/totoe/0.4/lib/totoe-0.4.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/velocity/2.0/lib/velocity-1.6.2.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/gin/1.5/lib/aopalliance.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
