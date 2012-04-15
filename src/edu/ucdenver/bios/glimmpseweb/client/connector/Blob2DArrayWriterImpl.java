@@ -33,6 +33,9 @@ implements Blob2DArrayWriter
         int rows = data.length;
         int columns = data[0].length;
         for(int r = 0; r < rows; r++) {
+            if (r > 0) {
+                buffer.append(",");
+            }
             buffer.append("[");
             for(int c = 0; c < columns; c++) {
                 if (c > 0) {
@@ -41,6 +44,7 @@ implements Blob2DArrayWriter
                 buffer.append(data[r][c]);
             }
             buffer.append("]");
+
         }
         buffer.append("]}");
         return buffer.toString();
