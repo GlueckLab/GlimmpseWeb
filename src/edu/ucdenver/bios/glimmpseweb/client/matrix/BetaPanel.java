@@ -141,7 +141,11 @@ public class BetaPanel extends WizardStepPanel
     @Override
     public void onExit()
     {
+        NamedMatrix betaRandomNamedMatrix = null;
+        if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
+            betaRandomNamedMatrix = betaRandom.toNamedMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM);
+        }
     	studyDesignContext.setBeta(this, betaFixed.toNamedMatrix(GlimmpseConstants.MATRIX_BETA),
-    					betaRandom.toNamedMatrix(GlimmpseConstants.MATRIX_BETA_RANDOM));
+    	        betaRandomNamedMatrix);
     }
 }

@@ -108,6 +108,9 @@ public class ThetaNullPanel extends WizardStepPanel
     		thetaNull.setColumnDimension(withinContrastColumns);
     		break;
     	case BETWEEN_CONTRAST_MATRIX:
+            int betweenContrastRows = 
+                studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST).getRows();
+            thetaNull.setRowDimension(betweenContrastRows);
     		break;
     	}
 	}
