@@ -442,22 +442,30 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		
 		// send an ajax request to calculate power
 		try {
-		    powerSvcConnector.getPower(studyDesign, new RequestCallback() {
+		    RequestCallback callback = new RequestCallback() {
 
-		        @Override
-		        public void onResponseReceived(Request request, Response response) {
-		            // TODO Auto-generated method stub
-		            hideWorkingDialog();
-		            List<PowerResult> results = powerSvcConnector.parsePowerResultList(response.getText());
-		            showResults(results);
-		        }
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    // TODO Auto-generated method stub
+                    hideWorkingDialog();
+                    List<PowerResult> results = powerSvcConnector.parsePowerResultList(response.getText());
+                    showResults(results);
+                }
 
-		        @Override
-		        public void onError(Request request, Throwable exception) {
-		            // TODO Auto-generated method stub
-		            hideWorkingDialog();
-		        }
-		    });
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    // TODO Auto-generated method stub
+                    hideWorkingDialog();
+                }
+            };
+            switch(studyDesign.getSolutionTypeEnum()) {
+            case POWER:
+                powerSvcConnector.getPower(studyDesign, callback);
+                break;
+            case SAMPLE_SIZE:
+                powerSvcConnector.getSampleSize(studyDesign, callback);
+                break;
+            }
 		} catch (Exception e) {
 
 		}
