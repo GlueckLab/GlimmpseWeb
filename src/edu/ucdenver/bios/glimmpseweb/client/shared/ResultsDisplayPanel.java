@@ -21,10 +21,8 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ErrorEvent;
@@ -35,9 +33,9 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -49,23 +47,17 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.NamedNodeMap;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 
 import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
-import edu.ucdenver.bios.webservice.common.domain.PowerResultList;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
@@ -167,7 +159,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		buildErrorPanel();
 		buildCurvePanel();
 		buildTablePanel();
-		buildMatrixPopup();
 		
 		// layout the panel
 		panel.add(errorPanel);
@@ -185,20 +176,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	{
 		errorPanel.add(errorHTML);
 		errorPanel.setVisible(false);
-	}
-	
-	private void buildMatrixPopup()
-	{
-		VerticalPanel panel = new VerticalPanel();
-		panel.add(matrixDisplayPanel);
-		panel.add(new Button("Close", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				matrixPopup.hide();
-			}
-		}));
-		matrixPopup.add(panel);
 	}
 	
 	private void buildCurvePanel()
@@ -266,22 +243,17 @@ public class ResultsDisplayPanel extends WizardStepPanel
     	
 		// tools for saving the results as csv and viewing as a matrix
     	HorizontalPanel panel = new HorizontalPanel();
-    	Button saveButton = new Button("foo", new ClickHandler() {
+    	Button saveButton = new Button("save to csv", new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event)
 			{
 				saveTableData();
 			}
     	});
-    	Button viewMatrixButton = new Button("bar", new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				matrixPopup.center();
-			}
-    	});
+    	DisclosurePanel viewMatricesPanel = new DisclosurePanel("View matrices for this study design");
+    	viewMatricesPanel.add(matrixDisplayPanel);
     	panel.add(saveButton);
-    	panel.add(viewMatrixButton);
+    	panel.add(viewMatricesPanel);
     	// layout the sub panel
     	resultsTablePanel.add(header);
     	resultsTablePanel.add(description);
@@ -290,7 +262,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
         // set style
 		saveButton.setStyleName(STYLE_RESULT_BUTTON);
 		saveButton.addStyleDependentName(STYLE_SEPARATOR);
-		viewMatrixButton.setStyleName(STYLE_RESULT_BUTTON);
+//		viewMatrixButton.setStyleName(STYLE_RESULT_BUTTON);
 		resultsTablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 		resultsTablePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -375,6 +347,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	    for(PowerResult result: results) {
             // add a blank row to the data table
             int row = resultsData.addRow();
+            // fill in the columns from the power result
             resultsData.setCell(row, COLUMN_ID_TEST, result.getTest().getType().toString(), 
                     formatTestName(result.getTest()), null);
             resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
@@ -446,7 +419,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 	private String formatTestName(StatisticalTest name)
 	{
-		return name.toString(); // TODO
+		return name.getType().toString(); // TODO
 	}
 
 	private String formatDouble(String valueStr)
@@ -467,6 +440,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		showWorkingDialog();
 		StudyDesign studyDesign = studyDesignContext.getStudyDesign();
 		
+		// send an ajax request to calculate power
 		try {
 		    powerSvcConnector.getPower(studyDesign, new RequestCallback() {
 
@@ -488,13 +462,25 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 		}
 
+		// send a second request to get the matrices associated with the study design
+        try {
+            powerSvcConnector.getMatrices(studyDesign, new RequestCallback() {
 
-//		matrixDisplayPanel.loadFromStudyDesign(studyDesign);
-//
-//		if (studyDesign.getPowerCurveDescriptions() != null)
-//		{
-//		    
-//		}
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    List<NamedMatrix> matrixList = powerSvcConnector.parseMatrixList(response.getText());
+                    matrixDisplayPanel.loadFromMatrixList(matrixList);
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    // TODO Auto-generated method stub
+                }
+            });
+        } catch (Exception e) {
+
+        }
+
 	}
 	
 	/**

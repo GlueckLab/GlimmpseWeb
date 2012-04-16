@@ -29,6 +29,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.user.client.Window;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 
@@ -80,12 +81,37 @@ public class PowerSvcConnector {
     }  
     
     /**
+     * Send a request to the power service to calculate power
+     * @param studyDesign The study design object
+     * @param callback handler for AJAX request to power service
+     */
+    public void getMatrices(StudyDesign studyDesign, RequestCallback callback) 
+    throws RequestException {
+
+        String entity = serializer.toJSON(studyDesign);   
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, GlimmpseWeb.constants.powerSvcHostMatrices());
+
+        builder.setHeader("Content-Type", MEDIA_TYPE);
+        builder.setHeader("Accept", MEDIA_TYPE);
+        builder.sendRequest(entity, callback);
+    }  
+    
+    /**
      * Parse an entity body into a power result list
      * @param entity JSON encoded entity body
-     * @return PowerResultList
+     * @return list of PowerResult objects
      */
     public List<PowerResult> parsePowerResultList(String entity) {
         return serializer.powerResultListFromJSON(entity);
+    }
+    
+    /**
+     * Parse an entity body into a list of power matrices
+     * @param entity JSON encoded entity body
+     * @return NamedMatrix list
+     */
+    public List<NamedMatrix> parseMatrixList(String entity) {
+        return serializer.matrixListFromJSON(entity);
     }
     
     

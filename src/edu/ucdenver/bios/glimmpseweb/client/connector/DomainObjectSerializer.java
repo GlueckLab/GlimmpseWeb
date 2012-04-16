@@ -181,21 +181,49 @@ public class DomainObjectSerializer {
     public static final Blob2DArrayWriter blob2DArrayWriter = new Blob2DArrayWriterImpl();    
     
 
-    
+    /**
+     * Constructor
+     */
     public DomainObjectSerializer() {}
     
+    /**
+     * Convert a study design to JSON
+     * @param design the study design object
+     * @return JSON encoded string
+     */
     public String toJSON(StudyDesign design) {
         
         String json = studyDesignWriter.toJson(design);
         return json;
     }
     
+    /**
+     * Parse a list of power results from a JSON string
+     * @param jsonString entity body of HTTP request
+     * @return list of power results
+     */
     public List<PowerResult> powerResultListFromJSON(String jsonString) {
         List<PowerResult> results = null;
         try
         {
             JSONArray array = JSONParser.parseStrict(jsonString).isArray();
             results = powerResultReader.readList(array);
+        } catch (Exception e) {
+        }
+        return results;
+    }
+    
+    /**
+     * Parse a matrix list from a JSON string
+     * @param jsonString entity body of HTTP request
+     * @return list of matrices
+     */
+    public List<NamedMatrix> matrixListFromJSON(String jsonString) {
+        List<NamedMatrix> results = null;
+        try
+        {
+            JSONArray array = JSONParser.parseStrict(jsonString).isArray();
+            results = namedMatrixReader.readList(array);
         } catch (Exception e) {
         }
         return results;
