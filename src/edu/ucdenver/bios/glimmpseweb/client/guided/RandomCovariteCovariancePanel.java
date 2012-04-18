@@ -1,3 +1,24 @@
+/*
+ * User Interface for the GLIMMPSE Software System.  Processes
+ * incoming HTTP requests for power, sample size, and detectable
+ * difference
+ * 
+ * Copyright (C) 2011 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -21,9 +42,15 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.Covariance;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
-
+/**
+ * 
+ * @author VIJAY AKULA
+ *
+ */
 public class RandomCovariteCovariancePanel extends WizardStepPanel
 {
 	// context object
@@ -37,6 +64,9 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
     
     boolean CHECKBOXVALUE;
     
+    TextBox textBox = new TextBox();
+    
+    List<RepeatedMeasuresNode> repeatedMeasuresNodeList= new ArrayList<RepeatedMeasuresNode>();
     //this is the List of List of Strings to keep track of
     //all the repeated nodes objects label list
     List<List<String>> dataList = new ArrayList<List<String>>();
@@ -68,8 +98,22 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 
 		HTML label = new HTML("Covarite");
 		
-		TextBox textBox = new TextBox();
 		
+		textBox.addChangeHandler(new ChangeHandler(){ 
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                TextBox tb = (TextBox)event.getSource();
+                try
+                {
+                    String value = tb.getValue();
+                }
+                catch (Exception e)
+                {
+                    
+                }
+            }
+        });
 		
 		horizontalPanel.add(label);
 		horizontalPanel.add(textBox);
@@ -118,7 +162,7 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 	public void constructFlexTable()
 	{
 		
-		List<RepeatedMeasuresNode> repeatedMeasuresNodeList= new ArrayList<RepeatedMeasuresNode>();
+		
 		
 		//getting repeated measures tree form a study design
 		repeatedMeasuresNodeList = studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
@@ -234,8 +278,8 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 					}
 					catch(Exception e)
 					{
-						TextValidation.displayError(errorHtml, "The correlation value should be between -1, 1 and should not contain any special symbols");
-						TextValidation.displayError(errorHTML, "The correlation value should be between -1, 1 and should not contain any special symbols");
+						TextValidation.displayError(errorHtml, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+						TextValidation.displayError(errorHTML, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
 					}	
 				}
 			});
@@ -278,8 +322,8 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 					}
 					catch(Exception e)
 					{
-						TextValidation.displayError(errorHtml, "The correlation value should be between -1, 1 and should not contain any special symbols");
-						TextValidation.displayError(errorHTML, "The correlation value should be between -1, 1 and should not contain any special symbols");
+						TextValidation.displayError(errorHtml, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+						TextValidation.displayError(errorHTML, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
 					}
 					
 				}
@@ -294,4 +338,30 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 			}
 		}
 	}
+	
+	public  void onExit() 
+	{
+	    double[][] covariteMatrixData = new double[1][1];
+        covariteMatrixData[1][1] = Double.parseDouble(textBox.getValue());
+        NamedMatrix sigmaCovariate = new NamedMatrix();
+        sigmaCovariate.setColumns(1);
+        sigmaCovariate.setRows(1);
+        sigmaCovariate.setDataFromArray(covariteMatrixData);
+        sigmaCovariate.setName(GlimmpseWeb.constants.MATRIX_SIGMA_COVARIATE);
+        studyDesignContext.setSigmaCovariate(this, sigmaCovariate);
+        
+        double[][] sigmaYGMatrixData = new double[flexTableRows][1];
+        int column = repeatedMeasuresNodeList.size()+1;
+        for(int t = 0; t < flexTableRows; t++)
+        {
+            TextBox tb = (TextBox) flexTable.getWidget(flexTableRows+1, column);
+            sigmaYGMatrixData [flexTableRows][1] = Double.parseDouble(tb.getValue());
+        }
+        NamedMatrix sigmaYG = new NamedMatrix();
+        sigmaYG.setColumns(1);
+        sigmaYG.setRows(flexTableRows-1);
+        sigmaYG.setDataFromArray(sigmaYGMatrixData);
+        sigmaYG.setName(GlimmpseWeb.constants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+        studyDesignContext.setSigmaOutcomesCovariate(this, sigmaYG);
+    }
 }
