@@ -646,6 +646,7 @@ public interface GlimmpseConstants extends Constants
      
      public String unstructuredCorrelationEnterExpectedStandardDeviation();
      public String unstructuredCorrelationEnterExpectedCorrelation();
+     public String unstructuredCorrelationStandardDeviationError();
      
      //unstructured covariance panel
      public String unstructuredCovarianceInstructions();
@@ -665,5 +666,7 @@ public interface GlimmpseConstants extends Constants
      public String randomCovariateCovarianceEnterStandardDeviationExpectedInstruction();
      public String randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction();
      public String randomCovariateCovarianceCheckBoxLabel();
+     public String randomCovariateCovarianceCorrelationValueError();
+     public String randomCovariateCovarianceCovariateValueError();
      
 }
