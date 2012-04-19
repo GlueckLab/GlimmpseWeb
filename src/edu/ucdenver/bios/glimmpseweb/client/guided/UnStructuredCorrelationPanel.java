@@ -46,8 +46,8 @@ import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
  *
  */
 public class UnStructuredCorrelationPanel extends Composite implements CovarianceBuilder
-{
-	//Grid to construct the Standard Deviation Entry Text boxes
+{    
+    //Grid to construct the Standard Deviation Entry Text boxes
 	FlexTable standardDeviationFlexTable = new FlexTable();	
 	
 //	//Object Initilization for Repeated Measures Node
