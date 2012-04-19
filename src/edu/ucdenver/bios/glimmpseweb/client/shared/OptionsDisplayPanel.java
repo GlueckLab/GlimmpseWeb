@@ -43,8 +43,14 @@ import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder.StratificationTy
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.SampleSizeList;
+import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 
 /**
  * Panel which allows user to select display options
@@ -56,9 +62,11 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
  *
  */
 public class OptionsDisplayPanel extends WizardStepPanel
-implements ClickHandler
+implements ClickHandler, WizardContextListener
 {
-	// constants for xml parsing
+ // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    // constants for xml parsing
 	private static final String ATTR_VALUE_TOTAL_N = "totalN";
 	private static final String ATTR_VALUE_BETA_SCALE = "betaScale";
 	private static final String ATTR_VALUE_SIGMA_SCALE = "sigmaScale";
@@ -520,6 +528,64 @@ implements ClickHandler
 			int totalN = perGroupSize * totalSampleSizeMultiplier;
 			totalNListBox.addItem(Integer.toString(totalN));
 		}
+	}
+	
+	@Override
+	public void onWizardContextChange(WizardContextChangeEvent e)
+	{
+	    StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+	    switch(changeEvent.getType())
+	    {
+	    case PER_GROUP_N_LIST:
+	        List<Integer> sampleSizeList = studyDesignContext.getStudyDesign().getSampleSizeListValues();
+	        int sampleSizeListSize = sampleSizeList.size();
+	        totalNListBox.clear();
+	        for(int i = 0; i < sampleSizeListSize; i++)
+	        {
+	            totalNListBox.addItem(sampleSizeList.get(i).toString());
+	        }
+	        break;
+	        
+	    case BETA_SCALE_LIST:
+	        List<Double> betaScaleList = studyDesignContext.getStudyDesign().getBetaScaleListValues();
+	        int betaScaleListSize = betaScaleList.size();
+	        betaScaleListBox.clear();
+	        for(int i = 0; i < betaScaleListSize; i++)
+	        {
+	            betaScaleListBox.addItem(betaScaleList.get(i).toString());
+	        }
+	        break;
+	        
+	    case SIGMA_SCALE_LIST:
+	        List<Double> sigmaScaleList = studyDesignContext.getStudyDesign().getSigmaScaleListValues();
+	        int sigmaScaleListSize = sigmaScaleList.size();
+	        sigmaScaleListBox.clear();
+	        for(int i = 0; i < sigmaScaleListSize; i++)
+	        {
+	            sigmaScaleListBox.addItem(sigmaScaleList.get(i).toString());
+	        }
+	        break;
+	        
+	    case STATISTICAL_TEST_LIST:
+	        List<StatisticalTestTypeEnum> testList = studyDesignContext.getStudyDesign().getStatisticalTestListValues();
+	        int testListSize = testList.size();
+	        testListBox.clear();
+	        for(int i = 0; i < testListSize; i++)
+	        {
+	            testListBox.addItem(testList.get(i).toString());
+	        }
+	        break;
+	        
+	    case ALPHA_LIST:
+	        List<Double> alphaList = studyDesignContext.getStudyDesign().getAlphaListValues();
+	        int alphaListSize = alphaList.size();
+	        alphaListBox.clear();
+	        for(int i = 0; i < alphaListSize; i++)
+	        {
+	            alphaListBox.addItem(alphaList.get(i).toString());
+	        }
+	        break;
+	    }
 	}
 
 }
