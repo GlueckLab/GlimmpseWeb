@@ -57,7 +57,7 @@ public class TrendHypothesisPanel extends Composite
     List<RepeatedMeasuresNode> repeatedMeasuresNodes = new ArrayList<RepeatedMeasuresNode>();
     List<String> withinParticipantFactorDataList = new ArrayList<String>();
     
-    EditTrendPanel editTrendPanel = new EditTrendPanel(false);
+    EditTrendPanel editTrendPanel = new EditTrendPanel();
 	
 	public TrendHypothesisPanel(StudyDesign studyDesign)
 	{
