@@ -70,8 +70,8 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
     //all the repeated nodes objects label list
     List<List<String>> dataList = new ArrayList<List<String>>();
     
-    HTML errorHtml = new HTML();
-    HTML errorHTML = new HTML();
+    HTML errorHTMLUP = new HTML();
+    HTML errorHTMLDOWN = new HTML();
     
     
 	@SuppressWarnings("deprecation")
@@ -105,11 +105,18 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
                 TextBox tb = (TextBox)event.getSource();
                 try
                 {
+                    
                     String value = tb.getValue();
+                    double d = TextValidation.parseDouble(value);
+                    TextValidation.displayOkay(errorHTMLUP, "");
+                    TextValidation.displayOkay(errorHTMLDOWN, "");
                 }
                 catch (Exception e)
                 {
-                    
+                    TextValidation.displayError(errorHTMLUP,
+                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
+                    TextValidation.displayError(errorHTMLDOWN,
+                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
                 }
             }
         });
@@ -145,9 +152,9 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 		verticalPanel.add(horizontalPanel);
 		verticalPanel.add(enterCorrelationYouExpectToObserveInstruction);
 		verticalPanel.add(sampleCorrelationCheckBox);
-		verticalPanel.add(errorHtml);
+		verticalPanel.add(errorHTMLUP);
 		verticalPanel.add(hp);
-		verticalPanel.add(errorHTML);
+		verticalPanel.add(errorHTMLDOWN);
 		initWidget(verticalPanel);
 
 	}
@@ -160,9 +167,6 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 	
 	public void constructFlexTable()
 	{
-		
-		
-		
 		//getting repeated measures tree form a study design
 		repeatedMeasuresNodeList = studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
 		
@@ -271,14 +275,14 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 						String value = correlationTextBox.getValue();
 						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
 						correlationTextBox.setValue(""+d);
-						TextValidation.displayOkay(errorHtml, "");
-						TextValidation.displayOkay(errorHTML, "");
+						TextValidation.displayOkay(errorHTMLUP, "");
+						TextValidation.displayOkay(errorHTMLDOWN, "");
 						
 					}
 					catch(Exception e)
 					{
-						TextValidation.displayError(errorHtml, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-						TextValidation.displayError(errorHTML, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
 					}	
 				}
 			});
@@ -311,8 +315,8 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 						String value = t.getValue();
 						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
 						t.setValue(""+d);
-						TextValidation.displayOkay(errorHtml, "");
-						TextValidation.displayOkay(errorHTML, "");
+						TextValidation.displayOkay(errorHTMLUP, "");
+						TextValidation.displayOkay(errorHTMLDOWN, "");
 						for(int i = 2; i <= flexTableRows; i ++)
 						{
 							TextBox correlationTb = (TextBox)flexTable.getWidget(i, dataList.size());
@@ -321,8 +325,8 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
 					}
 					catch(Exception e)
 					{
-						TextValidation.displayError(errorHtml, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-						TextValidation.displayError(errorHTML, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
 					}
 					
 				}
