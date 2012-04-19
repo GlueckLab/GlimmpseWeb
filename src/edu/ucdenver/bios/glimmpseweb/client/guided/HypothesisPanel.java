@@ -191,20 +191,19 @@ public class HypothesisPanel extends WizardStepPanel {
         if(mainEffectRadioButton.isChecked())
         {
             hypothesis = mainEffectHypothesisPanelInstance.getHypothesis();
-            studyDesignContext.setHypothesisMainEffectVariables(this, hypothesis);
         }
         
         if(interactionRadioButton.isChecked())
         {
             hypothesis = interactionHypothesisPanelInstance.getHypothesis();
-            studyDesignContext.setHypothesisInteractionVariables(this, hypothesis);
         }
         
         if(trendRadioButton.isChecked())
         {
             hypothesis = trendHypothesisPanelInstance.getHypothesis(); 
-            studyDesignContext.setHypothesisTrendVariables(this, hypothesis);
         }
+        
+        studyDesignContext.setHypothesis(this, hypothesis);
     }
 
 }
