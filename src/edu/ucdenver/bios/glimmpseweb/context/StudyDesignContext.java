@@ -195,13 +195,6 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.THETA_NULL_MATRIX));
 	}
 
-	/**
-	 * Store clustering information to the local context and the study design service, and
-	 * notify all wizard panels of the change.
-	 * 
-	 * @param panel the panel which initiated the change
-	 * @param clusteringNodeList the updated list of clustering nodes.
-	 */
 	public void setClustering(WizardStepPanel panel, ArrayList<ClusterNode> clusteringNodeList)
 	{
 		studyDesign.setClusteringTree(clusteringNodeList);
@@ -209,13 +202,6 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.CLUSTERING));
 	}
 	
-	/**
-	 * Store repeated measures information to the local context and the study design service, 
-	 * and notify all wizard panels of the change.
-	 * 
-	 * @param panel the panel which initiated the change
-	 * @param clusteringNodeList the updated list of clustering nodes.
-	 */
     public void setRepeatedMeasures(WizardStepPanel panel, 
             ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList)
     {
@@ -224,11 +210,6 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.REPEATED_MEASURES));
     }
 	
-	/**
-	 * Set the between participant factor list
-	 * @param panel the panel changing the between participant factor list
-	 * @param factorList the list of between participant factors
-	 */
 	public void setBetweenParticipantFactorList(WizardStepPanel panel, 
 			List<BetweenParticipantFactor> factorList, DataTable participantGroups)
 	{
@@ -238,11 +219,6 @@ public class StudyDesignContext extends WizardContext
 				StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
 	}
 	
-	   /**
-     * Set the relative group size list.
-     * @param panel the panel changing the relative group size list
-     * @param relativeGroupSizeList the list of relative group sizes
-     */
     public void setRelativeGroupSizeList(WizardStepPanel panel, 
             List<RelativeGroupSize> relativeGroupSizeList)
     {
@@ -250,12 +226,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
-    /**
-     * 
-     * @param panel
-     * @param label
-     * @param varibleList
-     */
+    
     public void setResponseVariables(WizardStepPanel panel, String label,
             List<String> varibleList)
     {
@@ -264,46 +235,31 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.RESPONSES_LIST));
     }
-    /**
-     * Set hypothesis to perform Main Effect.
-     * @param panel panel the panel changing the relative group size list
-     * @param hypothesis
-     */
+    
+    /*
     public void setHypothesisMainEffectVariables(WizardStepPanel panel, Hypothesis hypothesis )
     {
-//        studyDesign.addHypothesis(hypothesis);
+        studyDesign.setHypothesisToSet(hypothesis);
     }
-    /**
-     * Sets hypothesis to perform Interaction.
-     * @param panel
-     * @param hypothesis
-     */
     public void setHypothesisInteractionVariables(WizardStepPanel panel, Hypothesis hypothesis)
     {
-//        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
-//        hypothesisList.add(hypothesis);
-//        studyDesign.setHypothesis(hypothesisList);
+        studyDesign.setHypothesisToSet(hypothesis);
     }
-    /**
-     * Set Hypothesis to perform trend.
-     * @param panel
-     * @param hypothesis
-     */
     public void setHypothesisTrendVariables(WizardStepPanel panel,
             Hypothesis hypothesis)
     {
-//        Set<Hypothesis> hypothesisList = new HashSet<Hypothesis>();
-//        hypothesisList.add(hypothesis);
-//        studyDesign.setHypothesis(hypothesisList);
+        studyDesign.setHypothesisToSet(hypothesis);
+    }*/
+    
+    public void setHypothesis(WizardStepPanel panel,
+            Hypothesis hypothesis)
+    {
+        studyDesign.setHypothesisToSet(hypothesis);
     }
-    /**
-     * Set covariances from WithinSubjectCovarianceScreen
-     * @param panel
-     * @param covariance
-     */
+
     public void setCovariance(WizardStepPanel panel, Covariance covariance)
     {
-        
+        studyDesign.addCovariance(covariance);
     }
     /**
      * Checks if the study design is complete
