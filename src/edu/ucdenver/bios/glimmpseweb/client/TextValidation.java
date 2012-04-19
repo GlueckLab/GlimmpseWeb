@@ -23,9 +23,6 @@ package edu.ucdenver.bios.glimmpseweb.client;
 
 
 import java.text.ParseException;
-import java.text.StringCharacterIterator;
-
-import org.apache.regexp.CharacterIterator;
 
 import com.google.gwt.user.client.ui.HTML;
 
