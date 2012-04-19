@@ -42,7 +42,6 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
