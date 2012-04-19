@@ -23,6 +23,8 @@
 
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -30,6 +32,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -50,6 +53,9 @@ public class ResponsesPanel extends WizardStepPanel {
 	/**
 	 * Constructor for the class Response Panel
 	 */
+	
+	HTML error = new HTML();
+	
 	public ResponsesPanel(WizardContext context)
 	{
 		super(context, "Responses");
@@ -75,7 +81,24 @@ public class ResponsesPanel extends WizardStepPanel {
 						changeState(WizardStepPanelState.INCOMPLETE);
 				}
 			});
-
+		textbox.addChangeHandler(new ChangeHandler() 
+		{    
+            @Override
+            public void onChange(ChangeEvent event) 
+            {
+                TextBox tb = (TextBox)event.getSource();
+                try
+                {
+                   String value = tb.getValue();
+                   TextValidation.parseString(value);
+                   TextValidation.displayOkay(error, "");
+                }
+                catch (Exception e)
+                {
+                    TextValidation.displayError(error, GlimmpseWeb.constants.invalidString()+ e);
+                }
+            }
+        });
 		//layout horizontal panel
 		hp.setWidth("56%");
 		hp.add(prefix);
@@ -86,6 +109,7 @@ public class ResponsesPanel extends WizardStepPanel {
 		panel.add(header);
 		panel.add(description);
 		panel.add(hp);
+		panel.add(error);
 		panel.add(instructions);
 		panel.add(responsesPanel);
 
