@@ -43,16 +43,11 @@ public class EditTrendPanel extends Composite
 	
 	Grid grid = new Grid(6,2);
 	
-	public EditTrendPanel(boolean NO_TREND_DISPLAY_FLAG)
+	public EditTrendPanel()
 	{
-		
+		noTrendTestRadioButton.setChecked(true);
+	    
 		VerticalPanel verticalPanel = new VerticalPanel();
-		
-		
-		//Creating Radio Buttons
-				
-		noTrendTestRadioButton.setVisible(false);
-		
 		
 		//Creating Image Widget
 		Image changeFromBaseLineImage = new Image(
@@ -83,15 +78,6 @@ public class EditTrendPanel extends Composite
 		grid.setWidget(4, 1, qudraticTrendOnlyImage);
 		grid.setWidget(5, 1, cubicTrendOnlyImage);
 		
-		if(NO_TREND_DISPLAY_FLAG == true)
-		{
-			noTrendTestRadioButton.setVisible(true);
-		}
-		else
-		{
-			noTrendTestRadioButton.setValue(false);
-		}
-		
 		verticalPanel.add(grid);
 		
 		initWidget(verticalPanel);
@@ -108,7 +94,7 @@ public class EditTrendPanel extends Composite
 	public String getSelectedTrend()
 	{
 	    String selectedTrend = null;
-	    for(int i = 0; i <= 5; i++)
+	    for(int i = 1; i <= 5; i++)
 	    {
 	        RadioButton radioButton = (RadioButton) grid.getWidget(i, 0);
 	        if(radioButton.isChecked())
@@ -116,6 +102,11 @@ public class EditTrendPanel extends Composite
 	            selectedTrend = radioButton.getText();
 	        }
 	    }
+	    /*if(selectedTrend.isEmpty())
+	    {
+	        RadioButton radioButton = (RadioButton) grid.getWidget(0, 0);
+	        selectedTrend = radioButton.getText();
+	    }*/
 	    return selectedTrend;
 	}
 }
