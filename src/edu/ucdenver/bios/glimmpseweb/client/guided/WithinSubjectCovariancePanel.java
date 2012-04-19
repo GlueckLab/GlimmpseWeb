@@ -141,7 +141,6 @@ public class WithinSubjectCovariancePanel extends WizardStepPanel
 	{
 	    for(int i = 0; i < tabPanel.getWidgetCount(); i++)
 	    {
-	        /*Widget widget = tabPanel.getWidget(i);*/
 	        CovarianceCorrelationDeckPanel panel = (CovarianceCorrelationDeckPanel) tabPanel.getWidget(i);
 	        Covariance covariance = new Covariance();
 	        covariance = panel.getCovariance();
