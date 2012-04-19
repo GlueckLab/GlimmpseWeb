@@ -189,6 +189,8 @@ public interface GlimmpseConstants extends Constants
     // toolbar separator keyword
     public static final String TOOLBAR_SEPARATOR = "_SEPARATOR_";
     
+    //inavalid string
+    public String invalidString();
     // footer text
     public String fundingStatement();
     
