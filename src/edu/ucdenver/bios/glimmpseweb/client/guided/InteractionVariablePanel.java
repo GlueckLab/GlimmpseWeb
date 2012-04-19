@@ -72,8 +72,8 @@ public class InteractionVariablePanel extends Composite
 					editTrend.setEnabled(true);
 					editTrend.setVisible(true);
 					trendSelected.setVisible(true);
-					String abc = trendSelected.getHTML();
-					if(abc == null)
+					String value = trendSelected.getHTML();
+					if(value.isEmpty())
 					{
 						selectedTrendHorizontalPanel.setVisible(false);
 					}
@@ -96,7 +96,7 @@ public class InteractionVariablePanel extends Composite
 		grid.setWidget(0, 1, buttonGroupHorizontalPanel);
 		grid.setWidget(0, 2, selectedTrendHorizontalPanel);
 
-		editTrendPanel = new EditTrendPanel(true);
+		editTrendPanel = new EditTrendPanel();
 		horizontalPanel.add(editTrendPanel);
 		editTrendPanel.addClickHandler(new ClickHandler ()
 		{
