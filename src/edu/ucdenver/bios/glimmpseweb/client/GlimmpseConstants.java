@@ -536,6 +536,7 @@ public interface GlimmpseConstants extends Constants
     public String powerSvcHostSampleSize();
     public String powerSvcHostDetectableDifference();
     public String powerSvcHostMatrices();
+    public String matrixSvcHostMatrices();
     public String fileSvcHostUpload();
     public String fileSvcHostSaveAs();
     
