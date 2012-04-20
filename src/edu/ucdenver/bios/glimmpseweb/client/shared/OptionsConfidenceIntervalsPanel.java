@@ -21,8 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
-
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -44,6 +42,9 @@ import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
+import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
 
 /**
  * Matrix Mode panel which allows the user to set options for confidence
@@ -51,7 +52,10 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
  */
 public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 {
-	protected String ciTypeRadioGroup= "confidenceIntervalTypeGroup";
+    // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    
+    protected String ciTypeRadioGroup= "confidenceIntervalTypeGroup";
 	
 	protected CheckBox noCICheckbox = new CheckBox();
 	
@@ -433,6 +437,21 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 		{
 			changeState(WizardStepPanelState.INCOMPLETE);
 		}
+	}
+	@Override
+	public void onExit()
+	{
+	    ConfidenceIntervalDescription confidenceIntervalDescription =
+	            new ConfidenceIntervalDescription();
+	    Float lowerValue = new Float(alphaLowerTextBox.getValue());
+	    confidenceIntervalDescription.setLowerTrailProbability(lowerValue);
+	    Float upperValue = new Float(alphaUpperTextBox.getValue());
+	    confidenceIntervalDescription.setUpperTrailProbability(upperValue);
+	    int rank = Integer.parseInt(rankTextBox.getValue());
+	    confidenceIntervalDescription.setRankOfDesignMatrix(rank);
+	    int sampleSize = Integer.parseInt(sampleSizeTextBox.getValue());
+	    confidenceIntervalDescription.setSampleSize(sampleSize);
+	    studyDesignContext.setConfidenceIntervalOptions(this, confidenceIntervalDescription);
 	}
 
 }
