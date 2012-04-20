@@ -53,7 +53,7 @@ public class HypothesisPanel extends WizardStepPanel {
     
 	DeckPanel deckPanel = new DeckPanel();
 	
-	/*DeckPanel editTrendDeckPanel = new DeckPanel();*/
+	DeckPanel editTrendDeckPanel = new DeckPanel();
 	
 	VerticalPanel verticalPanel = new VerticalPanel();
 	
@@ -109,8 +109,8 @@ public class HypothesisPanel extends WizardStepPanel {
 		horizontalPanel.add(trendRadioButton);
 		horizontalPanel.add(trend);		
 		
-		/*VerticalPanel emptyPanel = new VerticalPanel();
-		deckPanel.add(emptyPanel);*/
+		VerticalPanel emptyPanel = new VerticalPanel();
+		deckPanel.add(emptyPanel);
 		deckPanel.add(mainEffectHypothesisPanelInstance);
 		deckPanel.add(interactionHypothesisPanelInstance);
 		deckPanel.add(trendHypothesisPanelInstance);
@@ -120,7 +120,7 @@ public class HypothesisPanel extends WizardStepPanel {
 			@Override
 			public void onClick(ClickEvent event)
 			{			
-				deckPanel.showWidget(0);
+				deckPanel.showWidget(1);
 				mainEffectHypothesisPanelInstance.load();
 			}
 		});
@@ -129,7 +129,7 @@ public class HypothesisPanel extends WizardStepPanel {
 			@Override
 			public void onClick(ClickEvent event) 
 			{
-				deckPanel.showWidget(1);
+				deckPanel.showWidget(2);
 				interactionHypothesisPanelInstance.load();
 			}
 		});
@@ -138,7 +138,7 @@ public class HypothesisPanel extends WizardStepPanel {
 			@Override
 			public void onClick(ClickEvent event) 
 			{
-				deckPanel.showWidget(2);
+				deckPanel.showWidget(3);
 				trendHypothesisPanelInstance.load();
 			}
 		});
