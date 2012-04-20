@@ -8,7 +8,6 @@ import name.pehl.piriti.json.client.JsonWriter;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Window;
 
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
@@ -89,7 +88,7 @@ public class DomainObjectSerializer {
     // confidence intervals
     public interface ConfidenceIntervalDescriptionReader extends JsonReader<ConfidenceIntervalDescription> {}
     public static final ConfidenceIntervalDescriptionReader confidenceIntervalDescriptionReader = GWT.create(ConfidenceIntervalDescriptionReader.class);
-    public interface ConfidenceIntervalDescriptionWriter extends JsonWriter<ConfidenceInterval> {}
+    public interface ConfidenceIntervalDescriptionWriter extends JsonWriter<ConfidenceIntervalDescription> {}
     public static final ConfidenceIntervalDescriptionWriter confidenceIntervalDescriptionWriter = GWT.create(ConfidenceIntervalDescriptionWriter.class);    
     
     // power curve description
@@ -171,6 +170,13 @@ public class DomainObjectSerializer {
     public interface ConfidenceIntervalReader extends JsonReader<ConfidenceInterval> {}
     public static final ConfidenceIntervalReader confidenceIntervalReader = GWT.create(ConfidenceIntervalReader.class);
     
+    // integer reader
+    public interface IntegerReader extends JsonReader<Integer>{}
+    public static final IntegerReader integerReader = GWT.create(IntegerReader.class);
+    
+    //boolean reader
+    public interface BooleanReader extends JsonReader<Boolean>{}
+    public static final BooleanReader booleanReader = GWT.create(BooleanReader.class);
     
     /** 
      * The piriti library does not support multidimensional arrays.  Thus, we had to write 
@@ -194,6 +200,12 @@ public class DomainObjectSerializer {
     public String toJSON(StudyDesign design) {
         
         String json = studyDesignWriter.toJson(design);
+        return json;
+    }
+    
+    public String toJSON(NamedMatrix matrix) {
+        
+        String json = namedMatrixWriter.toJson(matrix);
         return json;
     }
     
@@ -227,5 +239,30 @@ public class DomainObjectSerializer {
         } catch (Exception e) {
         }
         return results;
+    }
+    
+    public Integer integerFromJSON(String jsonString)
+    {
+        Integer value = null;
+        try
+        {
+            /*JSONObject object = JSONParser.parseStrict(jsonString).isObject();*/
+            value = integerReader.read(jsonString);
+        }
+        catch (Exception e){    
+        }
+        return value;
+    }
+    
+    public boolean booleanFromJSON(String jsonString)
+    {
+        boolean value = false;
+        try
+        {
+            value = booleanReader.read(jsonString);
+        }
+        catch (Exception e){  
+        }
+        return value;
     }
 }
