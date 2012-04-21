@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -60,7 +59,8 @@ implements ListValidator
     
 	public PowerPanel(WizardContext context)
 	{
-		super(context, "Desired Power", WizardStepPanelState.SKIPPED);
+		super(context, GlimmpseWeb.constants.navItemNominalPower(), 
+		        WizardStepPanelState.SKIPPED);
 		studyDesignContext = (StudyDesignContext) context;
 		VerticalPanel panel = new VerticalPanel();
 
