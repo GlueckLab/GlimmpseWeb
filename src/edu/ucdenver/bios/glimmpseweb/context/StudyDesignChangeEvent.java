@@ -5,49 +5,51 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 
 public class StudyDesignChangeEvent extends WizardContextChangeEvent
 {
-	public enum StudyDesignChangeType
-	{
-		SOLVING_FOR,
-		COVARIATE,
-		ALPHA_LIST,
-		STATISTICAL_TEST_LIST,
-		POWER_LIST,
-		PER_GROUP_N_LIST,
-		BETA_SCALE_LIST,
-		SIGMA_SCALE_LIST,
-		POWER_METHOD_LIST,
-		QUANTILE_LIST,
-		DESIGN_ESSENCE_MATRIX,
-		BETWEEN_CONTRAST_MATRIX,
-		WITHIN_CONTRAST_MATRIX,
-		BETA_MATRIX,
-		THETA_NULL_MATRIX,
-		SIGMA_ERROR_MATRIX,
-		SIGMA_OUTCOME_MATRIX,
-		SIGMA_COVARIATE_MATRIX,
-		SIGMA_OUTCOME_COVARIATE_MATRIX,
-		CONFIDENCE_INTERVAL,
-		RESPONSES_LIST,
-		POWER_CURVE,
-		CLUSTERING,
-		REPEATED_MEASURES,
-		HYPOTHESIS,
-		BETWEEN_PARTICIPANT_FACTORS,
-		RELATIVE_GROUP_SIZE_LIST
-	};
-	
-	protected StudyDesignChangeType type;
-	
-	public StudyDesignChangeEvent(WizardStepPanel panel, StudyDesignChangeType type)
-	{
-		super(panel);
-		this.type = type;
-	}
+    public enum StudyDesignChangeType
+    {
+        ALPHA_LIST,
+        BETA_MATRIX,
+        BETA_SCALE_LIST,
+        BETWEEN_CONTRAST_MATRIX,
+        BETWEEN_PARTICIPANT_FACTORS,
+        CLUSTERING,
+        CONFIDENCE_INTERVAL,
+        COVARIATE,
+        COVARIANCE,
+        DESIGN_ESSENCE_MATRIX,
+        HYPOTHESIS,
+        PER_GROUP_N_LIST,
+        POWER_CURVE,
+        POWER_LIST,
+        POWER_METHOD_LIST,
+        QUANTILE_LIST,
+        RELATIVE_GROUP_SIZE_LIST,
+        REPEATED_MEASURES,
+        RESPONSES_LIST,
+        SIGMA_COVARIATE_MATRIX,
+        SIGMA_ERROR_MATRIX,
+        SIGMA_OUTCOME_MATRIX,
+        SIGMA_OUTCOME_COVARIATE_MATRIX,
+        SIGMA_SCALE_LIST,
+        SOLVING_FOR,
+        STATISTICAL_TEST_LIST,
+        THETA_NULL_MATRIX,
+        WITHIN_CONTRAST_MATRIX,
+  
+    };
 
-	public StudyDesignChangeType getType()
-	{
-		return type;
-	}
-	
-	
+    protected StudyDesignChangeType type;
+
+    public StudyDesignChangeEvent(WizardStepPanel panel, StudyDesignChangeType type)
+    {
+        super(panel);
+        this.type = type;
+    }
+
+    public StudyDesignChangeType getType()
+    {
+        return type;
+    }
+
+
 }

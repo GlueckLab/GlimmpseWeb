@@ -647,7 +647,7 @@ public class ResizableMatrixPanel extends Composite
 		{
 			setRowDimension(matrix.getRows());
 			setColumnDimension(matrix.getColumns());
-			double[][] data = matrix.getDataAsArray();
+			double[][] data = matrix.getData().getData();
 			for(int row = 0; row < rows; row++)
 			{
 				for(int column = 0; column < columns; column++)

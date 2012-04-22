@@ -25,6 +25,8 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -32,149 +34,230 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
-import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class InteractionHypothesisPanel extends Composite
+implements HypothesisBuilder, WizardContextListener, ClickHandler
 {
-    StudyDesign studyDesign;
-	protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
-	protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
+    // context object
+    StudyDesignContext studyDesignContext = null;
 
-	List<BetweenParticipantFactor> betweenParticipantFactors =
-	        new ArrayList<BetweenParticipantFactor>();
-    List<String> betweenParticipantFactorDataList = new ArrayList<String>();
+    // parent panel, change handler
+    ClickHandler parent = null;
+
+    // counter of #variables selected
+    int selectedCount = 0;
     
-    List<RepeatedMeasuresNode> repeatedMeasuresNodes =
-            new ArrayList<RepeatedMeasuresNode>();
-    
-    List<String> withinParticipantFactorDataList =
-            new ArrayList<String>();
-    
-	public InteractionHypothesisPanel(StudyDesign studyDesign)
-	{
-		VerticalPanel verticalPanel = new VerticalPanel();
-		this.studyDesign = studyDesign;
-		
-		betweenParticipantFactors = studyDesign.getBetweenParticipantFactorList();
-        
-        repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
-		HTML text = new HTML();
-		HTML betweenParticipantFactors = new HTML();
-		HTML withinParticipantFactors = new HTML();
-		
-		
-		text.setText(GlimmpseWeb.constants.interactionHypothesisPanelText());
-		betweenParticipantFactors.setText(GlimmpseWeb.constants.
-		        interactionHypothesisPanelBetweenParticipantFactors());
-		withinParticipantFactors.setText(GlimmpseWeb.constants.
-		        interactionHypothesisPanelWithinParticipantFactors());
-		
-		//Style Sheets
-		text.setStyleName(
-		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		betweenParticipantFactors.setStyleName(
-		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		withinParticipantFactors.setStyleName(
-		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-				
-				
-		verticalPanel.add(text);
-		verticalPanel.add(betweenParticipantFactors);
-		verticalPanel.add(betweenParticipantFactorsFlexTable);
-		verticalPanel.add(withinParticipantFactors);
-		verticalPanel.add(withinParticipantFactorsFlexTable);
-		
-		initWidget(verticalPanel);
-	}
-	public void load()
-	{
-	    for(BetweenParticipantFactor factor : betweenParticipantFactors)
-        {
-            betweenParticipantFactorDataList.add(factor.getPredictorName());
+    // variable lists
+    protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
+    protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
+
+    // panel which contains a between participant effect
+    private class BetweenParticipantVariablePanel 
+    extends InteractionVariablePanel {
+        public BetweenParticipantFactor factor;
+        public BetweenParticipantVariablePanel(String label, ClickHandler handler,
+                BetweenParticipantFactor factor) {
+            super(label, handler);
+            this.factor = factor;
         }
-	    
-		int betweenParticipantFactorArrayListSize =
-		        betweenParticipantFactorDataList.size();
-		
-		for(int i = 0; i < betweenParticipantFactorArrayListSize; i++)
-		{
-			betweenParticipantFactorsFlexTable.setWidget(i, 0,
-			        new InteractionVariablePanel(
-			                betweenParticipantFactorDataList.get(i)));
-		}
-		
-		for(RepeatedMeasuresNode node : repeatedMeasuresNodes)
-        {
-            withinParticipantFactorDataList.add(node.getDimension());
+    }
+    // panel which contains a repeated measures effect
+    private class RepeatedMeasuresVariablePanel  
+    extends InteractionVariablePanel {
+        public RepeatedMeasuresNode factor;
+        public RepeatedMeasuresVariablePanel(String label, ClickHandler handler,
+                RepeatedMeasuresNode factor) {
+            super(label, handler);
+            this.factor = factor;
         }
-		
-		int withinParticipantFactorsArrayListSize =
-		        withinParticipantFactorDataList.size();
-		
-		for(int i = 0; i < withinParticipantFactorsArrayListSize; i++)
-		{
-			withinParticipantFactorsFlexTable.setWidget(i, 0,
-			        new InteractionVariablePanel(
-			                withinParticipantFactorDataList.get(i)));
-			
-		}
-	}
-	
-	public Hypothesis getHypothesis()
-	{
-	    Hypothesis hypothesis = new Hypothesis();
-	    
-	    List<HypothesisBetweenParticipantMapping> participantList =
-	            new ArrayList<HypothesisBetweenParticipantMapping>();
-	    
-	    HypothesisBetweenParticipantMapping participant =
-                new HypothesisBetweenParticipantMapping();
-	    
-	    InteractionVariablePanel panel = null;
-	    for(int i = 0; i < betweenParticipantFactorsFlexTable.getRowCount(); i++)
-	    {
-	        panel = (InteractionVariablePanel)
-                    betweenParticipantFactorsFlexTable.getWidget(i, 0);
+    }   
+
+    /**
+     * Constructor
+     * @param studyDesignContext
+     * @param handler
+     */
+    public InteractionHypothesisPanel(StudyDesignContext studyDesignContext,
+            ClickHandler handler)
+    {
+        this.studyDesignContext = studyDesignContext;
+        this.studyDesignContext.addContextListener(this);
+        this.parent = handler;
+        VerticalPanel verticalPanel = new VerticalPanel();
+
+
+        HTML text = new HTML();
+        HTML betweenParticipantFactors = new HTML();
+        HTML withinParticipantFactors = new HTML();
+
+
+        text.setText(GlimmpseWeb.constants.interactionHypothesisPanelText());
+        betweenParticipantFactors.setText(GlimmpseWeb.constants.
+                interactionHypothesisPanelBetweenParticipantFactors());
+        withinParticipantFactors.setText(GlimmpseWeb.constants.
+                interactionHypothesisPanelWithinParticipantFactors());
+
+        //Style Sheets
+        text.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        betweenParticipantFactors.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        withinParticipantFactors.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+
+
+        verticalPanel.add(text);
+        verticalPanel.add(betweenParticipantFactors);
+        verticalPanel.add(betweenParticipantFactorsFlexTable);
+        verticalPanel.add(withinParticipantFactors);
+        verticalPanel.add(withinParticipantFactorsFlexTable);
+
+        initWidget(verticalPanel);
+    }
+
+
+    /**
+     * Reload the between participant factors from the context
+     */
+    private void loadBetweenFactorsFromContext()
+    {
+        betweenParticipantFactorsFlexTable.removeAllRows();
+        List<BetweenParticipantFactor> factorList = 
+            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+        if (factorList != null) {
+            int i = 0;
+            for(BetweenParticipantFactor factor : factorList)
+            {
+                BetweenParticipantVariablePanel panel = 
+                    new BetweenParticipantVariablePanel(
+                            factor.getPredictorName(), this, factor);
+                betweenParticipantFactorsFlexTable.setWidget(
+                        i, 0, panel);
+                i++;
+            }
+        }
+    }
+
+    /**
+     * Load repeated measures from the context
+     */
+    private void loadRepeatedMeasuresFromContext() {
+        withinParticipantFactorsFlexTable.removeAllRows();
+        List<RepeatedMeasuresNode> factorList = 
+            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+        if (factorList != null) {
+            int i = 0;
+            for(RepeatedMeasuresNode factor : factorList)
+            {
+                RepeatedMeasuresVariablePanel panel = 
+                    new RepeatedMeasuresVariablePanel(
+                            factor.getDimension(), this, factor);
+                withinParticipantFactorsFlexTable.setWidget(
+                        i, 0, panel);
+                i++;
+            }
+        }
+    }
+
+    @Override
+    public Hypothesis buildHypothesis() {
+        Hypothesis hypothesis = new Hypothesis();
+        hypothesis.setType(HypothesisTypeEnum.INTERACTION);
+
+        // fill in any between participant effects
+        List<HypothesisBetweenParticipantMapping> factorList =
+            new ArrayList<HypothesisBetweenParticipantMapping>();
+        for(int i = 0; i < betweenParticipantFactorsFlexTable.getRowCount(); i++)
+        {
+            BetweenParticipantVariablePanel panel = 
+                (BetweenParticipantVariablePanel)
+                betweenParticipantFactorsFlexTable.getWidget(i, 0);
             if(panel.isChecked())
             {
-                participant.setBetweenParticipantFactor(betweenParticipantFactors.get(i));
-                String value = panel.selectedTrend();
-                participantList.add(participant);
-                EnumHelper enumHelper = new EnumHelper();
-                participant.setType(enumHelper.getEnum(value));
-                
+                HypothesisBetweenParticipantMapping map = 
+                    new HypothesisBetweenParticipantMapping();
+                map.setBetweenParticipantFactor(panel.factor);
+                map.setType(panel.selectedTrend());
+                factorList.add(map);
             }
-            participantList.add(participant);
-	    }
-	    
-	    List<HypothesisRepeatedMeasuresMapping> nodeList =
-                new ArrayList<HypothesisRepeatedMeasuresMapping>();
-        
-	    HypothesisRepeatedMeasuresMapping node =
-                new HypothesisRepeatedMeasuresMapping();
-        
-	    for(int i = 0; i < withinParticipantFactorsFlexTable.getRowCount(); i++)
+        }
+        if (factorList.size() > 0) {
+            hypothesis.setBetweenParticipantFactorMapList(factorList);
+        }
+
+        // fill in repeated measures information
+        List<HypothesisRepeatedMeasuresMapping> nodeList =
+            new ArrayList<HypothesisRepeatedMeasuresMapping>();
+        for(int i = 0; i < withinParticipantFactorsFlexTable.getRowCount(); i++)
         {
-            panel = (InteractionVariablePanel)
-                    withinParticipantFactorsFlexTable.getWidget(i, 0);
+            RepeatedMeasuresVariablePanel panel = 
+                (RepeatedMeasuresVariablePanel)
+                withinParticipantFactorsFlexTable.getWidget(i, 0);
             if(panel.isChecked())
             {
-                node.setRepeatedMeasuresNode(repeatedMeasuresNodes.get(i));
-                String value = panel.selectedTrend();
-                nodeList.add(node);
-                EnumHelper enumHelper = new EnumHelper();
-                node.setType(enumHelper.getEnum(value));
+                HypothesisRepeatedMeasuresMapping map =
+                    new HypothesisRepeatedMeasuresMapping();
+                map.setRepeatedMeasuresNode(panel.factor);
+                map.setType(panel.selectedTrend());
+                nodeList.add(map);
             }
-            nodeList.add(node);
         }
-	    hypothesis.setRepeatedMeasuresMapTree(nodeList);
-	    
-	    return hypothesis;
-	}
+        if (nodeList.size() > 0) {
+            hypothesis.setRepeatedMeasuresMapTree(nodeList);
+        }
+
+        return hypothesis;
+    }
+    
+    @Override
+    public boolean checkComplete() {     
+        return (selectedCount > 0);
+    }
+
+
+    @Override
+    public void onClick(ClickEvent event) {
+        InteractionVariablePanel panel = 
+            (InteractionVariablePanel) event.getSource();
+        if (panel.isChecked()) {
+            selectedCount++;
+        } else {
+            selectedCount--;
+        }
+    }
+    
+    /**
+     * Reload the panel when a user changes either the fixed predictors 
+     * or repeated measures information
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        switch(((StudyDesignChangeEvent) e).getType()) {
+        case BETWEEN_PARTICIPANT_FACTORS:
+            loadBetweenFactorsFromContext();
+            break;
+        case REPEATED_MEASURES:
+            loadRepeatedMeasuresFromContext();
+            break;
+        }
+    }
+
+    /**
+     * Fill in the panel on upload events
+     */
+    @Override
+    public void onWizardContextLoad() {
+        loadBetweenFactorsFromContext();
+        loadRepeatedMeasuresFromContext();
+    }
 }

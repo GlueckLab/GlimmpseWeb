@@ -19,13 +19,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -35,186 +35,248 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 /**
- * 
+ * Panel to build main effect hypotheses
  * @author VIJAY AKULA
  *
  */
-public class MainEffectHypothesisPanel extends Composite  {
+public class MainEffectHypothesisPanel extends Composite  
+implements HypothesisBuilder, WizardContextListener {
+    
+    // context object
+    StudyDesignContext studyDesignContext = null;
 
-    StudyDesign studyDesign;
+    // parent panel, change handler
+    ClickHandler parent = null;
     
+    // radio button group for this panel
+    private static final String BUTTON_GROUP = "mainEffectButtonGroup"; 
+
+    // table of variables to test
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
-	protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
-	
-	List<BetweenParticipantFactor> betweenParticipantFactors = null;
-    List<String> betweenParticipantFactorDataList = new ArrayList<String>();
+    protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
+
+    // currently selected between participant effect
+    BetweenParticipantFactor selectedBetweenParticipantFactor = null;
+    // name of currently selected within participant effect
+    RepeatedMeasuresNode selectedRepeatedMeasuresNode = null;
     
-    List<RepeatedMeasuresNode> repeatedMeasuresNodes = null;
-    List<String> withinParticipantFactorDataList = new ArrayList<String>();
-    
-	public MainEffectHypothesisPanel(StudyDesign studyDesign)
-	{
-	    this.studyDesign = studyDesign;
-	    
-	    betweenParticipantFactors = studyDesign.getBetweenParticipantFactorList();
-	    
-	    repeatedMeasuresNodes = studyDesign.getRepeatedMeasuresTree();
-	    
-		VerticalPanel verticalPanel = new VerticalPanel();
-		HTML text = new HTML();
-		HTML betweenParticipantFactors = new HTML();
-		HTML withinParticipantFactors = new HTML();
-		
-		
-		
-		text.setText(GlimmpseWeb.constants.mainEffectPanelText());
-		betweenParticipantFactors.setText(
-		        GlimmpseWeb.constants.mainEffectPanelBetweenParticipantFactors());
-		withinParticipantFactors.setText(
-		        GlimmpseWeb.constants.mainEffectPanelWithinParticipantFactors());
-	
-		
-		
-		//Style Sheets
-		text.setStyleName(
-		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		betweenParticipantFactors.setStyleName(
-		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		withinParticipantFactors.setStyleName(
-		        GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		
-		
-		//Add individual widgets to vertical panel
-		verticalPanel.add(text);
-		verticalPanel.add(betweenParticipantFactors);
-		verticalPanel.add(betweenParticipantFactorsFlexTable);
-		verticalPanel.add(withinParticipantFactors);
-		
-		verticalPanel.add(withinParticipantFactorsFlexTable);
-		
-		verticalPanel.setWidth("100%");
-		
-		initWidget(verticalPanel);
-	}
-	
-	/**
-	 * Respond to a change in the context object
-	 */
-   /* @Override*/
-	public void onWizardContextChange(WizardContextChangeEvent e) 
-    {
-    	
-    };
+    // RadioButton which contains a between participant effect
+    private class BetweenParticipantRadioButton extends RadioButton {
+        public BetweenParticipantFactor factor;
+        public BetweenParticipantRadioButton(String group, String label,
+                BetweenParticipantFactor factor) {
+            super(group, label);
+            this.factor = factor;
+        }
+    }
+    // RadioButton which contains a repeated measures effect
+    private class RepeatedMeasuresRadioButton extends RadioButton {
+        public RepeatedMeasuresNode factor;
+        public RepeatedMeasuresRadioButton(String group, String label,
+                RepeatedMeasuresNode factor) {
+            super(group, label);
+            this.factor = factor;
+        }
+    }   
     
     /**
-     * Response to a context load event
+     * Constructor
+     * @param studyDesignContext
      */
-    /*@Override*/
-	public void onWizardContextLoad() 
+    public MainEffectHypothesisPanel(StudyDesignContext studyDesignContext,
+            ClickHandler handler)
     {
-	    load();
+        this.parent = handler;
+        this.studyDesignContext = studyDesignContext;
+        this.studyDesignContext.addContextListener(this);
+
+        VerticalPanel verticalPanel = new VerticalPanel();
+        HTML text = new HTML();
+        HTML betweenParticipantFactors = new HTML();
+        HTML withinParticipantFactors = new HTML();
+
+        text.setText(GlimmpseWeb.constants.mainEffectPanelText());
+        betweenParticipantFactors.setText(
+                GlimmpseWeb.constants.mainEffectPanelBetweenParticipantFactors());
+        withinParticipantFactors.setText(
+                GlimmpseWeb.constants.mainEffectPanelWithinParticipantFactors());
+
+        //Style Sheets
+        text.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        betweenParticipantFactors.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        withinParticipantFactors.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+
+        //Add individual widgets to vertical panel
+        verticalPanel.add(text);
+        verticalPanel.add(betweenParticipantFactors);
+        verticalPanel.add(betweenParticipantFactorsFlexTable);
+        verticalPanel.add(withinParticipantFactors);
+        verticalPanel.add(withinParticipantFactorsFlexTable);
+        verticalPanel.setWidth("100%");
+
+        initWidget(verticalPanel);
     }
-	
-	public void load()
-	{
-	    for(BetweenParticipantFactor factor : betweenParticipantFactors)
-	    {
-	        betweenParticipantFactorDataList.add(factor.getPredictorName());
-	    }
-	    
-		int size = betweenParticipantFactorDataList.size();
-		
-		for(int i = 0; i < size; i++)
-		{
-			betweenParticipantFactorsFlexTable.setWidget(
-			        i, 0, new RadioButton(
-			                "RadioButtonsGroup",
-			                betweenParticipantFactorDataList.get(i)));
-		}
-		
-		for(RepeatedMeasuresNode node : repeatedMeasuresNodes)
-	    {
-		    withinParticipantFactorDataList.add(node.getDimension());
-	    }
-		int withinParticipantFactorsArrayListSize =
-		        withinParticipantFactorDataList.size();
-		for(int i = 0; i < withinParticipantFactorsArrayListSize; i++)
-		{
-			withinParticipantFactorsFlexTable.setWidget(
-			        i, 0, new RadioButton("RadioButtonsGroup",
-			                withinParticipantFactorDataList.get(i)));
-		}
-	}
-	
-	public Hypothesis getHypothesis()
-	{
-	    Hypothesis hypothesis = new Hypothesis();
-	    BetweenParticipantFactor participant = getBetweenParticipant();
-	    RepeatedMeasuresNode node = getRepeatedMeasuresNode();
-	    hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
-	    if(participant == null)
-	    {
-	       HypothesisRepeatedMeasuresMapping mappingNode =
-	               new HypothesisRepeatedMeasuresMapping();
-	       mappingNode.setRepeatedMeasuresNode(node);
-	       List<HypothesisRepeatedMeasuresMapping> mappingList =
-	               new ArrayList<HypothesisRepeatedMeasuresMapping>();
-	       mappingList.add(mappingNode);
-	       hypothesis.setRepeatedMeasuresMapTree(mappingList);
-	    }
-	    else
-	    {
-	        HypothesisBetweenParticipantMapping mappingParticipant =
-	                new HypothesisBetweenParticipantMapping();
-	        mappingParticipant.setBetweenParticipantFactor(participant);
-	        List<HypothesisBetweenParticipantMapping> mappingList = 
-	                new ArrayList<HypothesisBetweenParticipantMapping>();
-	        mappingList.add(mappingParticipant);
-	        hypothesis.setBetweenParticipantFactorMapList(mappingList);
-	    }
-	    
-	    return hypothesis;
-	}
-	
-	public BetweenParticipantFactor getBetweenParticipant()
-	{
-	    BetweenParticipantFactor betweenParticipantFactor = null;
-	    int size = betweenParticipantFactorsFlexTable.getRowCount();
-	    for(int i = 0; i < size; i++ )
-	    {
-	        RadioButton radioButton = (RadioButton)
-	                betweenParticipantFactorsFlexTable.getWidget(i, 0);
-	        if(radioButton.isChecked())
-	        {
-	            betweenParticipantFactor = betweenParticipantFactors.get(i);
-	        }   
-	    }
-	    return betweenParticipantFactor;
-	}
-	
-	public RepeatedMeasuresNode getRepeatedMeasuresNode()
+
+    /**
+     * Reload the between participant factors from the context
+     */
+    private void loadBetweenFactorsFromContext()
     {
-        RepeatedMeasuresNode repeatedMeasuresNode = null;
-        int size = withinParticipantFactorsFlexTable.getRowCount();
-        for(int i = 0; i < size; i++ )
-        {
-            RadioButton radioButton = (RadioButton)
-                    withinParticipantFactorsFlexTable.getWidget(i, 0);
-            if(radioButton.isChecked())
+        this.selectedBetweenParticipantFactor = null;
+        betweenParticipantFactorsFlexTable.removeAllRows();
+        List<BetweenParticipantFactor> factorList = 
+            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+        if (factorList != null) {
+            int i = 0;
+            for(BetweenParticipantFactor factor : factorList)
             {
-                repeatedMeasuresNode = repeatedMeasuresNodes.get(i);
-            }   
+                BetweenParticipantRadioButton button = 
+                    new BetweenParticipantRadioButton(
+                            BUTTON_GROUP,
+                            factor.getPredictorName(), factor);
+                button.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        BetweenParticipantRadioButton button = 
+                            (BetweenParticipantRadioButton) event.getSource();
+                        selectBetweenParticipantFactor(button.factor);
+                        parent.onClick(event);
+                    }
+                });
+                betweenParticipantFactorsFlexTable.setWidget(
+                        i, 0, button);
+                i++;
+            }
         }
-        return repeatedMeasuresNode;
+    }
+
+    /**
+     * Load repeated measures from the context
+     */
+    private void loadRepeatedMeasuresFromContext() {
+        this.selectedRepeatedMeasuresNode = null;
+        withinParticipantFactorsFlexTable.removeAllRows();
+        List<RepeatedMeasuresNode> factorList = 
+            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+        if (factorList != null) {
+            int i = 0;
+            for(RepeatedMeasuresNode factor : factorList)
+            {
+                RepeatedMeasuresRadioButton button = 
+                    new RepeatedMeasuresRadioButton(BUTTON_GROUP,
+                            factor.getDimension(), factor);
+                button.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        RepeatedMeasuresRadioButton button = 
+                            (RepeatedMeasuresRadioButton) event.getSource();
+                        selectRepeatedMeasuresNode(button.factor);
+                        parent.onClick(event);
+                    }
+                });
+                withinParticipantFactorsFlexTable.setWidget(
+                        i, 0, button);
+                i++;
+            }
+        }
+    }
+
+    /**
+     * Create a hypothesis object from the panel
+     */
+    @Override
+    public Hypothesis buildHypothesis() {
+        Hypothesis hypothesis = new Hypothesis();
+        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
+
+        if (selectedRepeatedMeasuresNode != null) {
+            HypothesisRepeatedMeasuresMapping mappingNode =
+                new HypothesisRepeatedMeasuresMapping();
+            mappingNode.setRepeatedMeasuresNode(selectedRepeatedMeasuresNode);
+            List<HypothesisRepeatedMeasuresMapping> mappingList =
+                new ArrayList<HypothesisRepeatedMeasuresMapping>();
+            mappingList.add(mappingNode);
+            hypothesis.setRepeatedMeasuresMapTree(mappingList);
+            
+        } else if (selectedBetweenParticipantFactor != null) {
+            HypothesisBetweenParticipantMapping mappingParticipant =
+                new HypothesisBetweenParticipantMapping();
+            mappingParticipant.setBetweenParticipantFactor(selectedBetweenParticipantFactor);
+            List<HypothesisBetweenParticipantMapping> mappingList = 
+                new ArrayList<HypothesisBetweenParticipantMapping>();
+            mappingList.add(mappingParticipant);
+            hypothesis.setBetweenParticipantFactorMapList(mappingList);
+        } else {
+            return null;
+        }
+        return hypothesis;
+    }
+
+    /**
+     * Select the specified repeated measures node
+     * @param node
+     */
+    private void selectRepeatedMeasuresNode(RepeatedMeasuresNode node) {
+        selectedBetweenParticipantFactor = null;
+        selectedRepeatedMeasuresNode = node;
+    }
+    
+    /**
+     * Select the specified repeated measures node
+     * @param node
+     */
+    private void selectBetweenParticipantFactor(BetweenParticipantFactor factor) {
+        selectedBetweenParticipantFactor = factor;
+        selectedRepeatedMeasuresNode = null;
+    }
+    
+    
+    /**
+     * Returns true if the user has selected sufficient information
+     */
+    @Override
+    public boolean checkComplete() {
+        return (this.selectedBetweenParticipantFactor != null || 
+                this.selectedRepeatedMeasuresNode != null);
+    }
+
+    /**
+     * Reload the panel when a user changes either the fixed predictors 
+     * or repeated measures information
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        switch(((StudyDesignChangeEvent) e).getType()) {
+        case BETWEEN_PARTICIPANT_FACTORS:
+            loadBetweenFactorsFromContext();
+            break;
+        case REPEATED_MEASURES:
+            loadRepeatedMeasuresFromContext();
+            break;
+        }
+    }
+
+    /**
+     * Fill in the panel on upload events
+     */
+    @Override
+    public void onWizardContextLoad() {
+        loadBetweenFactorsFromContext();
+        loadRepeatedMeasuresFromContext();
     }
 
 }

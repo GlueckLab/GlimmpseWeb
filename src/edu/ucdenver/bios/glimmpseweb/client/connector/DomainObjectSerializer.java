@@ -163,9 +163,6 @@ public class DomainObjectSerializer {
     public interface PowerResultWriter extends JsonWriter<PowerResult> {}
     public static final PowerResultWriter powerResultWriter = GWT.create(PowerResultWriter.class);
     
-    // power result list
-    public interface PowerResultListReader extends JsonReader<PowerResultList> {}
-    public static final PowerResultListReader powerResultListReader = GWT.create(PowerResultListReader.class);
     // confidence interval objects contained in power results
     public interface ConfidenceIntervalReader extends JsonReader<ConfidenceInterval> {}
     public static final ConfidenceIntervalReader confidenceIntervalReader = GWT.create(ConfidenceIntervalReader.class);
@@ -186,12 +183,27 @@ public class DomainObjectSerializer {
     public static final Blob2DArrayReader blob2DArrayReader = new Blob2DArrayReaderImpl();    
     public static final Blob2DArrayWriter blob2DArrayWriter = new Blob2DArrayWriterImpl();    
     
+    /** Singleton instance of the DomainObjectSerializer class. */
+    private static DomainObjectSerializer instance = null;
+    
+    /**
+     * Create a new domain object serializer.
+     */
+    private DomainObjectSerializer() {
+    }
 
     /**
-     * Constructor
+     * Create a single instance of a domain object serializer.
+     * @return DomainObjectSerializer object
      */
-    public DomainObjectSerializer() {}
-    
+    public static DomainObjectSerializer getInstance() {
+        if (instance == null) {
+            instance = new DomainObjectSerializer();
+        }
+
+        return instance;
+    }
+
     /**
      * Convert a study design to JSON
      * @param design the study design object

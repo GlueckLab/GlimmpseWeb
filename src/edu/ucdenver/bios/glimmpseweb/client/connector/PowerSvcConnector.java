@@ -38,7 +38,8 @@ public class PowerSvcConnector {
     private static final String MEDIA_TYPE = "application/json";
 
     // JSON encoder/decoder class
-    private static final DomainObjectSerializer serializer = new DomainObjectSerializer();
+    private static final DomainObjectSerializer serializer = 
+        DomainObjectSerializer.getInstance();
     
     /**
      * Create a new connector to the power service

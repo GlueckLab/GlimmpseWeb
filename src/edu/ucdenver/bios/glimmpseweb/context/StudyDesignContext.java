@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -14,6 +15,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
@@ -24,6 +26,7 @@ import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
@@ -35,197 +38,206 @@ import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
 public class StudyDesignContext extends WizardContext
 {
-	// main study design object
-	private StudyDesign studyDesign;
-	
-	// cache of all possible study groups
-	private DataTable participantGroups = null;
-	
-	public StudyDesignContext()
-	{
-		studyDesign = new StudyDesign();
-	}
-	
-	public StudyDesign getStudyDesign()
-	{
-		return studyDesign;
-	}
+    // main study design object
+    private StudyDesign studyDesign;
 
-	public DataTable getParticipantGroups()
-	{
-	    return participantGroups;
-	}
-	
-	public void setAlphaList(WizardStepPanel panel, ArrayList<TypeIError> alphaList)
-	{
-		studyDesign.setAlphaList(alphaList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.ALPHA_LIST));
-	}
+    // cache of all possible between participant effects
+    private DataTable participantGroups = null;
 
-	public void setBetaScaleList(WizardStepPanel panel, List<BetaScale> betaScaleList)
-	{
-		studyDesign.setBetaScaleList(betaScaleList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.BETA_SCALE_LIST));
-	}
+    // cache of all possible combinations of within participant effects
+    private DataTable withinParticipantMeasures = null;
 
-	public void setSigmaScaleList(WizardStepPanel panel, List<SigmaScale> sigmaScaleList)
-	{
-		studyDesign.setSigmaScaleList(sigmaScaleList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.SIGMA_SCALE_LIST));
-	}
+    public StudyDesignContext()
+    {
+        studyDesign = new StudyDesign();
+    }
 
-	public void setPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
-	{
-		studyDesign.setNominalPowerList(powerList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.POWER_LIST));
-	}
-	
-	public void setPowerMethodList(WizardStepPanel panel, ArrayList<PowerMethod> powerMethodList)
-	{
-		studyDesign.setPowerMethodList(powerMethodList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.POWER_METHOD_LIST));
-	}
-	
-	public void setQuantileList(WizardStepPanel panel, ArrayList<Quantile> quantileList)
-	{
-		studyDesign.setQuantileList(quantileList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.QUANTILE_LIST));
-	}
-	
-	public void setPerGroupSampleSizeList(WizardStepPanel panel, ArrayList<SampleSize> sampleSizeList)
-	{
-		studyDesign.setSampleSizeList(sampleSizeList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.PER_GROUP_N_LIST));
-	}
-	
-	public void setStatisticalTestList(WizardStepPanel panel, ArrayList<StatisticalTest> statisticalTestList)
-	{
-		studyDesign.setStatisticalTestList(statisticalTestList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.STATISTICAL_TEST_LIST));
-	}
+    public StudyDesign getStudyDesign()
+    {
+        return studyDesign;
+    }
 
-	public void setSolutionType(WizardStepPanel panel, SolutionTypeEnum solutionType)
-	{
-		studyDesign.setSolutionTypeEnum(solutionType);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.SOLVING_FOR));
-	}
+    public DataTable getParticipantGroups()
+    {
+        return participantGroups;
+    }
 
-	public void setCovariate(WizardStepPanel panel, boolean hasCovariate)
-	{
-		studyDesign.setGaussianCovariate(hasCovariate);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.COVARIATE));
-	}
+    public DataTable getWithinParticipantMeasures()
+    {
+        return withinParticipantMeasures;
+    }
 
-	public void setDesignEssenceMatrix(WizardStepPanel panel, NamedMatrix designFixed,
-			NamedMatrix designRandom)
-	{
-		studyDesign.setNamedMatrix(designFixed);
-		if (designRandom != null) studyDesign.setNamedMatrix(designRandom);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.DESIGN_ESSENCE_MATRIX));
-	}
+    public void setAlphaList(WizardStepPanel panel, ArrayList<TypeIError> alphaList)
+    {
+        studyDesign.setAlphaList(alphaList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.ALPHA_LIST));
+    }
 
-	public void setBetweenParticipantContrast(WizardStepPanel panel, 
-			NamedMatrix fixed, NamedMatrix random)
-	{
-		studyDesign.setNamedMatrix(fixed);
-		if (random != null) studyDesign.setNamedMatrix(random);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.BETWEEN_CONTRAST_MATRIX));
-	}
+    public void setBetaScaleList(WizardStepPanel panel, List<BetaScale> betaScaleList)
+    {
+        studyDesign.setBetaScaleList(betaScaleList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.BETA_SCALE_LIST));
+    }
 
-	public void setWithinParticipantContrast(WizardStepPanel panel, NamedMatrix withinParticipantContrast)
-	{
-		studyDesign.setNamedMatrix(withinParticipantContrast);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.WITHIN_CONTRAST_MATRIX));
-	}
+    public void setSigmaScaleList(WizardStepPanel panel, List<SigmaScale> sigmaScaleList)
+    {
+        studyDesign.setSigmaScaleList(sigmaScaleList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.SIGMA_SCALE_LIST));
+    }
 
-	public void setBeta(WizardStepPanel panel, NamedMatrix fixed, NamedMatrix random)
-	{
-		studyDesign.setNamedMatrix(fixed);
-		if (random != null) studyDesign.setNamedMatrix(random);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.BETA_MATRIX));
-	}
+    public void setPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
+    {
+        studyDesign.setNominalPowerList(powerList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.POWER_LIST));
+    }
 
-	public void setSigmaCovariate(WizardStepPanel panel, NamedMatrix sigmaCovariate)
-	{
-		studyDesign.setNamedMatrix(sigmaCovariate);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.SIGMA_COVARIATE_MATRIX));
-	}
+    public void setPowerMethodList(WizardStepPanel panel, ArrayList<PowerMethod> powerMethodList)
+    {
+        studyDesign.setPowerMethodList(powerMethodList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.POWER_METHOD_LIST));
+    }
 
-	public void setSigmaError(WizardStepPanel panel, NamedMatrix sigmaError)
-	{
-		studyDesign.setNamedMatrix(sigmaError);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.SIGMA_ERROR_MATRIX));
-	}
+    public void setQuantileList(WizardStepPanel panel, ArrayList<Quantile> quantileList)
+    {
+        studyDesign.setQuantileList(quantileList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.QUANTILE_LIST));
+    }
 
-	public void setSigmaOutcomesCovariate(WizardStepPanel panel, NamedMatrix sigmaYG)
-	{
-		studyDesign.setNamedMatrix(sigmaYG);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.SIGMA_OUTCOME_COVARIATE_MATRIX));
-	}
+    public void setPerGroupSampleSizeList(WizardStepPanel panel, ArrayList<SampleSize> sampleSizeList)
+    {
+        studyDesign.setSampleSizeList(sampleSizeList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.PER_GROUP_N_LIST));
+    }
 
-	public void setSigmaOutcomes(WizardStepPanel panel, NamedMatrix sigmaY)
-	{
-		studyDesign.setNamedMatrix(sigmaY);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.SIGMA_OUTCOME_MATRIX));
-	}
+    public void setStatisticalTestList(WizardStepPanel panel, ArrayList<StatisticalTest> statisticalTestList)
+    {
+        studyDesign.setStatisticalTestList(statisticalTestList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.STATISTICAL_TEST_LIST));
+    }
 
-	public void setThetaNull(WizardStepPanel panel, NamedMatrix thetaNull)
-	{
-		studyDesign.setNamedMatrix(thetaNull);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.THETA_NULL_MATRIX));
-	}
+    public void setSolutionType(WizardStepPanel panel, SolutionTypeEnum solutionType)
+    {
+        studyDesign.setSolutionTypeEnum(solutionType);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.SOLVING_FOR));
+    }
 
-	public void setClustering(WizardStepPanel panel, ArrayList<ClusterNode> clusteringNodeList)
-	{
-		studyDesign.setClusteringTree(clusteringNodeList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.CLUSTERING));
-	}
-	
+    public void setCovariate(WizardStepPanel panel, boolean hasCovariate)
+    {
+        studyDesign.setGaussianCovariate(hasCovariate);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.COVARIATE));
+    }
+
+    public void setDesignEssenceMatrix(WizardStepPanel panel, NamedMatrix designFixed,
+            NamedMatrix designRandom)
+    {
+        studyDesign.setNamedMatrix(designFixed);
+        if (designRandom != null) studyDesign.setNamedMatrix(designRandom);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.DESIGN_ESSENCE_MATRIX));
+    }
+
+    public void setBetweenParticipantContrast(WizardStepPanel panel, 
+            NamedMatrix fixed, NamedMatrix random)
+    {
+        studyDesign.setNamedMatrix(fixed);
+        if (random != null) studyDesign.setNamedMatrix(random);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.BETWEEN_CONTRAST_MATRIX));
+    }
+
+    public void setWithinParticipantContrast(WizardStepPanel panel, NamedMatrix withinParticipantContrast)
+    {
+        studyDesign.setNamedMatrix(withinParticipantContrast);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.WITHIN_CONTRAST_MATRIX));
+    }
+
+    public void setBeta(WizardStepPanel panel, NamedMatrix fixed, NamedMatrix random)
+    {
+        studyDesign.setNamedMatrix(fixed);
+        if (random != null) studyDesign.setNamedMatrix(random);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.BETA_MATRIX));
+    }
+
+    public void setSigmaCovariate(WizardStepPanel panel, NamedMatrix sigmaCovariate)
+    {
+        studyDesign.setNamedMatrix(sigmaCovariate);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.SIGMA_COVARIATE_MATRIX));
+    }
+
+    public void setSigmaError(WizardStepPanel panel, NamedMatrix sigmaError)
+    {
+        studyDesign.setNamedMatrix(sigmaError);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.SIGMA_ERROR_MATRIX));
+    }
+
+    public void setSigmaOutcomesCovariate(WizardStepPanel panel, NamedMatrix sigmaYG)
+    {
+        studyDesign.setNamedMatrix(sigmaYG);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.SIGMA_OUTCOME_COVARIATE_MATRIX));
+    }
+
+    public void setSigmaOutcomes(WizardStepPanel panel, NamedMatrix sigmaY)
+    {
+        studyDesign.setNamedMatrix(sigmaY);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.SIGMA_OUTCOME_MATRIX));
+    }
+
+    public void setThetaNull(WizardStepPanel panel, NamedMatrix thetaNull)
+    {
+        studyDesign.setNamedMatrix(thetaNull);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.THETA_NULL_MATRIX));
+    }
+
+    public void setClustering(WizardStepPanel panel, ArrayList<ClusterNode> clusteringNodeList)
+    {
+        studyDesign.setClusteringTree(clusteringNodeList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.CLUSTERING));
+    }
+
     public void setRepeatedMeasures(WizardStepPanel panel, 
             ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList)
     {
         studyDesign.setRepeatedMeasuresTree(repeatedMeasuresNodeList);
+        this.withinParticipantMeasures = buildWithinParticipantMeasures();
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.REPEATED_MEASURES));
     }
-	
-	public void setBetweenParticipantFactorList(WizardStepPanel panel, 
-			List<BetweenParticipantFactor> factorList, DataTable participantGroups)
-	{
-	    this.participantGroups = participantGroups;
-		studyDesign.setBetweenParticipantFactorList(factorList);
-		notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-				StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
-	}
-	
+
+    public void setBetweenParticipantFactorList(WizardStepPanel panel, 
+            List<BetweenParticipantFactor> factorList)
+    {
+        this.participantGroups = buildParticipantGroups(factorList);
+        studyDesign.setBetweenParticipantFactorList(factorList);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
+    }
+
     public void setRelativeGroupSizeList(WizardStepPanel panel, 
             List<RelativeGroupSize> relativeGroupSizeList)
     {
         studyDesign.setRelativeGroupSizeList(relativeGroupSizeList);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-                StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
+                StudyDesignChangeType.RELATIVE_GROUP_SIZE_LIST));
     }
-    
+
     public void setResponseVariables(WizardStepPanel panel, String label,
             List<String> varibleList)
     {
@@ -234,39 +246,39 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.RESPONSES_LIST));
     }
-    
-    /*
-    public void setHypothesisMainEffectVariables(WizardStepPanel panel, Hypothesis hypothesis )
+
+    /**
+     * Store the hypothesis in the study design
+     * @param panel
+     * @param hypothesis
+     */
+    public void setHypothesis(WizardStepPanel panel, Hypothesis hypothesis)
     {
         studyDesign.setHypothesisToSet(hypothesis);
-    }
-    public void setHypothesisInteractionVariables(WizardStepPanel panel, Hypothesis hypothesis)
-    {
-        studyDesign.setHypothesisToSet(hypothesis);
-    }
-    public void setHypothesisTrendVariables(WizardStepPanel panel,
-            Hypothesis hypothesis)
-    {
-        studyDesign.setHypothesisToSet(hypothesis);
-    }*/
-    
-    public void setHypothesis(WizardStepPanel panel,
-            Hypothesis hypothesis)
-    {
-        studyDesign.setHypothesisToSet(hypothesis);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.HYPOTHESIS));
     }
 
+    /**
+     * Store the covariance information in the study design
+     * @param panel
+     * @param covariance
+     */
     public void setCovariance(WizardStepPanel panel, Covariance covariance)
     {
         studyDesign.addCovariance(covariance);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.COVARIANCE));
     }
-    
+
     public void setConfidenceIntervalOptions(WizardStepPanel panel, ConfidenceIntervalDescription confidenceIntervalDescription)
     {
         studyDesign.setConfidenceIntervalDescriptions(confidenceIntervalDescription);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.CONFIDENCE_INTERVAL));
     }
-    
-    
+
+
     /**
      * Checks if the study design is complete
      */
@@ -278,15 +290,69 @@ public class StudyDesignContext extends WizardContext
             checkCompleteGuided();
         }
     }
-    
+
     /**
      * Checks if a "guided" study design is complete.
      * @return true if complete, false otherwise
      */
     private void checkCompleteGuided() {
-        
+        Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
+        boolean gaussianCovariate = studyDesign.isGaussianCovariate();
+
+        boolean hasBetweenFactors = false;
+        boolean hasResponses = false;
+        boolean hasHypothesis = false;
+        boolean hasCovariance = false;
+        boolean hasThetaNull = false;
+        boolean hasBeta = false;
+        boolean hasBetaRandom = !gaussianCovariate;
+
+        // do we have fixed predictors?
+        List<BetweenParticipantFactor> betweenFactorList = studyDesign.getBetweenParticipantFactorList();
+        hasBetweenFactors = (betweenFactorList != null && betweenFactorList.size() > 0);
+        // do we have responses?
+        List<ResponseNode> responseList = studyDesign.getResponseList();
+        hasResponses = (responseList != null && responseList.size() > 0);
+        // do we have a hypothesis?
+        Set<Hypothesis> hypothesisSet = studyDesign.getHypothesis();
+        hasHypothesis = (hypothesisSet != null && hypothesisSet.size() > 0);
+
+        if (matrixSet != null) {
+            Iterator<NamedMatrix> iterator = matrixSet.iterator();
+            while (iterator.hasNext()) {
+                NamedMatrix matrix = iterator.next();
+                if (matrix != null) {
+                    if  (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName())) {
+                        // do we have means?
+                        hasBeta = true;
+                    } else if (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName())) {
+                        // do we have a null hypothesis?
+                        hasThetaNull = true;
+                    }
+                    
+                    if (gaussianCovariate) {
+                        // check matrices for covariate designs
+                        if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName())) {
+                            hasBetaRandom = true;
+                        }
+                    } 
+                }
+            }
+        }
+        // do we have covariance information?
+        Set<Covariance> covarianceSet = studyDesign.getCovariance();
+        hasCovariance = (covarianceSet != null && covarianceSet.size() > 0);
+
+        complete = (validLists() 
+                && hasBetweenFactors && hasResponses
+                && hasHypothesis && hasCovariance
+                && hasBeta && hasBetaRandom
+                && hasThetaNull);
+
+        GWT.log("Study design complete? " + complete);
+
     }
-    
+
     /**
      * Returns true if a matrix only study design is complete
      * with all required matrices.
@@ -309,7 +375,7 @@ public class StudyDesignContext extends WizardContext
         boolean hasSigmaY = !gaussianCovariate;
         boolean hasSigmaYG = !gaussianCovariate;
         boolean hasSigmaG = !gaussianCovariate;
-        
+
         // spin over the matrices and make sure all are present
         if (matrixSet != null) {
             Iterator<NamedMatrix> iterator = matrixSet.iterator();
@@ -353,12 +419,8 @@ public class StudyDesignContext extends WizardContext
         complete = validLists() && (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
                 && hasU && hasThetaNull
                 && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
-        GWT.log("lists?=" + validLists() + " matrices?=" + (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
-                && hasU && hasThetaNull
-                && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG));
-        GWT.log("Study design complete? " + complete);
     }
-    
+
     /**
      * Checks if all required list inputs have been entered (used to validate both
      * matrix and guided designs).
@@ -366,55 +428,132 @@ public class StudyDesignContext extends WizardContext
      */
     private boolean validLists() {       
         // check for lists required by specific solution types
-        switch(studyDesign.getSolutionTypeEnum()) {
-        case POWER:
-            if (studyDesign.getSampleSizeList() == null
-                    || studyDesign.getSampleSizeList().size() < 1
-                    || studyDesign.getBetaScaleList() == null 
-                    || studyDesign.getBetaScaleList().size() < 1) {
-                return false;
-            }
-            break;
-        case SAMPLE_SIZE:
-            if (studyDesign.getNominalPowerList() == null
-                    || studyDesign.getNominalPowerList().size() < 1
-                    || studyDesign.getBetaScaleList() == null 
-                    || studyDesign.getBetaScaleList().size() < 1) {
-                return false;
-            }
-            break;
-        case DETECTABLE_DIFFERENCE:
-            if (studyDesign.getSampleSizeList() == null
-                    || studyDesign.getSampleSizeList().size() < 1
-                    || studyDesign.getNominalPowerList() == null 
-                    || studyDesign.getNominalPowerList().size() < 1) {
-                return false;
-            }
-            break;
-        default:
+        if (studyDesign.getSolutionTypeEnum() != null) {
+            switch(studyDesign.getSolutionTypeEnum()) {
+            case POWER:
+                if (studyDesign.getSampleSizeList() == null
+                        || studyDesign.getSampleSizeList().size() < 1
+                        || studyDesign.getBetaScaleList() == null 
+                        || studyDesign.getBetaScaleList().size() < 1) {
+                    return false;
+                }
+                break;
+            case SAMPLE_SIZE:
+                if (studyDesign.getNominalPowerList() == null
+                        || studyDesign.getNominalPowerList().size() < 1
+                        || studyDesign.getBetaScaleList() == null 
+                        || studyDesign.getBetaScaleList().size() < 1) {
+                    return false;
+                }
+                break;
+            case DETECTABLE_DIFFERENCE:
+                if (studyDesign.getSampleSizeList() == null
+                        || studyDesign.getSampleSizeList().size() < 1
+                        || studyDesign.getNominalPowerList() == null 
+                        || studyDesign.getNominalPowerList().size() < 1) {
+                    return false;
+                }
+                break;
+            default:
                 return false; // null or invalid
-        }
+            }
 
-        if (studyDesign.getAlphaList() == null || studyDesign.getAlphaList().size() < 1
-                ||studyDesign.getSigmaScaleList() == null || studyDesign.getSigmaScaleList().size() < 1
-                ||studyDesign.getStatisticalTestList() == null || studyDesign.getStatisticalTestList().size() < 1) {
-            return false;
-        }
-
-        if (studyDesign.isGaussianCovariate()) {
-            if (studyDesign.getPowerMethodList() == null || studyDesign.getPowerMethodList().size() < 1) {
+            if (studyDesign.getAlphaList() == null || studyDesign.getAlphaList().size() < 1
+                    ||studyDesign.getSigmaScaleList() == null || studyDesign.getSigmaScaleList().size() < 1
+                    ||studyDesign.getStatisticalTestList() == null || studyDesign.getStatisticalTestList().size() < 1) {
                 return false;
-            } else {
-                for(PowerMethod method : studyDesign.getPowerMethodList()) {
-                    if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
-                            && (studyDesign.getPowerMethodList() == null 
-                                    || studyDesign.getPowerMethodList().size() < 1)){
-                        return false;
+            }
+
+            if (studyDesign.isGaussianCovariate()) {
+                if (studyDesign.getPowerMethodList() == null || studyDesign.getPowerMethodList().size() < 1) {
+                    return false;
+                } else {
+                    for(PowerMethod method : studyDesign.getPowerMethodList()) {
+                        if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
+                                && (studyDesign.getPowerMethodList() == null 
+                                        || studyDesign.getPowerMethodList().size() < 1)){
+                            return false;
+                        }
                     }
                 }
             }
+            return true;
+        } else {
+            return false;
         }
-        return true;
+
     }
-    
+
+
+    /**
+     * Build a cache table of all possible group combinations
+     * based on between participant effects.
+     * @return DataTable of study participant groups
+     */
+    private DataTable buildParticipantGroups(List<BetweenParticipantFactor> factorList)
+    {
+        DataTable data = DataTable.create();
+
+        if (factorList.size() > 0)
+        {
+            int rows = 1;
+            int col = 0;
+            // add the rows to the table for all factorial combinations of predictor categories
+            for(BetweenParticipantFactor factor: factorList)
+            {
+                data.addColumn(ColumnType.STRING, factor.getPredictorName());
+                rows *= factor.getCategoryList().size();
+            }
+            data.addRows(rows);           
+
+            // now fill in the data
+            int previousRepeat = 0;
+            col = 0;
+            for(BetweenParticipantFactor factor: factorList)
+            {
+                int row = 0;
+                List<Category> categoryList = factor.getCategoryList();
+                if (previousRepeat == 0)
+                {
+                    previousRepeat = rows / categoryList.size();
+                    for(Category category: categoryList)
+                    {
+                        for (int reps = 0; reps < previousRepeat; reps++, row++) 
+                        {
+                            data.setCell(row, col, category.getCategory(), category.getCategory(), null);
+                        }
+                    }
+                }
+                else
+                {
+                    int categorylistRepeat = rows / previousRepeat;
+                    previousRepeat = previousRepeat / categoryList.size();
+                    for(int categoryListRep = 0; categoryListRep < categorylistRepeat; categoryListRep++)
+                    {
+                        for(Category category: categoryList)
+                        {
+                            for (int reps = 0; reps < previousRepeat; reps++, row++) 
+                            {
+                                data.setCell(row, col, category.getCategory(), category.getCategory(), null);
+                            }
+                        }
+                    }
+                }
+                col++;
+            }
+        }
+        return data;
+    }  
+
+    /**
+     * Build a cache table of all possible combinations
+     * of within participant effects.
+     * @return DataTable of within participant effects.
+     */
+    private DataTable buildWithinParticipantMeasures() {
+        DataTable data = DataTable.create();
+
+        return data;
+    }
+
 }

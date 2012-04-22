@@ -525,6 +525,8 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidTailProbability();
     public String errorSampleSizeLessThanRank();
     public String errorInvalidClusterSize();
+    public String errorInvalidCorrelation();
+    public String errorInvalidNumRepeatedMeasures();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();
@@ -555,10 +557,27 @@ public interface GlimmpseConstants extends Constants
      public String clusteringPanelRemoveClusteringButton();
      public String clusteringPanelAddSubgroupButton();
      public String clusteringPanelRemoveSubgroupButton();
+     
+     // repeated measures panel constants
+     public String repeatedMeasuresPanelAddRMButton();
+     public String repeatedMeasuresPanelRemoveRMButton();
+     public String repeatedMeasuresPanelAddSubDimensionButton();
+     public String repeatedMeasuresPanelRemoveSubDimensionButton();
+     public String repeatedMeasuresPanelEqualSpacingButton();
+     
+     public String repeatedMeasuresNodePanelDimensionLabel();
+     public String repeatedMeasuresNodePanelTypeLabel();
+     public String repeatedMeasuresNodePanelSpacingLabel();
+     public String repeatedMeasuresNodePanelNumericLabel();
+     public String repeatedMeasuresNodePanelOrdinalLabel();
+     public String repeatedMeasuresNodePanelCategoricalLabel();
+     public String repeatedMeasuresNodePanelNumMeasurementsLabel();
+     
+     
      // subpanels for individual clustering nodes
      public String clusteringNodePanelNameLabel();
      public String clusteringNodePanelNumberOfGroupsLabel();
-     
+     public String clusteringNodePanelIntraclassCorrelationLabel();
      //cancel Dialog Box
      public String cancelDialogBoxQuery();
      

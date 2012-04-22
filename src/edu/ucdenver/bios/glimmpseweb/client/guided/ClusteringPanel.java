@@ -279,10 +279,7 @@ implements ChangeHandler {
     private void updateComplete(ClusteringPanelSubPanel subpanel)
     {
         boolean subpanelComplete = subpanel.checkComplete();
-        if (WizardStepPanelState.COMPLETE == this.state)
-        {
-            complete = subpanelComplete;
-        }
+        complete = complete && subpanelComplete;
     }
 
     /**

@@ -1,3 +1,24 @@
+/*
+ * Web Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
@@ -22,6 +43,11 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
+/**
+ * Main wizard panel for Guided Mode
+ * @author Sarah Kreidler
+ *
+ */
 public class GuidedWizardPanel extends Composite
 {
 	// create a study design context
@@ -45,14 +71,15 @@ public class GuidedWizardPanel extends Composite
 	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
 	protected RelativeGroupSizePanel relativeGroupSizePanel = new RelativeGroupSizePanel(context);
 	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel(context);
+	//clustering 
+    protected ClusteringPanel clusteringPanel = new ClusteringPanel(context);
 	// outcomes
 	protected IntroPanel outcomesIntroPanel = new IntroPanel(context,
 			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.outcomesIntroTitle(),
 			GlimmpseWeb.constants.outcomesIntroDescription());
 	protected OutcomesPanel outcomesPanel = new OutcomesPanel(context);
 	protected RepeatedMeasuresPanel repeatedMeasuresPanel = new RepeatedMeasuresPanel(context);
-	//clustering 
-	protected ClusteringPanel clusteringPanel = new ClusteringPanel(context);
+
 	// hypotheses
 	protected IntroPanel hypothesisIntroPanel = new IntroPanel(context,
 			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.hypothesisIntroTitle(),
@@ -117,18 +144,14 @@ public class GuidedWizardPanel extends Composite
 		group.addPanel(powerPanel);
 		group.addPanel(typeIErrorPanel);
 		groupList.add(group);
-//		{predictorIntroPanel, catPredictorsPanel, covariatePanel, 
-//			relativeGroupSizePanel, perGroupSampleSizePanel}, 
+		// predictors
 		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupPredictors());
 		group.addPanel(predictorIntroPanel);
 		group.addPanel(catPredictorsPanel);
 		group.addPanel(covariatePanel);
+	    group.addPanel(clusteringPanel);
 		group.addPanel(relativeGroupSizePanel);
 		group.addPanel(perGroupSampleSizePanel);
-		groupList.add(group);
-		// random effects
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupClustering());
-		group.addPanel(clusteringPanel);
 		groupList.add(group);
 		// outcomes
 		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupResponses());

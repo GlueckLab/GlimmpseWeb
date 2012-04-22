@@ -25,6 +25,7 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -65,7 +66,7 @@ implements ChangeHandler
     // pointer to the lower most leaf in the tree
     protected TreeItem currentLeaf = null;
     // used to verify completeness
-    protected boolean complete;
+    protected boolean complete = false;
     
     // list of repeated measures node domain objects
     protected ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
@@ -94,29 +95,38 @@ implements ChangeHandler
     
     protected HorizontalPanel buttonPanel = new HorizontalPanel();
 
-    Button addRepeatedMeasuresButton = new Button("Add Repeated Measures", new ClickHandler() {
+    Button addRepeatedMeasuresButton = new Button(
+            GlimmpseWeb.constants.repeatedMeasuresPanelAddRMButton(), 
+            new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
-            addRepeatedMeasures();
+            addSubDimension();
+            toggleRepeatedMeasures();
         }
     });
 
-    Button removeRepeatedMeasuresButton = new Button("Remove Repeated Measures", new ClickHandler(){
+    Button removeRepeatedMeasuresButton = new Button(
+            GlimmpseWeb.constants.repeatedMeasuresPanelRemoveRMButton(), 
+            new ClickHandler(){
         @Override
         public void onClick(ClickEvent event) {
-            removeRepeatedMeasures();
+            reset();
+            toggleRepeatedMeasures();
         }
     });
 
-    Button addSubDimensionButton = 
-        new Button("Add Repeated Measures within Dimension", new ClickHandler(){
+    Button addSubDimensionButton = new Button(
+            GlimmpseWeb.constants.repeatedMeasuresPanelAddSubDimensionButton(), 
+                new ClickHandler(){
         @Override
         public void onClick(ClickEvent event) {
             addSubDimension();
         }
     });
 
-    Button removeSubDimensionButton = new Button("Remove Repeated Measures within Dimension", new ClickHandler(){
+    Button removeSubDimensionButton = new Button(
+            GlimmpseWeb.constants.repeatedMeasuresPanelRemoveSubDimensionButton(), 
+            new ClickHandler(){
         @Override
         public void onClick(ClickEvent event) {
             removeSubDimension();
@@ -149,9 +159,12 @@ implements ChangeHandler
 
         buttonPanel.add(addSubDimensionButton);
         buttonPanel.add(removeSubDimensionButton);
-        buttonPanel.setVisible(false);
         panel.add(buttonPanel);
-
+        // show/hide the appropriate buttons
+        addRepeatedMeasuresButton.setVisible(!hasRepeatedMeasures);
+        removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
+        addSubDimensionButton.setVisible(hasRepeatedMeasures);
+        removeSubDimensionButton.setVisible(hasRepeatedMeasures);
 
         //Setting Styles
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -162,20 +175,7 @@ implements ChangeHandler
 
         //Initializing Widget
         initWidget(panel);
-    }
-
-    public void addRepeatedMeasures()
-    {
-        addSubDimension();
-        toggleRepeatedMeasures();
-    }
-    
-    public void removeRepeatedMeasures()
-    {
-        reset();
-        toggleRepeatedMeasures();
-    }
-    
+    }   
     
     /**
      * Add a Clustering Panel Sub Panel class to the tree.
@@ -259,14 +259,15 @@ implements ChangeHandler
      */
     private void checkComplete() 
     {
-        // initialize to true
-        boolean complete = true;
+        // intialize to true
+        complete = true;
         // set back to false if any subpanels are incomplete
         TreeItemIterator.traverseDepthFirst(repeatedMeasuresTree, checkCompleteAction);
         if (complete)
             changeState(WizardStepPanelState.COMPLETE);
         else
             changeState(WizardStepPanelState.INCOMPLETE);
+        GWT.log("RM complete? " + complete);
     }
 
     /**
@@ -278,7 +279,6 @@ implements ChangeHandler
     {
         repeatedMeasuresTree.removeItems();
         repeatedMeasuresNodeList.clear();
-        if (hasRepeatedMeasures) toggleRepeatedMeasures();
         currentLeaf = null;
         itemCount = 0;
     }
@@ -345,10 +345,7 @@ implements ChangeHandler
     private void updateComplete(RepeatedMeasuresPanelSubPanel subpanel)
     {
         boolean subpanelComplete = subpanel.checkComplete();
-        if (WizardStepPanelState.COMPLETE == this.state)
-        {
-            complete = subpanelComplete;
-        }
+        complete = complete && subpanelComplete;
     }
 
     /**

@@ -30,7 +30,8 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
- * 
+ * Connector class to the matrix service to perform linear algebra
+ * operations.
  * @author VIJAY AKULA
  *
  */
@@ -39,7 +40,8 @@ public class MatrixSvcConnector {
     private static final String MEDIA_TYPE = "application/json";
     
     // JSON encoder/decoder class
-    private static final DomainObjectSerializer serializer = new DomainObjectSerializer();
+    private static final DomainObjectSerializer serializer = 
+        DomainObjectSerializer.getInstance();
     
     public MatrixSvcConnector(){}
     

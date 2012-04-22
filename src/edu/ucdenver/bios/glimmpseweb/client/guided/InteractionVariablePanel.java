@@ -11,8 +11,12 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
+
 public class InteractionVariablePanel extends Composite
 {
+    ClickHandler handler = null;
+    
 	Button editTrend = new Button("Edit Trend", new ClickHandler() {
 
 		@Override
@@ -38,8 +42,9 @@ public class InteractionVariablePanel extends Composite
 	
 	Grid grid = new Grid(1, 3);
 	
-	public InteractionVariablePanel(String label)
+	public InteractionVariablePanel(String label, ClickHandler handler)
 	{
+	    this.handler = handler;
 		String button_Style = "buttonStyle";
 		
 		checkBoxLabel = label;
@@ -66,7 +71,7 @@ public class InteractionVariablePanel extends Composite
 			@Override
 			public void onClick(ClickEvent event) 
 			{
-				boolean checked = ((CheckBox) event.getSource()).isChecked();
+				boolean checked = ((CheckBox) event.getSource()).getValue();
 				if(checked)
 				{
 					editTrend.setEnabled(true);
@@ -133,15 +138,14 @@ public class InteractionVariablePanel extends Composite
 		horizontalPanel.setVisible(false);
 	}
 	
-	public String selectedTrend()
+	public HypothesisTrendTypeEnum selectedTrend()
 	{
-	   String selectedTrend = editTrendPanel.getSelectedTrend();
-	   return selectedTrend;
+	   return editTrendPanel.getSelectedTrend();
 	}
 	
 	public boolean isChecked()
 	{
 	    CheckBox checkBox = (CheckBox) grid.getWidget(0, 0);
-	    return checkBox.isChecked();
+	    return checkBox.getValue();
 	}
 }
