@@ -51,6 +51,10 @@ public class ClusteringPanelSubPanel extends Composite {
     // each cluster
     protected TextBox numberOfGroupsTextBox = new TextBox(); 
     
+    // text box for entering the intraclass correlation
+    protected TextBox iccTextBox = new TextBox(); 
+    
+    
     //html widget to display the error message
     protected HTML errorHTML = new HTML();
     
@@ -66,7 +70,7 @@ public class ClusteringPanelSubPanel extends Composite {
         VerticalPanel verticalPanel = new VerticalPanel();
         
         // grid to hold the html naming widgets and the text boxes
-        Grid grid = new Grid(2,2);
+        Grid grid = new Grid(3,2);
         
         // Add handlers
         // handler to validate clustering name
@@ -111,12 +115,36 @@ public class ClusteringPanelSubPanel extends Composite {
                 for(ChangeHandler handler: handlerList) handler.onChange(event);
             }
         });
-
+        // handler to validate integer inputs in the number of groups box
+        iccTextBox.addChangeHandler(new ChangeHandler() 
+        {
+            @Override
+            public void onChange(ChangeEvent event) 
+            {
+                TextBox tb = (TextBox)event.getSource();
+                String value = tb.getValue();
+                try
+                {
+                    TextValidation.parseDouble(value, -1, 1, true);
+                    TextValidation.displayOkay(errorHTML, "");
+                }
+                catch (Exception e)
+                {
+                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidCorrelation());
+                       tb.setText("");
+                }
+                for(ChangeHandler handler: handlerList) handler.onChange(event);
+            }
+        });
+        
+        
         // layout the panel
-        grid.setText(0, 0, GlimmpseWeb.constants.clusteringNodePanelNameLabel());
+        grid.setWidget(0, 0, new HTML(GlimmpseWeb.constants.clusteringNodePanelNameLabel()));
         grid.setWidget(0, 1, groupingTextBox);
-        grid.setText(1, 0, GlimmpseWeb.constants.clusteringNodePanelNumberOfGroupsLabel());
+        grid.setWidget(1, 0, new HTML(GlimmpseWeb.constants.clusteringNodePanelNumberOfGroupsLabel()));
         grid.setWidget(1, 1, numberOfGroupsTextBox);
+        grid.setWidget(2, 0, new HTML(GlimmpseWeb.constants.clusteringNodePanelIntraclassCorrelationLabel()));
+        grid.setWidget(2, 1, iccTextBox);
         verticalPanel.add(grid);
         verticalPanel.add(errorHTML);
         
@@ -144,8 +172,10 @@ public class ClusteringPanelSubPanel extends Composite {
     {
         String checkGrouping = groupingTextBox.getText();
         String checkNumberOfGroups = numberOfGroupsTextBox.getText();
+        String checkICC = iccTextBox.getText();
         if (checkGrouping != null && !checkGrouping.isEmpty()
-                && checkNumberOfGroups != null && !checkNumberOfGroups.isEmpty()) 
+                && checkNumberOfGroups != null && !checkNumberOfGroups.isEmpty()
+                && checkICC != null && !checkICC.isEmpty()) 
             return true;
         else 
             return false;
@@ -182,14 +212,18 @@ public class ClusteringPanelSubPanel extends Composite {
      */
     public ClusterNode toClusterNode(int nodeId, int parentId)
     {
-        ClusterNode clusterNode = new ClusterNode();
-        
-        int groupSize = Integer.parseInt(numberOfGroupsTextBox.getValue());
-        clusterNode.setGroupName(groupingTextBox.getValue());
-        clusterNode.setGroupSize(groupSize);
-        clusterNode.setNode(nodeId);
-        clusterNode.setParent(parentId);
-        return clusterNode;
+        if (checkComplete()) {
+            ClusterNode clusterNode = new ClusterNode();
+
+            clusterNode.setGroupName(groupingTextBox.getValue());
+            clusterNode.setGroupSize(Integer.parseInt(numberOfGroupsTextBox.getValue()));
+            clusterNode.setIntraClusterCorrelation(Double.parseDouble(iccTextBox.getText()));
+            clusterNode.setNode(nodeId);
+            clusterNode.setParent(parentId);
+            return clusterNode;
+        } else {
+            return null;
+        }
     }
 
     /**

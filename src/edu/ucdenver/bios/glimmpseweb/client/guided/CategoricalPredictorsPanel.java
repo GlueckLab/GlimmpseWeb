@@ -77,7 +77,8 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     
     public CategoricalPredictorsPanel(WizardContext context)
     {
-    	super(context, "Categorical Predictors");
+    	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
+    	        WizardStepPanelState.INCOMPLETE);
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
@@ -290,64 +291,6 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
 		checkComplete();
     }
     
-    /**
-     * Build a cache table of all possible group combinations
-     * based on the predictors and categories.
-     * @return DataTable of study participant groups
-     */
-    private DataTable buildGroupTable()
-    {
-    	DataTable data = DataTable.create();
-    	
-    	if (predictorCategoryMap.size() > 0)
-    	{
-    		int rows = 1;
-    		int col = 0;
-    		for(String predictor: predictorCategoryMap.keySet())
-    		{
-    			data.addColumn(ColumnType.STRING, predictor);
-    			rows *= predictorCategoryMap.get(predictor).size();
-    		}
-    		data.addRows(rows);
-    		
-    		int previousRepeat = 0;
-    		col = 0;
-    		for(String predictor: predictorCategoryMap.keySet())
-    		{
-    			int row = 0;
-				ArrayList<String> categories = predictorCategoryMap.get(predictor);
-				if (previousRepeat == 0)
-				{
-					previousRepeat = rows / categories.size();
-					for(String category: categories)
-					{
-						for (int reps = 0; reps < previousRepeat; reps++, row++) 
-						{
-							data.setCell(row, col, category, category, null);
-						}
-					}
-				}
-				else
-				{
-					int categorylistRepeat = rows / previousRepeat;
-					previousRepeat = previousRepeat / categories.size();
-					for(int categoryListRep = 0; categoryListRep < categorylistRepeat; categoryListRep++)
-					{
-						for(String category: categories)
-						{
-							for (int reps = 0; reps < previousRepeat; reps++, row++) 
-							{
-								data.setCell(row, col, category, category, null);
-							}
-						}
-					}
-				}
-				col++;
-    		}
-    	}
-    	return data;
-    }  
-    
     public void checkComplete()
     {
     	boolean isComplete = !predictorCategoryMap.isEmpty();
@@ -417,7 +360,7 @@ public class CategoricalPredictorsPanel extends WizardStepPanel
     public void onExit()
     {
     	studyDesignContext.setBetweenParticipantFactorList(this, 
-    			buildBetweenParticipantFactorList(), buildGroupTable());
+    			buildBetweenParticipantFactorList());
     }
     
     /**

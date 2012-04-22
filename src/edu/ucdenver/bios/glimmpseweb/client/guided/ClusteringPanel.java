@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -126,26 +125,20 @@ implements ChangeHandler {
     });
     // list of clustering node domain objects
     protected ArrayList<ClusterNode> clusteringNodeList = new ArrayList<ClusterNode>();
-    
-    protected String buttonText = "Add Clustering";
-    protected String description1;
-
-
+    // panel containing the add subgroup panel
     protected HorizontalPanel buttonPanel = new HorizontalPanel();
 
-
-    
-    private static final String BUTTON_STYLE = "buttonStyle";
-
-
-
+    // style for buttons
+    private static final String BUTTON_STYLE =
+        GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON;
 
     /**
      * Constructor for the Clustering Panel Class
      */
     public ClusteringPanel(WizardContext context)
     {
-        super(context, "Clustering", WizardStepPanelState.COMPLETE);
+        super(context, GlimmpseWeb.constants.navItemClustering(), 
+                WizardStepPanelState.COMPLETE);
         VerticalPanel panel = new VerticalPanel();
         // title and header text
         HTML title = new HTML(GlimmpseWeb.constants.clusteringPanelTitle());
@@ -155,11 +148,10 @@ implements ChangeHandler {
         panel.add(header);
         panel.add(addClusteringButton);
         panel.add(removeClusteringButton);
+        panel.add(clusteringTree);
         buttonPanel.add(addSubgroupButton);
         buttonPanel.add(removeSubgroupButton);
         panel.add(buttonPanel);
-        panel.add(clusteringTree);
-
         // show/hide the appropriate buttons
         addClusteringButton.setVisible(!hasClustering);
         removeClusteringButton.setVisible(hasClustering);
@@ -211,7 +203,6 @@ implements ChangeHandler {
      */
     private void removeSubgroup() 
     {
-        GWT.log("count=" + itemCount + " removing subgroup " + (currentLeaf != null));
         if (currentLeaf != null)
         {
             TreeItem parent = currentLeaf.getParentItem();
@@ -244,15 +235,6 @@ implements ChangeHandler {
         checkComplete();
     }
 
-//    /**
-//     *  Add Clustering Method initiates the Tree by adding a root node to the tree.
-//     */
-//    public void addClustering() 
-//    {	
-//        addSubgroup();
-//        buttonPanel.setVisible(true);
-//    }
-
     /**
      * checkComplete() method is to check if all the instances of Clustering Panel Sub Panel Class added to the tree are
      * validated or not and then activate the Next button in the Wizard Setup Panel 
@@ -260,14 +242,13 @@ implements ChangeHandler {
     private void checkComplete() 
     {
         // initialize to true
-        boolean complete = true;
+        complete = true;
         // set back to false if any subpanels are incomplete
         TreeItemIterator.traverseDepthFirst(clusteringTree, checkCompleteAction);
         if (complete)
             changeState(WizardStepPanelState.COMPLETE);
         else
         	changeState(WizardStepPanelState.INCOMPLETE);
-        GWT.log("clustering screen is complete? " + complete);
     }
 
     /**
@@ -298,7 +279,6 @@ implements ChangeHandler {
     private void updateComplete(ClusteringPanelSubPanel subpanel)
     {
         boolean subpanelComplete = subpanel.checkComplete();
-        GWT.log("subpanel complete? " + subpanelComplete);
         if (WizardStepPanelState.COMPLETE == this.state)
         {
             complete = subpanelComplete;
@@ -327,7 +307,7 @@ implements ChangeHandler {
     {
         clusteringTree.removeItems();
         clusteringNodeList.clear();
-        if (hasClustering) toggleClustering();
+//        if (hasClustering) toggleClustering();
         currentLeaf = null;
         itemCount = 0;
     }
@@ -340,7 +320,11 @@ implements ChangeHandler {
     {
         clusteringNodeList.clear();
         TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
-        studyDesignContext.setClustering(this, clusteringNodeList);
+        if (clusteringNodeList.size() > 0) {
+            studyDesignContext.setClustering(this, clusteringNodeList);
+        } else {
+            studyDesignContext.setClustering(this, null);
+        }
     }
 
     /**
