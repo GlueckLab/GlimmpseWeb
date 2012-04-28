@@ -40,11 +40,14 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Matrix Mode panel which allows the user to set options for confidence
@@ -77,7 +80,8 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	
 	public OptionsConfidenceIntervalsPanel(WizardContext context, String mode)
 	{
-		super(context, "Confidence Intervals");
+		super(context, GlimmpseWeb.constants.navItemConfidenceIntervals(),
+		        WizardStepPanelState.COMPLETE);
 	
 		ciTypeRadioGroup += mode;
 		VerticalPanel panel = new VerticalPanel();
@@ -345,83 +349,56 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	}
 
 
-	public void loadFromNode(Node node)
+	public void loadFromContext()
 	{	
-		if (GlimmpseConstants.TAG_CONFIDENCE_INTERVAL.equalsIgnoreCase(node.getNodeName()))
-		{
-			NamedNodeMap attrs = node.getAttributes();
-			// set type of CI
-			Node typeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_TYPE);
-			if (typeNode != null) 
-			{
-				if (GlimmpseConstants.CONFIDENCE_INTERVAL_BETA_KNOWN_EST_SIGMA.equals(typeNode.getNodeValue()))
-					sigmaCIRadioButton.setValue(true);
-				else if (GlimmpseConstants.CONFIDENCE_INTERVAL_EST_BETA_SIGMA.equals(typeNode.getNodeValue()))
-					betaSigmaCIRadioButton.setValue(true);
-			}
-			// set upper/lower tails
-			Node upperTailNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ALPHA_UPPER);
-			if (upperTailNode != null) alphaUpperTextBox.setValue(upperTailNode.getNodeValue());
-			Node lowerTailNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ALPHA_LOWER);
-			if (lowerTailNode != null) alphaLowerTextBox.setValue(lowerTailNode.getNodeValue());
-			
-			// set estimation data set info
-			Node sampleSizeNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ESTIMATES_SAMPLE_SIZE);
-			if (sampleSizeNode != null) sampleSizeTextBox.setValue(sampleSizeNode.getNodeValue());
-			Node rankNode = attrs.getNamedItem(GlimmpseConstants.ATTR_CI_ESTIMATES_RANK);
-			if (rankNode != null) rankTextBox.setText(rankNode.getNodeValue());
-		}
+	    ConfidenceIntervalDescription description = 
+	        studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions();
+	    if (description != null) {
+	        if (description.isBetaFixed()) {
+                sigmaCIRadioButton.setValue(true);
+	        } else {
+	            betaSigmaCIRadioButton.setValue(true);
+	        }
+	        
+	        // fill in the tail probabilities
+	        alphaUpperTextBox.setValue(Float.toString(description.getUpperTrailProbability()));
+	        alphaLowerTextBox.setValue(Float.toString(description.getLowerTrailProbability()));
+	        
+	        // fill in the rank and sample size for the pilot data
+	        sampleSizeTextBox.setValue(Integer.toString(description.getSampleSize()));
+	        rankTextBox.setText(Integer.toString(description.getRankOfDesignMatrix()));
+	    }
+
 	}
 	
-	public String toRequestXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-		if (WizardStepPanelState.COMPLETE == state && !noCICheckbox.getValue())
-		{
-			StringBuffer attrs = new StringBuffer();
-			attrs.append(GlimmpseConstants.ATTR_TYPE);
-			attrs.append("='");
-			if (sigmaCIRadioButton.getValue())
-				attrs.append(GlimmpseConstants.CONFIDENCE_INTERVAL_BETA_KNOWN_EST_SIGMA);
-			else if (betaSigmaCIRadioButton.getValue())
-				attrs.append(GlimmpseConstants.CONFIDENCE_INTERVAL_EST_BETA_SIGMA);
-			attrs.append("' ");
-			attrs.append(GlimmpseConstants.ATTR_CI_ALPHA_LOWER);
-			attrs.append("='");
-			attrs.append(alphaLowerTextBox.getText());
-			attrs.append("' ");
-			attrs.append(GlimmpseConstants.ATTR_CI_ALPHA_UPPER);
-			attrs.append("='");
-			attrs.append(alphaUpperTextBox.getText());
-			attrs.append("' ");
-			attrs.append(GlimmpseConstants.ATTR_CI_ESTIMATES_SAMPLE_SIZE);
-			attrs.append("='");
-			attrs.append(sampleSizeTextBox.getText());
-			attrs.append("' ");
-			attrs.append(GlimmpseConstants.ATTR_CI_ESTIMATES_RANK);
-			attrs.append("='");
-			attrs.append(rankTextBox.getText());
-			attrs.append("' ");
-						
-			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_CONFIDENCE_INTERVAL,
-					attrs.toString());
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_CONFIDENCE_INTERVAL);
-		}
-		return buffer.toString();
-	}
 	
-	public String toStudyXML()
-	{
-		if (noCICheckbox.getValue())
-		{
-			return "";
-		}
-		else
-		{
-			return toRequestXML();
-		}
-	}
-	
+    /**
+     * Resize the beta matrix when the design matrix dimensions change
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+        StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+        switch (changeEvent.getType())
+        {
+        case CONFIDENCE_INTERVAL:
+            if (e.getSource() != this) loadFromContext();
+            break;
+        }       
+    }
+    
+    /**
+     * Load the beta matrix information from the context
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+        loadFromContext();
+    }
+
+	/**
+	 * Check if the screen is complete
+	 */
 	private void checkComplete()
 	{
 		if (noCICheckbox.getValue() || 
@@ -438,20 +415,24 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			changeState(WizardStepPanelState.INCOMPLETE);
 		}
 	}
+	
+	/**
+	 * Send the confidence interval to the context
+	 */
 	@Override
 	public void onExit()
 	{
-	    ConfidenceIntervalDescription confidenceIntervalDescription =
-	            new ConfidenceIntervalDescription();
-	    Float lowerValue = new Float(alphaLowerTextBox.getValue());
-	    confidenceIntervalDescription.setLowerTrailProbability(lowerValue);
-	    Float upperValue = new Float(alphaUpperTextBox.getValue());
-	    confidenceIntervalDescription.setUpperTrailProbability(upperValue);
-	    int rank = Integer.parseInt(rankTextBox.getValue());
-	    confidenceIntervalDescription.setRankOfDesignMatrix(rank);
-	    int sampleSize = Integer.parseInt(sampleSizeTextBox.getValue());
-	    confidenceIntervalDescription.setSampleSize(sampleSize);
-	    studyDesignContext.setConfidenceIntervalOptions(this, confidenceIntervalDescription);
+	    ConfidenceIntervalDescription ciDescr = null;
+	    if (WizardStepPanelState.COMPLETE == getState() 
+	            && !noCICheckbox.getValue() ) {
+	        ciDescr =  new ConfidenceIntervalDescription();
+	        ciDescr.setLowerTrailProbability(Float.parseFloat(alphaLowerTextBox.getValue()));
+	        ciDescr.setUpperTrailProbability(Float.parseFloat(alphaUpperTextBox.getValue()));
+	        ciDescr.setRankOfDesignMatrix(Integer.parseInt(rankTextBox.getValue()));
+	        ciDescr.setSampleSize(Integer.parseInt(sampleSizeTextBox.getValue()));
+	    } 
+        studyDesignContext.setConfidenceIntervalOptions(this, ciDescr);
+	    
 	}
 
 }
