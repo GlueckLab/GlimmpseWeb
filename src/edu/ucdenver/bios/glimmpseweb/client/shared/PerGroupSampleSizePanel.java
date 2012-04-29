@@ -150,10 +150,21 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<SampleSize> perGroupNList = studyDesignContext.getStudyDesign().getSampleSizeList();
-    	for(SampleSize size: perGroupNList) {
-    	    perGroupNListPanel.add(Integer.toString(size.getValue()));
-    	}
+        List<SampleSize> perGroupNList = studyDesignContext.getStudyDesign().getSampleSizeList();
+        SolutionTypeEnum solutionType = studyDesignContext.getStudyDesign().getSolutionTypeEnum();
+        perGroupNListPanel.reset();
+
+        if (solutionType == SolutionTypeEnum.POWER) {
+            if (perGroupNList != null) {
+                for(SampleSize size: perGroupNList) {
+                    perGroupNListPanel.add(Integer.toString(size.getValue()));
+                }
+                
+            } 
+            onValidRowCount(perGroupNListPanel.getValidRowCount());
+        } else {
+            changeState(WizardStepPanelState.SKIPPED);
+        }
     }
     
     /**

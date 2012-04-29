@@ -31,84 +31,163 @@ import com.google.gwt.user.client.ui.HTML;
  */
 public class TextValidation
 {
-	private static final String validPunctuationChars = " ._-";
-	public static String parseString(String str)
-	throws ParseException
-	{
-		if (str == null || str.isEmpty()) throw new ParseException("empty string", 0);
-		
-		for (int pos = 0; pos < str.length(); pos++)
-		{
-		    char ch = str.charAt(pos);
-			if (!Character.isDigit(ch) && !Character.isLetter(ch) &&  
-					validPunctuationChars.indexOf(ch) != -1)
-				throw new ParseException("invalid character at ", pos);
-			pos++;
-		}
-		return str;
+    // special characters allowed in a string input
+    private static final String validPunctuationChars = " ._-";
+    
+    /**
+     * Parse a string and throw an exception if disallowed characters appear
+     * @param str the string to be validated
+     * @return the string
+     * @throws ParseException
+     */
+    public static String parseString(String str)
+    throws ParseException
+    {
+        if (str == null || str.isEmpty()) throw new ParseException("empty string", 0);
 
-	}
-	
-	
-	public static int parseInteger(String str, int lowerBound, int upperBound)
-	throws NumberFormatException
-	{
+        for (int pos = 0; pos < str.length(); pos++)
+        {
+            char ch = str.charAt(pos);
+            if (!Character.isDigit(ch) && !Character.isLetter(ch) &&  
+                    validPunctuationChars.indexOf(ch) != -1)
+                throw new ParseException("invalid character at ", pos);
+            pos++;
+        }
+        return str;
+
+    }
+
+    /**
+     * Parse an integer between the specified bounds
+     * @param str
+     * @param lowerBound
+     * @param upperBound
+     * @return
+     * @throws NumberFormatException
+     */
+    public static int parseInteger(String str, int lowerBound, int upperBound)
+    throws NumberFormatException
+    {
         if (str == null || str.isEmpty()) throw new NumberFormatException("empty string");
 
         int n = Integer.parseInt(str);
         if (n > upperBound || n < lowerBound) throw new NumberFormatException("out of bounds");
 
         return n;
-	}
-	
-	public static int parseInteger(String str, double bound, boolean lower)
-	throws NumberFormatException
-	{
-	    if (str == null || str.isEmpty()) throw new NumberFormatException();
+    }
 
-	    int n = Integer.parseInt(str);
-	    if ((lower && n <= bound) || (!lower && n >= bound))
-	        throw new NumberFormatException();
+    /**
+     * Parse an integer with a single upper or lower bound
+     * @param str
+     * @param bound
+     * @param lower
+     * @return
+     * @throws NumberFormatException
+     */
+    public static int parseInteger(String str, double bound, boolean lower)
+    throws NumberFormatException
+    {
+        if (str == null || str.isEmpty()) throw new NumberFormatException();
 
-	    return n;
-	}
-	
-	public static double parseDouble(String str, double lowerBound, double upperBound, 
-			boolean includeEndpoints)
-	throws NumberFormatException
-	{
-		if (str == null || str.isEmpty()) throw new NumberFormatException();
+        int n = Integer.parseInt(str);
+        if ((lower && n <= bound) || (!lower && n >= bound))
+            throw new NumberFormatException();
 
-		double n = Double.parseDouble(str);
-		if (includeEndpoints)
-		{
-			if (n > upperBound || n < lowerBound) throw new NumberFormatException();
-		}
-		else
-		{
-			if (n >= upperBound || n <= lowerBound) throw new NumberFormatException();
-		}
+        return n;
+    }
 
-		return n;
-	}
-	
-	public static double parseDouble(String str, double bound, boolean lower)
-	throws NumberFormatException
-	{
-	    if (str == null || str.isEmpty()) throw new NumberFormatException();
+    /**
+     * Parse a double between the specified bounds
+     * @param str
+     * @param lowerBound
+     * @param upperBound
+     * @param includeEndpoints
+     * @return
+     * @throws NumberFormatException
+     */
+    public static double parseDouble(String str, double lowerBound, double upperBound, 
+            boolean includeEndpoints)
+    throws NumberFormatException
+    {
+        if (str == null || str.isEmpty()) throw new NumberFormatException();
 
-	    double n = Double.parseDouble(str);
-	    if ((lower && n < bound) || (!lower && n > bound))
-	        throw new NumberFormatException();
+        double n = Double.parseDouble(str);
+        if (includeEndpoints)
+        {
+            if (n > upperBound || n < lowerBound) throw new NumberFormatException();
+        }
+        else
+        {
+            if (n >= upperBound || n <= lowerBound) throw new NumberFormatException();
+        }
 
-	    return n;
-	}
-	public static double parseDouble(String str) throws NumberFormatException
-	{
-		if (str == null || str.isEmpty()) throw new NumberFormatException();
-		double n = Double.parseDouble(str);
-		return n;
-	}
+        return n;
+    }
+
+    /**
+     * Parse a double with a single lower or upper bound
+     * @param str
+     * @param bound
+     * @param lower
+     * @return
+     * @throws NumberFormatException
+     */
+    public static double parseDouble(String str, double bound, boolean lower)
+    throws NumberFormatException
+    {
+        if (str == null || str.isEmpty()) throw new NumberFormatException();
+
+        double n = Double.parseDouble(str);
+        if ((lower && n < bound) || (!lower && n > bound))
+            throw new NumberFormatException();
+
+        return n;
+    }
+
+    /**
+     * Parse a double with a single upper or lower bound including the boundary
+     * @param str
+     * @param bound
+     * @param lower
+     * @param includeBoundary
+     * @return
+     * @throws NumberFormatException
+     */
+    public static double parseDouble(String str, double bound, boolean lower,
+            boolean includeEndpoint)
+    throws NumberFormatException
+    {
+        if (str == null || str.isEmpty()) throw new NumberFormatException();
+
+        double n = Double.parseDouble(str);
+        if (includeEndpoint) {
+            if ((lower && n <= bound) || (!lower && n >= bound))
+                throw new NumberFormatException();
+        } else {
+            if ((lower && n < bound) || (!lower && n > bound))
+                throw new NumberFormatException();
+        }
+
+        return n;
+    }
+
+    /**
+     * Parse any double
+     * @param str
+     * @return
+     * @throws NumberFormatException
+     */
+    public static double parseDouble(String str) throws NumberFormatException
+    {
+        double n = Double.parseDouble(str);
+        return n;
+    }
+
+    /**
+     * Set styles and display an error message
+     * @param widget
+     * @param msg
+     */
     public static void displayError(HTML widget, String msg)
     {
         widget.removeStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_OKAY);
@@ -117,7 +196,12 @@ public class TextValidation
         widget.addStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_ERROR);
         widget.setHTML(msg);
     }
-    
+
+    /**
+     * Set styles and display an "okay" message
+     * @param widget
+     * @param msg
+     */
     public static void displayOkay(HTML widget, String msg)
     {
         widget.removeStyleDependentName(GlimmpseConstants.STYLE_MESSAGE_ERROR);

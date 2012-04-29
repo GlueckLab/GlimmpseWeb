@@ -259,35 +259,38 @@ implements ClickHandler
 	 */
 	private void loadFromContext()
 	{
-		List<StatisticalTest> contextTestList = studyDesignContext.getStudyDesign().getStatisticalTestList();
-		for(StatisticalTest test: contextTestList)
-		{
-			switch(test.getType())
-			{
-			case HLT:
-				hotellingLawleyCheckBox.setValue(true);
-				break;
-			case PBT:
-				pillaiBartlettCheckBox.setValue(true);
-				break;
-			case WL:
-				wilksCheckBox.setValue(true);
-				break;
-			case UNIREP:
-				unirepCheckBox.setValue(true);
-				break;
-			case UNIREPBOX:
-				unirepBoxCheckBox.setValue(true);
-				break;
-			case UNIREPGG:
-				unirepGGCheckBox.setValue(true);
-				break;
-			case UNIREPHF:
-				unirepHFCheckBox.setValue(true);
-				break;
-			}			
-		}
-		checkComplete();
+	    reset();
+	    List<StatisticalTest> contextTestList = studyDesignContext.getStudyDesign().getStatisticalTestList();
+	    if (contextTestList != null) {
+	        for(StatisticalTest test: contextTestList)
+	        {
+	            switch(test.getType())
+	            {
+	            case HLT:
+	                hotellingLawleyCheckBox.setValue(true);
+	                break;
+	            case PBT:
+	                pillaiBartlettCheckBox.setValue(true);
+	                break;
+	            case WL:
+	                wilksCheckBox.setValue(true);
+	                break;
+	            case UNIREP:
+	                unirepCheckBox.setValue(true);
+	                break;
+	            case UNIREPBOX:
+	                unirepBoxCheckBox.setValue(true);
+	                break;
+	            case UNIREPGG:
+	                unirepGGCheckBox.setValue(true);
+	                break;
+	            case UNIREPHF:
+	                unirepHFCheckBox.setValue(true);
+	                break;
+	            }			
+	        }
+	    }
+	    checkComplete();
 	}
 	
 

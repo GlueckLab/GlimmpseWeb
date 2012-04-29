@@ -52,6 +52,7 @@ import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
@@ -530,4 +531,16 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		// submit the result to the file service
 //		manager.sendSaveRequest(dataTableToCSV(), SAVE_CSV_FILENAME);
 	}
+
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onWizardContextLoad() {
+        // TODO Auto-generated method stub
+        
+    }
 }

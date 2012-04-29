@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
@@ -47,7 +48,10 @@ public class SolvingForPanel extends WizardStepPanel
 implements ClickHandler
 {
 	protected static final String SOLVE_FOR_RADIO_GROUP = "SolvingFor";
-	
+
+	   // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    
 	// "solving for" check boxes
 	protected RadioButton solvingForPowerRadioButton; 
 	protected RadioButton solvingForSampleSizeRadioButton;
@@ -109,9 +113,9 @@ implements ClickHandler
 	 */
 	public void reset()
 	{
-		solvingForPowerRadioButton.setValue(false);
+		solvingForPowerRadioButton.setValue(true);
 		solvingForSampleSizeRadioButton.setValue(false);
-		changeState(WizardStepPanelState.INCOMPLETE);
+		changeState(WizardStepPanelState.COMPLETE);
 	}
 	
 
@@ -135,5 +139,39 @@ implements ClickHandler
 			((StudyDesignContext) context).setSolutionType(this, SolutionTypeEnum.SAMPLE_SIZE);
 		}
 	}
+	
+    /**
+     * Respond to context changes
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+        // no action needed
+    }
+    
+    /**
+     * Load the solving for info from the context
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+        loadFromContext();
+    }
+    
+    /**
+     * Load the covariate info from the context
+     */
+    private void loadFromContext()
+    {
+        SolutionTypeEnum solutionType = studyDesignContext.getStudyDesign().getSolutionTypeEnum();
+        if (solutionType != null 
+                && solutionType == SolutionTypeEnum.SAMPLE_SIZE) {
+            solvingForSampleSizeRadioButton.setValue(true);
+        } else {
+            solvingForPowerRadioButton.setValue(true);
+        }
+        changeState(WizardStepPanelState.COMPLETE);
+    }
+	
     
 }

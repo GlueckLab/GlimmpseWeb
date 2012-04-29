@@ -65,6 +65,8 @@ implements WizardActionListener, WizardContextListener,
             finish();
         }
     });
+    // save, help, cancel
+    protected WizardActionPanel actionPanel = new WizardActionPanel();
     // toolbar panel
     protected WizardToolBarPanel toolbarPanel = new WizardToolBarPanel();
 	// currently visible panel
@@ -73,8 +75,6 @@ implements WizardActionListener, WizardContextListener,
     protected WizardStepPanel finishPanel = null;  
     // deck panel containing all steps in the input wizard
     protected DeckPanel wizardDeck = new DeckPanel();
-    // default help URL
-    protected String helpURL = "help/manual.pdf";
     
     /**
      * Create a wizard panel with the specified groups of panels
@@ -99,7 +99,7 @@ implements WizardActionListener, WizardContextListener,
 		leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
 		leftPanel.add(leftNavPanel);
 		leftPanel.add(finishButton);
-		leftPanel.add(new ToolsMenuPanel());
+		leftPanel.add(actionPanel);
 		// layout the display area and bottom toolbar
 		contentPanel.add(wizardDeck);
 		contentPanel.add(toolbarPanel);
@@ -261,8 +261,7 @@ implements WizardActionListener, WizardContextListener,
 	@Override
 	public void onHelp()
 	{
-		// open manual
-		Window.open(helpURL, "_blank", null);
+
 	}
 
 	/**
@@ -338,6 +337,11 @@ implements WizardActionListener, WizardContextListener,
                     && currentStep.state == WizardStepPanelState.COMPLETE);
         }
 
+    }
+    
+    public void addWizardActionListener(WizardActionListener listener) {
+        actionPanel.addActionListener(listener);
+        toolbarPanel.addActionListener(listener);
     }
     
 }

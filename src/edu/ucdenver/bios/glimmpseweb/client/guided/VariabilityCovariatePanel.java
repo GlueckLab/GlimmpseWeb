@@ -36,6 +36,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 
@@ -140,4 +141,16 @@ implements ChangeHandler
 			double variance = stddev * stddev;
 		}
 	}
+
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onWizardContextLoad() {
+        // TODO Auto-generated method stub
+        
+    }
 }

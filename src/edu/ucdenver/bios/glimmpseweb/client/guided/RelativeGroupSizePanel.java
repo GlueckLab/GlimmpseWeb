@@ -98,7 +98,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
         List<RelativeGroupSize> contextRelativeSizeList = 
             studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
         // build the labels for the groups
-        if (groups.getNumberOfRows() > 0)
+        if (groups != null && groups.getNumberOfRows() > 0)
         {
             groupSizesTable.getRowFormatter().setStyleName(0, 
                     GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);

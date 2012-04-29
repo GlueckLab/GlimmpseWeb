@@ -161,13 +161,16 @@ implements ListValidator
     /**
      * Load the beta scale panel from the study design context information
      */
-    public void loadFromContext()
-    {
-    	List<BetaScale> contextBetaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
-    	for(BetaScale scale: contextBetaScaleList)
-    	{
-    		betaScaleListPanel.add(Double.toString(scale.getValue()));
-    	}
-    	onValidRowCount(betaScaleListPanel.getValidRowCount());
-    }
+	public void loadFromContext()
+	{
+	    List<BetaScale> contextBetaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
+	    betaScaleListPanel.reset();
+	    if (contextBetaScaleList != null) {
+	        for(BetaScale scale: contextBetaScaleList)
+	        {
+	            betaScaleListPanel.add(Double.toString(scale.getValue()));
+	        }
+	    }
+	    onValidRowCount(betaScaleListPanel.getValidRowCount());
+	}
 }

@@ -24,6 +24,7 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -162,8 +163,12 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> contextPowerList = studyDesignContext.getStudyDesign().getNominalPowerListValues();
-    	nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
+        reset();
+        List<Double> contextPowerList = studyDesignContext.getStudyDesign().getNominalPowerListValues();
+        if (contextPowerList != null) {
+            nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
+            onValidRowCount(nominalPowerListPanel.getValidRowCount());
+        }
     }
     
     /**

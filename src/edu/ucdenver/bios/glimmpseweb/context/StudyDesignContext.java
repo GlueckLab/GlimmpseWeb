@@ -57,6 +57,16 @@ public class StudyDesignContext extends WizardContext
         return studyDesign;
     }
 
+    public void loadStudyDesign(StudyDesign design)
+    {
+        if (design == null) {
+            studyDesign = new StudyDesign();
+        } else {
+            studyDesign = design;
+        }
+        notifyWizardContextLoad();
+    }
+
     public DataTable getParticipantGroups()
     {
         return participantGroups;
@@ -329,7 +339,7 @@ public class StudyDesignContext extends WizardContext
                         // do we have a null hypothesis?
                         hasThetaNull = true;
                     }
-                    
+
                     if (gaussianCovariate) {
                         // check matrices for covariate designs
                         if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName())) {
@@ -350,7 +360,7 @@ public class StudyDesignContext extends WizardContext
                 && hasThetaNull);
 
         GWT.log("Study design complete? " + complete);
-//TODO: remove
+        //TODO: remove
         complete = true;
     }
 

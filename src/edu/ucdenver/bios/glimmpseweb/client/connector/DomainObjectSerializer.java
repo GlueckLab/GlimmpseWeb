@@ -236,6 +236,22 @@ public class DomainObjectSerializer {
     }
     
     /**
+     * Parse a study design from a JSON string
+     * @param jsonString entity body of HTTP request
+     * @return study design
+     */
+    public StudyDesign studyDesignFromJSON(String jsonString) {
+        StudyDesign result = null;
+        try
+        {
+            result = studyDesignReader.read(jsonString);
+        } catch (Exception e) {
+        }
+        return result;
+    }
+    
+    
+    /**
      * Parse a list of power results from a JSON string
      * @param jsonString entity body of HTTP request
      * @return list of power results

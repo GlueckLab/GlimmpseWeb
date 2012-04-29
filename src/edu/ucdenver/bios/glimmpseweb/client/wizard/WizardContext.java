@@ -23,6 +23,9 @@ package edu.ucdenver.bios.glimmpseweb.client.wizard;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+
 /**
  * Generic context object for tracking user input across 
  * multiple wizard screens.  WizardPanel users should 

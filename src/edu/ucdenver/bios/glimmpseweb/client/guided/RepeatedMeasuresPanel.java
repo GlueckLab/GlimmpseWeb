@@ -42,6 +42,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TreeItemAction;
 import edu.ucdenver.bios.glimmpseweb.client.TreeItemIterator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
@@ -267,7 +268,6 @@ implements ChangeHandler
             changeState(WizardStepPanelState.COMPLETE);
         else
             changeState(WizardStepPanelState.INCOMPLETE);
-        GWT.log("RM complete? " + complete);
     }
 
     /**
@@ -360,6 +360,12 @@ implements ChangeHandler
         if (subpanel != null) {
             repeatedMeasuresNodeList.add(subpanel.toRepeatedMeasuresNode(nodeId, parentId));
         }
+    }
+
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

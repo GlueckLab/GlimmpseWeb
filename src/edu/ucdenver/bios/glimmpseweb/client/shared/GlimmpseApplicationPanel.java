@@ -26,8 +26,13 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.connector.DomainObjectSerializer;
 import edu.ucdenver.bios.glimmpseweb.client.guided.GuidedWizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.matrix.MatrixWizardPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardActionListener;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 
 /**
  * Main application panel for Glimmpse. 
@@ -35,7 +40,7 @@ import edu.ucdenver.bios.glimmpseweb.client.matrix.MatrixWizardPanel;
  * @author Sarah Kreidler
  */
 public class GlimmpseApplicationPanel extends Composite
-implements ModeSelectionHandler
+implements ModeSelectionHandler, WizardActionListener
 {
 	private static final int START_INDEX = 0;
 	private static final int GUIDED_INDEX = 1;
@@ -56,6 +61,9 @@ implements ModeSelectionHandler
 	 */
 	public GlimmpseApplicationPanel()
 	{
+	    // listen for events on the wizard panels
+	    guidedWizardPanel.addWizardActionListener(this);
+	    matrixWizardPanel.addWizardActionListener(this);
 		// add the start panel and wizard panels to the deck
 		deckPanel.add(modeSelectionPanel);
 		deckPanel.add(guidedWizardPanel);
@@ -98,58 +106,78 @@ implements ModeSelectionHandler
 	 * using matrix or guided mode, then load the appropriate 
 	 * wizard from the XML document
 	 */
-    public void onStudyUpload(String uploadedStudy)
-    {
-//        if (uploadedStudy != null)
-//        {
-//        	try
-//        	{
-////        		// for debug only - removes crap GWT wraps on ajax requests
-////        		Window.alert("before ["+uploadedStudy+"]");
-//        		uploadedStudy = uploadedStudy.replaceFirst("<pre>", "");
-//        		uploadedStudy = uploadedStudy.replaceFirst("</pre>", "");
-//        		uploadedStudy = uploadedStudy.replaceAll("&lt;", "<");
-//        		uploadedStudy = uploadedStudy.replaceAll("&gt;", ">");
-////        		Window.alert("after ["+uploadedStudy+"]");
-//        		
-//           		Document doc = XMLParser.parse(uploadedStudy);
-//        		Node studyNode = doc.getElementsByTagName(GlimmpseConstants.TAG_STUDY).item(0);
-//        		if (studyNode == null) throw new DOMException(DOMException.SYNTAX_ERR, "no study tag specified");
-//        		Node mode = studyNode.getAttributes().getNamedItem(GlimmpseConstants.ATTR_MODE);
-//        		if (mode != null && GlimmpseConstants.MODE_MATRIX.equals(mode.getNodeValue()))
-//        		{
-//        			matrixWizardPanel.reset();
-//        			matrixWizardPanel.loadFromXML(doc);
-//        			onMatrixMode();
-//        		}
-//        		else
-//        		{
-//        			guidedWizardPanel.reset();
-//        			guidedWizardPanel.loadFromXML(doc);
-//        			onGuidedMode();
-//        		}
-//        	}
-//        	catch (DOMException e)
-//        	{
-//        		Window.alert(Glimmpse.constants.errorUploadInvalidStudyFile() + " [" + e.getMessage() + "]");
-//        	}
-//        }
-//        else
-//        {
-//        	Window.alert(Glimmpse.constants.errorUploadFailed());
-//        }
+	public void onStudyUpload(String uploadedStudy)
+	{
+	    if (uploadedStudy != null)
+	    {
+	        try
+	        {
+	            Window.alert(uploadedStudy);
+	            StudyDesign design = 
+	                DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
+	            // TODO: clear
+	            if (design != null && design.getViewTypeEnum() != null) {
+	                switch (design.getViewTypeEnum()) {
+	                case MATRIX_MODE:
+	                    matrixWizardPanel.loadStudyDesign(design);
+	                    deckPanel.showWidget(GUIDED_INDEX);
+	                    break;
+	                case GUIDED_MODE:
+	                    guidedWizardPanel.loadStudyDesign(design);
+	                    deckPanel.showWidget(GUIDED_INDEX);
+	                    break;
+	                }
+	            } else {
+	                Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile());
+	            }
+	        } catch (Exception e) {
+	            Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile() + e.getMessage());
+	        }
+	    } else {
+	        Window.alert(GlimmpseWeb.constants.errorUploadFailed());
+	    }
+	}
+
+    @Override
+    public void onNext() {
+        // no action
     }
 
-//    /**
-//     * Reset the panels when the user selects "Clear", "All" from one of the wizard
-//     * toolbar menus
-//     */
-//	@Override
-//	public void onCancel()
-//	{
-//		matrixWizardPanel.reset();
-//		guidedWizardPanel.reset();
-//		modeSelectionPanel.reset();
-//		deckPanel.showWidget(START_INDEX);
-//	}
+    @Override
+    public void onPrevious() {
+        // no action
+    }
+
+    @Override
+    public void onPanel(WizardStepPanel panel) {
+        // no action
+    }
+
+    @Override
+    public void onFinish() {
+        // no action
+    }
+
+    @Override
+    public void onHelp() {
+        // no action
+    }
+
+    @Override
+    public void onSave() {
+        // no action
+    }
+
+    /**
+     * Reset the panels when the user selects "Clear", "All" from one of the wizard
+     * toolbar menus
+     */
+	@Override
+	public void onCancel()
+	{
+		matrixWizardPanel.reset();
+		guidedWizardPanel.reset();
+		modeSelectionPanel.reset();
+		deckPanel.showWidget(START_INDEX);
+	}
 }

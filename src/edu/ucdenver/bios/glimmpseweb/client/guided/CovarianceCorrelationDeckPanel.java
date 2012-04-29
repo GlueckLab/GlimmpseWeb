@@ -100,13 +100,9 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		List<Integer> integerSpacingList = new ArrayList<Integer>();
 		 
 		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
-		int size = spacingList.size();
-		for(int i = 0; i < size; i++)
-		{
-		    int value = spacingList.get(i).getValue();
-		    labelList.add(i, dimension+""+spacingList.get(i).toString());
-		    
-		    integerSpacingList.add(value);
+		for(Spacing spacing: spacingList) {
+		    labelList.add(dimension+","+spacing.getValue());
+		    integerSpacingList.add(spacing.getValue());
 		}
 		buildDeckPanel(labelList, integerSpacingList);
 	}
@@ -137,7 +133,10 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		UnStructuredCorrelationPanel unstructuredCovariancePanelInstance = 
 				new UnStructuredCorrelationPanel(labelList, spacingList);
 		
-		deckPanel.add(structuredCorrelationPanelInstance);
+		if (spacingList.size() > 2) {
+		    // only add the Lear for values > 2.  Otherwise it is sort of useless
+		    deckPanel.add(structuredCorrelationPanelInstance);
+		}
 		deckPanel.add(unstructuredCovariancePanelInstance);
 		deckPanel.add(unstructuredCorrelationPanelInstance);
 		
@@ -262,7 +261,6 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	    int visibleIndex = deckPanel.getVisibleWidget();
 	    CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
 	    Covariance covariance = covarianceBuilder.getCovariance();
-	    covariance.setName(name);
 	    return covariance;
 	}
 	

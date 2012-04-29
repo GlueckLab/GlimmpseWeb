@@ -40,6 +40,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -74,7 +75,6 @@ public class GaussianCovariateCovariancePanel extends WizardStepPanel
     HTML errorHTMLDOWN = new HTML();
     
     
-	@SuppressWarnings("deprecation")
 	public GaussianCovariateCovariancePanel(WizardContext context) 
 	{
 		super(context, "Random Covariate Covariance Screen");
@@ -238,7 +238,6 @@ public class GaussianCovariateCovariancePanel extends WizardStepPanel
 				int c = dataList.get(x).size();
 				numberOfRows = numberOfRows*c;
 			}
-			GWT.log(""+numberOfRows);
 			int a = 0;
 			String abc="";
 			for(int j = 0; j < flexTableRows; j++)
@@ -366,5 +365,17 @@ public class GaussianCovariateCovariancePanel extends WizardStepPanel
         sigmaYG.setDataFromArray(sigmaYGMatrixData);
         sigmaYG.setName(GlimmpseWeb.constants.MATRIX_SIGMA_OUTCOME_COVARIATE);
         studyDesignContext.setSigmaOutcomesCovariate(this, sigmaYG);
+    }
+
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onWizardContextLoad() {
+        // TODO Auto-generated method stub
+        
     }
 }

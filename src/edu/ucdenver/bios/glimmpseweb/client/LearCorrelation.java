@@ -21,9 +21,6 @@ package edu.ucdenver.bios.glimmpseweb.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.Math;
-
-import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 
 /**
  * Class to compute the Lear correlation for a single
@@ -35,8 +32,7 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 public class LearCorrelation 
 {
 	List <Integer> spacingList = new ArrayList<Integer>();
-	int minDistance, maxDistance;
-	int spacingListSize;
+	int minDistance, maxDistance, maxMinDiff;
 	
 	/**
 	 * Create a Lear Correlation object to calculate correlation between
@@ -63,6 +59,10 @@ public class LearCorrelation
 	    maxDistance = Math.abs(spacingList.get(spacingList.size()-1) - spacingList.get(0));
 	    // find the smallest distance increment between any of the measurements
 		calculateMinDistance();
+		maxMinDiff = maxDistance - minDistance;
+		// when there are only 2 elements in the spacing list, the max = min distance between
+		// the elements.  thus we force to 1
+		if (maxMinDiff == 0) maxMinDiff = 1;
 	}
 
 	//Method to calculate the mainimum distance between values in spacing list
@@ -121,7 +121,7 @@ public class LearCorrelation
 	    
 		int measurementDistance = Math.abs(spacingList.get(i) - spacingList.get(j));
 		double powerValue;
-		powerValue = minDistance+(rateOfDecay*(measurementDistance-minDistance)/(maxDistance-minDistance));
+		powerValue = minDistance+(rateOfDecay*(measurementDistance-minDistance)/(maxMinDiff));
 		return Math.pow(baseCorrelation, powerValue);
 	}
 }

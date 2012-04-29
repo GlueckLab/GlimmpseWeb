@@ -40,6 +40,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TreeItemAction;
 import edu.ucdenver.bios.glimmpseweb.client.TreeItemIterator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
@@ -363,5 +364,11 @@ implements ChangeHandler {
             }
         }
         checkComplete();
+    }
+
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) {
+        // TODO Auto-generated method stub
+        
     }
 }

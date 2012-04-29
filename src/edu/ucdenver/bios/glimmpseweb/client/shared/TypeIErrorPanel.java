@@ -48,21 +48,21 @@ import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 public class TypeIErrorPanel extends WizardStepPanel
 implements ListValidator
 {
-	// context object
-	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     // list of alpha values
     protected ListEntryPanel alphaListPanel = 
-    	new ListEntryPanel(GlimmpseWeb.constants.alphaTableColumn() , this);
+        new ListEntryPanel(GlimmpseWeb.constants.alphaTableColumn() , this);
     // caches the entered values as doubles
     ArrayList<TypeIError> alphaList = new ArrayList<TypeIError>();
-    
+
     /**
      * Create an empty type I error panel
      */
     public TypeIErrorPanel(WizardContext context)
     {
-    	super(context, GlimmpseWeb.constants.navItemTypeIError(), 
-    			WizardStepPanelState.INCOMPLETE);
+        super(context, GlimmpseWeb.constants.navItemTypeIError(), 
+                WizardStepPanelState.INCOMPLETE);
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text
@@ -73,10 +73,10 @@ implements ListValidator
         panel.add(header);
         panel.add(description);
         panel.add(alphaListPanel);
-        
+
         // specify the maximum rows in the listbox
         alphaListPanel.setMaxRows(5);
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -84,23 +84,23 @@ implements ListValidator
         // initialize the panel
         initWidget(panel);
     }
-    
+
     /**
      * Validate new entries in the alpha list
      * @see DynamicListValidator
      */
     public void validate(String value) throws IllegalArgumentException
     {
-    	try
-    	{
-    		TextValidation.parseDouble(value, 0, 1, false);
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidAlpha());
-    	}
+        try
+        {
+            TextValidation.parseDouble(value, 0, 1, false);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidAlpha());
+        }
     }
-    
+
     /**
      * Callback when the number of valid entries in the list of
      * alpha values changes
@@ -109,20 +109,20 @@ implements ListValidator
      */
     public void onValidRowCount(int validRowCount)
     {
-    	if (validRowCount > 0)
-    		changeState(WizardStepPanelState.COMPLETE);
-    	else
-    		changeState(WizardStepPanelState.INCOMPLETE);
+        if (validRowCount > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
     }
-    
+
     /**
      * Clear the list of alpha values.  Note, the onValidRowCount
      * callback will fire when reset is called
      */
     public void reset()
     {
-    	alphaListPanel.reset();
-    	onValidRowCount(alphaListPanel.getValidRowCount());
+        alphaListPanel.reset();
+        onValidRowCount(alphaListPanel.getValidRowCount());
     }
 
     /**
@@ -130,50 +130,53 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<TypeIError> contextTypeIErrorList = studyDesignContext.getStudyDesign().getAlphaList();
-    	for(TypeIError typeIError: contextTypeIErrorList)
-    	{
-    		alphaListPanel.add(Double.toString(typeIError.getAlphaValue()));
-    	}
-    	onValidRowCount(alphaListPanel.getValidRowCount());
+        List<TypeIError> contextTypeIErrorList = studyDesignContext.getStudyDesign().getAlphaList();
+        alphaListPanel.reset();
+        if (contextTypeIErrorList != null) {
+            for(TypeIError typeIError: contextTypeIErrorList)
+            {
+                alphaListPanel.add(Double.toString(typeIError.getAlphaValue()));
+            }
+        }
+        onValidRowCount(alphaListPanel.getValidRowCount());
     }
-    
-	/**
-	 * Respond to a change in the context object
-	 */
+
+    /**
+     * Respond to a change in the context object
+     */
     @Override
-	public void onWizardContextChange(WizardContextChangeEvent e) 
+    public void onWizardContextChange(WizardContextChangeEvent e) 
     {
-    	if (((StudyDesignChangeEvent) e).getType() ==
-    		StudyDesignChangeType.ALPHA_LIST &&
-    		this != e.getSource())
-    	{
-        	loadFromContext();
-    	}
+        if (((StudyDesignChangeEvent) e).getType() ==
+            StudyDesignChangeType.ALPHA_LIST &&
+            this != e.getSource())
+        {
+            loadFromContext();
+        }
     };
-    
+
     /**
      * Response to a context load event
      */
     @Override
-	public void onWizardContextLoad() 
+    public void onWizardContextLoad() 
     {
-    	loadFromContext();
+        loadFromContext();
     }
-    
+
     /**
      * Notify context of any changes as we exit the screen
      */
     @Override
     public void onExit()
     {
-    	List<String> stringValues = alphaListPanel.getValues();
-    	alphaList.clear();
-    	for(String value: stringValues)
-    	{
-    		alphaList.add(new TypeIError(Double.parseDouble(value)));
-    	}
-    	// save to context object
-    	studyDesignContext.setAlphaList(this, alphaList);
+        List<String> stringValues = alphaListPanel.getValues();
+        alphaList.clear();
+        for(String value: stringValues)
+        {
+            alphaList.add(new TypeIError(Double.parseDouble(value)));
+        }
+        // save to context object
+        studyDesignContext.setAlphaList(this, alphaList);
     }
 }

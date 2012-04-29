@@ -139,9 +139,13 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-    	List<Double> contextBetaScaleList = 
-    		studyDesignContext.getStudyDesign().getBetaScaleListValues();
-    	sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+        List<Double> contextBetaScaleList = 
+            studyDesignContext.getStudyDesign().getBetaScaleListValues();
+        sigmaScaleListPanel.reset();
+        if (contextBetaScaleList != null) {
+            sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+        }
+        onValidRowCount(sigmaScaleListPanel.getValidRowCount());
     }
 	
 }

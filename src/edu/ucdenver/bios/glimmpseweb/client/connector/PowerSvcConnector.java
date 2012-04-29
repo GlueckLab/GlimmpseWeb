@@ -55,7 +55,6 @@ public class PowerSvcConnector {
     throws RequestException {
 
         String entity = serializer.toJSON(studyDesign);   
-        Window.alert(entity);
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, GlimmpseWeb.constants.powerSvcHostPower());
 
         builder.setHeader("Content-Type", MEDIA_TYPE);

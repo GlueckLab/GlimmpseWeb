@@ -39,138 +39,118 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
 /**
  * 
  * @author VIJAY AKULA
+ * @author Sarah Kreidler
  *
  */
 public class UnStructuredCorrelationPanel extends Composite implements CovarianceBuilder
 {    
     //Grid to construct the Standard Deviation Entry Text boxes
-	FlexTable standardDeviationFlexTable = new FlexTable();	
-	
-//	//Object Initilization for Repeated Measures Node
-//	RepeatedMeasuresNode repeatedMeasuresNode;
-	
-	ResizableMatrixPanel correlationMatrix;
-	
-	HorizontalPanel horizointalPanel = new HorizontalPanel();
-	
-	HTML errorHTML = new HTML();
-	
-	List<String> labelList;
-	
-	List<Integer> spacingList;
-	
-	//Constructor for the unStructuredCorrelationPanel class
-	public UnStructuredCorrelationPanel(List<String> stringList, List<Integer> integerList)
-	{
-		//Instance of vertical panel to hold all the widgets created in this class
-		VerticalPanel verticalPanel = new VerticalPanel();
-		
-		labelList = stringList;
-		spacingList = integerList;
-	
-		HTML header = new HTML();
-		HTML text = new HTML();
-		HTML expectedStandardDeviationText = new HTML();
-		HTML expectedCorrelationText = new HTML();
-		
-		expectedStandardDeviationText.setText(GlimmpseWeb.constants.unstructuredCorrelationEnterExpectedStandardDeviation());
-		expectedCorrelationText.setText(GlimmpseWeb.constants.unstructuredCorrelationEnterExpectedCorrelation());
-		
-		//calling a method to construct the Standard Deviation text boxes 
-		//based on the input obtained form RepeatedMeasuresNode object
-		constructStandardDeviationGrid();
-		
-		//calling a method to construct a Correlation matrix based on the standard deviations entered
-		constructCorrelationMatrix();
-		
-		verticalPanel.add(header);
-		verticalPanel.add(text);
-		verticalPanel.add(expectedStandardDeviationText);
-		verticalPanel.add(standardDeviationFlexTable);
-		verticalPanel.add(errorHTML);
-		verticalPanel.add(expectedCorrelationText);
-		verticalPanel.add(horizointalPanel);
-		
-		//initilizing the vertical pane widgets which holds all the widgets of the class		
-		initWidget(verticalPanel);
-	}
-	
-	/**This counstructs the Standard Deviation text boxes based on the input fron
-	 * response list 
-	 * @return grid
-	 */
-	public FlexTable constructStandardDeviationGrid()
-	{
-	for(int i = 0; i <spacingList.size(); i++)
-		{
-			HTML textLabel = new HTML(labelList.get(i));
-			TextBox textBox = new TextBox();
-			textBox.addChangeHandler(new ChangeHandler()
-			{
-				@Override
-				public void onChange(ChangeEvent event)
-				{
-					try
-					{
-					TextBox tb = (TextBox)event.getSource();
+    FlexTable standardDeviationFlexTable = new FlexTable();	
 
-					Double value = TextValidation.parseDouble
-					        (tb.getValue(), 0.0, true);
-					tb.setValue(value.toString());
-					TextValidation.displayOkay(errorHTML, "");
-					}
-					catch (Exception e)
-					{
-						GWT.log(e.getMessage());
-						TextValidation.displayError(errorHTML, "FIXME");
-//						        GlimmpseWeb.constants.
-//						        unstructuredCorrelationStandardDeviationError());
-					}
-				
-				}
-			});
-			standardDeviationFlexTable.setWidget(i, 0, textLabel);
-			standardDeviationFlexTable.setWidget(i, 1, textBox);
-		}
-		return standardDeviationFlexTable;
-	}
-		
-	
-	/**
-	 * This constructs the Correlation Matrix based on the input entered into the Standard Deviation Text Boxes
-	 * @return Correlation Matrix which is a instance of resizable matrix
-	 */
-	 public void constructCorrelationMatrix()
-	 {
-		 int size = spacingList.size();
-		 correlationMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
-		 correlationMatrix.setRowLabels(labelList);
-		 correlationMatrix.setColumnLabels(labelList);
-		 
-		 for(int i = 0; i < size; i++)
-		 {
-			 Double value = 1.0;
-			 String  stringValue = value.toString();
-			 correlationMatrix.setCellValue(i, i, stringValue);
-		 }
-		 horizointalPanel.add(correlationMatrix);
-	 }
+    // error display for standard deviation list
+    HTML errorHTML = new HTML();
 
-	 public boolean checkComplete() {
-	     return true;
-	 }
-	 
+    // matrix panel for correlation matrix
+    ResizableMatrixPanel correlationMatrix;
+
+    /**
+     * Constructor for the unStructuredCorrelationPanel class
+     * @param stringList
+     * @param integerList
+     */
+    public UnStructuredCorrelationPanel(List<String> labelList, List<Integer> spacingList)
+    {
+        //Instance of vertical panel to hold all the widgets created in this class
+        VerticalPanel verticalPanel = new VerticalPanel();
+
+        HTML expectedStandardDeviationText = 
+            new HTML(GlimmpseWeb.constants.unstructuredCorrelationEnterExpectedStandardDeviation());
+        HTML expectedCorrelationText = 
+            new HTML(GlimmpseWeb.constants.unstructuredCorrelationEnterExpectedCorrelation());
+
+        //calling a method to construct the Standard Deviation text boxes 
+        //based on the input obtained form RepeatedMeasuresNode object
+        constructStandardDeviationGrid(labelList);
+
+        //calling a method to construct a Correlation matrix based on the standard deviations entered
+        int size = spacingList.size();
+        correlationMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
+        correlationMatrix.setRowLabels(labelList);
+        correlationMatrix.setColumnLabels(labelList);
+
+        verticalPanel.add(expectedStandardDeviationText);
+        verticalPanel.add(standardDeviationFlexTable);
+        verticalPanel.add(errorHTML);
+        verticalPanel.add(expectedCorrelationText);
+        verticalPanel.add(correlationMatrix);
+
+        //initilizing the vertical pane widgets which holds all the widgets of the class		
+        initWidget(verticalPanel);
+    }
+
+    /**This counstructs the Standard Deviation text boxes based on the input fron
+     * response list 
+     * @return grid
+     */
+    public void constructStandardDeviationGrid(List<String> labelList)
+    {
+        int row = 0;
+        for(String label: labelList)
+        {
+            TextBox textBox = new TextBox();
+            textBox.addChangeHandler(new ChangeHandler()
+            {
+                @Override
+                public void onChange(ChangeEvent event)
+                {
+                    TextBox tb = (TextBox)event.getSource();
+                    try
+                    {
+                        Double value = TextValidation.parseDouble(tb.getText(), 0.0, true);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                    catch (Exception e)
+                    {
+                        tb.setText("");
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidStandardDeviation());
+                    }
+                }
+            });
+            standardDeviationFlexTable.setWidget(row, 0, new HTML(label));
+            standardDeviationFlexTable.setWidget(row, 1, textBox);
+            row++;
+        }
+    }
+
+    /**
+     * Indicates if all required information has been entered
+     * @return
+     */
+    public boolean checkComplete() {
+        boolean complete = true;
+        for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
+        {
+            TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
+            String value = tb.getText();
+            if (value == null || value.isEmpty()) {
+                complete = false;
+                break;
+            }
+        }
+        return complete;
+    }
+
     @Override
     public Covariance getCovariance() 
     {
         Covariance covariance = new Covariance();
         List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
         StandardDeviation sd = new StandardDeviation();
-        
         for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
         {
             TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
@@ -178,6 +158,9 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
             sdList.add(sd);
         }
         covariance.setStandardDeviationList(sdList);
+
+        NamedMatrix matrix = correlationMatrix.toNamedMatrix("N/A");
+        covariance.setBlob(matrix.getData());
         return covariance;
     }
 }

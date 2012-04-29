@@ -304,7 +304,6 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 validNumeric = false;
             }
         }
-        GWT.log("TB: " + validTextBoxes + " Numeric: " + validNumeric );
         return (validTextBoxes && validNumeric);
     }
 

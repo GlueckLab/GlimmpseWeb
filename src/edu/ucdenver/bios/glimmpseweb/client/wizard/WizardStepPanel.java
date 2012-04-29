@@ -138,12 +138,10 @@ implements WizardContextListener
 	/**
 	 * Respond to a change in the context object
 	 */
-    @Override
-	public void onWizardContextChange(WizardContextChangeEvent e) {};
+	public abstract void onWizardContextChange(WizardContextChangeEvent e);
     
     /**
      * Response to a context load event
      */
-    @Override
-	public void onWizardContextLoad() {}
+	public abstract void onWizardContextLoad();
 }

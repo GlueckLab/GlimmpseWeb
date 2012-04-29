@@ -172,7 +172,6 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         switch(((StudyDesignChangeEvent) e).getType()) {
         case REPEATED_MEASURES:
         case RESPONSES_LIST:
-            GWT.log("GOT EVENT");
             loadFromContext();
             break;
         }

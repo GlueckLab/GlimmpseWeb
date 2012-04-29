@@ -453,6 +453,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidPower();
     public String errorInvalidString();
     public String errorInvalidNumber();
+    public String errorInvalidNonNegativeNumber();
     public String errorInvalidPositiveNumber();
     public String errorMaxRows();
     public String errorInvalidMatrixDimension();
@@ -466,6 +467,7 @@ public interface GlimmpseConstants extends Constants
     public String confirmClearAll();
     
     // web services urls
+    public String helpManualURI();
     public String chartSvcHostScatter();
     public String chartSvcHostLegend();
     public String powerSvcHostPower();
@@ -600,6 +602,8 @@ public interface GlimmpseConstants extends Constants
      public String covarianceMatrixAlertText();
      public String covarianceResponsesLabel();
      
+     public String unstructuredCorrelationTitle();
+     public String unstructuredCorrelationDescription();
      public String unstructuredCorrelationEnterExpectedStandardDeviation();
      public String unstructuredCorrelationEnterExpectedCorrelation();
      public String unstructuredCorrelationStandardDeviationError();

@@ -378,24 +378,26 @@ public class FixedPredictorsPanel extends WizardStepPanel
     {
     	loadFromContext();
     }
-    
+
     private void loadFromContext()
     {
         reset();
-    	List<BetweenParticipantFactor> factorList = 
-    		studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
-    	for(BetweenParticipantFactor factor: factorList)
-    	{
-    		String predictor = factor.getPredictorName();
-			addPredictor(predictor);
-			List<Category> categoryList = factor.getCategoryList();
-			ArrayList<String> categories = predictorCategoryMap.get(predictor);
-			for(Category category: categoryList)
-			{
-				categories.add(category.getCategory());
-			}
-    	}
-    	checkComplete();
+        List<BetweenParticipantFactor> factorList = 
+            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+        if (factorList != null) {
+            for(BetweenParticipantFactor factor: factorList)
+            {
+                String predictor = factor.getPredictorName();
+                addPredictor(predictor);
+                List<Category> categoryList = factor.getCategoryList();
+                ArrayList<String> categories = predictorCategoryMap.get(predictor);
+                for(Category category: categoryList)
+                {
+                    categories.add(category.getCategory());
+                }
+            }
+        }
+        checkComplete();
     }
 
     /**

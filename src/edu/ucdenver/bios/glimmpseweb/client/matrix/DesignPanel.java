@@ -114,9 +114,12 @@ public class DesignPanel extends WizardStepPanel
     @Override
     public void onWizardContextLoad()
     {
-    	NamedMatrix designEssence = 
-    		studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_DESIGN);
-    	essenceFixed.loadFromNamedMatrix(designEssence);
+        NamedMatrix designEssence = 
+            studyDesignContext.getStudyDesign().getNamedMatrix(GlimmpseConstants.MATRIX_DESIGN);
+        reset();
+        if (designEssence != null) {
+            essenceFixed.loadFromNamedMatrix(designEssence);
+        }
     }
 
     /**

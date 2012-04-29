@@ -356,8 +356,8 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	        }
 	        
 	        // fill in the tail probabilities
-	        alphaUpperTextBox.setValue(Float.toString(description.getUpperTrailProbability()));
-	        alphaLowerTextBox.setValue(Float.toString(description.getLowerTrailProbability()));
+	        alphaUpperTextBox.setValue(Float.toString(description.getUpperTailProbability()));
+	        alphaLowerTextBox.setValue(Float.toString(description.getLowerTailProbability()));
 	        
 	        // fill in the rank and sample size for the pilot data
 	        sampleSizeTextBox.setValue(Integer.toString(description.getSampleSize()));
@@ -421,8 +421,8 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	    if (WizardStepPanelState.COMPLETE == getState() 
 	            && !noCICheckbox.getValue() ) {
 	        ciDescr =  new ConfidenceIntervalDescription();
-	        ciDescr.setLowerTrailProbability(Float.parseFloat(alphaLowerTextBox.getValue()));
-	        ciDescr.setUpperTrailProbability(Float.parseFloat(alphaUpperTextBox.getValue()));
+	        ciDescr.setLowerTailProbability(Float.parseFloat(alphaLowerTextBox.getValue()));
+	        ciDescr.setUpperTailProbability(Float.parseFloat(alphaUpperTextBox.getValue()));
 	        ciDescr.setRankOfDesignMatrix(Integer.parseInt(rankTextBox.getValue()));
 	        ciDescr.setSampleSize(Integer.parseInt(sampleSizeTextBox.getValue()));
 	    } 

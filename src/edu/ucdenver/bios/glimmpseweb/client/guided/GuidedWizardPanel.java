@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.connector.FileSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.shared.BaselineCovariatePanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.IntroPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsConfidenceIntervalsPanel;
@@ -38,9 +39,12 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.PowerPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResultsDisplayPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.SolvingForPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.TypeIErrorPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardActionListener;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
 /**
@@ -49,7 +53,11 @@ import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
  *
  */
 public class GuidedWizardPanel extends Composite
+implements WizardActionListener
 {
+    // connector to File service for save
+    protected FileSvcConnector fileSvcConnector = new FileSvcConnector();
+    
 	// create a study design context
 	protected StudyDesignContext context = new StudyDesignContext();
 	// content panels 
@@ -125,10 +133,11 @@ public class GuidedWizardPanel extends Composite
 		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
 		wizardPanel = new WizardPanel(context, groups, resultsPanel);
 		wizardPanel.setVisiblePanel(startIntroPanel);
+		wizardPanel.addWizardActionListener(this);
 		// layout the overall panel
 		panel.add(wizardPanel);
+		panel.add(fileSvcConnector);
 		// set style
-		
 		// initialize
 		initWidget(panel);
 	}
@@ -186,4 +195,70 @@ public class GuidedWizardPanel extends Composite
 
 		return groupList;
 	}
+
+    @Override
+    public void onNext() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onPrevious() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onPanel(WizardStepPanel panel) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onFinish() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onHelp() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onSave() {
+        // TODO Auto-generated method stub
+        fileSvcConnector.saveStudyDesign(context.getStudyDesign(), null);
+    }
+
+    @Override
+    public void onCancel() {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    /**
+     * Clear the context
+     */
+    public void reset() {
+        context.loadStudyDesign(null);
+    }
+    
+    /**
+     * Load the specified study design into the wizard
+     * @param design
+     */
+    public void loadStudyDesign(StudyDesign design) {
+        context.loadStudyDesign(design);
+    }
+    
+    /**
+     * Add a listener for wizard actions - mainly to allow the main application panel
+     * to perform a cancel.  Really need to rework this into separate HTML files someday
+     * @param listener
+     */
+    public void addWizardActionListener(WizardActionListener listener) {
+        wizardPanel.addWizardActionListener(listener);
+    }
 }
