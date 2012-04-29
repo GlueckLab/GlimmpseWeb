@@ -20,43 +20,97 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /*** Start page styles ***/
 
 body {
-	border-top: 10px solid black;
 	background-color:white;
-    background: url('/images/math-bg.png') repeat-x;
 	margin: 0px;
 }
 
 .body {
-	border-top: 10px solid black;
 	background-color:white;
-    background: url('/images/math-bg.png') repeat-x;
 	margin: 0px;
 }
 
+#header {
+  background: url('/images/bluegradient.png') repeat-x;
+  border-bottom: 1px solid #999;
+}
+
+#footer {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+  background-color: white;
+  border-top:1px solid #999;
+
+}
+
+#glimmpse-topbar {
+	align: center;
+	width: 987px;
+	margin-left: 0px;
+	height: 80px;
+}
+
+#glimmpse-logo {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	padding-left: 70px;
+	padding-top: 20px;
+	padding-right: 10px;
+	font-size: 24pt;
+	background-image: url('/images/glimmpse.png');
+	background-repeat: no-repeat;
+	background-position: 10px 10px;
+	color: white;
+	height: 50px;
+	float: left;
+}
+
+#top-navbar {
+	float: right;
+}
+
+.top-navbar-link {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin-top: 20px;
+	margin-right: 5px;
+	padding-right: 5px;
+	border-right: 1px solid #ccc;
+	color: white;
+	float: right;
+}
+
+.top-navbar-link a {
+	color: white;
+	text-decoration: none;
+}
+
+.top-navbar-link a:visited {
+	color: white;
+	text-decoration: none;
+}
+
+.top-navbar-link a:hover {
+	color: #e4eaef;
+	text-decoration: underline;
+}
+
+
 #content-table {
-	border-radius: 5px;
-	box-shadow: 0px 0px 10px #333;
 	width: 987px;
 	background-color: white; 	
 	text-align: left;
-	border-collapse: collapse;
 	margin: 0px;
 }
 
 #content-table tr td {
+	align: center;
 	border:none;
 	spacing: 0px;
 	margin: 0px;
 	padding: 0px;
 }
 
-#top-navbar {
-	font-family: Arial, Helvetica, sans-serif;
-	background-color: #fff;
-	height: 60px;
-	width: 550px;
-	float: right;
-}
+
 
 #site-title {
 	margin-top: 20px;
@@ -66,15 +120,7 @@ body {
 	font-weight: bold;	
 }
 
-.top-navbar-link {
-	margin-top: 20px;
-	margin-right: 5px;
-	padding-right: 5px;
-	border-right: 1px solid #ccc;
-	color: black;
-	float: right;
-	font-size: small;
-}
+
 
 .selected {
 	font-weight: bold;
@@ -84,55 +130,25 @@ body {
 	border: none;	
 }
 
-#glimmpse-topbar {
-	width: 987px;
-	margin-left: 0px;
-	height: 80px;
-	background-color: white;
+#center {
+  margin: 0, auto;	
 }
 
-#glimmpse-logo {
-	font-family: Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	padding-left: 65px;
-	padding-top: 20px;
-	padding-right: 10px;
-	font-size: 18pt;
-	background-image: url('/images/glimmpse-logo.png');
-	background-repeat: no-repeat;
-	background-position: 10px 10px;
-	color: 1d5c84;
-	width: 130px;
-	height: 42px;
-	float: left;
-}
 
-#glimmpse-title {
-	font-family: Arial, Helvetica, sans-serif;
-	color: black;
-	font-size: 10pt;
-	margin-top: 20px;
-	padding-top: 2px;
-	padding-left: 10px;
-    border-left: 1px solid #ccc;
-    width: 200px;
-    height: 36px;
-    float: left;
-}
+
+
 
 /**** GLIMMPSE Application Styles ****/
 
 /* style for initial mode selection screen */
 .modeSelectionInputContainer {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	padding: 10px;
-	margin-left:20px;
-	background: #ebf0f5;
-	border: 1px solid #ccc;
-	-moz-border-radius: 5px;
-   border-radius: 5px;
+	spacing: 20px;
 }
 
 .modeSelectionPanelHeader {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin-left: 20px;
 	margin-top: 10px;
 	font-weight: bold;
@@ -141,15 +157,18 @@ body {
 }
 
 .modeSelectionPanelDescription {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin: 10px 20px;
 	width: 80%;
 }
 
 .modeSelectionPanelContainer {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	background-color:  white;
 	height: 260px;
 	width: 240px;
 	border: 2px solid #ccc;
+	margin-right: 20px;
 }
 
 .modeSelectionPanelContainerTitle {
@@ -184,23 +203,17 @@ body {
 /*** Main wizard styles ***/
 /* overall wizard panel */
 .wizardPanel {
-	border-collapse: collapse;	
 }
 
 .leftPanel {
-	width: 175px;
-	margin-left: 20px;
-	margin-bottom: 10px;
-	border-collapse: collapse;	
+	width: 200px;
+	margin-bottom: 10px;	
 }
 
 .rightPanel {
 	width: 777px;
-	border-top: 1px solid #ddd;
-	border-left: 1px solid #ddd;
 	margin-right: 10px;
 	margin-bottom: 10px;
-	border-collapse: collapse;	
 }
 
 /* tool bar for save, help, etc */
@@ -234,20 +247,31 @@ body {
 /*** left navigation panel ***/
 
 .wizardLeftNavPanel {
-	background-color: #e4eaef;
-	width: 160px;
-	margin-top: 40px;
+	/* background-color: #e4eaef;*/
+	background: url('/images/horizontalGradient.png') repeat-y;
+	width: 180px;
+	margin-top: 20px;
 	padding-top: 32px;
+	border-collapse: collapse;
+}
+
+.wizardLeftNavHeader {
+	height: 32px;
+	width: 180px;
+	border-collapse: collapse;
+	border-top: 1px solid white;
 }
 
 .wizardLeftNavHeader .gwt-HTML {
-	height: 32px;
 	text-align: left;
-	color: black;
-	font-family: "Palatino Linotype", "Book Antiqua", Palatino, sans-serif;
-	background-color: #e4eaef;
-	font-size: 18px;
+	color: #999;
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	font-size: 16px;
 	padding-left: 4px;
+}
+
+.wizardLeftNavHeader .gwt-HTML:hover {
+	text-decoration: none;
 }
 
 .wizardLeftNavHeader-open .gwt-HTML {
@@ -257,13 +281,14 @@ body {
 	border-left: 4px solid #e87439;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid white;
-	padding-left: 4px;
+	
 }
 
 .wizardLeftNavContent {
 	border-left: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
 	background-color: white;
+	width: 180px;
 }
 
 .wizardLeftNavLink {
@@ -274,7 +299,7 @@ body {
   background-color: white;
   text-align: left;
   padding-left: 20px;
-  width: 180px;
+  width: 160px;
 }
 
 .wizardLeftNavLink-open {
@@ -296,7 +321,6 @@ body {
 }
 
 .wizardLeftNavLink:hover {
-  text-decoration: underline;
 }
 
 /* next, previous buttons*/
@@ -306,23 +330,6 @@ body {
 	margin-left: 20px;
 	width: 100%;
 }
-/*
-.wizardToolbarButton {
-	background-color:#508aae;
-	-moz-border-radius:10px;
-	-webkit-border-radius:10px;
-	border-radius:10px;
-	border:2px solid #b3b3b3;
-	color:#ffffff;
-	font-family:arial;
-	font-size:16px;
-	font-weight:bold;
-	text-align: center;
-	text-decoration:none;
-	width: 125px;
-	height: 36px;
-	margin-left: 5px;
-}*/
 
 .wizardToolbarButton {
 	width: 100px;
@@ -334,7 +341,6 @@ body {
 	font-size:14px;
 	font-weight:bold;
 	text-decoration:none;
-	/*text-shadow: 1px 1px 0px #000000;*/
 	margin-left: 10px;
 }
 .wizardToolbarButton:hover {
@@ -347,25 +353,28 @@ body {
 }
 
 /* finish button */
-.wizardFInishButton {
+.wizardFinishButton {
+	border-top: 1px solid white;
+	border-bottom: none;
+	border-right: none;
+	border-left: none;
 	background-color:#21944f;
 	color:#ffffff;
-	font-family:arial;
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	font-size:16px;
 	font-weight:bold;
 	text-align: left;
-	text-decoration:none;
 	text-shadow: 1px 1px 0px #000000;
 	width: 180px;
 	height: 36px;
-}.wizardFInishButton:hover {
+}.wizardFinishButton:hover {
 	background-color:#48b373;
 }
 
-.wizardfinishButton-disabled {
-	background: gray;
+.wizardFinishButton-disabled {
+	background: #ccc;
 }
-.wizardfinishButton-disabled:hover {
+.wizardFinishButton-disabled:hover {
 	background: gray;
 }
 
@@ -377,14 +386,14 @@ body {
 
 /* style for main wizard input panel (GWT class) */
 .wizardContentPanel {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
-	width: 757px;
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	width: 787px;
 	min-height: 400px;
 }
 
 /* styles applied to steps in the input wizard */
 .wizardStepPanel {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	min-height: 400px;
 	width: 100%;
 	padding-top: 20px;
@@ -396,17 +405,26 @@ body {
 }
 
 .wizardStepHeader {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin: 5px 5px;
 	font-weight: bold;
 	font-size: 14pt;
 }
 
 .wizardStepDescription {
-	font-family:"Palatino Linotype", "Book Antiqua", Palatino, serif;
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin: 5px 5px;
 	font-size: 12pt;
 	width: 80%;
+}
+
+
+.wizardStepButton {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	text-decoration: underline;
+	color: blue;
+	background-color: white;
+	border: none;
 }
 
 .wizardStepHeader-subpanel {

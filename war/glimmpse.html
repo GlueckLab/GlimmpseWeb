@@ -32,9 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <!--                                           -->
     <!-- This script loads your compiled module.   -->
     <!-- If you add any GWT meta tags, they must   -->
-    <!-- be added before this line.                -->
-    <!--                                           -->
-    <script type="text/javascript" language="javascript" src="glimmpseweb/glimmpseweb.nocache.js"></script>
+    <!-- be added before this line.                -->                                         
+    <script type="text/javascript" src="glimmpseweb/glimmpseweb.nocache.js"></script>
     <script type="text/javascript">
   		var _gaq = _gaq || [];
   		_gaq.push(['_setAccount', 'UA-21939703-1']);
@@ -50,32 +49,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   </head>
   <body>
   <center>
-  <table id="content-table">
-  <!--  
-	<table style="width:987px;margin-top:0px;margin-bottom:0px;background-color:white;" border="0" cellpadding="0" cellspacing="0">
-   -->
-   <tr>
-   <td>
+  <div id="center">
+   <div id="header">
 	<div id="glimmpse-topbar">
-		<div id="glimmpse-logo">GLIMMPSE</div>
-		<div id="glimmpse-title">Power and Sample Size for the<br/> General Linear Multivariate Model</div> 
+		<div id="glimmpse-logo">GLIMMPSE (beta)</div>
 		<div id="top-navbar">
-		  <div class="top-navbar-link no-border">News</div>
-		  <div class="top-navbar-link">Documentation</div>
-		  <div class="top-navbar-link">Education</div>
-		  <div class="top-navbar-link">Software Downloads</div>
-		  <div class="top-navbar-link selected">GLIMMPSE</div>
-		  <div class="top-navbar-link">About Us</div>
-		  <div class="top-navbar-link">Home</div>
+		<div class="top-navbar-link no-border"><a href="http://samplesizeshop.com">SampleSizeShop.com</a></div>
+		<div class="top-navbar-link"><a href="http://samplesizeshop.com">Downloads</a></div>
+		<div class="top-navbar-link"><a href="http://samplesizeshop.com">Documentation</a></div>
+	    <div class="top-navbar-link"><a href="/docs/manual.pdf">User Manual</a></div>
 	  </div> 
 	</div>
-	</td>
-   </tr>
+   </div>
+  <table id="content-table">
    <tr><td>
 	<!-- main wizard -->
 	<div id="glimmpseApp"></div>
 	</td></tr>
 	</table>
-  </center>
+	</div>
+	<div id="footer">
+	Copyright 2012 University of Colorado Denver
+	<p>
+	GLIMMPSE is funded by NIDCR 1 R01 DE020832-01A1 to the University of Florida 
+	(Keith Muller, PI; Deborah Glueck, University of Colorado site PI)
+	</p><p>
+	Previous funding was received from an American Recovery 
+	and Re-investment Act supplement (3K07CA088811-06S) for NCI grant K07CA088811.
+	</p>
+	</div>
+	</center>
   </body>
 </html>
