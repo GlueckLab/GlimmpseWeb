@@ -24,16 +24,18 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplanationPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.DynamicTabPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -54,9 +56,7 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 
-    TabLayoutPanel tabPanel = new TabLayoutPanel(2.5,Unit.EM);
-
-    VerticalPanel verticalPanel = new VerticalPanel();
+    DynamicTabPanel tabPanel = new DynamicTabPanel();
 
     /**
      * Constructor
@@ -67,16 +67,13 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         super(context, GlimmpseWeb.constants.navItemVariabilityWithinParticipant(),
                 WizardStepPanelState.NOT_ALLOWED);
 
-        HTML header = new HTML();
-        HTML instructions = new HTML();
-
-        header.setText(GlimmpseWeb.constants.withinSubjectCovarianceHeader());
-        instructions.setText(GlimmpseWeb.constants.withinSubjectCovarianceInstructions());
+        VerticalPanel panel = new VerticalPanel();
+        HTML header = new HTML(GlimmpseWeb.constants.withinSubjectCovarianceHeader());
+        HTML instructions = new HTML(GlimmpseWeb.constants.withinSubjectCovarianceInstructions());
 
         ButtonWithExplanationPanel uploadFullCovarianceMatrixButton =
             new ButtonWithExplanationPanel(
                     GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
-                    GlimmpseWeb.constants.explainButtonText(), 
                     GlimmpseWeb.constants.fullCovarianceMatrixHeader(), 
                     GlimmpseWeb.constants.fullCovarianceMatrixText());
 
@@ -90,15 +87,17 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
 
         });
 
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
-        verticalPanel.add(header);
-        verticalPanel.add(instructions);
-        verticalPanel.add(tabPanel);
-        verticalPanel.add(uploadFullCovarianceMatrixButton);
+        panel.add(header);
+        panel.add(instructions);
+        panel.add(tabPanel);
+        panel.add(uploadFullCovarianceMatrixButton);
 
-        initWidget(verticalPanel);
+        initWidget(panel);
     }
 
 
@@ -112,20 +111,22 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
 
     private void loadFromContext()
     {
+        tabPanel.clear();
+
         List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-        tabPanel.clear();
         if (repeatedMeasuresNodeList != null) {
             for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
             {
-                tabPanel.add(new CovarianceCorrelationDeckPanel(node), node.getDimension());
+                tabPanel.add(node.getDimension(), 
+                        new CovarianceCorrelationDeckPanel(node));
             }
         }
         List<ResponseNode> responseNodeList = 
             studyDesignContext.getStudyDesign().getResponseList();
         if (responseNodeList != null && responseNodeList.size() > 0) {
-            tabPanel.add(new CovarianceCorrelationDeckPanel(responseNodeList), 
-                    GlimmpseWeb.constants.covarianceResponsesLabel());
+            tabPanel.add(GlimmpseWeb.constants.responsesTableColumn(),
+                    new CovarianceCorrelationDeckPanel(responseNodeList));
         }
 
         checkComplete();
@@ -136,10 +137,12 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         //        return tabPanel;
     }
 
+
     private void checkComplete() {
-        if (tabPanel.getWidgetCount() > 0) {
+
+        if (tabPanel.getTabCount() > 0) {
             boolean complete = true;
-            for(int i = 0; i < tabPanel.getWidgetCount(); i++) {
+            for(int i = 0; i < tabPanel.getTabCount(); i++) {
                 CovarianceCorrelationDeckPanel panel = 
                     (CovarianceCorrelationDeckPanel) tabPanel.getWidget(i);
                 if (!panel.checkComplete()) {
@@ -147,6 +150,7 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
                     break;
                 }
             }
+
             if (complete) {
                 changeState(WizardStepPanelState.COMPLETE);
             } else {
@@ -155,10 +159,10 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         } else {
             changeState(WizardStepPanelState.NOT_ALLOWED);
         }
-        
+
     }
-    
-    
+
+
     /**
      * Respond to a change in the context object
      */
@@ -188,7 +192,7 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
     @Override
     public void onExit()
     {
-        for(int i = 0; i < tabPanel.getWidgetCount(); i++)
+        for(int i = 0; i < tabPanel.getTabCount(); i++)
         {
             CovarianceCorrelationDeckPanel panel = (CovarianceCorrelationDeckPanel) tabPanel.getWidget(i);
             Covariance covariance = panel.getCovariance();

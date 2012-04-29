@@ -21,41 +21,49 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 
 /**
- * Panel containing an action button and explanation button
+ * Button which opens and explanation dialog box
  * 
  * @author Vijay Akula
  * @author Sarah Kreidler
  *
  */
-public class ButtonWithExplanationPanel extends Composite 
+public class ExplanationButton extends Button
 {
-    protected Button button = new Button();
-	public ButtonWithExplanationPanel(String name, String explainHeader, String explainText)
-	{
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
-		
-		button.setText(name);
-		
-		horizontalPanel.add(button);
-		horizontalPanel.add(new ExplanationButton(explainHeader, explainText));
-		
-		// add style
-		button.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
-		
-		initWidget(horizontalPanel);
-	}
+    private static final String STYLE = "explanationButton";
+    // popup to display explanation text
+	protected ExplanationDialogBox dialogBox;
 	
-	public void addClickHandler(ClickHandler handler)
+	/**
+	 * Constructor
+	 * @param buttonText
+	 * @param alertTextHeader
+	 * @param alertText
+	 */
+	public ExplanationButton(String alertTextHeader, String alertText)
 	{
-		button.addClickHandler(handler);
+	    // set up the button itself
+	    super(GlimmpseWeb.constants.buttonExplain());
+	    this.addClickHandler(new ClickHandler(){
+	        @Override
+	        public void onClick(ClickEvent event) 
+	        {
+	            dialogBox.setGlassEnabled(true);
+	            dialogBox.center();
+	        }
+	    });
+	       
+	    // set style
+	    this.setStyleName(STYLE);
+	    
+	    // create the dialog box
+	    dialogBox = new ExplanationDialogBox(alertTextHeader, alertText);
 	}
 
 }

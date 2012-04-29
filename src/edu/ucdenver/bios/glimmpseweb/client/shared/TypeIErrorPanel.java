@@ -86,15 +86,6 @@ implements ListValidator
     }
     
     /**
-     * Return an XML representation of the alpha list
-     * @return XML representation of the alpha list
-     */
-    public String toXML()
-    {
-    	return alphaListPanel.toXML(GlimmpseConstants.TAG_ALPHA_LIST);
-    }
-    
-    /**
      * Validate new entries in the alpha list
      * @see DynamicListValidator
      */

@@ -35,7 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextExplainPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextWithExplanationPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -107,19 +107,19 @@ implements ClickHandler {
 
         // hypothesis type selection panel
         HorizontalPanel horizontalPanel = new HorizontalPanel();
-        HtmlTextExplainPanel mainEffect = new HtmlTextExplainPanel("",
+        HtmlTextWithExplanationPanel mainEffect = new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffect(),
                 GlimmpseWeb.constants.hypothesisPanelMainEffectExplination());
         horizontalPanel.add(mainEffectRadioButton);
         horizontalPanel.add(mainEffect);
         
-        HtmlTextExplainPanel interaction = new HtmlTextExplainPanel("",
+        HtmlTextWithExplanationPanel interaction = new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelInteraction(),
                 GlimmpseWeb.constants.hypothesisPanelInteractionExplination());
         horizontalPanel.add(interactionRadioButton);
         horizontalPanel.add(interaction);
 
-        HtmlTextExplainPanel trend = new HtmlTextExplainPanel("",
+        HtmlTextWithExplanationPanel trend = new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelTrend(),
                 GlimmpseWeb.constants.hypothesisPanelTrendExplination());
         horizontalPanel.add(trendRadioButton);

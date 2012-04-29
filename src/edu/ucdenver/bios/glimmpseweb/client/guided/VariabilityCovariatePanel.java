@@ -35,7 +35,6 @@ import com.google.gwt.xml.client.Node;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
-import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
@@ -106,34 +105,6 @@ implements ChangeHandler
 //		skip = !hasCovariate;
 //	}
 
-	public String toRequestXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-		if (WizardStepPanelState.SKIPPED != state)
-		{
-			XMLUtilities.matrixOpenTag(buffer, GlimmpseConstants.MATRIX_SIGMA_COVARIATE, 1, 1);
-			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_ROW);
-			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_COLUMN);
-			double stddev = Double.parseDouble(standardDeviationTextBox.getText());
-			buffer.append(stddev * stddev);
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_COLUMN);
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_ROW);
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_MATRIX);
-		}
-		return buffer.toString();
-	}
-
-	public String toStudyXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-		if (WizardStepPanelState.SKIPPED != state)
-		{
-			XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);
-			buffer.append(standardDeviationTextBox.getValue());
-			XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_VARIABILITY_G);	
-		}
-		return buffer.toString();
-	}
 	
 	@Override
 	public void onChange(ChangeEvent event)

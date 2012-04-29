@@ -21,41 +21,37 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 
 /**
- * Panel containing an action button and explanation button
- * 
+ * HTML text with an explanation button
  * @author Vijay Akula
  * @author Sarah Kreidler
  *
  */
-public class ButtonWithExplanationPanel extends Composite 
+public class HtmlTextWithExplanationPanel extends Composite
 {
-    protected Button button = new Button();
-	public ButtonWithExplanationPanel(String name, String explainHeader, String explainText)
-	{
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
-		
-		button.setText(name);
-		
-		horizontalPanel.add(button);
-		horizontalPanel.add(new ExplanationButton(explainHeader, explainText));
-		
-		// add style
-		button.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
-		
-		initWidget(horizontalPanel);
-	}
-	
-	public void addClickHandler(ClickHandler handler)
-	{
-		button.addClickHandler(handler);
-	}
+	protected ExplanationButton explainButton;
 
+	public HtmlTextWithExplanationPanel(String label, String headerText, String explanationText)
+	{
+	    HorizontalPanel panel = new HorizontalPanel();
+	    
+	    panel.add(new HTML(label));
+	    panel.add(new ExplanationButton(headerText, explanationText));
+		
+		initWidget(panel);
+	}
 }

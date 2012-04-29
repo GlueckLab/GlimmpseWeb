@@ -181,13 +181,13 @@ public class DomainObjectSerializer {
     public interface ConfidenceIntervalReader extends JsonReader<ConfidenceInterval> {}
     public static final ConfidenceIntervalReader confidenceIntervalReader = GWT.create(ConfidenceIntervalReader.class);
     
-    // integer reader
-    public interface IntegerReader extends JsonReader<Integer>{}
-    public static final IntegerReader integerReader = GWT.create(IntegerReader.class);
-    
-    //boolean reader
-    public interface BooleanReader extends JsonReader<Boolean>{}
-    public static final BooleanReader booleanReader = GWT.create(BooleanReader.class);
+//    // integer reader
+//    public interface IntegerReader extends JsonReader<Integer>{}
+//    public static final IntegerReader integerReader = GWT.create(IntegerReader.class);
+//    
+//    //boolean reader
+//    public interface BooleanReader extends JsonReader<Boolean>{}
+//    public static final BooleanReader booleanReader = GWT.create(BooleanReader.class);
     
     /** 
      * The piriti library does not support multidimensional arrays.  Thus, we had to write 
@@ -267,28 +267,28 @@ public class DomainObjectSerializer {
         return results;
     }
     
-    public Integer integerFromJSON(String jsonString)
-    {
-        Integer value = null;
-        try
-        {
-            /*JSONObject object = JSONParser.parseStrict(jsonString).isObject();*/
-            value = integerReader.read(jsonString);
-        }
-        catch (Exception e){    
-        }
-        return value;
-    }
-    
-    public boolean booleanFromJSON(String jsonString)
-    {
-        boolean value = false;
-        try
-        {
-            value = booleanReader.read(jsonString);
-        }
-        catch (Exception e){  
-        }
-        return value;
-    }
+//    public Integer integerFromJSON(String jsonString)
+//    {
+//        Integer value = null;
+//        try
+//        {
+//            /*JSONObject object = JSONParser.parseStrict(jsonString).isObject();*/
+//            value = integerReader.read(jsonString);
+//        }
+//        catch (Exception e){    
+//        }
+//        return value;
+//    }
+//    
+//    public boolean booleanFromJSON(String jsonString)
+//    {
+//        boolean value = false;
+//        try
+//        {
+//            value = booleanReader.read(jsonString);
+//        }
+//        catch (Exception e){  
+//        }
+//        return value;
+//    }
 }

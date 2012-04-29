@@ -160,6 +160,10 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
 		 horizointalPanel.add(correlationMatrix);
 	 }
 
+	 public boolean checkComplete() {
+	     return true;
+	 }
+	 
     @Override
     public Covariance getCovariance() 
     {

@@ -28,15 +28,17 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 
 /**
  * Guided mode equivalent of sigma scale panel
@@ -45,11 +47,17 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
  */
 public class VariabilityScalePanel extends WizardStepPanel
 {
+    // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    
     protected CheckBox scaleCheckBox = new CheckBox();
+    
+    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
     
 	public VariabilityScalePanel(WizardContext context)
 	{
-		super(context, "Scale Factors for Variability", WizardStepPanelState.COMPLETE);
+		super(context, GlimmpseWeb.constants.navItemSigmaScale(), 
+		        WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
@@ -81,45 +89,57 @@ public class VariabilityScalePanel extends WizardStepPanel
 	{
 		scaleCheckBox.setValue(false);
 	}
+	
+    /**
+     * Load the alpha panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+        List<SigmaScale> contextSigmaScaleList = studyDesignContext.getStudyDesign().getSigmaScaleList();
+        if (contextSigmaScaleList != null &&
+                contextSigmaScaleList.size() > 1) {
+            scaleCheckBox.setValue(true);
+        } else {
+            scaleCheckBox.setValue(false);
+        }
+        
+    }
+    
+    /**
+     * Respond to a change in the context object
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) 
+    {
+        if (((StudyDesignChangeEvent) e).getType() ==
+            StudyDesignChangeType.SIGMA_SCALE_LIST &&
+            this != e.getSource())
+        {
+            loadFromContext();
+        }
+    };
+    
+    /**
+     * Response to a context load event
+     */
+    @Override
+    public void onWizardContextLoad() 
+    {
+        loadFromContext();
+    }
 
-//	@Override
-//	public void loadFromNode(Node node)
-//	{
-//		if (GlimmpseConstants.TAG_SIGMA_SCALE_LIST.equalsIgnoreCase(node.getNodeName()))
-//		{
-//			NodeList children = node.getChildNodes();
-//			scaleCheckBox.setValue(children.getLength() > 1);
-//		}
-//	}
-	
-	public String toRequestXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_SIGMA_SCALE_LIST);
-		buffer.append("<v>1</v>");
-		if (scaleCheckBox.getValue())
-		{
-			buffer.append("<v>0.5</v><v>2</v>");
-		}
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_SIGMA_SCALE_LIST);
-		return buffer.toString();
-	}
-	
-	public String toStudyXML()
-	{
-		return toRequestXML();
-	}
 	
 	@Override
 	public void onExit()
 	{
-    	ArrayList<String> values = new ArrayList<String>();
-    	values.add("1");
+	    sigmaScaleList.clear();
+	    sigmaScaleList.add(new SigmaScale(1.0));
 		if (scaleCheckBox.getValue())
 		{
-			values.add("0.5");
-			values.add("2");
+		    sigmaScaleList.add(new SigmaScale(0.5));
+		    sigmaScaleList.add(new SigmaScale(2));
 		}
+		studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
 	}
 
 }

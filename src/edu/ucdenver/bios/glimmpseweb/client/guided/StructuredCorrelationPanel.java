@@ -37,35 +37,34 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.LearCorrelation;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
-import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextExplainPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextWithExplanationPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
+
 /**
- * 
+ * Lear correlation structure entry panel
  * @author VIJAY AKULA
  *
  */
 public class StructuredCorrelationPanel extends Composite implements CovarianceBuilder
 {
-	boolean strongestCorrelationFlag = false;
-	boolean rateofDecayFlag = false;
-	boolean standardDeviationFlag = false;
+	protected boolean strongestCorrelationFlag = false;
+	protected boolean rateofDecayFlag = false;
+	protected boolean standardDeviationFlag = false;
 	
-	VerticalPanel verticalPanel = new VerticalPanel();
-	HorizontalPanel horizontalPanel = new HorizontalPanel();
+	protected VerticalPanel verticalPanel = new VerticalPanel();
+	protected HorizontalPanel horizontalPanel = new HorizontalPanel();
 	
-	TextBox standardDeviationTextBox = new TextBox();
-	TextBox strongestCorrelationTextBox = new TextBox();
-	TextBox rateOfDecayOfCorrelationTextBox = new TextBox();
+	protected TextBox standardDeviationTextBox = new TextBox();
+	protected TextBox strongestCorrelationTextBox = new TextBox();
+	protected TextBox rateOfDecayOfCorrelationTextBox = new TextBox();
 	
-	HTML errorHTML = new HTML();
+	protected HTML errorHTML = new HTML();
+	protected List<String> labelList;
+	protected List<Integer> spacingList;
 	
-	List<String> labelList;
-	
-	List<Integer> spacingList;
-	
-	ResizableMatrixPanel resizableMatrix;
+	protected ResizableMatrixPanel resizableMatrix;
 	/**
 	 * Constructor to the clas
 	 */
@@ -74,7 +73,6 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
 		//instance of the VerticalPanel Class which is used to 
 		//hold the widgets created in this particular class
 		labelList = stringList;
-		
 		spacingList = integerList;
 		
 		HTML header = new HTML();
@@ -83,14 +81,12 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
 		
 		header.setText(GlimmpseWeb.constants.structuredCorrelationPanelHeader());
 		text.setText(GlimmpseWeb.constants.structuredCorrelationPanelText());
-		
-		
-		
-		HtmlTextExplainPanel standardDeviation = new HtmlTextExplainPanel(GlimmpseWeb.constants.standardDeviationLabel(),
+
+		HtmlTextWithExplanationPanel standardDeviation = new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.standardDeviationLabel(),
 				GlimmpseWeb.constants.standardDeviationExplinationHeader(), GlimmpseWeb.constants.standardDeviationExplinationText());
-		HtmlTextExplainPanel strongestCorrelation = new HtmlTextExplainPanel(GlimmpseWeb.constants.strongestCorrelationLabel(),
+		HtmlTextWithExplanationPanel strongestCorrelation = new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.strongestCorrelationLabel(),
 				GlimmpseWeb.constants.strongestCorrelationExplinationHeader(), GlimmpseWeb.constants.strongestCorrelationExplinationText());
-		HtmlTextExplainPanel rateOfDecayOfCorrelation = new HtmlTextExplainPanel(GlimmpseWeb.constants.rateOfDecayOfCorrelationLabel(),
+		HtmlTextWithExplanationPanel rateOfDecayOfCorrelation = new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.rateOfDecayOfCorrelationLabel(),
 				GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationHeader(), GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationText());
 		
 		Grid grid = new Grid(3,2);

@@ -73,72 +73,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
 
-    // REST API tag names
-    public static final String TAG_POWER_PARAMETERS = "glmmPowerParameters";
-    public static final String TAG_STUDY = "study";
-    public static final String TAG_SOLVING_FOR = "solvingFor";
-    public static final String TAG_POWER_LIST = "powerList";
-    public static final String TAG_ALPHA_LIST = "alphaList";
-    public static final String TAG_TEST_LIST = "testList";
-    public static final String TAG_POWER_METHOD_LIST = "powerMethodList";
-    public static final String TAG_QUANTILE_LIST = "quantileList";
-    public static final String TAG_OPTIONS = "options";
-    public static final String TAG_SAMPLE_SIZE_LIST = "sampleSizeList";
-    public static final String TAG_MATRIX = "matrix";
-    public static final String TAG_ROW_META_DATA = "rowMetaData";
-    public static final String TAG_RANDOM_COLUMN_META_DATA = "randomColumnMetaData";
-    public static final String TAG_ESSENCE_MATRIX = "essenceMatrix";
-    public static final String TAG_FIXED_RANDOM_MATRIX = "fixedRandomMatrix";
-    public static final String TAG_BETA_SCALE_LIST = "betaScaleList";
-    public static final String TAG_SIGMA_SCALE_LIST = "sigmaScaleList";
-    public static final String TAG_ROW = "r";
-    public static final String TAG_COLUMN = "c";
-    public static final String TAG_VALUE = "v";
-    public static final String TAG_CONFIDENCE_INTERVAL = "confidenceInterval";
-    
-    public static final String ATTR_MODE = "mode";
-    public static final String ATTR_TYPE = "type";
-    public static final String ATTR_NAME = "name";
-    public static final String ATTR_VALUE = "value";
-    public static final String ATTR_ROWS = "rows";
-    public static final String ATTR_COLUMNS = "columns";
-    public static final String ATTR_COMBINE_HORIZONTAL = "combineHorizontal";
-    public static final String ATTR_RATIO = "ratio";
-    public static final String ATTR_CI_ALPHA_LOWER = "alphaLower";
-    public static final String ATTR_CI_ALPHA_UPPER = "alphaUpper";
-    public static final String ATTR_CI_LOWER = "ciLower";
-    public static final String ATTR_CI_UPPER = "ciUpper";
-    public static final String ATTR_CI_ESTIMATES_SAMPLE_SIZE = "estimatesSampleSize";
-    public static final String ATTR_CI_ESTIMATES_RANK = "estimatesRank";    
-    
-    // guided mode tags/attributes - only used for save/upload and not part of the power REST api
-    public static final String TAG_CATEGORICAL_PREDICTORS = "categoricalPredictors";
-    public static final String TAG_CATEGORY = "category";
-    public static final String TAG_PREDICTOR = "predictor";
-    public static final String TAG_COVARIATE = "covariate";
-    public static final String TAG_RELATIVE_GROUP_SIZE_LIST = "relativeGroupSizeList";
-    public static final String TAG_OUTCOMES_LIST = "outcomesList";
-    public static final String TAG_HYPOTHESIS = "hypothesis";
-    public static final String TAG_HYPOTHESIS_REPEATED = "hypothesisRepeated";
-    public static final String TAG_REPEATED_MEASURES = "repeatedMeasures";
-    public static final String TAG_DIMENSION = "dimension";
-    public static final String TAG_VARIABILITY_Y = "variabilityY";
-    public static final String TAG_VARIABILITY_YG = "variabilityYG";
-    public static final String TAG_VARIABILITY_G = "variabilityG";
-    public static final String TAG_SD_LIST = "sdList";
-    public static final String TAG_SD = "sd";
-    public static final String TAG_CORRELATION_LIST = "correlationList";
-    public static final String TAG_CORRELATION = "correlation";
-    
-    public static final String ATTR_TIMES = "times";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
-    // types of confidence intervals
-    // known beta coefficients, sigma estimated
-    public static final String CONFIDENCE_INTERVAL_BETA_KNOWN_EST_SIGMA = "sigma";
-    // both beta and sigma are estimated
-    public static final String CONFIDENCE_INTERVAL_EST_BETA_SIGMA = "betaSigma";
     
     // matrix names
     public static final String MATRIX_FIXED = "fixed";
@@ -155,15 +92,6 @@ public interface GlimmpseConstants extends Constants
     public static final String MATRIX_SIGMA_OUTCOME_COVARIATE = "sigmaOutcomeGaussianRandom";
     public static final String MATRIX_SIGMA_COVARIATE = "sigmaGaussianRandom";
     public static final String MATRIX_THETA = "thetaNull";
-    
-    // test names
-    public static final String TEST_UNIREP = "unirep";
-    public static final String TEST_UNIREP_GEISSER_GRENNHOUSE = "unirepGG";
-    public static final String TEST_UNIREP_HUYNH_FELDT = "unirepHF";
-    public static final String TEST_UNIREP_BOX = "unirepBox";
-    public static final String TEST_WILKS_LAMBDA = "wl";
-    public static final String TEST_PILLAI_BARTLETT_TRACE= "pbt";
-    public static final String TEST_HOTELLING_LAWLEY_TRACE = "hlt";
 
     // data table column names for power results
     public static final String COLUMN_NAME_TEST = "test";
@@ -272,7 +200,9 @@ public interface GlimmpseConstants extends Constants
     // other buttons
     public String buttonDelete();
     public String buttonAdd();
-
+    public String buttonClose();
+    public String buttonExplain();
+    
     // miscellaneous words
     public String and();
     

@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -30,10 +31,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.XMLUtilities;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 
 /**
  * Guided mode equivalent of beta scale panel
@@ -42,12 +47,17 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
  */
 public class MeanDifferencesScalePanel extends WizardStepPanel
 {
+    // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    
     protected CheckBox scaleCheckBox = new CheckBox();
+    
+    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
     
 	public MeanDifferencesScalePanel(WizardContext context)
 	{
-		super(context, "Scaled Mean Differences");
-		state = WizardStepPanelState.COMPLETE;
+		super(context, GlimmpseWeb.constants.navItemBetaScale(),
+		        WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
         // create header/instruction text
@@ -80,43 +90,55 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 		scaleCheckBox.setValue(false);
 	}
 
-//	@Override
-//	public void loadFromNode(Node node)
-//	{
-//		if (GlimmpseConstants.TAG_BETA_SCALE_LIST.equalsIgnoreCase(node.getNodeName()))
-//		{
-//			NodeList children = node.getChildNodes();
-//			scaleCheckBox.setValue(children.getLength() > 1);
-//		}
-//	}
-	
-	public String toRequestXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-		XMLUtilities.openTag(buffer, GlimmpseConstants.TAG_BETA_SCALE_LIST);
-		buffer.append("<v>1</v>");
-		if (scaleCheckBox.getValue())
-		{
-			buffer.append("<v>0.5</v><v>2</v>");
-		}
-		XMLUtilities.closeTag(buffer, GlimmpseConstants.TAG_BETA_SCALE_LIST);
-		return buffer.toString();
-	}
+    /**
+     * Load the alpha panel from the study design context information
+     */
+    public void loadFromContext()
+    {
+        List<BetaScale> contextBetaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
+        if (contextBetaScaleList != null &&
+                contextBetaScaleList.size() > 1) {
+            scaleCheckBox.setValue(true);
+        } else {
+            scaleCheckBox.setValue(false);
+        }
+        
+    }
+    
+    /**
+     * Respond to a change in the context object
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) 
+    {
+        if (((StudyDesignChangeEvent) e).getType() ==
+            StudyDesignChangeType.BETA_SCALE_LIST &&
+            this != e.getSource())
+        {
+            loadFromContext();
+        }
+    };
+    
+    /**
+     * Response to a context load event
+     */
+    @Override
+    public void onWizardContextLoad() 
+    {
+        loadFromContext();
+    }
 
-	public String toStudyXML()
-	{
-		return toRequestXML();
-	}
     
     @Override
     public void onExit()
     {
-    	ArrayList<String> values = new ArrayList<String>();
-    	values.add("1");
-		if (scaleCheckBox.getValue())
-		{
-			values.add("0.5");
-			values.add("2");
-		}
+        betaScaleList.clear();
+        betaScaleList.add(new BetaScale(1.0));
+        if (scaleCheckBox.getValue())
+        {
+            betaScaleList.add(new BetaScale(0.5));
+            betaScaleList.add(new BetaScale(2));
+        }
+        studyDesignContext.setBetaScaleList(this, betaScaleList);
     }
 }

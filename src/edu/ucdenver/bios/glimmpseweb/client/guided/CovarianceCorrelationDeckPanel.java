@@ -40,8 +40,13 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
 /**
+ * Class which allows input of covariance matrices either as
+ * 1. Lear correlation
+ * 2. Unstructured correlation
+ * 3. Unstructured covariance
  * 
  * @author VIJAY AKULA
+ * @author Sarah Kreidler
  *
  */
 public class CovarianceCorrelationDeckPanel extends Composite
@@ -54,28 +59,24 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	protected ButtonWithExplanationPanel useCustomVariability =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomVariablity(),
-			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useCustomVariablityAlertHeader(), 
 			GlimmpseWeb.constants.useCustomVariabilityAlertText());
 	
 	protected ButtonWithExplanationPanel useCustomCorrelation =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomCorrelation(),
-			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertHeader(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertText());
 	
 	protected ButtonWithExplanationPanel uploadCorrelationMatrix =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.uploadCorrelationMatrix(),
-			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.correlationMatrixAlertHeader(), 
 			GlimmpseWeb.constants.correlationMatrixAlertText());
 	
 	protected ButtonWithExplanationPanel useStructuredVariability =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useStructuredVariability(),
-			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertHeader(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertText());
 	
@@ -83,10 +84,13 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	protected ButtonWithExplanationPanel uploadCovarianceMatrix =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.uploadCovarianceMatrix(),
-			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.covarianceMatrixAlertHeader(), 
 			GlimmpseWeb.constants.covarianceMatrixAlertText());
 	
+	/**
+	 * Build a covariance deck for a repeated measures dimension
+	 * @param repeatedMeasuresNode
+	 */
 	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode)
 		
 	{
