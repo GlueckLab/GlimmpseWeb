@@ -151,7 +151,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
 		 correlationMatrix.setRowLabels(labelList);
 		 correlationMatrix.setColumnLabels(labelList);
 		 
-		 for(int i = 1; i <= size; i++)
+		 for(int i = 0; i < size; i++)
 		 {
 			 Double value = 1.0;
 			 String  stringValue = value.toString();

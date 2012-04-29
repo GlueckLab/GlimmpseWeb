@@ -32,10 +32,12 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplainationPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplanationPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
 /**
  * 
@@ -44,48 +46,51 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
  */
 public class CovarianceCorrelationDeckPanel extends Composite
 {
+    protected String name = "";
+    
 	protected DeckPanel deckPanel = new DeckPanel();
 	protected VerticalPanel controlButtonPanel = new VerticalPanel();
 	
-	protected ButtonWithExplainationPanel useCustomVariability =
-	        new ButtonWithExplainationPanel(
+	protected ButtonWithExplanationPanel useCustomVariability =
+	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomVariablity(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useCustomVariablityAlertHeader(), 
 			GlimmpseWeb.constants.useCustomVariabilityAlertText());
 	
-	protected ButtonWithExplainationPanel useCustomCorrelation =
-	        new ButtonWithExplainationPanel(
+	protected ButtonWithExplanationPanel useCustomCorrelation =
+	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomCorrelation(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertHeader(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertText());
 	
-	protected ButtonWithExplainationPanel uploadCorrelationMatrix =
-	        new ButtonWithExplainationPanel(
+	protected ButtonWithExplanationPanel uploadCorrelationMatrix =
+	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.uploadCorrelationMatrix(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.correlationMatrixAlertHeader(), 
 			GlimmpseWeb.constants.correlationMatrixAlertText());
 	
-	protected ButtonWithExplainationPanel useStructuredVariability =
-	        new ButtonWithExplainationPanel(
+	protected ButtonWithExplanationPanel useStructuredVariability =
+	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useStructuredVariability(),
 			GlimmpseWeb.constants.explainButtonText(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertHeader(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertText());
 	
 	
-	protected ButtonWithExplainationPanel uploadCovarianceMatrix =
-	        new ButtonWithExplainationPanel(
+	protected ButtonWithExplanationPanel uploadCovarianceMatrix =
+	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.uploadCovarianceMatrix(),
 			GlimmpseWeb.constants.explainButtonText(), 
-			GlimmpseWeb.constants.covarinceMatrixAlertHeader(), 
-			GlimmpseWeb.constants.covarinceMatrixAlertText());
+			GlimmpseWeb.constants.covarianceMatrixAlertHeader(), 
+			GlimmpseWeb.constants.covarianceMatrixAlertText());
 	
 	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode)
 		
 	{
+	    name = repeatedMeasuresNode.getDimension();
 		String dimension = repeatedMeasuresNode.getDimension();
 		List<Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
 		List<Integer> integerSpacingList = new ArrayList<Integer>();
@@ -102,13 +107,16 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		buildDeckPanel(labelList, integerSpacingList);
 	}
 	
-	public CovarianceCorrelationDeckPanel(List<String> responseList)
+	public CovarianceCorrelationDeckPanel(List<ResponseNode> responseList)
 	{
-		List<String> labels = responseList;
-		List<Integer> spacingList = new ArrayList<Integer>(labels.size());
-		for(int i = 0; i < labels.size(); i++)
-		{
+	    name = GlimmpseConstants.RESPONSES_COVARIANCE_LABEL;
+	    ArrayList<String> labels = new ArrayList<String>(responseList.size());
+		List<Integer> spacingList = new ArrayList<Integer>(responseList.size());
+		int i = 1;
+		for(ResponseNode node: responseList) {
 			spacingList.add(new Integer(i));
+			labels.add(node.getName());
+			i++;
 		}
 		buildDeckPanel(labels, spacingList);
 	}
@@ -248,8 +256,14 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	public Covariance getCovariance()
 	{
 	    int visibleIndex = deckPanel.getVisibleWidget();
-	    CovarianceBuilder covariance = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
-	    return covariance.getCovariance();
+	    CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
+	    Covariance covariance = covarianceBuilder.getCovariance();
+	    covariance.setName(name);
+	    return covariance;
+	}
+	
+	public boolean checkComplete() {
+	    return true;
 	}
 }
 

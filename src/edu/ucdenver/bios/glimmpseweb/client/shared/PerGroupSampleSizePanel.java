@@ -58,7 +58,8 @@ implements ListValidator
     
 	public PerGroupSampleSizePanel(WizardContext context)
 	{
-		super(context, "Per Group N", WizardStepPanelState.INCOMPLETE);
+		super(context, GlimmpseWeb.constants.navItemPerGroupSampleSize(), 
+		        WizardStepPanelState.INCOMPLETE);
 		studyDesignContext = (StudyDesignContext) context;
 		VerticalPanel panel = new VerticalPanel();
         HTML header = new HTML(GlimmpseWeb.constants.perGroupSampleSizeTitle());

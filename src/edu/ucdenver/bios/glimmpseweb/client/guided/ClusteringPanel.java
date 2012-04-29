@@ -166,6 +166,8 @@ implements ChangeHandler {
        // description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         addSubgroupButton.setStyleName(BUTTON_STYLE);
         removeSubgroupButton.setStyleName(BUTTON_STYLE);
+        addClusteringButton.setStyleName(BUTTON_STYLE);
+        removeClusteringButton.setStyleName(BUTTON_STYLE);
 
         // Initializing widget
         initWidget(panel);

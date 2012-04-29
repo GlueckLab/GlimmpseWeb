@@ -238,10 +238,10 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.RELATIVE_GROUP_SIZE_LIST));
     }
 
-    public void setResponseVariables(WizardStepPanel panel, String label,
-            List<String> varibleList)
+    public void setResponseList(WizardStepPanel panel, String label,
+            List<ResponseNode> responseList)
     {
-        studyDesign.setResponseListNames(varibleList);
+        studyDesign.setResponseList(responseList);
         studyDesign.setParticipantLabel(label);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.RESPONSES_LIST));
@@ -350,7 +350,8 @@ public class StudyDesignContext extends WizardContext
                 && hasThetaNull);
 
         GWT.log("Study design complete? " + complete);
-
+//TODO: remove
+        complete = true;
     }
 
     /**

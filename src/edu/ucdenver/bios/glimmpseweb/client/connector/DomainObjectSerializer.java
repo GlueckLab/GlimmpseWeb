@@ -11,6 +11,7 @@ import com.google.gwt.json.client.JSONParser;
 
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
@@ -28,6 +29,7 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
+import edu.ucdenver.bios.webservice.common.domain.Spacing;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
@@ -84,6 +86,18 @@ public class DomainObjectSerializer {
     public static final BetweenParticipantFactorReader betweenParticipantFactorReader = GWT.create(BetweenParticipantFactorReader.class);
     public interface BetweenParticipantFactorWriter extends JsonWriter<BetweenParticipantFactor> {}
     public static final BetweenParticipantFactorWriter betweenParticipantFactorWriter = GWT.create(BetweenParticipantFactorWriter.class);    
+    
+    // Categories
+    public interface CategoryReader extends JsonReader<Category> {}
+    public static final CategoryReader categoryReader = GWT.create(CategoryReader.class);
+    public interface CategoryWriter extends JsonWriter<Category> {}
+    public static final CategoryWriter categoryWriter = GWT.create(CategoryWriter.class);    
+    
+    // Spacing
+    public interface SpacingReader extends JsonReader<Spacing> {}
+    public static final SpacingReader spacingReader = GWT.create(SpacingReader.class);
+    public interface SpacingWriter extends JsonWriter<Spacing> {}
+    public static final SpacingWriter spacingWriter = GWT.create(SpacingWriter.class);    
     
     // confidence intervals
     public interface ConfidenceIntervalDescriptionReader extends JsonReader<ConfidenceIntervalDescription> {}

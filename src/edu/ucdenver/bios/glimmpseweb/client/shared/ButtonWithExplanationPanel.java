@@ -5,10 +5,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 
-public class ButtonWithExplainationPanel extends Composite 
+public class ButtonWithExplanationPanel extends Composite 
 {
 	Button button = new Button();
-	public ButtonWithExplainationPanel(String name, String explainbuttontext, String alerttextheader, String alerttext)
+	public ButtonWithExplanationPanel(String name, String explainbuttontext, String alerttextheader, String alerttext)
 	{
 		String buttonName = name;
 		HorizontalPanel horizontalPanel = new HorizontalPanel();

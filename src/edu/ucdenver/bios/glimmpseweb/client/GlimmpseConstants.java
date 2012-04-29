@@ -178,6 +178,9 @@ public interface GlimmpseConstants extends Constants
     public static final String COLUMN_NAME_CI_LOWER = "ciLower";
     public static final String COLUMN_NAME_CI_UPPER = "ciUpper";
     
+    // 
+    public static final String RESPONSES_COVARIANCE_LABEL = "__RESPONSE_COVARIANCE__";
+    
 	// dimension names derived from linear model theory.
 	// ensures that default matrix dimensions conform properly
     public static final int DEFAULT_N = 3;
@@ -310,15 +313,16 @@ public interface GlimmpseConstants extends Constants
     public String simpleAlphaTitle();
     public String simpleAlphaDescription();
     /* predictors section */
-    public String predictorsIntroTitle();
-    public String predictorsIntroDescription();
+    public String participantsIntroTitle();
+    public String participantsIntroDescription();
     // categorical predictors panel constants
     public String predictorsTitle();
     public String predictorsDescription();
+    public String predictorsMultiSampleDescription();
+    public String predictorsOneSampleButton();
+    public String predictorsMultiSampleButton();
     public String predictorsTableColumn();
     public String categoriesTableColumn();
-    public String categoricalTitle();
-    public String categoricalDescription();
     // covariate panel constants
     public String covariateTitle();
     public String covariateDescription();
@@ -662,9 +666,9 @@ public interface GlimmpseConstants extends Constants
      
      public String correlationMatrixAlertHeader();
      public String correlationMatrixAlertText();
-     public String covarinceMatrixAlertHeader();
-     public String covarinceMatrixAlertText();
-     
+     public String covarianceMatrixAlertHeader();
+     public String covarianceMatrixAlertText();
+     public String covarianceResponsesLabel();
      
      public String unstructuredCorrelationEnterExpectedStandardDeviation();
      public String unstructuredCorrelationEnterExpectedCorrelation();

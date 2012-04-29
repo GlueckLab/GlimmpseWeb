@@ -154,7 +154,7 @@ public class ResponsesPanel extends WizardStepPanel {
 	
 	public void onExit()
 	{
-	    studyDesignContext.setResponseVariables(this,
-	            textbox.getValue(), responsesPanel.getValues());
+//	    studyDesignContext.setResponseList(this,
+//	            textbox.getValue(), responsesPanel.getValues());
 	}
 }

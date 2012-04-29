@@ -65,9 +65,9 @@ public class GuidedWizardPanel extends Composite
 	protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel(context);
 	// predictors
 	protected IntroPanel predictorIntroPanel = new IntroPanel(context,
-			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.predictorsIntroTitle(),
-			GlimmpseWeb.constants.predictorsIntroDescription());
-	protected CategoricalPredictorsPanel catPredictorsPanel = new CategoricalPredictorsPanel(context);
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.participantsIntroTitle(),
+			GlimmpseWeb.constants.participantsIntroDescription());
+	protected FixedPredictorsPanel fixedPredictorsPanel = new FixedPredictorsPanel(context);
 	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
 	protected RelativeGroupSizePanel relativeGroupSizePanel = new RelativeGroupSizePanel(context);
 	protected PerGroupSampleSizePanel perGroupSampleSizePanel = new PerGroupSampleSizePanel(context);
@@ -97,11 +97,10 @@ public class GuidedWizardPanel extends Composite
 	protected IntroPanel variabilityIntroPanel = new IntroPanel(context,
 			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.variabilityIntroTitle(),
 			GlimmpseWeb.constants.variabilityIntroDescription());
-	protected VariabilityWithinParticipantPanel variabilityWithinParticipantPanel = 
-		new VariabilityWithinParticipantPanel(context);
-	protected VariabilityCovariatePanel variabilityCovariatePanel = new VariabilityCovariatePanel(context);
-	protected VariabilityCovariateOutcomePanel variabilityCovariateOutcomePanel = 
-		new VariabilityCovariateOutcomePanel(context);
+	protected WithinParticipantCovariancePanel withinParticipantCovariancePanel = 
+		new WithinParticipantCovariancePanel(context);
+	protected GaussianCovariateCovariancePanel gaussianCovariateCovariancePanel = 
+	    new GaussianCovariateCovariancePanel(context);
 	protected VariabilityScalePanel variabilityScalePanel = new VariabilityScalePanel(context);
 	// options
 	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "guided");
@@ -147,7 +146,7 @@ public class GuidedWizardPanel extends Composite
 		// predictors
 		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupPredictors());
 		group.addPanel(predictorIntroPanel);
-		group.addPanel(catPredictorsPanel);
+		group.addPanel(fixedPredictorsPanel);
 		group.addPanel(covariatePanel);
 	    group.addPanel(clusteringPanel);
 		group.addPanel(relativeGroupSizePanel);
@@ -173,9 +172,8 @@ public class GuidedWizardPanel extends Composite
 		// variability
 		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability());
 		group.addPanel(variabilityIntroPanel);
-		group.addPanel(variabilityWithinParticipantPanel);
-		group.addPanel(variabilityCovariatePanel);
-		group.addPanel(variabilityCovariateOutcomePanel);
+		group.addPanel(withinParticipantCovariancePanel);
+		group.addPanel(gaussianCovariateCovariancePanel);
 		group.addPanel(variabilityScalePanel);
 		groupList.add(group);
 		// options panels

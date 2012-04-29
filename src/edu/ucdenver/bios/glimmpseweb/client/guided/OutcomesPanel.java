@@ -19,16 +19,27 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListEntryPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ListValidator;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
+import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 
 /**
  * OutcomesPanel
@@ -37,25 +48,24 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
  *
  */
 public class OutcomesPanel extends WizardStepPanel
-{    
+implements ListValidator
+{   
+    private static final String PARTICIPANT_LABEL = "participant";
+    // context object
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    
     // dynamic table of outcomes
     protected ListEntryPanel outcomesListPanel = 
-    	new ListEntryPanel(GlimmpseWeb.constants.outcomesTableColumn(), 
-    			new ListValidator() {
-    		public void validate(String value) throws IllegalArgumentException {}
+    	new ListEntryPanel(GlimmpseWeb.constants.outcomesTableColumn(), this);
 
-    		public void onValidRowCount(int validRowCount)
-    		{
-    			if (validRowCount > 0)
-    				changeState(WizardStepPanelState.COMPLETE);
-    			else
-    				changeState(WizardStepPanelState.INCOMPLETE);
-    		}
-    	});
-
+    // array list to hold output
+    ArrayList<ResponseNode> outcomesList = new ArrayList<ResponseNode>();
+    
+    
     public OutcomesPanel(WizardContext context)
     {
-    	super(context, "Responses");
+    	super(context, GlimmpseWeb.constants.navItemResponses(),
+    	        WizardStepPanelState.INCOMPLETE);
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
@@ -84,23 +94,64 @@ public class OutcomesPanel extends WizardStepPanel
     @Override
     public void onExit()
     {
-    	
+        List<String> stringValues = outcomesListPanel.getValues();
+        outcomesList.clear();
+        for(String value: stringValues)
+        {
+            outcomesList.add(new ResponseNode(value));
+        }
+        // save to context object
+        studyDesignContext.setResponseList(this, 
+                PARTICIPANT_LABEL, outcomesList);
+    }
+    
+    private void loadFromContext()
+    {
+        List<ResponseNode> responsesList = studyDesignContext.getStudyDesign().getResponseList();
+        if (responsesList != null) {
+            for(ResponseNode response: responsesList)
+            {
+                outcomesListPanel.add(response.getName());
+            }
+        }
+        onValidRowCount(outcomesListPanel.getValidRowCount());
+    }
+    
+    /**
+     * Respond to a change in the context object
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e) 
+    {
+        // no action required
+    };
+
+    /**
+     * Update the screen when the predictors or repeated measures change
+     */
+    @Override
+    public void onWizardContextLoad() 
+    {
+        loadFromContext();
+    }
+    
+    public void validate(String value) throws IllegalArgumentException {
+        try
+        {
+           TextValidation.parseString(value);
+        }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidString());
+        }
     }
 
-//	@Override
-//	public void loadFromNode(Node node)
-//	{
-//		outcomesListPanel.loadFromNode(node);
-//		if (outcomesListPanel.getValidRowCount() > 0)
-//			notifyComplete();
-//		else
-//			notifyInProgress();
-//		notifyOutcomes();
-//		changed = false;
-//	}
-
-	public String toStudyXML()
-	{
-		return outcomesListPanel.toXML(GlimmpseConstants.TAG_OUTCOMES_LIST);
-	}
+    public void onValidRowCount(int validRowCount)
+    {
+        if (validRowCount > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
+    }
 }
+    

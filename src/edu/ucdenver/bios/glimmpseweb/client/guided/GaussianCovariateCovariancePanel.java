@@ -50,7 +50,7 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
  * @author VIJAY AKULA
  *
  */
-public class RandomCovariteCovariancePanel extends WizardStepPanel
+public class GaussianCovariateCovariancePanel extends WizardStepPanel
 {
 	// context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
@@ -75,86 +75,86 @@ public class RandomCovariteCovariancePanel extends WizardStepPanel
     
     
 	@SuppressWarnings("deprecation")
-	public RandomCovariteCovariancePanel(WizardContext context, String name) 
+	public GaussianCovariateCovariancePanel(WizardContext context) 
 	{
 		super(context, "Random Covariate Covariance Screen");
 		
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
-		HTML header = new HTML();
-		header.setText(GlimmpseWeb.constants.randomCovariateCovarianceHeader());
-		
-		HTML description = new HTML();
-		description.setText(GlimmpseWeb.constants.randomCovariateCovarianceDescription());
-		
-		HTML enterStandardDeviationExpectedInstruction = new HTML();
-		enterStandardDeviationExpectedInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterStandardDeviationExpectedInstruction());
-		
-		HTML enterCorrelationYouExpectToObserveInstruction = new HTML();
-		enterCorrelationYouExpectToObserveInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction());
-		
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
-
-		HTML label = new HTML("Covarite");
-		
-		
-		textBox.addChangeHandler(new ChangeHandler(){ 
-            @Override
-            public void onChange(ChangeEvent event)
-            {
-                TextBox tb = (TextBox)event.getSource();
-                try
-                {
-                    
-                    String value = tb.getValue();
-                    double d = TextValidation.parseDouble(value);
-                    TextValidation.displayOkay(errorHTMLUP, "");
-                    TextValidation.displayOkay(errorHTMLDOWN, "");
-                }
-                catch (Exception e)
-                {
-                    TextValidation.displayError(errorHTMLUP,
-                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
-                    TextValidation.displayError(errorHTMLDOWN,
-                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
-                }
-            }
-        });
-		
-		horizontalPanel.add(label);
-		horizontalPanel.add(textBox);
-		
-		
-		CheckBox sampleCorrelationCheckBox = new CheckBox("");
-		
-		sampleCorrelationCheckBox.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				CheckBox cb = (CheckBox)event.getSource();
-				CHECKBOXVALUE = cb.isChecked();
-				editCorrelationTextBoxes();
-				
-			}
-		});
-		sampleCorrelationCheckBox.setHTML("Use the sample correlation for all outcomes");
-
-		constructFlexTable();
-		
-		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		sampleCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		
-		verticalPanel.add(header);
-		verticalPanel.add(description);
-		verticalPanel.add(enterStandardDeviationExpectedInstruction);
-		verticalPanel.add(horizontalPanel);
-		verticalPanel.add(enterCorrelationYouExpectToObserveInstruction);
-		verticalPanel.add(sampleCorrelationCheckBox);
-		verticalPanel.add(errorHTMLUP);
-		verticalPanel.add(hp);
-		verticalPanel.add(errorHTMLDOWN);
+//		HTML header = new HTML();
+//		header.setText(GlimmpseWeb.constants.randomCovariateCovarianceHeader());
+//		
+//		HTML description = new HTML();
+//		description.setText(GlimmpseWeb.constants.randomCovariateCovarianceDescription());
+//		
+//		HTML enterStandardDeviationExpectedInstruction = new HTML();
+//		enterStandardDeviationExpectedInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterStandardDeviationExpectedInstruction());
+//		
+//		HTML enterCorrelationYouExpectToObserveInstruction = new HTML();
+//		enterCorrelationYouExpectToObserveInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction());
+//		
+//		HorizontalPanel horizontalPanel = new HorizontalPanel();
+//
+//		HTML label = new HTML("Covarite");
+//		
+//		
+//		textBox.addChangeHandler(new ChangeHandler(){ 
+//            @Override
+//            public void onChange(ChangeEvent event)
+//            {
+//                TextBox tb = (TextBox)event.getSource();
+//                try
+//                {
+//                    
+//                    String value = tb.getValue();
+//                    double d = TextValidation.parseDouble(value);
+//                    TextValidation.displayOkay(errorHTMLUP, "");
+//                    TextValidation.displayOkay(errorHTMLDOWN, "");
+//                }
+//                catch (Exception e)
+//                {
+//                    TextValidation.displayError(errorHTMLUP,
+//                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
+//                    TextValidation.displayError(errorHTMLDOWN,
+//                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
+//                }
+//            }
+//        });
+//		
+//		horizontalPanel.add(label);
+//		horizontalPanel.add(textBox);
+//		
+//		
+//		CheckBox sampleCorrelationCheckBox = new CheckBox("");
+//		
+//		sampleCorrelationCheckBox.addClickHandler(new ClickHandler()
+//		{
+//			@Override
+//			public void onClick(ClickEvent event)
+//			{
+//				CheckBox cb = (CheckBox)event.getSource();
+//				CHECKBOXVALUE = cb.isChecked();
+//				editCorrelationTextBoxes();
+//				
+//			}
+//		});
+//		sampleCorrelationCheckBox.setHTML("Use the sample correlation for all outcomes");
+//
+//		constructFlexTable();
+//		
+//		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+//		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+//		sampleCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+//		
+//		verticalPanel.add(header);
+//		verticalPanel.add(description);
+//		verticalPanel.add(enterStandardDeviationExpectedInstruction);
+//		verticalPanel.add(horizontalPanel);
+//		verticalPanel.add(enterCorrelationYouExpectToObserveInstruction);
+//		verticalPanel.add(sampleCorrelationCheckBox);
+//		verticalPanel.add(errorHTMLUP);
+//		verticalPanel.add(hp);
+//		verticalPanel.add(errorHTMLDOWN);
 		initWidget(verticalPanel);
 
 	}

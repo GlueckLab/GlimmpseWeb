@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->
-  <!-- any one of the following lines.                            -->
-  <inherits name='com.google.gwt.user.theme.clean.Clean'/>
+  <!-- any one of the following lines.                 -->          
+  <inherits name='com.google.gwt.user.theme.clean.Clean'/> 
   <!-- Other module inherits                                      -->
  <!--  xml -->
  <inherits name="com.google.gwt.xml.XML"/>
