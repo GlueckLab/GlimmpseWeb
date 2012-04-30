@@ -667,7 +667,7 @@ public class ResizableMatrixPanel extends Composite
             {
                 for(int column = 0; column < columns; column++)
                 {
-                    setCellValue(row+1, column+1, Double.toString(data[row][column]));
+                    setCellValue(row, column, Double.toString(data[row][column]));
                 }
             }
             rowTextBox.setValue(Integer.toString(rows));
