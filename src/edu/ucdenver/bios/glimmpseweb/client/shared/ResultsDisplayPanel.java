@@ -33,6 +33,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -50,6 +51,7 @@ import com.google.gwt.visualization.client.visualizations.Table;
 
 import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.connector.ChartSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
@@ -58,6 +60,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
@@ -85,10 +88,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
     
     private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
     private static final String STYLE_SEPARATOR = "separator";
-    private static final int STATUS_CODE_OK = 200;
-    private static final int STATUS_CODE_CREATED = 201;
-    private static final String POWER_URL = "/webapps/power/power";
-    private static final String SAMPLE_SIZE_URL = "/webapps/power/samplesize";
 
     private static final String CHART_INPUT_NAME = "chart";
     private static final String SAVE_INPUT_NAME = "save";
@@ -101,7 +100,9 @@ public class ResultsDisplayPanel extends WizardStepPanel
     
     // connector to the power service
     PowerSvcConnector powerSvcConnector = new PowerSvcConnector();
-
+    // connector to the power service
+    ChartSvcConnector chartSvcConnector = new ChartSvcConnector();
+    
 	// wait dialog
 	protected DialogBox waitDialog;
 
@@ -345,72 +346,59 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 	private void showResults(List<PowerResult> results)
 	{
-	    for(PowerResult result: results) {
-            // add a blank row to the data table
-            int row = resultsData.addRow();
-            // fill in the columns from the power result
-            resultsData.setCell(row, COLUMN_ID_TEST, result.getTest().getType().toString(), 
-                    formatTestName(result.getTest()), null);
-            resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
-                    result.getActualPower(), doubleFormatter.format(result.getActualPower()), null);
-            resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
-                    result.getTotalSampleSize(), Integer.toString(result.getTotalSampleSize()), null);
-            resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
-                    result.getBetaScale().getValue(), doubleFormatter.format(result.getBetaScale().getValue()), null);
-            resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
-                    result.getSigmaScale().getValue(), doubleFormatter.format(result.getSigmaScale().getValue()), null);
-            resultsData.setCell(row, COLUMN_ID_ALPHA, 
-                    result.getAlpha().getAlphaValue(), doubleFormatter.format(result.getAlpha().getAlphaValue()), null);
-            resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
-                    result.getNominalPower().getValue(), 
-                    doubleFormatter.format(result.getNominalPower().getValue()), null);
-            resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
-                    result.getPowerMethod().getPowerMethodEnum().toString(), 
-                    formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()), null);
-            if (result.getQuantile() != null) {
-                resultsData.setCell(row, COLUMN_ID_QUANTILE, 
-                        result.getQuantile().getValue(), doubleFormatter.format(result.getQuantile().getValue()), null);
-            }
-            if (result.getConfidenceInterval() != null) {
-                ConfidenceInterval ci = result.getConfidenceInterval();
-                resultsData.setCell(row, COLUMN_ID_CI_LOWER, 
-                        ci.getLowerLimit(), 
-                        doubleFormatter.format(ci.getLowerLimit()), null);
-                resultsData.setCell(row, COLUMN_ID_CI_UPPER, 
-                        ci.getUpperLimit(), 
-                        doubleFormatter.format(ci.getUpperLimit()), null);
-            }
-	    }
-	    
-        resultsTable.draw(resultsData);
-        resultsTablePanel.setVisible(true);
-	    
-//		try
-//		{      	
-//
-//			if (chartRequestBuilder != null)
-//			{
-//				showCurveResults();
-//			}
-//			else
-//			{
-//				hideWorkingDialog();
-//			}
+	    if (results != null) {
+	        for(PowerResult result: results) {
+	            // add a blank row to the data table
+	            int row = resultsData.addRow();
+	            // fill in the columns from the power result
+	            resultsData.setCell(row, COLUMN_ID_TEST, result.getTest().getType().toString(), 
+	                    formatTestName(result.getTest()), null);
+	            resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
+	                    result.getActualPower(), doubleFormatter.format(result.getActualPower()), null);
+	            resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
+	                    result.getTotalSampleSize(), Integer.toString(result.getTotalSampleSize()), null);
+	            resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
+	                    result.getBetaScale().getValue(), doubleFormatter.format(result.getBetaScale().getValue()), null);
+	            resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
+	                    result.getSigmaScale().getValue(), doubleFormatter.format(result.getSigmaScale().getValue()), null);
+	            resultsData.setCell(row, COLUMN_ID_ALPHA, 
+	                    result.getAlpha().getAlphaValue(), doubleFormatter.format(result.getAlpha().getAlphaValue()), null);
+	            resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
+	                    result.getNominalPower().getValue(), 
+	                    doubleFormatter.format(result.getNominalPower().getValue()), null);
+	            resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
+	                    result.getPowerMethod().getPowerMethodEnum().toString(), 
+	                    formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()), null);
+	            if (result.getQuantile() != null) {
+	                resultsData.setCell(row, COLUMN_ID_QUANTILE, 
+	                        result.getQuantile().getValue(), doubleFormatter.format(result.getQuantile().getValue()), null);
+	            }
+	            if (result.getConfidenceInterval() != null) {
+	                ConfidenceInterval ci = result.getConfidenceInterval();
+	                resultsData.setCell(row, COLUMN_ID_CI_LOWER, 
+	                        ci.getLowerLimit(), 
+	                        doubleFormatter.format(ci.getLowerLimit()), null);
+	                resultsData.setCell(row, COLUMN_ID_CI_UPPER, 
+	                        ci.getUpperLimit(), 
+	                        doubleFormatter.format(ci.getUpperLimit()), null);
+	            }
+	        }
 
-//		}
-//		catch (Exception e)
-//		{
-//			showError(e.getMessage());
-//		}
+	        resultsTable.draw(resultsData);
+	        resultsTablePanel.setVisible(true);     
+	    }
 	}
 
-	private void showCurveResults()
+	private void showCurveResults(List<PowerResult> results, 
+	        PowerCurveDescription curveDescription)
 	{
-		// submit the result to the chart service
-		resultsCurvePanel.setVisible(true);
-		chartRequestBuilder.loadData(resultsData);
-		powerCurveImage.setUrl(chartRequestBuilder.buildChartRequestURL());
-		legendImage.setUrl(chartRequestBuilder.buildLegendRequestURL());
+	    if (results != null && results.size() > 0
+	            && curveDescription != null) {
+	        // submit the result to the chart service
+//	        ChartSvcConnector.buildChartRequest(results, 
+//	                curveDescription, powerCurveImage, legendImage);
+//	        resultsCurvePanel.setVisible(true);
+	    }
 	}
 
 	private String formatPowerMethodName(PowerMethodEnum name)
@@ -450,13 +438,18 @@ public class ResultsDisplayPanel extends WizardStepPanel
                     // TODO Auto-generated method stub
                     hideWorkingDialog();
                     List<PowerResult> results = powerSvcConnector.parsePowerResultList(response.getText());
-                    showResults(results);
+                    if (results != null && results.size() > 0) {
+                        showResults(results);
+                    } else {
+                        showError("0 results");
+                    }
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
                     // TODO Auto-generated method stub
                     hideWorkingDialog();
+                    showError(exception.getMessage());
                 }
             };
             switch(studyDesign.getSolutionTypeEnum()) {
@@ -483,11 +476,10 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    // TODO Auto-generated method stub
+                    matrixDisplayPanel.showError(exception.getMessage());
                 }
             });
         } catch (Exception e) {
-
         }
 
 	}

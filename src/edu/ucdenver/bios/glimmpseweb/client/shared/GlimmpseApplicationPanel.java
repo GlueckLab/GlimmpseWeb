@@ -112,7 +112,6 @@ implements ModeSelectionHandler, WizardActionListener
 	    {
 	        try
 	        {
-	            Window.alert(uploadedStudy);
 	            StudyDesign design = 
 	                DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
 	            // TODO: clear
@@ -120,7 +119,7 @@ implements ModeSelectionHandler, WizardActionListener
 	                switch (design.getViewTypeEnum()) {
 	                case MATRIX_MODE:
 	                    matrixWizardPanel.loadStudyDesign(design);
-	                    deckPanel.showWidget(GUIDED_INDEX);
+	                    deckPanel.showWidget(MATRIX_INDEX);
 	                    break;
 	                case GUIDED_MODE:
 	                    guidedWizardPanel.loadStudyDesign(design);

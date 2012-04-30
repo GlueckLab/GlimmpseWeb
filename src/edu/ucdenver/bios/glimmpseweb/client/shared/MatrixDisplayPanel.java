@@ -23,6 +23,7 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -55,8 +56,14 @@ public class MatrixDisplayPanel extends Composite
 		initWidget(panel);
 	}
 	
+	public void showError(String error) {
+	    tableOfMatrices.removeAllRows();
+	    tableOfMatrices.setWidget(0, 0, new HTML(error));
+	}
+	
 	public void loadFromMatrixList(List<NamedMatrix> matrixList)
 	{
+	    tableOfMatrices.removeAllRows();
 	    int row = 0;
 	    for(NamedMatrix matrix: matrixList) {
 	        tableOfMatrices.setWidget(row, 0, new HTML(prettyMatrixName(matrix.getName())));
