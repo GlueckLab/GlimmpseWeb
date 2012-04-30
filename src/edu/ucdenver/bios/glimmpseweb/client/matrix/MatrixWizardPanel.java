@@ -168,8 +168,9 @@ implements WizardActionListener
      * Clear the context
      */
     public void reset() {
-        context.loadStudyDesign(null);
-        context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.MATRIX_MODE);
+        StudyDesign design = new StudyDesign();
+        design.setViewTypeEnum(StudyDesignViewTypeEnum.MATRIX_MODE);
+        context.loadStudyDesign(design);
     }
     
     /**
