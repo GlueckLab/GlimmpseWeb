@@ -111,6 +111,7 @@ implements WizardActionListener
 	    new GaussianCovariateCovariancePanel(context);
 	protected VariabilityScalePanel variabilityScalePanel = new VariabilityScalePanel(context);
 	// options
+	protected IntroPanel optionsIntroPanel = new IntroPanel(context, "options", "options", "options");
 	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "guided");
 	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
 		new OptionsPowerMethodsPanel(context, "guided");
@@ -146,15 +147,13 @@ implements WizardActionListener
 	{
 		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
 		WizardStepPanelGroup group = 
-		    new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart());
-		group.addPanel(startIntroPanel);
+		    new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart(), startIntroPanel);
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
 		group.addPanel(typeIErrorPanel);
 		groupList.add(group);
 		// predictors
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupPredictors());
-		group.addPanel(predictorIntroPanel);
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupPredictors(),predictorIntroPanel);
 		group.addPanel(fixedPredictorsPanel);
 		group.addPanel(covariatePanel);
 	    group.addPanel(clusteringPanel);
@@ -162,31 +161,27 @@ implements WizardActionListener
 		group.addPanel(perGroupSampleSizePanel);
 		groupList.add(group);
 		// outcomes
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupResponses());
-		group.addPanel(outcomesIntroPanel);
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupResponses(),outcomesIntroPanel);
 		group.addPanel(outcomesPanel);
 		group.addPanel(repeatedMeasuresPanel);
 		groupList.add(group);
 		// hypotheses
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupHypothesis());
-		group.addPanel(hypothesisIntroPanel);
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupHypothesis(),hypothesisIntroPanel);
 		group.addPanel(hypothesisPanel);
 		groupList.add(group);
 		// mean differences
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupMeans());
-		group.addPanel(meanDifferencesIntroPanel);
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupMeans(),meanDifferencesIntroPanel);
 		group.addPanel(meanDifferencesPanel);
 		group.addPanel(meanDifferencesScalePanel);
 		groupList.add(group);
 		// variability
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability());
-		group.addPanel(variabilityIntroPanel);
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability(),variabilityIntroPanel);
 		group.addPanel(withinParticipantCovariancePanel);
 		group.addPanel(gaussianCovariateCovariancePanel);
 		group.addPanel(variabilityScalePanel);
 		groupList.add(group);
 		// options panels
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupOptions());
+		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupOptions(), optionsIntroPanel);
 		group.addPanel(optionsTestsPanel);
 		group.addPanel(optionsPowerMethodsPanel);
 		group.addPanel(optionsCIPanel);

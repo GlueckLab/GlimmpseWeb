@@ -55,115 +55,130 @@ import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 public class MatrixWizardPanel extends Composite
 implements WizardActionListener
 {
-	// create a study design context
-	protected StudyDesignContext context = new StudyDesignContext();
-	
+    // create a study design context
+    protected StudyDesignContext context = new StudyDesignContext();
+
     // connector to File service for save
     protected FileSvcConnector fileSvcConnector = new FileSvcConnector();
-	
-	// content panels 
-	protected IntroPanel introPanel = new IntroPanel(context, 
-			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.matrixIntroTitle(),
-			GlimmpseWeb.constants.matrixIntroDescription());
-	protected SolvingForPanel solvingForPanel = new SolvingForPanel(context, "matrix");
-	protected PowerPanel powerPanel = new PowerPanel(context);
-	protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel(context);
-    protected DesignPanel designPanel = new DesignPanel(context);
-	protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
-	protected PerGroupSampleSizePanel perGroupSampleSizePanel = 
-		new PerGroupSampleSizePanel(context);
-	
-    protected BetweenSubjectContrastPanel betweenContrastPanel = 
-    	new BetweenSubjectContrastPanel(context);
-    protected WithinSubjectContrastPanel withinContrastPanel = 
-    	new WithinSubjectContrastPanel(context);
 
+    // content panels 
+    protected IntroPanel introPanel = new IntroPanel(context, 
+            GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.matrixIntroTitle(),
+            GlimmpseWeb.constants.matrixIntroDescription());
+    protected SolvingForPanel solvingForPanel = new SolvingForPanel(context, "matrix");
+    protected PowerPanel powerPanel = new PowerPanel(context);
+    protected TypeIErrorPanel typeIErrorPanel = new TypeIErrorPanel(context);
+
+    // design panels
+    protected IntroPanel designIntroPanel = new IntroPanel(context, 
+            "Design INtro", "", "");
+    protected DesignPanel designPanel = new DesignPanel(context);
+    protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
+    protected PerGroupSampleSizePanel perGroupSampleSizePanel = 
+        new PerGroupSampleSizePanel(context);
+
+    // contrast panels
+    protected IntroPanel contrastIntroPanel = new IntroPanel(context, 
+            "Contrast INtro", "", "");
+    protected BetweenSubjectContrastPanel betweenContrastPanel = 
+        new BetweenSubjectContrastPanel(context);
+    protected WithinSubjectContrastPanel withinContrastPanel = 
+        new WithinSubjectContrastPanel(context);
+
+    // regression parameter panels
+    protected IntroPanel parameterIntroPanel = new IntroPanel(context, 
+            "Parameter INtro", "", "");
     protected BetaPanel betaPanel = new BetaPanel(context);
     protected BetaScalePanel betaScalePanel = new BetaScalePanel(context);
     protected ThetaNullPanel thetaPanel = new ThetaNullPanel(context);
-    
+
+    // variability panels
+    protected IntroPanel variabilityIntroPanel = new IntroPanel(context, 
+            "Design INtro", "", "");
     protected SigmaErrorMatrixPanel sigmaErrorPanel = new SigmaErrorMatrixPanel(context);
     protected SigmaOutcomesMatrixPanel sigmaOutcomesPanel = new SigmaOutcomesMatrixPanel(context);
     protected SigmaOutcomeCovariateMatrixPanel sigmaOutcomeCovariatePanel = 
-    	new SigmaOutcomeCovariateMatrixPanel(context);
+        new SigmaOutcomeCovariateMatrixPanel(context);
     protected SigmaCovariateMatrixPanel sigmaCovariatePanel = new SigmaCovariateMatrixPanel(context);
     protected SigmaScalePanel sigmaScalePanel = new SigmaScalePanel(context);
-	// options
-	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "matrix");
-	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
-		new OptionsPowerMethodsPanel(context, "matrix");
-	protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(context, "matrix");
-	protected OptionsConfidenceIntervalsPanel optionsCIPanel =
-		new OptionsConfidenceIntervalsPanel(context, "matrix");
-	// panel to display the results
+    // options
+    protected IntroPanel optionsIntroPanel = new IntroPanel(context, 
+            "Options Intro", "", "");
+    protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "matrix");
+    protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
+        new OptionsPowerMethodsPanel(context, "matrix");
+    protected OptionsDisplayPanel optionsDisplayPanel = new OptionsDisplayPanel(context, "matrix");
+    protected OptionsConfidenceIntervalsPanel optionsCIPanel =
+        new OptionsConfidenceIntervalsPanel(context, "matrix");
+    // panel to display the results
     protected ResultsDisplayPanel resultsPanel = new ResultsDisplayPanel(context);
-	// the wizard panel widget
-	protected WizardPanel wizardPanel;
-	
-	/**
-	 * Constructor
-	 */
-	public MatrixWizardPanel()
-	{
-	    // indicate that this is a matrix only study design
-	    context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.MATRIX_MODE);
-		VerticalPanel panel = new VerticalPanel();
-		// set up the wizard for Guided Mode
-		ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
-		wizardPanel = new WizardPanel(context, groups, resultsPanel);
-		wizardPanel.setVisiblePanel(introPanel);
-		wizardPanel.addWizardActionListener(this);
-		// layout the overall panel
-		panel.add(wizardPanel);
-		// set style
+    // the wizard panel widget
+    protected WizardPanel wizardPanel;
 
-		// initialize
-		initWidget(panel);
-	}
-	
-	/**
-	 * Create a hierarchy of panels in Matrix mode
-	 * @return panel group list
-	 */
-	private ArrayList<WizardStepPanelGroup> buildPanelGroups()
-	{
-		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
-		WizardStepPanelGroup group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart());
-		group.addPanel(introPanel);
-		group.addPanel(solvingForPanel);
-		group.addPanel(powerPanel);
-		group.addPanel(typeIErrorPanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupDesign());
-		group.addPanel(designPanel);
-		group.addPanel(covariatePanel);
-		group.addPanel(perGroupSampleSizePanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupCoefficients());
-		group.addPanel(betaPanel);
-		group.addPanel(betaScalePanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupHypothesis());
-		group.addPanel(betweenContrastPanel);
-		group.addPanel(withinContrastPanel);
-		group.addPanel(thetaPanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability());
-		group.addPanel(sigmaErrorPanel);
-		group.addPanel(sigmaOutcomesPanel);
-		group.addPanel(sigmaCovariatePanel);
-		group.addPanel(sigmaOutcomeCovariatePanel);
-		group.addPanel(sigmaScalePanel);
-		groupList.add(group);
-		group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupOptions());
-		group.addPanel(optionsTestsPanel);
-		group.addPanel(optionsPowerMethodsPanel);
-		group.addPanel(optionsCIPanel);
-		group.addPanel(optionsDisplayPanel);
-		groupList.add(group);
-		return groupList;
-	}
-	
+    /**
+     * Constructor
+     */
+    public MatrixWizardPanel()
+    {
+        // indicate that this is a matrix only study design
+        context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.MATRIX_MODE);
+        VerticalPanel panel = new VerticalPanel();
+        // set up the wizard for Guided Mode
+        ArrayList<WizardStepPanelGroup> groups = buildPanelGroups();
+        wizardPanel = new WizardPanel(context, groups, resultsPanel);
+        wizardPanel.setVisiblePanel(introPanel);
+        wizardPanel.addWizardActionListener(this);
+        // layout the overall panel
+        panel.add(wizardPanel);
+        // set style
+
+        // initialize
+        initWidget(panel);
+    }
+
+    /**
+     * Create a hierarchy of panels in Matrix mode
+     * @return panel group list
+     */
+    private ArrayList<WizardStepPanelGroup> buildPanelGroups()
+    {
+        ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
+        WizardStepPanelGroup group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart(),
+                introPanel);
+        group.addPanel(solvingForPanel);
+        group.addPanel(powerPanel);
+        group.addPanel(typeIErrorPanel);
+        groupList.add(group);
+        group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupDesign(), designIntroPanel);
+        group.addPanel(designPanel);
+        group.addPanel(covariatePanel);
+        group.addPanel(perGroupSampleSizePanel);
+        groupList.add(group);
+        group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupCoefficients(), parameterIntroPanel);
+        group.addPanel(betaPanel);
+        group.addPanel(betaScalePanel);
+        groupList.add(group);
+        group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupHypothesis(), contrastIntroPanel);
+        group.addPanel(betweenContrastPanel);
+        group.addPanel(withinContrastPanel);
+        group.addPanel(thetaPanel);
+        groupList.add(group);
+        group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupVariability(), variabilityIntroPanel);
+        group.addPanel(sigmaErrorPanel);
+        group.addPanel(sigmaOutcomesPanel);
+        group.addPanel(sigmaCovariatePanel);
+        group.addPanel(sigmaOutcomeCovariatePanel);
+        group.addPanel(sigmaScalePanel);
+        groupList.add(group);
+        group = new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupOptions(), optionsIntroPanel);
+        group.addPanel(optionsTestsPanel);
+        group.addPanel(optionsPowerMethodsPanel);
+        group.addPanel(optionsCIPanel);
+        group.addPanel(optionsDisplayPanel);
+        groupList.add(group);
+        return groupList;
+    }
+
     /**
      * Clear the context
      */
@@ -172,7 +187,7 @@ implements WizardActionListener
         design.setViewTypeEnum(StudyDesignViewTypeEnum.MATRIX_MODE);
         context.loadStudyDesign(design);
     }
-    
+
     /**
      * Load the specified study design into the wizard
      * @param design
@@ -180,7 +195,7 @@ implements WizardActionListener
     public void loadStudyDesign(StudyDesign design) {
         context.loadStudyDesign(design);
     }
-    
+
     /**
      * Add a listener for wizard actions - mainly to allow the main application panel
      * to perform a cancel.  Really need to rework this into separate HTML files someday
@@ -193,31 +208,31 @@ implements WizardActionListener
     @Override
     public void onNext() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void onPrevious() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void onPanel(WizardStepPanel panel) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void onFinish() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void onHelp() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -229,10 +244,10 @@ implements WizardActionListener
     @Override
     public void onCancel() {
         // TODO Auto-generated method stub
-        
-    }
-    
 
-    
-    
+    }
+
+
+
+
 }

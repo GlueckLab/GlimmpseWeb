@@ -33,49 +33,62 @@ import java.util.ArrayList;
  */
 public class WizardStepPanelGroup
 {
-	// group name
-	private String name;
-	// list of panels in the group
-	private ArrayList<WizardStepPanel> panelList = new ArrayList<WizardStepPanel>();
-	
-	/**
-	 * Create an empty panel group
-	 * 
-	 * @param name display name of the panel group
-	 */
-	public WizardStepPanelGroup(String name)
-	{
-		this.name = name;
-	}
-	
-	/**
-	 * Add a panel to the panel group
-	 * 
-	 * @param panel panel to add
-	 */
-	public void addPanel(WizardStepPanel panel)
-	{
-		panelList.add(panel);
-	}
+    // group name
+    private String name;
+    // panel describing the group
+    private WizardStepPanel introPanel;
+    // list of panels in the group
+    private ArrayList<WizardStepPanel> panelList = new ArrayList<WizardStepPanel>();
 
-	/**
-	 * Get the name of the panel group
-	 * 
-	 * @return panel group name
-	 */
-	public String getName()
-	{
-		return name;
-	}
+    /**
+     * Create an empty panel group
+     * 
+     * @param name display name of the panel group
+     */
+    public WizardStepPanelGroup(String name, WizardStepPanel introPanel)
+    {
+        this.name = name;
+        this.introPanel = introPanel;
+    }
 
-	/**
-	 * Get the list of panels contained in the group
-	 * 
-	 * @return list of panels contained the group
-	 */
-	public ArrayList<WizardStepPanel> getPanelList()
-	{
-		return panelList;
-	}
+    /**
+     * Add a panel to the panel group
+     * 
+     * @param panel panel to add
+     */
+    public void addPanel(WizardStepPanel panel)
+    {
+        panelList.add(panel);
+    }
+
+    /**
+     * Get the name of the panel group
+     * 
+     * @return panel group name
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Get the list of panels contained in the group
+     * 
+     * @return list of panels contained the group
+     */
+    public ArrayList<WizardStepPanel> getPanelList()
+    {
+        return panelList;
+    }
+
+    /**
+     * Get the intro panel for the group
+     * 
+     * @return group intro panel
+     */
+    public WizardStepPanel getIntroPanel()
+    {
+        return introPanel;
+    }
 
 }

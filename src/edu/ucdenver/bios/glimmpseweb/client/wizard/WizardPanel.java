@@ -112,6 +112,7 @@ WizardStepPanelStateChangeHandler, ClickHandler
         // add the panels to the display deck
         for(WizardStepPanelGroup panelGroup: wizardPanelGroups)
         {
+            wizardDeck.add(panelGroup.getIntroPanel());
             for(WizardStepPanel step: panelGroup.getPanelList())
             {
                 wizardDeck.add(step);
