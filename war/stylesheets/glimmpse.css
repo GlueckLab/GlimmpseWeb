@@ -20,21 +20,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /*** Start page styles ***/
 
 body {
-	background-color:white;
+  background-color: white;
 	margin: 0px;
 }
 
 .body {
-	background-color:white;
+  background-color: white;
 	margin: 0px;
 }
 
 #header {
   background: url('/images/bluegradient.png') repeat-x;
-  border-bottom: 1px solid #999;
 }
 
 #footer {
+  width: 950px;
   padding-top: 20px;
   padding-bottom: 20px;
   font-family: 'Quicksand', Arial, Helvetica, sans-serif;
@@ -45,14 +45,15 @@ body {
 
 #glimmpse-topbar {
 	align: center;
-	width: 987px;
+	width: 950px;
 	margin-left: 0px;
 	height: 80px;
 }
 
 #glimmpse-logo {
-	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 	font-weight: bold;
+	font-style: italic;
 	padding-left: 70px;
 	padding-top: 20px;
 	padding-right: 10px;
@@ -97,7 +98,7 @@ body {
 
 
 #content-table {
-	width: 987px;
+	width: 950px;
 	background-color: white; 	
 	text-align: left;
 	margin: 0px;
@@ -196,7 +197,7 @@ body {
 }
 
 .modeSelectionPanelContainer .gwt-FileUpload {
-	width: 75px;
+	width: 150px;
 	margin-left: 5px;
 	margin-top: 8px;
 }
@@ -204,63 +205,34 @@ body {
 /*** Main wizard styles ***/
 /* overall wizard panel */
 .wizardPanel {
+	background-color: white;
+	margin-top: 10px;
+	margin-bottom: 10px;	
+	background-color: #f2f2f2;
+	border: solid 1px #ccc;
 }
 
 .leftPanel {
 	width: 200px;
-	margin-bottom: 10px;	
 }
 
 .rightPanel {
-	width: 777px;
-	margin-right: 10px;
-	margin-bottom: 10px;
-}
-
-/* tool bar for save, help, etc */
-.toolsMenuPanel {
-	background-color: white;
-	background-image: none;
-}
-
-.toolsMenuPanel .gwt-MenuBar {
-	background: white;
-	border: none;
-}
-
-.toolsMenuHeader {
-	width: 100px;
-	height: 30px;
-	text-align: right;
-	background-image: url('/images/gear_pulldown.png');
-	background-repeat:no-repeat;
-	background-position: 0px 5px; 
-	border: 1px solid #ddd;
-	font-size: 16pt;
-	padding-left: 50px;
-	color: #ddd;
-}
-
-.toolsMenuItem {
-	
+	width: 750x;
 }
 
 /*** left navigation panel ***/
 
 .wizardLeftNavPanel {
-	/* background-color: #e4eaef;*/
-	background: url('/images/horizontalGradient.png') repeat-y;
-	width: 180px;
+	background-color: #f2f2f2;
+	width: 200px;
 	margin-top: 20px;
-	padding-top: 32px;
-	border-collapse: collapse;
+	padding-top: 10px;
 }
 
 .wizardLeftNavHeader {
 	height: 32px;
-	width: 180px;
-	border-collapse: collapse;
-	border-top: 1px solid white;
+	width: 200px;
+	padding-left: 5px;
 }
 
 .wizardLeftNavHeader .gwt-HTML {
@@ -289,7 +261,9 @@ body {
 	border-left: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
 	background-color: white;
-	width: 180px;
+	width: 200px;
+	border-collapse: collapse;
+	border-right: 1px solid white;
 }
 
 .wizardLeftNavLink {
@@ -300,7 +274,7 @@ body {
   background-color: white;
   text-align: left;
   padding-left: 20px;
-  width: 160px;
+  width: 180px;
 }
 
 .wizardLeftNavLink-open {
@@ -324,51 +298,84 @@ body {
 .wizardLeftNavLink:hover {
 }
 
-/* next, previous buttons*/
-.wizardToolbarPanel {
-	margin-top: 20px;	
-	margin-bottom: 20px;	
-	margin-left: 20px;
-	width: 100%;
+/* Action buttons: next, prev, save, cancel, help */
+
+.wizardActionPanel {
+  width: 740px;
+  background-color: #ddd;
+  height: 24px;
+  border: solid 1px #ddd;
+  padding-left: 20px;
 }
 
-.wizardToolbarButton {
-	width: 100px;
-	height: 32px;	
-	background-color:#1d5d84;
-	border:1px solid #b3b3b3;
-	color: white;
-	font-family:arial;
-	font-size:14px;
-	font-weight:bold;
-	text-decoration:none;
-	margin-left: 10px;
+.wizardActionSaveButton {
+  border: none;
+  cursor: pointer;
+  color: #005C84;
+  text-decoration: none;
+  background: url(/images/save.png) no-repeat;
+  width: 120px;
 }
-.wizardToolbarButton:hover {
-	background-color: #e4eaef;
+
+.wizardActionCancelButton {
+  border: none;
+  cursor: pointer;
+  color: #005C84;
+  text-decoration: none;
+  background: url('/images/cancel.png') no-repeat;
+  width: 85px;
 }
-.wizardToolbarButton-disabled {
-	background-color: #b3b3b3;
+
+.wizardActionHelpButton {
+  border: none;
+  color: #005C84;
+  cursor: pointer;
+  text-decoration: none;
+  background: url('/images/help.png') no-repeat;
+  width: 75px;
+  margin-left: 375px;
 }
-.wizardToolbarButton-disabled:hover {
+
+.wizardActionNextButton {
+  background: url('/images/next.png') no-repeat;
+  border: none;
+  cursor: pointer;
+  width: 20px;
 }
+
+.wizardActionNextButton:hover {
+  background: url('/images/next-highlight.png') no-repeat;
+}
+
+.wizardActionPreviousButton {
+  background: url('/images/previous.png') no-repeat;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  padding-left: 20px;
+}
+
+.wizardActionPreviousButton:hover {
+  background: url('/images/previous-highlight.png') no-repeat;
+}
+
+
 
 /* finish button */
 .wizardFinishButton {
-	border-top: 1px solid white;
-	border-bottom: none;
-	border-right: none;
-	border-left: none;
 	background-color:#21944f;
 	color:#ffffff;
-	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 	font-size:16px;
 	font-weight:bold;
-	text-align: left;
+	text-align: center;
 	text-shadow: 1px 1px 0px #000000;
-	width: 180px;
+	width: 140px;
 	height: 36px;
-}.wizardFinishButton:hover {
+	margin-top: 20px;
+	margin-left: 30px;
+}
+.wizardFinishButton:hover {
 	background-color:#48b373;
 }
 
@@ -383,13 +390,15 @@ body {
 .glimmpseWizardPanel {
 	background: #fff;
 	height: 100%;
+	border-collapse: collapse;
 }
 
 /* style for main wizard input panel (GWT class) */
 .wizardContentPanel {
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
-	width: 787px;
+	width: 740px;
 	min-height: 400px;
+	background-color: white;
 }
 
 /* styles applied to steps in the input wizard */
@@ -399,6 +408,7 @@ body {
 	width: 100%;
 	padding-top: 20px;
 	padding-left: 20px;
+	padding-bottom: 20px;
 }
 
 .wizardStepPanel-subpanel {
