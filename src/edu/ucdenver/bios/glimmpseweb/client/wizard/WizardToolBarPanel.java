@@ -45,8 +45,9 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
  */
 public class WizardToolBarPanel extends Composite
 {
-	protected static final String STYLE_TOOLBAR_PANEL = "wizardToolbarPanel";
-	protected static final String STYLE_TOOLBAR_BUTTON = "wizardToolbarButton";
+	protected static final String STYLE_NEXT_PREVIOUS_PANEL = "wizardNextPreviousPanel";
+	protected static final String STYLE_NEXT_BUTTON = "wizardNextButton";
+	protected static final String STYLE_PREVIOUS_BUTTON = "wizardPreviousButton";
 	
 	// listeners for toolbar actions
     ArrayList<WizardActionListener> listeners = new ArrayList<WizardActionListener>();
@@ -78,9 +79,9 @@ public class WizardToolBarPanel extends Composite
         panel.add(navPanel, DockPanel.EAST);
         
         // add style
-        panel.addStyleName(STYLE_TOOLBAR_PANEL);
-        previousButton.setStyleName(STYLE_TOOLBAR_BUTTON);
-        nextButton.setStyleName(STYLE_TOOLBAR_BUTTON);
+        panel.addStyleName(STYLE_NEXT_PREVIOUS_PANEL);
+        previousButton.setStyleName(STYLE_PREVIOUS_BUTTON);
+        nextButton.setStyleName(STYLE_NEXT_BUTTON);
         
         initWidget(panel);
     }
