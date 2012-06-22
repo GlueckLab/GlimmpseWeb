@@ -208,7 +208,8 @@ body {
 	background-color: white;
 	margin-top: 10px;
 	margin-bottom: 10px;	
-	background-color: #f2f2f2;
+	background-color: #e4eaef;
+	/* background-color: #f2f2f2; */
 	border: solid 1px #ccc;
 }
 
@@ -223,7 +224,8 @@ body {
 /*** left navigation panel ***/
 
 .wizardLeftNavPanel {
-	background-color: #f2f2f2;
+	/*background-color: #f2f2f2;*/
+	background-color: #e4eaef;
 	width: 200px;
 	margin-top: 20px;
 	padding-top: 10px;
@@ -233,21 +235,20 @@ body {
 	height: 32px;
 	width: 200px;
 	padding-left: 5px;
-}
-
-.wizardLeftNavHeader .gwt-HTML {
 	text-align: left;
 	color: #999;
+	background-color:  #e4eaef;
+	border: none;
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	font-size: 16px;
 	padding-left: 4px;
 }
 
-.wizardLeftNavHeader .gwt-HTML:hover {
+.wizardLeftNavHeader:hover {
 	text-decoration: none;
 }
 
-.wizardLeftNavHeader-open .gwt-HTML {
+.wizardLeftNavHeader-open  {
 	color: #1d5c84;
 	font-weight: bold;
 	background-color: white;
