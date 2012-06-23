@@ -27,14 +27,8 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.OpenEvent;
-import com.google.gwt.event.logical.shared.OpenHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Generic left navigation panel for a WizardPanel.  Panels are organized
@@ -62,10 +56,13 @@ implements WizardStepPanelStateChangeHandler, ClickHandler
     // list of classes listening for navigation events from this panel
     protected ArrayList<WizardActionListener> listeners = new ArrayList<WizardActionListener>();
     // pointer to currently open disclosure panel - used to enforce only one open at a time
-    protected WizardStepDisclosurePanel currentOpenPanel = null;
-    // currenly active item
-    protected WizardStepPanelButton currentItem = null;
-
+    protected WizardStepDisclosurePanel currentOpenContainer = null;
+    // mapping from step panel to the disclosure panel - needed to update the left nav
+    // when next/prev buttons are clicked
+    protected HashMap<WizardStepPanel,WizardStepDisclosurePanel> 
+    panelToContainerMap =
+        new HashMap<WizardStepPanel,WizardStepDisclosurePanel>();
+    
     /**
      * Create a left navigation panel for the wizard.  Panels are organized 
      * into groups.
@@ -84,46 +81,17 @@ implements WizardStepPanelStateChangeHandler, ClickHandler
             disclosurePanel.addClickHandler(this);
             // add the heading and group items to the stack
             panel.add(disclosurePanel);
+            // create the mapping from panels to the appropriate disclosure panel
+            panelToContainerMap.put(panelGroup.getIntroPanel(), disclosurePanel);
+            for(WizardStepPanel stepPanel: panelGroup.getPanelList()) {
+                panelToContainerMap.put(stepPanel, disclosurePanel);
+            }
         }
 
         // set style
         panel.setStyleName(STYLE_PANEL);
 
         initWidget(panel);
-    }
-
-    /**
-     * Set the specified button as current and update styles
-     */
-    private void updateCurrentItem(WizardStepPanelButton button)
-    {
-        if (currentItem != null) 
-        {
-            currentItem.removeStyleDependentName(STYLE_OPEN);
-            currentItem.addStyleDependentName(getStyleByState(currentItem.getPanel().getState()));
-        }
-        currentItem = button;
-        currentItem.removeStyleDependentName(getStyleByState(button.getPanel().getState()));
-        currentItem.addStyleDependentName(STYLE_OPEN);
-    }
-
-    /**
-     * Open the specified group panel.  Forces only one panel to be open at a time.
-     * @param panel
-     */
-    private void openPanel(DisclosurePanel panel)
-    {
-//        if (panel != null) 
-//        {
-//            if (currentOpenPanel != null)
-//            {
-//                currentOpenPanel.removeStyleDependentName(STYLE_OPEN);
-//                currentOpenPanel.setOpen(false);
-//            }
-//            panel.removeStyleDependentName(STYLE_OPEN);
-//            panel.addStyleDependentName(STYLE_OPEN);
-//            currentOpenPanel = panel;
-//        }
     }
 
     /**
@@ -143,15 +111,17 @@ implements WizardStepPanelStateChangeHandler, ClickHandler
      */
     public void showPanel(WizardStepPanel panel)
     {
-//        // now open the group panel containing the item
-//        DisclosurePanel container = (DisclosurePanel) panelToContainerMap.get(panel);
-//        if (container != null && !container.isOpen()) container.setOpen(true);
-//        // update styles for current item 
-//        WizardStepPanelButton item = panelToButtonMap.get(panel);
-//        if (item != null)
-//        {
-//            updateCurrentItem(item);
-//        }
+        // now open the group panel containing the item
+        WizardStepDisclosurePanel container = 
+            (WizardStepDisclosurePanel) panelToContainerMap.get(panel);
+        if (container != null) {
+            if (currentOpenContainer != null) {
+                currentOpenContainer.closePanel();
+            }
+            currentOpenContainer = container;
+            container.openPanel();
+            container.showPanel(panel);
+        }
     }
 
     /**
@@ -161,34 +131,10 @@ implements WizardStepPanelStateChangeHandler, ClickHandler
     public void onStateChange(WizardStepPanel source,
             WizardStepPanelState oldState, WizardStepPanelState newState)
     {
-//        Widget item = panelToButtonMap.get(source);
-//        if (item != null && item != currentItem)
-//        {
-//            item.setVisible(newState != WizardStepPanelState.SKIPPED);
-//            item.removeStyleDependentName(getStyleByState(oldState));
-//            item.addStyleDependentName(getStyleByState(newState));
-//        }
-    }
-
-    /**
-     * Convenience routine for mapping panel states to dependent styles
-     * @param state panel state
-     * @return dependent style name for the state
-     */
-    private String getStyleByState(WizardStepPanelState state)
-    {
-        switch(state)
-        {
-        case SKIPPED:
-            return STYLE_SKIPPED;
-        case NOT_ALLOWED:
-            return STYLE_NOT_ALLOWED;
-        case INCOMPLETE:
-            return STYLE_INCOMPLETE;
-        case COMPLETE:
-            return STYLE_COMPLETE;
-        default:
-            return null;
+        WizardStepDisclosurePanel container = 
+            (WizardStepDisclosurePanel) panelToContainerMap.get(source);
+        if (container != null) {
+            container.updateState(source, oldState, newState);
         }
     }
 
@@ -198,11 +144,14 @@ implements WizardStepPanelStateChangeHandler, ClickHandler
     @Override
     public void onClick(ClickEvent event) {
         WizardStepPanelButton button = (WizardStepPanelButton) event.getSource();
-        WizardStepPanel panel = button.getPanel();
-        if (button.isGroupButton()) {
-            
-        } else {
-            
+        WizardStepDisclosurePanel container = (WizardStepDisclosurePanel) button.getContainer();
+        if (currentOpenContainer != null && currentOpenContainer != container) {
+            currentOpenContainer.closePanel();
+        }
+        currentOpenContainer = container;
+        WizardStepPanel stepPanel = button.getPanel();
+        for(WizardActionListener listener: listeners) {
+            listener.onPanel(stepPanel);
         }
     }
 

@@ -134,29 +134,7 @@ public class WizardActionPanel extends Composite {
         Window.open(GlimmpseWeb.constants.helpManualURI(), "_blank", null);
         for(WizardActionListener listener: listeners) listener.onHelp();
     }    
-    
-    /**
-     * Enable/disable the next button
-     * 
-     * @param allow indicates if the next button should be enabled
-     */
-    public void allowNext(boolean allow)
-    {
-        nextButton.setEnabled(allow);
-        updateStyle(nextButton, allow);
-    }
-    
-    /**
-     * Enable/disable the previous button
-     * 
-     * @param allow indicates if the previous button should be enabled
-     */
-    public void allowPrevious(boolean allow)
-    {
-        previousButton.setEnabled(allow);
-        updateStyle(previousButton, allow);
-    }
-
+   
     /**
      * Add a listener for toolbar actions
      * 
@@ -165,19 +143,6 @@ public class WizardActionPanel extends Composite {
     public void addActionListener(WizardActionListener listener)
     {
         listeners.add(listener);
-    }
-    
-    /**
-     * Reset the button style to enabled/disabled
-     * @param button the button
-     * @param enabled indicates if the button is enabled
-     */
-    private void updateStyle(Button button, boolean enabled) {
-        button.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-        if (!enabled) {
-            button.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
-        }
-    }
-    
+    }  
     
 }

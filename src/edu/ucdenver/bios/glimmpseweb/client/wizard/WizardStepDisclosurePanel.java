@@ -87,9 +87,11 @@ public class WizardStepDisclosurePanel extends Composite {
             @Override
             public void onClick(ClickEvent event) {
                 openPanel();
+                notifyOnClick(event);
             }
         });
         disclosureButton.setGroupButton(true);
+        disclosureButton.setContainer(this);
 
         // create the hidden panel
         contentPanel.add(table);
@@ -134,8 +136,8 @@ public class WizardStepDisclosurePanel extends Composite {
                 WizardStepPanelButton button = (WizardStepPanelButton) event.getSource();
                 if (button.getPanel().state != WizardStepPanelState.NOT_ALLOWED 
                         &&  button.getPanel().state != WizardStepPanelState.SKIPPED) {
-//                    for(WizardActionListener listener: listeners) listener.onPanel(button.getPanel());
-//                    updateCurrentItem(button);
+                    notifyOnClick(event);
+                    updateCurrentItem(button);
                 }
             }
         }); 
@@ -153,14 +155,18 @@ public class WizardStepDisclosurePanel extends Composite {
      */
     private void updateCurrentItem(WizardStepPanelButton button)
     {
-        if (currentItem != null) 
+        if (currentItem != null && !currentItem.isGroupButton()) 
         {
             currentItem.removeStyleDependentName(STYLE_OPEN);
             currentItem.addStyleDependentName(getStyleByState(currentItem.getPanel().getState()));
         }
-        currentItem = button;
-        currentItem.removeStyleDependentName(getStyleByState(button.getPanel().getState()));
-        currentItem.addStyleDependentName(STYLE_OPEN);
+        if (!button.isGroupButton()) {
+            currentItem = button;
+            currentItem.removeStyleDependentName(getStyleByState(button.getPanel().getState()));
+            currentItem.addStyleDependentName(STYLE_OPEN);
+        } else {
+            currentItem = null;
+        }
     }
     
     /**
@@ -224,14 +230,69 @@ public class WizardStepDisclosurePanel extends Composite {
             this.isOpen = false;
             contentPanel.setVisible(isOpen);
             disclosureButton.removeStyleDependentName(STYLE_OPEN);
+            if (currentItem != null) 
+            {
+                currentItem.removeStyleDependentName(STYLE_OPEN);
+                currentItem.addStyleDependentName(getStyleByState(currentItem.getPanel().getState()));
+            }
+            currentItem = null;
         }
     }
     
     /**
-     * 
-     * @param panel
+     * Highlight the button associated with the specified panel.  Used when next/previous
+     * events are received from the bottom nav bar.
+     * @param panel the step to be highlighted
      */
-    public void selectPanel(WizardStepPanel panel) {
-
+    public void showPanel(WizardStepPanel panel) {
+        WizardStepPanelButton button = getButtonByPanel(panel);
+        if (button != null) {
+            updateCurrentItem(button);
+        }
+    }
+    
+    private void notifyOnClick(ClickEvent event) {
+        for(ClickHandler handler: handlers) handler.onClick(event);
+    }
+    
+    /**
+     * Find the button associated with the specified wizard step panel/
+     * @param panel the step panel
+     * @return the button associated with the step panel
+     */
+    private WizardStepPanelButton getButtonByPanel(WizardStepPanel panel) {
+        if (panel != null) {
+            if (panel == disclosureButton.getPanel()) {
+                // header button matches this panel
+                return disclosureButton;
+            } else {
+                // find the button in the flex table
+                for(int i = 0; i < table.getRowCount(); i++) {
+                    WizardStepPanelButton button = (WizardStepPanelButton) table.getWidget(i, 0);
+                    if (panel == button.getPanel()) {
+                        return button;
+                    }
+                }
+            }
+        } 
+        // null panel or not found
+        return null;
+    }
+    
+    /**
+     * Respond to a state change in a panel
+     * @param panel the panel which changed
+     * @param oldState the old state
+     * @param newState the new state
+     */
+    public void updateState(WizardStepPanel panel,
+            WizardStepPanelState oldState, WizardStepPanelState newState)
+    {
+        WizardStepPanelButton button = getButtonByPanel(panel);
+        if (button != null && button != currentItem) {
+            button.setVisible(newState != WizardStepPanelState.SKIPPED);
+            button.removeStyleDependentName(getStyleByState(oldState));
+            button.addStyleDependentName(getStyleByState(newState));
+        }
     }
 }
