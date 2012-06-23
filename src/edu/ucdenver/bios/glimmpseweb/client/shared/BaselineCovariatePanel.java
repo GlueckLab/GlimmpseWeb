@@ -21,6 +21,8 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -44,9 +46,13 @@ public class BaselineCovariatePanel extends WizardStepPanel
 {
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-	
+	// covariate checkbox
     protected CheckBox covariateCheckBox = new CheckBox();
     
+    /**
+     * Create the baseline covariate panel
+     * @param context wizard context
+     */
     public BaselineCovariatePanel(WizardContext context)
     {
     	super(context, GlimmpseWeb.constants.navItemGaussianCovariate(), 
@@ -62,7 +68,12 @@ public class BaselineCovariatePanel extends WizardStepPanel
         HorizontalPanel includeCovariatePanel = new HorizontalPanel();
         includeCovariatePanel.add(covariateCheckBox);
         includeCovariatePanel.add(new HTML(GlimmpseWeb.constants.covariateCheckBoxLabel()));
-        
+        covariateCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                saveToContext();
+            }
+        });
         // layout the overall panel
         panel.add(header);
         panel.add(description);
@@ -75,17 +86,10 @@ public class BaselineCovariatePanel extends WizardStepPanel
   
         initWidget(panel);
     }
-    
-    public boolean hasCovariate()
-    {
-        return covariateCheckBox.getValue();
-    }
-    
-    public boolean isComplete()
-    {
-    	return true;
-    }
 
+    /**
+     * Clear the covariate checkbox
+     */
 	@Override
 	public void reset()
 	{
@@ -120,12 +124,11 @@ public class BaselineCovariatePanel extends WizardStepPanel
     }
 
     /**
-     * Update the between participant factors in the context
+     * Save the current value of the checkbox to the context
      */
-    @Override
-    public void onExit()
-    {
-    	studyDesignContext.setCovariate(this, covariateCheckBox.getValue());
+    private void saveToContext() {
+        studyDesignContext.setCovariate(this, covariateCheckBox.getValue());
     }
+    
 	
 }
