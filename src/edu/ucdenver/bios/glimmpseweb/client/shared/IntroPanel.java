@@ -38,6 +38,14 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 public class IntroPanel extends WizardStepPanel
 {
 
+    /**
+     * Create a new introduction panel.  Includes text describing the current
+     * section in the wizard.
+     * @param context the wizard context object
+     * @param name display name for the panel
+     * @param title title text
+     * @param description description text
+     */
 	public IntroPanel(WizardContext context, String name, String title, String description)
 	{
 		super(context, name, WizardStepPanelState.COMPLETE);
@@ -55,22 +63,29 @@ public class IntroPanel extends WizardStepPanel
 		initWidget(panel);
 	}
 
+	/**
+	 * Reset the panel.
+	 */
 	@Override
 	public void reset()
 	{
 		// static page, no resetting to do
 	}
 
+	/**
+	 * Respond to context changes
+	 */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
-        // TODO Auto-generated method stub
-        
+        // No work required for this panel
     }
 
+    /**
+     * Load panel from wizard context
+     */
     @Override
     public void onWizardContextLoad() {
-        // TODO Auto-generated method stub
-        
+        // No work required for this panel
     }
 
 }
