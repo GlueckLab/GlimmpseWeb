@@ -98,7 +98,7 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.SIGMA_SCALE_LIST));
     }
 
-    public void setPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
+    public void setNominalPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
     {
         studyDesign.setNominalPowerList(powerList);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
