@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -38,6 +37,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
+import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
@@ -164,11 +164,16 @@ implements ListValidator
     public void loadFromContext()
     {
         reset();
-        List<Double> contextPowerList = studyDesignContext.getStudyDesign().getNominalPowerListValues();
+        List<NominalPower> contextPowerList = 
+            studyDesignContext.getStudyDesign().getNominalPowerList();
+        nominalPowerListPanel.reset();
         if (contextPowerList != null) {
-            nominalPowerListPanel.loadFromDoubleList(contextPowerList, true);
-            onValidRowCount(nominalPowerListPanel.getValidRowCount());
+            for(NominalPower power: contextPowerList)
+            {
+                nominalPowerListPanel.add(Double.toString(power.getValue()));
+            }
         }
+        onValidRowCount(nominalPowerListPanel.getValidRowCount());
     }
     
     /**
@@ -184,6 +189,6 @@ implements ListValidator
     		powerList.add(new NominalPower(Double.parseDouble(value)));
     	}
     	// save to context object
-    	studyDesignContext.setPowerList(this, powerList);
+    	studyDesignContext.setNominalPowerList(this, powerList);
     }
 }
