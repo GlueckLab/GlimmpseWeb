@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -37,6 +38,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
@@ -51,11 +53,11 @@ import edu.ucdenver.bios.webservice.common.enums.RepeatedMeasuresDimensionType;
  *
  */
 public class RepeatedMeasuresPanelSubPanel extends Composite {
-
+    // index for the repeated measures type listbox
     protected static final int NUMERIC_INDEX = 0;
     protected static final int ORDINAL_INDEX = 1;
-    protected static final int CATEGORICAL_INDEX = 2;
-    
+    protected static final int NOMINAL_INDEX = 2;
+
     // name of this dimension of repeated measures
     protected TextBox dimensionTextBox = new TextBox();
 
@@ -73,7 +75,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     protected FlexTable spacingFlexTable = new FlexTable();
     // resets the spacing to even spacing
     protected Button spacingResetButton = new Button(
-            GlimmpseWeb.constants.repeatedMeasuresNodePanelSpacingLabel(), 
+            GlimmpseWeb.constants.repeatedMeasuresNodePanelEqualSpacingButton(), 
             new ClickHandler(){
         @Override
         public void onClick(ClickEvent event) 
@@ -89,9 +91,11 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
 
     /**
-     * Constructor/
+     * Constructor.
+     * @param dependentStyleName optional parameter to allow different
+     * styles for subpanels depending on depth
      */
-    public RepeatedMeasuresPanelSubPanel()
+    public RepeatedMeasuresPanelSubPanel(String dependentStyleName)
     {
         VerticalPanel panel = new VerticalPanel();
 
@@ -160,7 +164,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 {
                     int numMeasurements = TextValidation.parseInteger(value, 1, true);
                     TextValidation.displayOkay(errorHTML, "");
-                    updateSpacingBar(numMeasurements);
+                    updateSpacingBar(numMeasurements, null);
                 }
                 catch (Exception e)
                 {
@@ -183,7 +187,11 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         panel.add(errorHTML);
         
         // set style
-
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TREE_NODE);
+        if (dependentStyleName != null && !dependentStyleName.isEmpty()) {
+            panel.addStyleDependentName(dependentStyleName);
+        }
+        spacingResetButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
         /*Initializing Widget*/
         initWidget(panel);
 
@@ -243,6 +251,9 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 for(ChangeHandler handler: handlerList) handler.onChange(event);                
             }
         });
+        // add style
+        spacingTextBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TEXTBOX);
+        spacingTextBox.addStyleDependentName(GlimmpseConstants.STYLE_SHORT);
         return spacingTextBox;
     }
 
@@ -260,11 +271,26 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
      * Reset the size of the spacing bar
      * @param numMeasurements
      */
-    private void updateSpacingBar(int numMeasurements)
+    private void updateSpacingBar(int numMeasurements, List<Spacing> spacingList)
     {
         spacingFlexTable.removeAllRows();
-        for(int i = 0; i < numMeasurements; i++) {
-            spacingFlexTable.setWidget(0, i ,createSpacingTextBox(Integer.toString(i+1)));
+        if (spacingList == null || spacingList.size() != numMeasurements) {
+            for(int i = 0; i < numMeasurements; i++) {
+                spacingFlexTable.setWidget(0, i ,createSpacingTextBox(Integer.toString(i+1)));
+            }
+        } else {
+            int col = 0;
+            for(Spacing spacingValue: spacingList) {
+                String spacingStr = "";
+                // the user can save incomplete information - this will be saved as MIN_VALUE
+                // if the text box was empty at time of save.
+                if (spacingValue.getValue() != Integer.MIN_VALUE) {
+                    spacingStr = Integer.toString(spacingValue.getValue());
+                }
+                spacingFlexTable.setWidget(0, col ,
+                        createSpacingTextBox(spacingStr));
+                col++;
+            }
         }
         if (typeListBox.getSelectedIndex() == NUMERIC_INDEX) {
             showSpacingBar(true);
@@ -316,30 +342,42 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
      * @return A RepeatedMeasuresNode instance
      */
     public RepeatedMeasuresNode toRepeatedMeasuresNode(int nodeId, int parentId) {
-        if (checkComplete()) {
-            RepeatedMeasuresNode node = new RepeatedMeasuresNode();
-            node.setDimension(dimensionTextBox.getText());
-            node.setNumberOfMeasurements(Integer.parseInt(noOfMeasurementsTextBox.getText()));
-            if (typeListBox.getSelectedIndex() == NUMERIC_INDEX) {
-                node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.NUMERICAL);
-                ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
-                for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
-                    TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
-                    int value = Integer.parseInt(tb.getText());
-                    Spacing spacingValue = new Spacing();
-                    spacingValue.setValue(value);
-                    spacingList.add(spacingValue);
-                }
-                node.setSpacingList(spacingList);
-            } else if (typeListBox.getSelectedIndex() == ORDINAL_INDEX) {
-                node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.ORDINAL);
-            } else if (typeListBox.getSelectedIndex() == CATEGORICAL_INDEX) {
-                node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.CATEGORICAL);
-            }
-            return node;
-        } else {
-            return null;
+
+        RepeatedMeasuresNode node = new RepeatedMeasuresNode();
+        String dimension = dimensionTextBox.getText();
+        if (dimension != null && !dimension.isEmpty()) {
+            node.setDimension(dimension);
         }
+        String numMeasurements = noOfMeasurementsTextBox.getText();
+        if (numMeasurements != null && !numMeasurements.isEmpty()) {
+            node.setNumberOfMeasurements(Integer.parseInt(numMeasurements));
+        }
+        switch (typeListBox.getSelectedIndex()) {
+        case NUMERIC_INDEX:
+            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.NUMERICAL);
+            ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
+            for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
+                TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
+                String valueStr = tb.getText();
+                int value = Integer.MIN_VALUE;
+                if (valueStr != null && !valueStr.isEmpty()) {
+                    value = Integer.parseInt(tb.getText());
+                }
+                Spacing spacingValue = new Spacing();
+                spacingValue.setValue(value);
+                spacingList.add(spacingValue);
+            }
+            node.setSpacingList(spacingList);
+            break;
+        case ORDINAL_INDEX:
+            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.ORDINAL);
+            break;
+        case NOMINAL_INDEX:
+            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.CATEGORICAL);
+            break;
+        }
+        return node;
+
     }
 
     /**
@@ -354,7 +392,8 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             switch (repeatedMeasuresNode.getRepeatedMeasuresDimensionType()) {
             case NUMERICAL:
                 typeListBox.setSelectedIndex(NUMERIC_INDEX);
-                updateSpacingBar(repeatedMeasuresNode.getNumberOfMeasurements());
+                updateSpacingBar(repeatedMeasuresNode.getNumberOfMeasurements(),
+                        repeatedMeasuresNode.getSpacingList());
                 break;
             case ORDINAL:
                 typeListBox.setSelectedIndex(ORDINAL_INDEX);
@@ -362,7 +401,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 showSpacingBar(false);
                 break;
             case CATEGORICAL:
-                typeListBox.setSelectedIndex(CATEGORICAL_INDEX);
+                typeListBox.setSelectedIndex(NOMINAL_INDEX);
                 spacingFlexTable.removeAllRows();
                 showSpacingBar(false);
                 break;

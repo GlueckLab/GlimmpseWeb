@@ -47,6 +47,11 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.BetaScale;
+import edu.ucdenver.bios.webservice.common.domain.SampleSize;
+import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
+import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
+import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 
 /**
@@ -338,43 +343,6 @@ implements ClickHandler, WizardContextListener
 		
 		changeState(WizardStepPanelState.COMPLETE);
 	}
-
-	/**
-	 * Create an XML representation of the panel to be saved with
-	 * the study design
-	 * 
-	 * @return study XML
-	 */
-	public String toStudyXML()
-	{
-		StringBuffer buffer = new StringBuffer();
-//
-//		// add display options - format: <display table=[T|F] curve=[T|F] xaxis=[totaln|effectSize|variance]/>
-//		buffer.append("<");
-//		buffer.append(TAG_DISPLAY);
-//		buffer.append(" ");
-//		buffer.append(ATTR_TABLE);
-//		buffer.append("='");
-//		buffer.append(showTableCheckBox.getValue());
-//		buffer.append("' ");
-//		buffer.append(ATTR_CURVE);
-//		buffer.append("='");
-//		buffer.append(showCurveCheckBox.getValue());
-//		buffer.append("' ");
-//		
-//		buffer.append(ATTR_XAXIS);
-//		buffer.append("='");
-//		if (xaxisTotalNRadioButton.getValue())
-//			buffer.append(ATTR_VALUE_XAXIS_TOTAL_N);
-//		else if (xaxisEffectSizeRadioButton.getValue())
-//			buffer.append(ATTR_VALUE_XAXIS_EFFECT_SIZE);
-//		else
-//			buffer.append(ATTR_VALUE_XAXIS_VARIANCE);
-//		buffer.append("' ");
-//		buffer.append("/>");
-
-		return buffer.toString();
-	}
 	
 	/**
 	 * Click handler for all checkboxes on the Options screen.
@@ -534,52 +502,52 @@ implements ClickHandler, WizardContextListener
 	    switch(changeEvent.getType())
 	    {
 	    case PER_GROUP_N_LIST:
-	        List<Integer> sampleSizeList = studyDesignContext.getStudyDesign().getSampleSizeListValues();
-	        int sampleSizeListSize = sampleSizeList.size();
+	        List<SampleSize> sampleSizeList = studyDesignContext.getStudyDesign().getSampleSizeList();
 	        totalNListBox.clear();
-	        for(int i = 0; i < sampleSizeListSize; i++)
-	        {
-	            totalNListBox.addItem(sampleSizeList.get(i).toString());
+	        if (sampleSizeList != null) {
+	            for(SampleSize size: sampleSizeList) {
+	                totalNListBox.addItem(size.toString());
+	            }
 	        }
 	        break;
 	        
 	    case BETA_SCALE_LIST:
-	        List<Double> betaScaleList = studyDesignContext.getStudyDesign().getBetaScaleListValues();
-	        int betaScaleListSize = betaScaleList.size();
+	        List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
 	        betaScaleListBox.clear();
-	        for(int i = 0; i < betaScaleListSize; i++)
-	        {
-	            betaScaleListBox.addItem(betaScaleList.get(i).toString());
+	        if (betaScaleList != null) {
+	            for(BetaScale scale: betaScaleList) {
+	                betaScaleListBox.addItem(scale.toString());
+	            }
 	        }
 	        break;
 	        
 	    case SIGMA_SCALE_LIST:
-	        List<Double> sigmaScaleList = studyDesignContext.getStudyDesign().getSigmaScaleListValues();
-	        int sigmaScaleListSize = sigmaScaleList.size();
+	        List<SigmaScale> sigmaScaleList = studyDesignContext.getStudyDesign().getSigmaScaleList();
 	        sigmaScaleListBox.clear();
-	        for(int i = 0; i < sigmaScaleListSize; i++)
-	        {
-	            sigmaScaleListBox.addItem(sigmaScaleList.get(i).toString());
+	        if (sigmaScaleList != null) {
+	            for(SigmaScale scale: sigmaScaleList) {
+	                sigmaScaleListBox.addItem(scale.toString());
+	            }
 	        }
 	        break;
 	        
 	    case STATISTICAL_TEST_LIST:
-	        List<StatisticalTestTypeEnum> testList = studyDesignContext.getStudyDesign().getStatisticalTestListValues();
-	        int testListSize = testList.size();
+	        List<StatisticalTest> testList = studyDesignContext.getStudyDesign().getStatisticalTestList();
 	        testListBox.clear();
-	        for(int i = 0; i < testListSize; i++)
-	        {
-	            testListBox.addItem(testList.get(i).toString());
+	        if (testList != null) {
+	            for(StatisticalTest test: testList) {
+	                testListBox.addItem(test.toString());
+	            }
 	        }
 	        break;
 	        
 	    case ALPHA_LIST:
-	        List<Double> alphaList = studyDesignContext.getStudyDesign().getAlphaListValues();
-	        int alphaListSize = alphaList.size();
+	        List<TypeIError> alphaList = studyDesignContext.getStudyDesign().getAlphaList();
 	        alphaListBox.clear();
-	        for(int i = 0; i < alphaListSize; i++)
-	        {
-	            alphaListBox.addItem(alphaList.get(i).toString());
+	        if (alphaList != null) {
+	            for(TypeIError alpha: alphaList) {
+	                alphaListBox.addItem(alpha.toString());
+	            }
 	        }
 	        break;
 	    }

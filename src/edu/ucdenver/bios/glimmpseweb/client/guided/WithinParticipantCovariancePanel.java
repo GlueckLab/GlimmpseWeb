@@ -130,11 +130,6 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         }
 
         checkComplete();
-        //       tabPanel.setHeight("525");
-        //       tabPanel.setWidth("600");
-        //       
-        //       tabPanel.setAnimationDuration(700);
-        //        return tabPanel;
     }
 
 

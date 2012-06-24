@@ -165,11 +165,10 @@ implements ChangeHandler {
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         title.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-       // description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        addSubgroupButton.setStyleName(BUTTON_STYLE);
-        removeSubgroupButton.setStyleName(BUTTON_STYLE);
-        addClusteringButton.setStyleName(BUTTON_STYLE);
-        removeClusteringButton.setStyleName(BUTTON_STYLE);
+        addSubgroupButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        removeSubgroupButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        addClusteringButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        removeClusteringButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
 
         // Initializing widget
         initWidget(panel);

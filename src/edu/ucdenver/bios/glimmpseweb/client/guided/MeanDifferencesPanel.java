@@ -39,6 +39,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.FactorTable;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -101,49 +102,49 @@ implements ChangeHandler
 
     private void loadFromContext()
     {
-        DataTable participantGroups = studyDesignContext.getParticipantGroups();
-        DataTable withinParticipantMeasures = studyDesignContext.getWithinParticipantMeasures();
+        FactorTable participantGroups = studyDesignContext.getParticipantGroups();
+        FactorTable withinParticipantMeasures = studyDesignContext.getWithinParticipantMeasures();
         List<ResponseNode> outcomes = studyDesignContext.getStudyDesign().getResponseList();
 
-        meansTable.removeAllRows();
-        if (participantGroups != null && participantGroups.getNumberOfRows() > 0 
-                && outcomes != null && outcomes.size() > 0) {
-
-            // create the table header row
-            meansTable.getRowFormatter().setStyleName(0, 
-                    GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
-            int col = 0;
-            for(;col < participantGroups.getNumberOfColumns(); col++)
-            {
-                meansTable.setWidget(0, col, new HTML(participantGroups.getColumnLabel(col)));
-            }
-            for(ResponseNode outcome: outcomes)
-            {
-                meansTable.setWidget(0, col, new HTML(outcome.getName()));
-                col++;
-            }
-
-            // now fill in the group values, and add "0" text boxes for entering the means
-            int rowOrderCount = 0;
-            boolean uploadComplete = false;
-            for(int row = 0; row < participantGroups.getNumberOfRows(); row++)
-            {
-                meansTable.getRowFormatter().setStyleName(row+1, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
-                for(col = 0; col < participantGroups.getNumberOfColumns(); col++)
-                {
-                    meansTable.setWidget(row+1, col, new HTML(participantGroups.getValueString(row, col)));
-                }
-                for(ResponseNode outcome: outcomes)
-                {
-                    TextBox tb = new TextBox();
-                    tb.setText(outcome.getName());
-                    tb.addChangeHandler(this);
-                    meansTable.setWidget(row+1, col, tb);
-                    col++;
-                    rowOrderCount++;
-                }
-            }
-        }
+//        meansTable.removeAllRows();
+//        if (participantGroups != null && participantGroups.getNumberOfRows() > 0 
+//                && outcomes != null && outcomes.size() > 0) {
+//
+//            // create the table header row
+//            meansTable.getRowFormatter().setStyleName(0, 
+//                    GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
+//            int col = 0;
+//            for(;col < participantGroups.getNumberOfColumns(); col++)
+//            {
+//                meansTable.setWidget(0, col, new HTML(participantGroups.getColumnLabel(col)));
+//            }
+//            for(ResponseNode outcome: outcomes)
+//            {
+//                meansTable.setWidget(0, col, new HTML(outcome.getName()));
+//                col++;
+//            }
+//
+//            // now fill in the group values, and add "0" text boxes for entering the means
+//            int rowOrderCount = 0;
+//            boolean uploadComplete = false;
+//            for(int row = 0; row < participantGroups.getNumberOfRows(); row++)
+//            {
+//                meansTable.getRowFormatter().setStyleName(row+1, GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
+//                for(col = 0; col < participantGroups.getNumberOfColumns(); col++)
+//                {
+//                    meansTable.setWidget(row+1, col, new HTML(participantGroups.getValueString(row, col)));
+//                }
+//                for(ResponseNode outcome: outcomes)
+//                {
+//                    TextBox tb = new TextBox();
+//                    tb.setText(outcome.getName());
+//                    tb.addChangeHandler(this);
+//                    meansTable.setWidget(row+1, col, tb);
+//                    col++;
+//                    rowOrderCount++;
+//                }
+//            }
+//        }
     }
 
 

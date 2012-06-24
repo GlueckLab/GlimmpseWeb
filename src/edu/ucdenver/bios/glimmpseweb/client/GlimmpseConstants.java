@@ -61,6 +61,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_LEFT_NAV_CONTENT = "wizardLeftNavContent";
     public static final String STYLE_WIZARD_STEP_TREE = "wizardStepTree";
     public static final String STYLE_WIZARD_STEP_TREE_NODE = "wizardStepTreeNode";
+    public static final String STYLE_WIZARD_STEP_TEXTBOX = "wizardStepTextBox";
     
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
@@ -76,7 +77,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_SELECTED = "selected";
     public static final String STYLE_DESELECTED = "deselected";
     public static final String STYLE_DISABLED = "disabled";
-    
+    public static final String STYLE_SHORT = "short";
+    public static final String STYLE_MED = "medium";
+    public static final String STYLE_LONG = "long";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
@@ -283,17 +286,20 @@ public interface GlimmpseConstants extends Constants
     // repeated measures panel
     public String repeatedMeasuresTitle();
     public String repeatedMeasuresDescription();
-    public String repeatedMeasuresDescription1();
-    public String repeatedMeasuresInstructions();
-    public String repeatedMeasuresHeader();
-    public String repeatedOverTableColumn();
-    public String repetitionsTableColumn();
-    public String singleMeasureLabel();
-    public String repeatedMeasures1DLabel();
-    public String repeatedMeasures2DLabel();
-    public String repeatedMeasuresRepeatsLabel();
-    public String repeatedMeasuresUnitsLabel();
-
+    public String repeatedMeasuresPanelAddRMButton();
+    public String repeatedMeasuresPanelRemoveRMButton();
+    public String repeatedMeasuresPanelAddSubDimensionButton();
+    public String repeatedMeasuresPanelRemoveSubDimensionButton();
+    // repeated measures subpanel
+    public String repeatedMeasuresNodePanelDimensionLabel();
+    public String repeatedMeasuresNodePanelTypeLabel();
+    public String repeatedMeasuresNodePanelSpacingLabel();
+    public String repeatedMeasuresNodePanelNumericLabel();
+    public String repeatedMeasuresNodePanelOrdinalLabel();
+    public String repeatedMeasuresNodePanelCategoricalLabel();
+    public String repeatedMeasuresNodePanelNumMeasurementsLabel();
+    public String repeatedMeasuresNodePanelEqualSpacingButton();
+    
     /* hypothesis section */
     // hypotheses panel constants
     public String hypothesisIntroTitle();
@@ -498,20 +504,7 @@ public interface GlimmpseConstants extends Constants
      public String clusteringPanelAddSubgroupButton();
      public String clusteringPanelRemoveSubgroupButton();
      
-     // repeated measures panel constants
-     public String repeatedMeasuresPanelAddRMButton();
-     public String repeatedMeasuresPanelRemoveRMButton();
-     public String repeatedMeasuresPanelAddSubDimensionButton();
-     public String repeatedMeasuresPanelRemoveSubDimensionButton();
-     public String repeatedMeasuresPanelEqualSpacingButton();
-     
-     public String repeatedMeasuresNodePanelDimensionLabel();
-     public String repeatedMeasuresNodePanelTypeLabel();
-     public String repeatedMeasuresNodePanelSpacingLabel();
-     public String repeatedMeasuresNodePanelNumericLabel();
-     public String repeatedMeasuresNodePanelOrdinalLabel();
-     public String repeatedMeasuresNodePanelCategoricalLabel();
-     public String repeatedMeasuresNodePanelNumMeasurementsLabel();
+
      
      
      // subpanels for individual clustering nodes

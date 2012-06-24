@@ -63,7 +63,7 @@ implements ClickHandler
 	 */
 	public SolvingForPanel(WizardContext context, String radioGroupPrefix)
 	{
-		super(context, GlimmpseWeb.constants.solvingForLink(), WizardStepPanelState.INCOMPLETE);
+		super(context, GlimmpseWeb.constants.solvingForLink(), WizardStepPanelState.COMPLETE);
 		// since one of the radio buttons will always be checked, this wizardsteppanel
 		// is always considered complete (complete member var is from superclass WizardStepPanel)
 		
@@ -91,7 +91,8 @@ implements ClickHandler
 		// notify the listeners when a radio button is selected
 		solvingForPowerRadioButton.addClickHandler(this);
 		solvingForSampleSizeRadioButton.addClickHandler(this);
-		//solvingForEffectSizeRadioButton.addClickHandler(this);
+		solvingForPowerRadioButton.setValue(true);
+		solvingForSampleSizeRadioButton.setValue(false);
 		
 		// layout the panel
 		panel.add(header);

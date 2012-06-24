@@ -39,7 +39,7 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
  */
 public class EditTrendPanel extends Composite
 {
-	final String radioButtonGroup = "hypothesisTrendGroup";
+	protected static final String radioButtonGroup = "hypothesisTrendGroup";
 	
 	RadioButton noTrendTestRadioButton = 
 	    new RadioButton(radioButtonGroup, 
@@ -98,6 +98,9 @@ public class EditTrendPanel extends Composite
 		grid.setWidget(5, 1, cubicTrendOnlyImage);
 		
 		verticalPanel.add(grid);
+		
+		// set style
+		
 		
 		initWidget(verticalPanel);
 	}

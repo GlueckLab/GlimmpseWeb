@@ -27,12 +27,11 @@ import java.util.List;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.OpenHandler;
-import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Modified disclosure panel class to allow better control over
@@ -288,6 +287,7 @@ public class WizardStepDisclosurePanel extends Composite {
     public void updateState(WizardStepPanel panel,
             WizardStepPanelState oldState, WizardStepPanelState newState)
     {
+//        Window.alert("panel changed=" + panel.getName() + " old=" + oldState + " new=" + newState);
         WizardStepPanelButton button = getButtonByPanel(panel);
         if (button != null && button != currentItem) {
             button.setVisible(newState != WizardStepPanelState.SKIPPED);

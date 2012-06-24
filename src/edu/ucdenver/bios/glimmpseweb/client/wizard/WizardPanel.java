@@ -55,7 +55,7 @@ WizardStepPanelStateChangeHandler, ClickHandler
     // wizard context
     protected WizardContext context = null;
     // main panel
-    protected HorizontalPanel panel = new HorizontalPanel();
+    protected VerticalPanel panel = new VerticalPanel();
     // left navigation / "steps left" panel
     protected WizardLeftNavigationPanel leftNavPanel;
     // finish button
@@ -92,22 +92,23 @@ WizardStepPanelStateChangeHandler, ClickHandler
         this.finishPanel = finishPanel;
 
         // create overall panel layout containers
+        HorizontalPanel upperLayoutPanel = new HorizontalPanel();
         VerticalPanel contentPanel = new VerticalPanel();
         VerticalPanel leftPanel = new VerticalPanel();
-
+        
         // layout the left navigation
         leftNavPanel = new WizardLeftNavigationPanel(wizardPanelGroups);
         leftPanel.add(finishButton);
         leftPanel.add(leftNavPanel);
 
         // layout the display area and next/prev toolbar
-        contentPanel.add(wizardDeck);
-        contentPanel.add(actionPanel);
-
+        contentPanel.add(wizardDeck);        
 
         // layout the overall  wizard panel
-        panel.add(leftPanel);		
-        panel.add(contentPanel);
+        upperLayoutPanel.add(leftPanel);		
+        upperLayoutPanel.add(contentPanel);
+        panel.add(upperLayoutPanel);
+        panel.add(actionPanel);
 
         // add the panels to the display deck
         for(WizardStepPanelGroup panelGroup: wizardPanelGroups)
@@ -117,6 +118,7 @@ WizardStepPanelStateChangeHandler, ClickHandler
             {
                 wizardDeck.add(step);
                 step.addChangeHandler(this);
+                step.addChangeHandler(leftNavPanel);
             }
         }
         // add the finish panel to the deck

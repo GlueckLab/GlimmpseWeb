@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -15,7 +13,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
-import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
@@ -42,10 +39,10 @@ public class StudyDesignContext extends WizardContext
     private StudyDesign studyDesign;
 
     // cache of all possible between participant effects
-    private DataTable participantGroups = null;
+    private FactorTable participantGroups = new FactorTable();
 
     // cache of all possible combinations of within participant effects
-    private DataTable withinParticipantMeasures = null;
+    private FactorTable withinParticipantMeasures = new FactorTable();
 
     public StudyDesignContext()
     {
@@ -67,12 +64,12 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextLoad();
     }
 
-    public DataTable getParticipantGroups()
+    public FactorTable getParticipantGroups()
     {
         return participantGroups;
     }
 
-    public DataTable getWithinParticipantMeasures()
+    public FactorTable getWithinParticipantMeasures()
     {
         return withinParticipantMeasures;
     }
@@ -226,7 +223,7 @@ public class StudyDesignContext extends WizardContext
             ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList)
     {
         studyDesign.setRepeatedMeasuresTree(repeatedMeasuresNodeList);
-        this.withinParticipantMeasures = buildWithinParticipantMeasures();
+        this.withinParticipantMeasures.loadRepeatedMeasures(repeatedMeasuresNodeList);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.REPEATED_MEASURES));
     }
@@ -234,8 +231,10 @@ public class StudyDesignContext extends WizardContext
     public void setBetweenParticipantFactorList(WizardStepPanel panel, 
             List<BetweenParticipantFactor> factorList)
     {
-        this.participantGroups = buildParticipantGroups(factorList);
+        this.participantGroups.loadBetweenParticipantFactors(factorList);
         studyDesign.setBetweenParticipantFactorList(factorList);
+        // clear the relative group sizes
+        studyDesign.setRelativeGroupSizeList(null);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
@@ -493,78 +492,6 @@ public class StudyDesignContext extends WizardContext
             return false;
         }
 
-    }
-
-
-    /**
-     * Build a cache table of all possible group combinations
-     * based on between participant effects.
-     * @return DataTable of study participant groups
-     */
-    private DataTable buildParticipantGroups(List<BetweenParticipantFactor> factorList)
-    {
-        DataTable data = DataTable.create();
-
-        if (factorList.size() > 0)
-        {
-            int rows = 1;
-            int col = 0;
-            // add the rows to the table for all factorial combinations of predictor categories
-            for(BetweenParticipantFactor factor: factorList)
-            {
-                data.addColumn(ColumnType.STRING, factor.getPredictorName());
-                rows *= factor.getCategoryList().size();
-            }
-            data.addRows(rows);           
-
-            // now fill in the data
-            int previousRepeat = 0;
-            col = 0;
-            for(BetweenParticipantFactor factor: factorList)
-            {
-                int row = 0;
-                List<Category> categoryList = factor.getCategoryList();
-                if (previousRepeat == 0)
-                {
-                    previousRepeat = rows / categoryList.size();
-                    for(Category category: categoryList)
-                    {
-                        for (int reps = 0; reps < previousRepeat; reps++, row++) 
-                        {
-                            data.setCell(row, col, category.getCategory(), category.getCategory(), null);
-                        }
-                    }
-                }
-                else
-                {
-                    int categorylistRepeat = rows / previousRepeat;
-                    previousRepeat = previousRepeat / categoryList.size();
-                    for(int categoryListRep = 0; categoryListRep < categorylistRepeat; categoryListRep++)
-                    {
-                        for(Category category: categoryList)
-                        {
-                            for (int reps = 0; reps < previousRepeat; reps++, row++) 
-                            {
-                                data.setCell(row, col, category.getCategory(), category.getCategory(), null);
-                            }
-                        }
-                    }
-                }
-                col++;
-            }
-        }
-        return data;
-    }  
-
-    /**
-     * Build a cache table of all possible combinations
-     * of within participant effects.
-     * @return DataTable of within participant effects.
-     */
-    private DataTable buildWithinParticipantMeasures() {
-        DataTable data = DataTable.create();
-
-        return data;
     }
 
 }

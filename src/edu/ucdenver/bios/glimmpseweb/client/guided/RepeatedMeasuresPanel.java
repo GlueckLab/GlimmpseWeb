@@ -25,7 +25,6 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -143,16 +142,10 @@ implements ChangeHandler
 
         VerticalPanel panel = new VerticalPanel();
         HTML title = new HTML(GlimmpseWeb.constants.repeatedMeasuresTitle());
-        HTML header = new HTML(GlimmpseWeb.constants.repeatedMeasuresHeader());
-
         HTML description = new HTML(GlimmpseWeb.constants.repeatedMeasuresDescription());
-        HTML instructions = new HTML(GlimmpseWeb.constants.repeatedMeasuresInstructions());
         
         panel.add(title);
-        panel.add(header);
         panel.add(description);
-        instructions.setVisible(false);
-        panel.add(instructions);
         panel.add(addRepeatedMeasuresButton);
         removeRepeatedMeasuresButton.setVisible(false);
         panel.add(removeRepeatedMeasuresButton);
@@ -170,10 +163,13 @@ implements ChangeHandler
         //Setting Styles
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         title.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-
+        // button styles
+        addRepeatedMeasuresButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        removeRepeatedMeasuresButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        addSubDimensionButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        removeSubDimensionButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        
         //Initializing Widget
         initWidget(panel);
     }   
@@ -183,7 +179,7 @@ implements ChangeHandler
      */
     private void addSubDimension() 
     {        
-        RepeatedMeasuresPanelSubPanel subpanel = new RepeatedMeasuresPanelSubPanel();   
+        RepeatedMeasuresPanelSubPanel subpanel = new RepeatedMeasuresPanelSubPanel(null);   
         subpanel.addChangeHandler(this);
         TreeItem newLeaf = new TreeItem(subpanel);
         if (currentLeaf == null)
@@ -364,8 +360,7 @@ implements ChangeHandler
 
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
-        // TODO Auto-generated method stub
-        
+        // no action required for this panel
     }
 
 }
