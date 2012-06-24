@@ -83,9 +83,9 @@ implements WizardActionListener
     protected ClusteringPanel clusteringPanel = new ClusteringPanel(context);
 	// outcomes
 	protected IntroPanel outcomesIntroPanel = new IntroPanel(context,
-			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.outcomesIntroTitle(),
-			GlimmpseWeb.constants.outcomesIntroDescription());
-	protected OutcomesPanel outcomesPanel = new OutcomesPanel(context);
+			GlimmpseWeb.constants.navItemIntro(), GlimmpseWeb.constants.responsesIntroTitle(),
+			GlimmpseWeb.constants.responsesIntroDescription());
+	protected ResponseVariablesPanel outcomesPanel = new ResponseVariablesPanel(context);
 	protected RepeatedMeasuresPanel repeatedMeasuresPanel = new RepeatedMeasuresPanel(context);
 
 	// hypotheses

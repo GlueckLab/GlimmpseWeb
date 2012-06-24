@@ -35,16 +35,11 @@ public interface GlimmpseConstants extends Constants
 	public static final String STYLE_TOOLS_MENU_PANEL = "toolsMenuPanel";
 	public static final String STYLE_TOOLS_MENU_HEADER = "toolsMenuHeader";
 	public static final String STYLE_TOOLS_MENU_ITEM = "toolsMenuItem";
-	public static final String STYLE_DISABLED = "disabled";
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
     public static final String STYLE_WIZARD_STEP_HEADER = "wizardStepHeader";
     public static final String STYLE_WIZARD_STEP_DESCRIPTION = "wizardStepDescription";
     public static final String STYLE_WIZARD_STEP_SUBPANEL = "subpanel";
-    public static final String STYLE_WIZARD_STEP_SELECTED = "selected";
-    public static final String STYLE_WIZARD_STEP_DESELECTED = "deselected";
-    public static final String STYLE_WIZARD_STEP_EVEN = "even";
-    public static final String STYLE_WIZARD_STEP_ODD = "odd";
     public static final String STYLE_WIZARD_STEP_BUTTON = "wizardStepButton";
     public static final String STYLE_WIZARD_STEP_LINK = "wizardStepLink";
     public static final String STYLE_WIZARD_STEP_TABLE_PANEL = "wizardStepTablePanel";
@@ -64,6 +59,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_LEFT_NAV_LINK = "wizardLeftNavLink";
     public static final String STYLE_WIZARD_LEFT_NAV_PANEL = "wizardLeftNavPanel";
     public static final String STYLE_WIZARD_LEFT_NAV_CONTENT = "wizardLeftNavContent";
+    public static final String STYLE_WIZARD_STEP_TREE = "wizardStepTree";
+    public static final String STYLE_WIZARD_STEP_TREE_NODE = "wizardStepTreeNode";
+    
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
@@ -72,7 +70,13 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
-
+    // generic dependent style names
+    public static final String STYLE_EVEN = "even";
+    public static final String STYLE_ODD = "odd";
+    public static final String STYLE_SELECTED = "selected";
+    public static final String STYLE_DESELECTED = "deselected";
+    public static final String STYLE_DISABLED = "disabled";
+    
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
@@ -270,12 +274,12 @@ public interface GlimmpseConstants extends Constants
     public String perGroupSampleSizeTableColumn();
     
     /* outcomes section */
-    public String outcomesIntroTitle();
-    public String outcomesIntroDescription();
+    public String responsesIntroTitle();
+    public String responsesIntroDescription();
     // outcome variables panel
-    public String outcomesTitle();
-    public String outcomesDescription();
-    public String outcomesTableColumn();
+    public String responseVariablesTitle();
+    public String responseVariablesDescription();
+    public String responseVariablesTableColumn();
     // repeated measures panel
     public String repeatedMeasuresTitle();
     public String repeatedMeasuresDescription();
