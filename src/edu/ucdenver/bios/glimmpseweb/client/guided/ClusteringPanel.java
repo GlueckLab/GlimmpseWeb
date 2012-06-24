@@ -324,10 +324,7 @@ implements ChangeHandler {
     public void onExit()
     {
         clusteringNodeList.clear();
-        checkComplete();
-        if (complete) {
-            TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
-        }
+        TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
         if (clusteringNodeList.size() > 0) {
             studyDesignContext.setClustering(this, clusteringNodeList);
         } else {
