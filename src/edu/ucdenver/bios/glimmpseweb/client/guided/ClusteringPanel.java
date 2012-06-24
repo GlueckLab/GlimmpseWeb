@@ -28,6 +28,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -179,7 +180,11 @@ implements ChangeHandler {
      */
     private void addSubgroup() 
     {
-        ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel();	
+        String dependentStyleName = GlimmpseConstants.STYLE_ODD;
+        if (itemCount % 2 == 0) {
+            dependentStyleName = GlimmpseConstants.STYLE_EVEN;
+        }
+        ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel(dependentStyleName);	
         subpanel.addChangeHandler(this);
         TreeItem newLeaf = new TreeItem(subpanel);
         if (currentLeaf == null)
@@ -319,7 +324,10 @@ implements ChangeHandler {
     public void onExit()
     {
         clusteringNodeList.clear();
-        TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
+        checkComplete();
+        if (complete) {
+            TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
+        }
         if (clusteringNodeList.size() > 0) {
             studyDesignContext.setClustering(this, clusteringNodeList);
         } else {

@@ -64,7 +64,7 @@ public class ClusteringPanelSubPanel extends Composite {
     /**
      * Constructor
      */
-    public ClusteringPanelSubPanel() 
+    public ClusteringPanelSubPanel(String dependentStyleName) 
     {
         // vertical panel to hold all the widgets within
         VerticalPanel verticalPanel = new VerticalPanel();
@@ -150,7 +150,10 @@ public class ClusteringPanelSubPanel extends Composite {
         
         // set style
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
-        
+        verticalPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TREE_NODE);
+        if (dependentStyleName != null && !dependentStyleName.isEmpty()) {
+            verticalPanel.addStyleDependentName(dependentStyleName);
+        }
         // Initializing widget
         initWidget(verticalPanel);
     }
