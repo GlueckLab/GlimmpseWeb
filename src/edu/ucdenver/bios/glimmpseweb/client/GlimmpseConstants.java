@@ -62,7 +62,10 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TREE = "wizardStepTree";
     public static final String STYLE_WIZARD_STEP_TREE_NODE = "wizardStepTreeNode";
     public static final String STYLE_WIZARD_STEP_TEXTBOX = "wizardStepTextBox";
-    
+    public static final String STYLE_WIZARD_STEP_TAB_PANEL = "wizardStepTabPanel";
+    public static final String STYLE_WIZARD_STEP_TAB_HEADER = "wizardStepTabPanelHeader";
+    public static final String STYLE_WIZARD_STEP_TAB = "wizardStepTabPanelTab";
+    public static final String STYLE_WIZARD_STEP_TAB_CONTENT = "wizardStepTabPanelContent";
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
@@ -306,7 +309,49 @@ public interface GlimmpseConstants extends Constants
     public String hypothesisIntroDescription();
     public String hypothesisTitle();
     public String hypothesisDescription();
+    //hypothesis Panel
+    public String hypothesisPanelMainEffect();
+    public String hypothesisPanelMainEffectExplanation();
+    public String hypothesisPanelInteraction();
+    public String hypothesisPanelInteractionExplanation();
+    public String hypothesisPanelTrend();
+    public String hypothesisPanelTrendExplanation();
+    public String hypothesisPanelOneSample();
+    public String hypothesisPanelOneSampleExplanation();
+    public String hypothesisPanelSelectTypeOfTrend();
+    public String hypothesisPanelBetweenParticipantFactorsLabel();
+    public String hypothesisPanelWithinParticipantFactorsLabel();
 
+    public String hypothesisTrendPanelNoTrend();
+    public String hypothesisTrendPanelLinear();
+    public String hypothesisTrendPanelQuadratic();
+    public String hypothesisTrendPanelCubic();
+    public String hypothesisTrendPanelAllTrends();
+    public String hypothesisTrendPanelChangeFromBaseline();
+
+    //main effects Panel
+    public String mainEffectPanelText();    
+    //interaction hypothesis Panel
+    public String interactionHypothesisPanelText();
+    //trend hypothesis Panel
+    public String trendHypothesisPanelText();
+    // one sample hypothesis panel
+    public String oneSampleHypothesisPanelText();
+    
+    //edit trend panel
+    public String editTrendNoTrend();
+    public String editTrendChangeFromBaseline();
+    public String editTrendAllPolynomialTrends();
+    public String editTrendLinearTrendOnly();
+    public String editTrendQudraticTrendOnly(); 
+    public String editTrendCubicTrendOnly();
+    public String editTrendChangeFromBaselineImage();
+    public String editTrendAllPolynomialTrendsImage();
+    public String editTrendLinearTrendOnlyImage();
+    public String editTrendQudraticTrendOnlyImage();
+    public String editTrendCubicTrendOnlyImage();
+    
+    
     /* mean differences section */
     public String meanDifferenceIntroTitle();
     public String meanDifferenceIntroDescription();
@@ -514,45 +559,9 @@ public interface GlimmpseConstants extends Constants
      //cancel Dialog Box
      public String cancelDialogBoxQuery();
      
-     //hypothesis Panel
-     public String hypothesisPanelTitle();
-     public String hypothesisPanelDescription();
-     public String hypothesisPanelInstructions();
-     public String hypothesisPanelMainEffect();
-     public String hypothesisPanelInteraction();
-     public String hypothesisPanelTrend();
-     public String hypothesisPanelMainEffectExplination();
-     public String hypothesisPanelInteractionExplination();
-     public String hypothesisPanelTrendExplination();
-     public String hypothesisPanelSelectTypeOfTrend();
-     
-     //main effects Panel
-     public String mainEffectPanelText();
-     public String mainEffectPanelBetweenParticipantFactors();
-     public String mainEffectPanelWithinParticipantFactors();
-     
-     //interaction hypothesis Panel
-     public String interactionHypothesisPanelText();
-     public String interactionHypothesisPanelBetweenParticipantFactors();
-     public String interactionHypothesisPanelWithinParticipantFactors();
 
-     //trend hypothesis Panel
-     public String trendHypothesisPanelText();
-     public String trendHypothesisPanelBetweenParticipantFactors();
-     public String trendHypothesisPanelWithinParticipantFactors();
      
-     //edit trend panel
-     public String editTrendNoTrend();
-     public String editTrendChangeFromBaseline();
-     public String editTrendAllPolynomialTrends();
-     public String editTrendLinearTrendOnly();
-     public String editTrendQudraticTrendOnly(); 
-     public String editTrendCubicTrendOnly();
-     public String editTrendChangeFromBaselineImage();
-     public String editTrendAllPolynomialTrendsImage();
-     public String editTrendLinearTrendOnlyImage();
-     public String editTrendQudraticTrendOnlyImage();
-     public String editTrendCubicTrendOnlyImage();
+
      
      //structured correlation panel
      public String standardDeviationLabel();

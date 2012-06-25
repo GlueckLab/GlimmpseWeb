@@ -107,8 +107,10 @@ implements HypothesisBuilder, WizardContextListener {
 
 
         text.setText(GlimmpseWeb.constants.trendHypothesisPanelText());
-        betweenParticipantFactors.setText(GlimmpseWeb.constants.trendHypothesisPanelBetweenParticipantFactors());
-        withinParticipantFactors.setText(GlimmpseWeb.constants.trendHypothesisPanelWithinParticipantFactors());
+        betweenParticipantFactors.setText(
+                GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+        withinParticipantFactors.setText(
+                GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
 
         //Style Sheets
         text.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);

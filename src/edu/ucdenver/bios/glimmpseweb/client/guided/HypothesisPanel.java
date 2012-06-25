@@ -24,6 +24,8 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -47,43 +49,56 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 /**
  * Hypothesis selection panel
  * @author VIJAY AKULA
+ * @author Sarah Kreidler
  *
  */
 public class HypothesisPanel extends WizardStepPanel 
-implements ClickHandler {
+implements ClickHandler, ChangeHandler {
 
     // context object
-    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     
     // radio button group for hypothesis types
     private static final String BUTTON_GROUP = "HypothesisRadioButtonGroup";
     
     // deck panel order
-    private static final int MAIN_EFFECT_INDEX = 0;
-    private static final int INTERACTION_INDEX = 1;
-    private static final int TREND_INDEX = 2;
+    private static final int ONE_SAMPLE_INDEX = 0;
+    private static final int MAIN_EFFECT_INDEX = 1;
+    private static final int INTERACTION_INDEX = 2;
+    private static final int TREND_INDEX = 3;
     
     // contains subpanels for different types of hypotheses (main effect, interaction, etc)
-    DeckPanel deckPanel = new DeckPanel();
+    protected DeckPanel deckPanel = new DeckPanel();
 
     // subpanels for each type of hypothesis
-    MainEffectHypothesisPanel mainEffectHypothesisPanelInstance =
+    protected OneSampleHypothesisPanel oneSampleHypothesisPanelInstance =
+        new OneSampleHypothesisPanel(studyDesignContext, this);
+    protected MainEffectHypothesisPanel mainEffectHypothesisPanelInstance =
         new MainEffectHypothesisPanel(studyDesignContext, this);
-    InteractionHypothesisPanel interactionHypothesisPanelInstance =
+    protected InteractionHypothesisPanel interactionHypothesisPanelInstance =
         new InteractionHypothesisPanel(studyDesignContext, this);
-    TrendHypothesisPanel trendHypothesisPanelInstance =
+    protected TrendHypothesisPanel trendHypothesisPanelInstance =
         new TrendHypothesisPanel(studyDesignContext, this);
     
     /* hypothesis type buttons */
-    RadioButton mainEffectRadioButton = new RadioButton(
+    protected RadioButton oneSampleRadioButton = new RadioButton(
+            BUTTON_GROUP,
+            GlimmpseWeb.constants.hypothesisPanelOneSample()); 
+    protected RadioButton mainEffectRadioButton = new RadioButton(
             BUTTON_GROUP,
             GlimmpseWeb.constants.hypothesisPanelMainEffect()); 
-    RadioButton interactionRadioButton = new RadioButton(
+    protected RadioButton interactionRadioButton = new RadioButton(
             BUTTON_GROUP,
             GlimmpseWeb.constants.hypothesisPanelInteraction()); 
-    RadioButton trendRadioButton = new RadioButton(
+    protected RadioButton trendRadioButton = new RadioButton(
             BUTTON_GROUP,
             GlimmpseWeb.constants.hypothesisPanelTrend());
+    // hypothesis type containers - allows us to hide/show these 
+    // depending on the between/within participant factors
+    protected  HorizontalPanel oneSampleSelectPanel = new HorizontalPanel();
+    protected  HorizontalPanel mainEffectSelectPanel = new HorizontalPanel();
+    protected  HorizontalPanel interactionSelectPanel = new HorizontalPanel();
+    protected  HorizontalPanel trendSelectPanel = new HorizontalPanel();
 
     /**
      * Constructor
@@ -94,40 +109,54 @@ implements ClickHandler {
         super(context, GlimmpseWeb.constants.navItemHypothesis(),
                 WizardStepPanelState.NOT_ALLOWED);
 
-        VerticalPanel verticalPanel = new VerticalPanel();
+        VerticalPanel panel = new VerticalPanel();
         
         // descriptive text
         HTML title = new HTML(
-                GlimmpseWeb.constants.hypothesisPanelTitle());
+                GlimmpseWeb.constants.hypothesisTitle());
         HTML description = new HTML(
-                GlimmpseWeb.constants.hypothesisPanelDescription());
-        HTML instructions = new HTML(
-                GlimmpseWeb.constants.hypothesisPanelInstructions());
+                GlimmpseWeb.constants.hypothesisDescription());
 
         // hypothesis type selection panel
-        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        // one sample 
+        HtmlTextWithExplanationPanel oneSample = new HtmlTextWithExplanationPanel("",
+                GlimmpseWeb.constants.hypothesisPanelOneSample(),
+                GlimmpseWeb.constants.hypothesisPanelOneSampleExplanation());
+        oneSampleSelectPanel.add(oneSampleRadioButton);
+        oneSampleSelectPanel.add(oneSample);
+        // main effects
         HtmlTextWithExplanationPanel mainEffect = new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffect(),
-                GlimmpseWeb.constants.hypothesisPanelMainEffectExplination());
-        horizontalPanel.add(mainEffectRadioButton);
-        horizontalPanel.add(mainEffect);
-        
+                GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation());
+        mainEffectSelectPanel.add(mainEffectRadioButton);
+        mainEffectSelectPanel.add(mainEffect);
+        // interaction
         HtmlTextWithExplanationPanel interaction = new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelInteraction(),
-                GlimmpseWeb.constants.hypothesisPanelInteractionExplination());
-        horizontalPanel.add(interactionRadioButton);
-        horizontalPanel.add(interaction);
-
+                GlimmpseWeb.constants.hypothesisPanelInteractionExplanation());
+        interactionSelectPanel.add(interactionRadioButton);
+        interactionSelectPanel.add(interaction);
+        // trend
         HtmlTextWithExplanationPanel trend = new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelTrend(),
-                GlimmpseWeb.constants.hypothesisPanelTrendExplination());
-        horizontalPanel.add(trendRadioButton);
-        horizontalPanel.add(trend);		
+                GlimmpseWeb.constants.hypothesisPanelTrendExplanation());
+        trendSelectPanel.add(trendRadioButton);
+        trendSelectPanel.add(trend);		
+
+        // layout overall panel
+        HorizontalPanel typeSelectPanel = new HorizontalPanel();
+        typeSelectPanel.add(oneSampleSelectPanel);
+        typeSelectPanel.add(mainEffectSelectPanel);
+        typeSelectPanel.add(interactionSelectPanel);
+        typeSelectPanel.add(trendSelectPanel);
 
         // subpanels for each hypothesis type
+        HorizontalPanel contentPanel = new HorizontalPanel();
+        deckPanel.add(oneSampleHypothesisPanelInstance);
         deckPanel.add(mainEffectHypothesisPanelInstance);
         deckPanel.add(interactionHypothesisPanelInstance);
         deckPanel.add(trendHypothesisPanelInstance);
+        contentPanel.add(deckPanel);
         
         // add radio button handlers
         mainEffectRadioButton.addClickHandler(new ClickHandler() 
@@ -156,22 +185,22 @@ implements ClickHandler {
         });
 
         // layout panel
-        verticalPanel.add(title);
-        verticalPanel.add(description);
-        verticalPanel.add(instructions);
-        verticalPanel.add(horizontalPanel);
-        verticalPanel.add(deckPanel);
+        panel.add(title);
+        panel.add(description);
+        panel.add(typeSelectPanel);
+        panel.add(contentPanel);
   
         // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         title.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        instructions.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        typeSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
+        contentPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_CONTENT);
 
         // initialize
-        initWidget(verticalPanel);
+        initWidget(panel);
     }
 
     /**
@@ -191,13 +220,18 @@ implements ClickHandler {
     {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case BETWEEN_PARTICIPANT_FACTORS:
-        case REPEATED_MEASURES:
             List<BetweenParticipantFactor> factorList = 
                 studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+            if ((factorList != null && factorList.size() > 0)) {
+                checkComplete();
+            } else {
+                changeState(WizardStepPanelState.NOT_ALLOWED);
+            }
+            break;
+        case REPEATED_MEASURES:
             List<RepeatedMeasuresNode> rmNodeList = 
                 studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-            if ((factorList != null && factorList.size() > 0) || 
-                    (rmNodeList != null && rmNodeList.size() > 0)) {
+            if ((rmNodeList != null && rmNodeList.size() > 0)) {
                 checkComplete();
             } else {
                 changeState(WizardStepPanelState.NOT_ALLOWED);
@@ -258,5 +292,10 @@ implements ClickHandler {
     @Override
     public void onClick(ClickEvent event) {
         checkComplete();        
+    }
+
+    @Override
+    public void onChange(ChangeEvent event) {
+        checkComplete();   
     }
 }

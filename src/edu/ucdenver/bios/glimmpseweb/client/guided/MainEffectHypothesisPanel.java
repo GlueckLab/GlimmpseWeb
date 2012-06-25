@@ -108,9 +108,9 @@ implements HypothesisBuilder, WizardContextListener {
 
         text.setText(GlimmpseWeb.constants.mainEffectPanelText());
         betweenParticipantFactors.setText(
-                GlimmpseWeb.constants.mainEffectPanelBetweenParticipantFactors());
+                GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
         withinParticipantFactors.setText(
-                GlimmpseWeb.constants.mainEffectPanelWithinParticipantFactors());
+                GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
 
         //Style Sheets
         text.setStyleName(

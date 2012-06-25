@@ -102,10 +102,10 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
 
 
         text.setText(GlimmpseWeb.constants.interactionHypothesisPanelText());
-        betweenParticipantFactors.setText(GlimmpseWeb.constants.
-                interactionHypothesisPanelBetweenParticipantFactors());
-        withinParticipantFactors.setText(GlimmpseWeb.constants.
-                interactionHypothesisPanelWithinParticipantFactors());
+        betweenParticipantFactors.setText(
+                GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+        withinParticipantFactors.setText(
+                GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
 
         //Style Sheets
         text.setStyleName(
