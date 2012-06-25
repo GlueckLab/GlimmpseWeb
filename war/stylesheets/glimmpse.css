@@ -104,16 +104,6 @@ body {
 	margin: 0px;
 }
 
-#content-table tr td {
-	align: center;
-	border:none;
-	spacing: 0px;
-	margin: 0px;
-	padding: 0px;
-}
-
-
-
 #site-title {
 	margin-top: 20px;
 	margin-left: 20px;
@@ -307,6 +297,7 @@ body {
   height: 24px;
   border: solid 1px #ddd;
   padding-left: 20px;
+  margin-left: 200px;
 }
 
 .wizardActionSaveButton {
@@ -342,6 +333,7 @@ body {
   border: none;
   cursor: pointer;
   width: 20px;
+  height: 20px;
 }
 
 .wizardActionNextButton:hover {
@@ -353,6 +345,7 @@ body {
   border: none;
   cursor: pointer;
   width: 20px;
+  height: 20px;
   padding-left: 20px;
 }
 
@@ -398,7 +391,7 @@ body {
 .wizardContentPanel {
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	width: 740px;
-	min-height: 400px;
+	min-height: 500px;
 	background-color: white;
 }
 
@@ -552,7 +545,7 @@ body {
 }
 
 .wizardStepTable {
-	border-collapse:collapse;
+	border-collapse: collapse;
 	background: #ebf0f5;
 }
 
@@ -594,9 +587,51 @@ body {
 	background: #fff;
 }
 
+
+
+.wizardStepTreeNode {
+  border: solid 1px #ddd;
+  padding: 5px;
+}
+
+
+.wizardStepTextBox {
+}
+
+.wizardStepTextbox-disabled {
+	color: gray;
+}
+
+.wizardStepTextBox-short {
+	width: 20px;
+}
+
+
+/* tab panel style */
+.wizardStepTabPanel {
+	border: 1px solid #ddd;
+}
+
+.wizardStepTabPanelHeader {
+  background-color: #e4eaef;
+  border: 1px solid #ddd;
+  width: 700px;
+}
+
+.wizardStepTabPanelTab {
+	
+}
+
+.wizardStepTabPanelContent {
+	border: 1px solid #ddd;
+	padding: 5px;
+	width: 700px;
+}
+
+
+
 .explanationButton {
 	background-image: url('/images/help.png');
-	background-color: white;
 	width: 16px;
 	height: 16px;
 	border: none;
@@ -635,4 +670,5 @@ body {
 	font-weight: bold;
 	background: #fff;
 }
+
 
