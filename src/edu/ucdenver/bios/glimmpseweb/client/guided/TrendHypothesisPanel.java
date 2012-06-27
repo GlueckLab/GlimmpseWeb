@@ -36,36 +36,31 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class TrendHypothesisPanel extends Composite
-implements HypothesisBuilder, WizardContextListener {
+implements HypothesisBuilder {
     // radio button group for this panel
     private static final String BUTTON_GROUP = "trendButtonGroup"; 
-    
-    // context object
-    StudyDesignContext studyDesignContext = null;
 
     // lists of variables available to test
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
     protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
 
     // currently selected between participant effect
-    BetweenParticipantFactor selectedBetweenParticipantFactor = null;
+    protected BetweenParticipantFactor selectedBetweenParticipantFactor = null;
     // name of currently selected within participant effect
-    RepeatedMeasuresNode selectedRepeatedMeasuresNode = null;
+    protected RepeatedMeasuresNode selectedRepeatedMeasuresNode = null;
 
     // trend description panel
-    EditTrendPanel editTrendPanel = new EditTrendPanel();
+    protected EditTrendPanel editTrendPanel =  new EditTrendPanel("_TREND_PANEL_", -1); // TODO
 
     // RadioButton which contains a between participant effect
     private class BetweenParticipantRadioButton extends RadioButton {
@@ -91,32 +86,26 @@ implements HypothesisBuilder, WizardContextListener {
      * Create a trend hypothesis panel
      * @param studyDesignContext
      */
-    public TrendHypothesisPanel(StudyDesignContext studyDesignContext,
-            ClickHandler handler)
+    public TrendHypothesisPanel(ClickHandler handler)
     {
         VerticalPanel verticalPanel = new VerticalPanel();
 
-        this.studyDesignContext = studyDesignContext;
-        this.studyDesignContext.addContextListener(this);
-
-        HTML text = new HTML();
-        HTML betweenParticipantFactors = new HTML();
-        HTML withinParticipantFactors = new HTML();
+        HTML text = new HTML(GlimmpseWeb.constants.trendHypothesisPanelText());
+        HTML betweenParticipantFactors = 
+                new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+        HTML withinParticipantFactors = 
+                new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
         final HTML selectTypeOfTrend = new HTML(
                 GlimmpseWeb.constants.hypothesisPanelSelectTypeOfTrend());
 
-
-        text.setText(GlimmpseWeb.constants.trendHypothesisPanelText());
-        betweenParticipantFactors.setText(
-                GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
-        withinParticipantFactors.setText(
-                GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
-
         //Style Sheets
         text.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        selectTypeOfTrend.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        betweenParticipantFactors.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        withinParticipantFactors.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
+        selectTypeOfTrend.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        selectTypeOfTrend.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 
         HorizontalPanel editTrendHorizontalPanel = new HorizontalPanel();
         editTrendHorizontalPanel.add(editTrendPanel);
@@ -132,52 +121,53 @@ implements HypothesisBuilder, WizardContextListener {
     }
 
     /**
-     * Reload the between participant factors from the context
+     * Load the between participant factors
+     * @param factorList list of between participant factors
      */
-    private void loadBetweenFactorsFromContext()
+    public void loadBetweenParticipantFactors(List<BetweenParticipantFactor> factorList)
     {
         this.selectedBetweenParticipantFactor = null;
         betweenParticipantFactorsFlexTable.removeAllRows();
-        List<BetweenParticipantFactor> factorList = 
-            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         if (factorList != null) {
-            int i = 0;
+            int row = 0;
             for(BetweenParticipantFactor factor : factorList)
             {
-                BetweenParticipantRadioButton button = 
-                    new BetweenParticipantRadioButton(
-                            BUTTON_GROUP,
-                            factor.getPredictorName(), factor);
-                button.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        BetweenParticipantRadioButton button = 
-                            (BetweenParticipantRadioButton) event.getSource();
-                        selectBetweenParticipantFactor(button.factor);
-                    }
-                });
-                betweenParticipantFactorsFlexTable.setWidget(
-                        i, 0, button);
-                i++;
+                List<Category> categoryList = factor.getCategoryList();
+                if (categoryList != null && categoryList.size() > 1) {
+                    BetweenParticipantRadioButton button = 
+                            new BetweenParticipantRadioButton(
+                                    BUTTON_GROUP,
+                                    factor.getPredictorName(), factor);
+                    button.addClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            BetweenParticipantRadioButton button = 
+                                    (BetweenParticipantRadioButton) event.getSource();
+                            selectBetweenParticipantFactor(button.factor);
+                        }
+                    });
+                    betweenParticipantFactorsFlexTable.setWidget(
+                            row, 0, button);
+                }
+                row++;
             }
         }
     }
 
     /**
      * Load repeated measures from the context
+     * @param rmNodeList tree of repeated measures information
      */
-    private void loadRepeatedMeasuresFromContext() {
+    public void loadRepeatedMeasures(List<RepeatedMeasuresNode> rmNodeList) {
         this.selectedRepeatedMeasuresNode = null;
         withinParticipantFactorsFlexTable.removeAllRows();
-        List<RepeatedMeasuresNode> factorList = 
-            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-        if (factorList != null) {
-            int i = 0;
-            for(RepeatedMeasuresNode factor : factorList)
+        if (rmNodeList != null) {
+            int row = 0;
+            for(RepeatedMeasuresNode rmNode : rmNodeList)
             {
                 RepeatedMeasuresRadioButton button = 
                     new RepeatedMeasuresRadioButton(BUTTON_GROUP,
-                            factor.getDimension(), factor);
+                            rmNode.getDimension(), rmNode);
                 button.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -187,8 +177,8 @@ implements HypothesisBuilder, WizardContextListener {
                     }
                 });
                 withinParticipantFactorsFlexTable.setWidget(
-                        i, 0, button);
-                i++;
+                        row, 0, button);
+                row++;
             }
         }
     }
@@ -244,7 +234,6 @@ implements HypothesisBuilder, WizardContextListener {
         selectedRepeatedMeasuresNode = null;
     }
     
-    
     /**
      * Returns true if the user has selected sufficient information
      */
@@ -254,30 +243,8 @@ implements HypothesisBuilder, WizardContextListener {
                 this.selectedRepeatedMeasuresNode != null);
     }
 
-    /**
-     * Reload the panel when a user changes either the fixed predictors 
-     * or repeated measures information
-     */
     @Override
-    public void onWizardContextChange(WizardContextChangeEvent e) {
-        switch(((StudyDesignChangeEvent) e).getType()) {
-        case BETWEEN_PARTICIPANT_FACTORS:
-            loadBetweenFactorsFromContext();
-            break;
-        case REPEATED_MEASURES:
-            loadRepeatedMeasuresFromContext();
-            break;
-        }
+    public NamedMatrix buildThetaNull() {
+        return null;
     }
-
-    /**
-     * Fill in the panel on upload events
-     */
-    @Override
-    public void onWizardContextLoad() {
-        loadBetweenFactorsFromContext();
-        loadRepeatedMeasuresFromContext();
-    }
-
-
 }

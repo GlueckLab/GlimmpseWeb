@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 /**
  * Common interface for generating hypothesis objects
@@ -35,6 +36,12 @@ public interface HypothesisBuilder {
      * @return Hypothesis object
      */
     public Hypothesis buildHypothesis();
+    
+    /**
+     * Create a Hypothesis domain object from the current panel
+     * @return Hypothesis object
+     */
+    public NamedMatrix buildThetaNull();
     
     /**
      * Indicates if the panel has sufficient information to build a hypothesis

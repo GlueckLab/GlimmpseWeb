@@ -39,18 +39,17 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class InteractionHypothesisPanel extends Composite
-implements HypothesisBuilder, WizardContextListener, ClickHandler
+implements HypothesisBuilder, ClickHandler
 {
-    // context object
-    StudyDesignContext studyDesignContext = null;
-
     // parent panel, change handler
     ClickHandler parent = null;
 
@@ -67,7 +66,7 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
         public BetweenParticipantFactor factor;
         public BetweenParticipantVariablePanel(String label, ClickHandler handler,
                 BetweenParticipantFactor factor) {
-            super(label, handler);
+            super(label, factor.getCategoryList().size(), handler);
             this.factor = factor;
         }
     }
@@ -77,7 +76,7 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
         public RepeatedMeasuresNode factor;
         public RepeatedMeasuresVariablePanel(String label, ClickHandler handler,
                 RepeatedMeasuresNode factor) {
-            super(label, handler);
+            super(label, factor.getNumberOfMeasurements(), handler);
             this.factor = factor;
         }
     }   
@@ -87,25 +86,16 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
      * @param studyDesignContext
      * @param handler
      */
-    public InteractionHypothesisPanel(StudyDesignContext studyDesignContext,
-            ClickHandler handler)
+    public InteractionHypothesisPanel(ClickHandler handler)
     {
-        this.studyDesignContext = studyDesignContext;
-        this.studyDesignContext.addContextListener(this);
         this.parent = handler;
         VerticalPanel verticalPanel = new VerticalPanel();
 
-
-        HTML text = new HTML();
-        HTML betweenParticipantFactors = new HTML();
-        HTML withinParticipantFactors = new HTML();
-
-
-        text.setText(GlimmpseWeb.constants.interactionHypothesisPanelText());
-        betweenParticipantFactors.setText(
-                GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
-        withinParticipantFactors.setText(
-                GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
+        HTML text = new HTML(GlimmpseWeb.constants.interactionHypothesisPanelText());
+        HTML betweenParticipantFactors = 
+                new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+        HTML withinParticipantFactors = 
+                new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
 
         //Style Sheets
         text.setStyleName(
@@ -114,7 +104,6 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         withinParticipantFactors.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-
 
         verticalPanel.add(text);
         verticalPanel.add(betweenParticipantFactors);
@@ -125,46 +114,46 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
         initWidget(verticalPanel);
     }
 
-
     /**
-     * Reload the between participant factors from the context
+     * Load the between participant factors
+     * @param factorList list of between participant factors
      */
-    private void loadBetweenFactorsFromContext()
+    public void loadBetweenParticipantFactors(List<BetweenParticipantFactor> factorList)
     {
         betweenParticipantFactorsFlexTable.removeAllRows();
-        List<BetweenParticipantFactor> factorList = 
-            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         if (factorList != null) {
-            int i = 0;
+            int row = 0;
             for(BetweenParticipantFactor factor : factorList)
             {
-                BetweenParticipantVariablePanel panel = 
-                    new BetweenParticipantVariablePanel(
-                            factor.getPredictorName(), this, factor);
-                betweenParticipantFactorsFlexTable.setWidget(
-                        i, 0, panel);
-                i++;
+                List<Category> categoryList = factor.getCategoryList();
+                if (categoryList != null && categoryList.size() > 1) {
+                    BetweenParticipantVariablePanel panel = 
+                            new BetweenParticipantVariablePanel(
+                                    factor.getPredictorName(), this, factor);
+                    betweenParticipantFactorsFlexTable.setWidget(
+                            row, 0, panel);
+                }
+                row++;
             }
         }
     }
 
     /**
      * Load repeated measures from the context
+     * @param rmNodeList tree of repeated measures information
      */
-    private void loadRepeatedMeasuresFromContext() {
+    public void loadRepeatedMeasures(List<RepeatedMeasuresNode> rmNodeList) {
         withinParticipantFactorsFlexTable.removeAllRows();
-        List<RepeatedMeasuresNode> factorList = 
-            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-        if (factorList != null) {
-            int i = 0;
-            for(RepeatedMeasuresNode factor : factorList)
+        if (rmNodeList != null) {
+            int row = 0;
+            for(RepeatedMeasuresNode rmNode : rmNodeList)
             {
                 RepeatedMeasuresVariablePanel panel = 
                     new RepeatedMeasuresVariablePanel(
-                            factor.getDimension(), this, factor);
+                            rmNode.getDimension(), this, rmNode);
                 withinParticipantFactorsFlexTable.setWidget(
-                        i, 0, panel);
-                i++;
+                        row, 0, panel);
+                row++;
             }
         }
     }
@@ -235,29 +224,10 @@ implements HypothesisBuilder, WizardContextListener, ClickHandler
             selectedCount--;
         }
     }
-    
-    /**
-     * Reload the panel when a user changes either the fixed predictors 
-     * or repeated measures information
-     */
-    @Override
-    public void onWizardContextChange(WizardContextChangeEvent e) {
-        switch(((StudyDesignChangeEvent) e).getType()) {
-        case BETWEEN_PARTICIPANT_FACTORS:
-            loadBetweenFactorsFromContext();
-            break;
-        case REPEATED_MEASURES:
-            loadRepeatedMeasuresFromContext();
-            break;
-        }
-    }
 
-    /**
-     * Fill in the panel on upload events
-     */
+
     @Override
-    public void onWizardContextLoad() {
-        loadBetweenFactorsFromContext();
-        loadRepeatedMeasuresFromContext();
+    public NamedMatrix buildThetaNull() {
+        return null;
     }
 }

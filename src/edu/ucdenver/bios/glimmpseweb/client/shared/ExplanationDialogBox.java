@@ -50,12 +50,12 @@ public class ExplanationDialogBox extends DialogBox {
         HTML explanationText = new HTML(text);
 
         // set style
-        headerText.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        headerText.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         explanationText.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
         // setup scroll panel in case of long text
         ScrollPanel scrollPanel = new ScrollPanel(explanationText);
-        scrollPanel.setSize("200px", "200px");
+        scrollPanel.setSize("400px", "300px");
 
         Button dialogOK = new Button(GlimmpseWeb.constants.buttonClose(), new ClickHandler() {
             @Override

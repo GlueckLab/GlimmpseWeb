@@ -435,6 +435,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
             ArrayList<Category> categoryNameList = new ArrayList<Category>();
             categoryNameList.add(new Category("oneSampleCategory"));
             factor.setCategoryList(categoryNameList);
+            factorList.add(factor);
         }
         return factorList;
     }

@@ -37,16 +37,16 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 public class ExplanationButton extends Button
 {
     private static final String STYLE = "explanationButton";
-    // popup to display explanation text
-	protected ExplanationDialogBox dialogBox;
-	
+
+    protected ExplanationDialogBox dialogBox;
+    
 	/**
 	 * Constructor
 	 * @param buttonText
 	 * @param alertTextHeader
 	 * @param alertText
 	 */
-	public ExplanationButton(String alertTextHeader, String alertText)
+	public ExplanationButton(String headerText, String explanationText)
 	{
 	    // set up the button itself
 	    super(GlimmpseWeb.constants.buttonExplain());
@@ -54,16 +54,18 @@ public class ExplanationButton extends Button
 	        @Override
 	        public void onClick(ClickEvent event) 
 	        {
-	            dialogBox.setGlassEnabled(true);
-	            dialogBox.center();
+	            showDialog();
 	        }
 	    });
 	       
 	    // set style
 	    this.setStyleName(STYLE);
 	    
-	    // create the dialog box
-	    dialogBox = new ExplanationDialogBox(alertTextHeader, alertText);
+	    dialogBox = new ExplanationDialogBox(headerText, explanationText);
 	}
 
+	private void showDialog() {
+	    dialogBox.center();
+	}
+	
 }

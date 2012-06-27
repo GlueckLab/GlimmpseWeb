@@ -34,14 +34,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
+import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
@@ -51,10 +50,7 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
  *
  */
 public class MainEffectHypothesisPanel extends Composite  
-implements HypothesisBuilder, WizardContextListener {
-    
-    // context object
-    StudyDesignContext studyDesignContext = null;
+implements HypothesisBuilder {
 
     // parent panel, change handler
     ClickHandler parent = null;
@@ -94,12 +90,9 @@ implements HypothesisBuilder, WizardContextListener {
      * Constructor
      * @param studyDesignContext
      */
-    public MainEffectHypothesisPanel(StudyDesignContext studyDesignContext,
-            ClickHandler handler)
+    public MainEffectHypothesisPanel(ClickHandler handler)
     {
         this.parent = handler;
-        this.studyDesignContext = studyDesignContext;
-        this.studyDesignContext.addContextListener(this);
 
         VerticalPanel verticalPanel = new VerticalPanel();
         HTML text = new HTML();
@@ -132,53 +125,54 @@ implements HypothesisBuilder, WizardContextListener {
     }
 
     /**
-     * Reload the between participant factors from the context
+     * Load the between participant factors
+     * @param factorList list of between participant factors
      */
-    private void loadBetweenFactorsFromContext()
+    public void loadBetweenParticipantFactors(List<BetweenParticipantFactor> factorList)
     {
         this.selectedBetweenParticipantFactor = null;
         betweenParticipantFactorsFlexTable.removeAllRows();
-        List<BetweenParticipantFactor> factorList = 
-            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         if (factorList != null) {
-            int i = 0;
+            int row = 0;
             for(BetweenParticipantFactor factor : factorList)
             {
-                BetweenParticipantRadioButton button = 
-                    new BetweenParticipantRadioButton(
-                            BUTTON_GROUP,
-                            factor.getPredictorName(), factor);
-                button.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        BetweenParticipantRadioButton button = 
-                            (BetweenParticipantRadioButton) event.getSource();
-                        selectBetweenParticipantFactor(button.factor);
-                        parent.onClick(event);
-                    }
-                });
-                betweenParticipantFactorsFlexTable.setWidget(
-                        i, 0, button);
-                i++;
+                List<Category> categoryList = factor.getCategoryList();
+                if (categoryList != null && categoryList.size() > 1) {
+                    BetweenParticipantRadioButton button = 
+                            new BetweenParticipantRadioButton(
+                                    BUTTON_GROUP,
+                                    factor.getPredictorName(), factor);
+                    button.addClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            BetweenParticipantRadioButton button = 
+                                    (BetweenParticipantRadioButton) event.getSource();
+                            selectBetweenParticipantFactor(button.factor);
+                            parent.onClick(event);
+                        }
+                    });
+                    betweenParticipantFactorsFlexTable.setWidget(
+                            row, 0, button);
+                }
+                row++;
             }
         }
     }
 
     /**
      * Load repeated measures from the context
+     * @param rmNodeList tree of repeated measures information
      */
-    private void loadRepeatedMeasuresFromContext() {
+    public void loadRepeatedMeasures(List<RepeatedMeasuresNode> rmNodeList) {
         this.selectedRepeatedMeasuresNode = null;
         withinParticipantFactorsFlexTable.removeAllRows();
-        List<RepeatedMeasuresNode> factorList = 
-            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-        if (factorList != null) {
+        if (rmNodeList != null) {
             int i = 0;
-            for(RepeatedMeasuresNode factor : factorList)
+            for(RepeatedMeasuresNode rmNode : rmNodeList)
             {
                 RepeatedMeasuresRadioButton button = 
                     new RepeatedMeasuresRadioButton(BUTTON_GROUP,
-                            factor.getDimension(), factor);
+                            rmNode.getDimension(), rmNode);
                 button.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -244,7 +238,6 @@ implements HypothesisBuilder, WizardContextListener {
         selectedRepeatedMeasuresNode = null;
     }
     
-    
     /**
      * Returns true if the user has selected sufficient information
      */
@@ -254,29 +247,8 @@ implements HypothesisBuilder, WizardContextListener {
                 this.selectedRepeatedMeasuresNode != null);
     }
 
-    /**
-     * Reload the panel when a user changes either the fixed predictors 
-     * or repeated measures information
-     */
     @Override
-    public void onWizardContextChange(WizardContextChangeEvent e) {
-        switch(((StudyDesignChangeEvent) e).getType()) {
-        case BETWEEN_PARTICIPANT_FACTORS:
-            loadBetweenFactorsFromContext();
-            break;
-        case REPEATED_MEASURES:
-            loadRepeatedMeasuresFromContext();
-            break;
-        }
+    public NamedMatrix buildThetaNull() {
+        return null;
     }
-
-    /**
-     * Fill in the panel on upload events
-     */
-    @Override
-    public void onWizardContextLoad() {
-        loadBetweenFactorsFromContext();
-        loadRepeatedMeasuresFromContext();
-    }
-
 }

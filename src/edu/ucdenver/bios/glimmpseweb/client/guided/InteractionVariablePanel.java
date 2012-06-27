@@ -42,7 +42,7 @@ public class InteractionVariablePanel extends Composite
 	
 	Grid grid = new Grid(1, 3);
 	
-	public InteractionVariablePanel(String label, ClickHandler handler)
+	public InteractionVariablePanel(String label, int numLevels, ClickHandler handler)
 	{
 	    this.handler = handler;
 		String button_Style = "buttonStyle";
@@ -101,7 +101,7 @@ public class InteractionVariablePanel extends Composite
 		grid.setWidget(0, 1, buttonGroupHorizontalPanel);
 		grid.setWidget(0, 2, selectedTrendHorizontalPanel);
 
-		editTrendPanel = new EditTrendPanel();
+		editTrendPanel = new EditTrendPanel(label, numLevels);
 		horizontalPanel.add(editTrendPanel);
 		editTrendPanel.addClickHandler(new ClickHandler ()
 		{

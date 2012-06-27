@@ -316,8 +316,8 @@ public interface GlimmpseConstants extends Constants
     public String hypothesisPanelInteractionExplanation();
     public String hypothesisPanelTrend();
     public String hypothesisPanelTrendExplanation();
-    public String hypothesisPanelOneSample();
-    public String hypothesisPanelOneSampleExplanation();
+    public String hypothesisPanelGrandMean();
+    public String hypothesisPanelGrandMeanExplanation();
     public String hypothesisPanelSelectTypeOfTrend();
     public String hypothesisPanelBetweenParticipantFactorsLabel();
     public String hypothesisPanelWithinParticipantFactorsLabel();
@@ -336,7 +336,7 @@ public interface GlimmpseConstants extends Constants
     //trend hypothesis Panel
     public String trendHypothesisPanelText();
     // one sample hypothesis panel
-    public String oneSampleHypothesisPanelText();
+    public String grandMeanHypothesisPanelText();
     
     //edit trend panel
     public String editTrendNoTrend();

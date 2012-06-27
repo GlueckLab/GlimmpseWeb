@@ -24,8 +24,7 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -41,68 +40,104 @@ public class EditTrendPanel extends Composite
 {
 	protected static final String radioButtonGroup = "hypothesisTrendGroup";
 	
-	RadioButton noTrendTestRadioButton = 
-	    new RadioButton(radioButtonGroup, 
-	            GlimmpseWeb.constants.editTrendNoTrend());
-	RadioButton changeFromBaseLineRadiButton = 
-	    new RadioButton(radioButtonGroup, 
-	            GlimmpseWeb.constants.editTrendChangeFromBaseline());
-	RadioButton allPolynomialTrendsRadioButton = 
-	    new RadioButton(radioButtonGroup, 
-	            GlimmpseWeb.constants.editTrendAllPolynomialTrends());
-	RadioButton linearTrendOnlyRadioButton = 
-	    new RadioButton(radioButtonGroup, 
-	            GlimmpseWeb.constants.editTrendLinearTrendOnly());
-	RadioButton qudraticTrendOnlyRadioButton = 
-	    new RadioButton(radioButtonGroup, 
-	            GlimmpseWeb.constants.editTrendQudraticTrendOnly());
-	RadioButton cubicTrendOnlyRadioButton = 
-	    new RadioButton(radioButtonGroup, 
-	            GlimmpseWeb.constants.editTrendCubicTrendOnly());
+	protected static final String STYLE_EDIT_TREND_PANEL = "editTrendPanel";
+	protected static final String STYLE_EDIT_TREND_BUTTON = "editTrendPanelButton";
+	protected static final String STYLE_NO_TREND = "noTrend";
+	protected static final String STYLE_LINEAR = "linear";
+	protected static final String STYLE_QUADRATIC = "quadratic";
+    protected static final String STYLE_CUBIC = "cubic";
+    protected static final String STYLE_ALL_TRENDS = "allTrends";
+    protected static final String STYLE_CHANGE_FROM_BASELINE = "changeFromBaseline";
+    
+    // radio selection buttons for different trends
+	RadioButton noTrendTestRadioButton;
+	RadioButton changeFromBaselineRadioButton;
+	RadioButton allPolynomialTrendsRadioButton;
+	RadioButton linearTrendOnlyRadioButton;
+	RadioButton quadraticTrendOnlyRadioButton;
+	RadioButton cubicTrendOnlyRadioButton;
 	
-	Grid grid = new Grid(6,2);
-	
-	public EditTrendPanel()
+	// panels containing the radio buttons - makes it easier to hide/show buttons
+	// depending on the type of study design
+	HorizontalPanel noTrendPanel = new HorizontalPanel();
+    HorizontalPanel changeFromBaselinePanel = new HorizontalPanel();
+    HorizontalPanel allPolynomialTrendsPanel = new HorizontalPanel();
+    HorizontalPanel linearTrendOnlyPanel = new HorizontalPanel();
+    HorizontalPanel quadraticTrendOnlyPanel = new HorizontalPanel();
+    HorizontalPanel cubicTrendOnlyPanel = new HorizontalPanel();
+
+	/**
+	 * Constructor.
+	 * @param prefix prefix to ensure uniqueness of radio button group
+	 */
+	public EditTrendPanel(String prefix, int dataSize)
 	{
+		VerticalPanel panel = new VerticalPanel();
+		
+		// create the radio buttons
+		noTrendTestRadioButton = 
+		        new RadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendNoTrend());
+		changeFromBaselineRadioButton = 
+		        new RadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendChangeFromBaseline());
+		allPolynomialTrendsRadioButton = 
+		        new RadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendAllPolynomialTrends());
+		linearTrendOnlyRadioButton = 
+		        new RadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendLinearTrendOnly());
+		quadraticTrendOnlyRadioButton = 
+		        new RadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendQudraticTrendOnly());
+		cubicTrendOnlyRadioButton = 
+		        new RadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendCubicTrendOnly());
+		// select no trend by default
 		noTrendTestRadioButton.setValue(true);
-	    
-		VerticalPanel verticalPanel = new VerticalPanel();
-		
-		//Creating Image Widget
-		Image changeFromBaseLineImage = new Image(
-		        GlimmpseWeb.constants.editTrendChangeFromBaselineImage());
-		Image allPolynomialTrendsImage = new Image(
-		        GlimmpseWeb.constants.editTrendAllPolynomialTrendsImage());
-		Image linearTrendOnlyImage = new Image(
-		        GlimmpseWeb.constants.editTrendLinearTrendOnlyImage());
-		Image qudraticTrendOnlyImage = new Image(
-		        GlimmpseWeb.constants.editTrendQudraticTrendOnlyImage());
-		Image cubicTrendOnlyImage = new Image(
-		        GlimmpseWeb.constants.editTrendCubicTrendOnlyImage());
-		
-		
+	        
+		// add radio buttons to panels - needed for stylesheets to work
+		noTrendPanel.add(noTrendTestRadioButton);
+		changeFromBaselinePanel.add(changeFromBaselineRadioButton);
+        allPolynomialTrendsPanel.add(allPolynomialTrendsRadioButton);
+        linearTrendOnlyPanel.add(linearTrendOnlyRadioButton);       
+        quadraticTrendOnlyPanel.add(quadraticTrendOnlyRadioButton);
+        cubicTrendOnlyPanel.add(cubicTrendOnlyRadioButton);
+
 		/*Adding Radio Button to Grid*/
-		grid.setWidget(0, 0, noTrendTestRadioButton);
-		grid.setWidget(1, 0, changeFromBaseLineRadiButton);
-		grid.setWidget(2, 0, allPolynomialTrendsRadioButton);
-		grid.setWidget(3, 0, linearTrendOnlyRadioButton);
-		grid.setWidget(4, 0, qudraticTrendOnlyRadioButton);
-		grid.setWidget(5, 0, cubicTrendOnlyRadioButton);
+		panel.add(noTrendPanel);
+		panel.add(changeFromBaselinePanel);
+		panel.add(allPolynomialTrendsPanel);
+		panel.add(linearTrendOnlyPanel);
+		panel.add(quadraticTrendOnlyPanel);
+		panel.add(cubicTrendOnlyPanel);
 		
-		
-		/*Adding Image Widget to grid*/
-		grid.setWidget(1, 1, changeFromBaseLineImage);
-		grid.setWidget(2, 1, allPolynomialTrendsImage);
-		grid.setWidget(3, 1, linearTrendOnlyImage);
-		grid.setWidget(4, 1, qudraticTrendOnlyImage);
-		grid.setWidget(5, 1, cubicTrendOnlyImage);
-		
-		verticalPanel.add(grid);
+		// show/hide panels depending on number of available data points
+		if (dataSize > -1) {
+		    changeFromBaselinePanel.setVisible(dataSize > 1);
+		    allPolynomialTrendsPanel.setVisible(dataSize > 2);
+		    linearTrendOnlyPanel.setVisible(dataSize > 1);
+		    quadraticTrendOnlyPanel.setVisible(dataSize > 2);
+		    cubicTrendOnlyPanel.setVisible(dataSize > 3);
+		}
 		
 		// set style
+		panel.setStyleName(STYLE_EDIT_TREND_PANEL);
+		noTrendPanel.setStyleName(STYLE_EDIT_TREND_BUTTON);
+		noTrendPanel.addStyleDependentName(STYLE_NO_TREND);
+		changeFromBaselinePanel.setStyleName(STYLE_EDIT_TREND_BUTTON);
+		changeFromBaselinePanel.addStyleDependentName(STYLE_CHANGE_FROM_BASELINE);
+		allPolynomialTrendsPanel.setStyleName(STYLE_EDIT_TREND_BUTTON);
+		allPolynomialTrendsPanel.addStyleDependentName(STYLE_ALL_TRENDS);
+		linearTrendOnlyPanel.setStyleName(STYLE_EDIT_TREND_BUTTON);
+		linearTrendOnlyPanel.addStyleDependentName(STYLE_LINEAR);
+		quadraticTrendOnlyPanel.setStyleName(STYLE_EDIT_TREND_BUTTON);
+		quadraticTrendOnlyPanel.addStyleDependentName(STYLE_QUADRATIC);
+		cubicTrendOnlyPanel.setStyleName(STYLE_EDIT_TREND_BUTTON);
+		cubicTrendOnlyPanel.addStyleDependentName(STYLE_CUBIC);
+
 		
-		
-		initWidget(verticalPanel);
+		initWidget(panel);
 	}
 	
 	/**
@@ -112,10 +147,10 @@ public class EditTrendPanel extends Composite
 	public void addClickHandler(ClickHandler handler)
 	{
 	    noTrendTestRadioButton.addClickHandler(handler);
-	    changeFromBaseLineRadiButton.addClickHandler(handler);
+	    changeFromBaselineRadioButton.addClickHandler(handler);
 	    allPolynomialTrendsRadioButton.addClickHandler(handler);
 	    linearTrendOnlyRadioButton.addClickHandler(handler);
-	    qudraticTrendOnlyRadioButton.addClickHandler(handler);
+	    quadraticTrendOnlyRadioButton.addClickHandler(handler);
 	    cubicTrendOnlyRadioButton.addClickHandler(handler);
 	}
 	
@@ -127,13 +162,13 @@ public class EditTrendPanel extends Composite
 	{
 	    if (noTrendTestRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.NONE;
-	    } else if (changeFromBaseLineRadiButton.getValue()) {
+	    } else if (changeFromBaselineRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.CHANGE_FROM_BASELINE;
 	    } else if (allPolynomialTrendsRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.ALL_POYNOMIAL;
 	    } else if (linearTrendOnlyRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.LINEAR;
-	    } else if (qudraticTrendOnlyRadioButton.getValue()) {
+	    } else if (quadraticTrendOnlyRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.QUADRATIC;
 	    } else if (cubicTrendOnlyRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.CUBIC;
