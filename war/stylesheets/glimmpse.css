@@ -228,10 +228,11 @@ body {
 	text-align: left;
 	color: #999;
 	background-color:  #e4eaef;
-	border: none;
+	/*border-top: 1px solid #ddd; */
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	font-size: 16px;
 	padding-left: 4px;
+	border: none;
 }
 
 .wizardLeftNavHeader:hover {
@@ -245,7 +246,7 @@ body {
 	border-left: 4px solid #e87439;
 	border-top: 1px solid #ccc;
 	border-right: 1px solid white;
-	
+	/*background: url('/images/sidebar-arrow.png') no-repeat right;*/
 }
 
 .wizardLeftNavContent {
@@ -255,6 +256,7 @@ body {
 	width: 200px;
 	border-collapse: collapse;
 	border-right: 1px solid white;
+
 }
 
 .wizardLeftNavLink {
@@ -628,7 +630,34 @@ body {
 	width: 700px;
 }
 
+.editTrendPanel {
+	border: 1px solid #ddd;
+}
 
+.editTrendPanelButton {
+	width: 300px;
+	height: 70px;
+}
+
+.editTrendPanelButton-allTrends {
+	background: url('/images/all_polynomial_trends.png') no-repeat 220px 0px ;
+}
+
+.editTrendPanelButton-changeFromBaseline {
+	background: url('/images/change_from_baseline.png') no-repeat 220px 0px ;
+}
+
+.editTrendPanelButton-linear {
+	background: url('/images/linear_trend_only.png') no-repeat 220px 0px ;
+}
+
+.editTrendPanelButton-quadratic {
+	background: url('/images/quadratic_trend_only.png') no-repeat 220px 0px ;
+}
+
+.editTrendPanelButton-cubic {
+	background: url('/images/cubic_trend_only.png') no-repeat 220px 0px;
+}
 
 .explanationButton {
 	background-image: url('/images/help.png');
