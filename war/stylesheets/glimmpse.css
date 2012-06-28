@@ -219,6 +219,7 @@ body {
 	width: 200px;
 	margin-top: 20px;
 	padding-top: 10px;
+	border-collapse: collapse;
 }
 
 .wizardLeftNavHeader {
@@ -228,30 +229,36 @@ body {
 	text-align: left;
 	color: #999;
 	background-color:  #e4eaef;
-	/*border-top: 1px solid #ddd; */
+	border-top: 1px solid #ccc; 
+	border-bottom: none;
+	border-right: none;
+	border-left: none;
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	font-size: 16px;
 	padding-left: 4px;
-	border: none;
 }
 
 .wizardLeftNavHeader:hover {
-	text-decoration: none;
+	text-decoration: underline;
 }
 
 .wizardLeftNavHeader-open  {
 	color: #1d5c84;
 	font-weight: bold;
-	background-color: white;
+	background: white; 
 	border-left: 4px solid #e87439;
 	border-top: 1px solid #ccc;
-	border-right: 1px solid white;
-	/*background: url('/images/sidebar-arrow.png') no-repeat right;*/
+	border-right: 1px solid #white;
+	border-bottom: none;
+}
+
+.wizardLeftNavHeader-open:hover  {
+	text-decoration: none;
 }
 
 .wizardLeftNavContent {
 	border-left: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
+	border-bottom: none;
 	background-color: white;
 	width: 200px;
 	border-collapse: collapse;
@@ -276,16 +283,39 @@ body {
 	border-right: 1px solid white;
 }
 
+.wizardLeftNavLink-openIncomplete {
+  font-weight: bold;
+  color: black;
+  background: url('/images/incomplete_icon.png') no-repeat left;
+}
+
+.wizardLeftNavLink-openComplete {
+	font-weight: bold;
+	color: black;
+	background: url('/images/complete_icon.png') no-repeat left;
+}
+
+.wizardLeftNavLink-openNotAllowed {
+	font-weight: bold;
+	color: black;
+  background: url('/images/not_allowed_icon.png') no-repeat left;
+}
+
+
+
 .wizardLeftNavLink-incomplete {
   color: gray;
+  background: url('/images/incomplete_icon.png') no-repeat left;
 }
 
 .wizardLeftNavLink-complete {
 	color: gray;
+	background: url('/images/complete_icon.png') no-repeat left;
 }
 
 .wizardLeftNavLink-notAllowed {
   color: gray;
+  background: url('/images/not_allowed_icon.png') no-repeat left;
 }
 
 .wizardLeftNavLink:hover {
