@@ -53,6 +53,9 @@ public class WizardStepDisclosurePanel extends Composite {
     protected static final String STYLE_INCOMPLETE = "incomplete";
     protected static final String STYLE_COMPLETE = "complete";
     protected static final String STYLE_OPEN = "open";
+    protected static final String STYLE_OPEN_NOT_ALLOWED = "openNotAllowed";
+    protected static final String STYLE_OPEN_INCOMPLETE = "openIncomplete";
+    protected static final String STYLE_OPEN_COMPLETE = "openComplete";
     
     // button to show/hide display panel - mimics DisclosurePanel
     protected WizardStepPanelButton disclosureButton;
@@ -145,7 +148,7 @@ public class WizardStepDisclosurePanel extends Composite {
         // set style
         item.setVisible(panel.getState() != WizardStepPanelState.SKIPPED);
         item.setStyleName(STYLE_GROUP_ITEM);
-        item.addStyleDependentName(getStyleByState(panel.getState()));
+        item.addStyleDependentName(getStyleByState(panel.getState(), false));
         return item;
     }
    
@@ -156,13 +159,15 @@ public class WizardStepDisclosurePanel extends Composite {
     {
         if (currentItem != null && !currentItem.isGroupButton()) 
         {
-            currentItem.removeStyleDependentName(STYLE_OPEN);
-            currentItem.addStyleDependentName(getStyleByState(currentItem.getPanel().getState()));
+            WizardStepPanelState state = currentItem.getPanel().getState();
+            currentItem.removeStyleDependentName(getStyleByState(state, true));
+            currentItem.addStyleDependentName(getStyleByState(state, false));
         }
         if (!button.isGroupButton()) {
             currentItem = button;
-            currentItem.removeStyleDependentName(getStyleByState(button.getPanel().getState()));
-            currentItem.addStyleDependentName(STYLE_OPEN);
+            WizardStepPanelState state = currentItem.getPanel().getState();
+            currentItem.removeStyleDependentName(getStyleByState(state, false));
+            currentItem.addStyleDependentName(getStyleByState(state, true));
         } else {
             currentItem = null;
         }
@@ -173,18 +178,18 @@ public class WizardStepDisclosurePanel extends Composite {
      * @param state panel state
      * @return dependent style name for the state
      */
-    private String getStyleByState(WizardStepPanelState state)
+    private String getStyleByState(WizardStepPanelState state, boolean isOpen)
     {
         switch(state)
         {
         case SKIPPED:
             return STYLE_SKIPPED;
         case NOT_ALLOWED:
-            return STYLE_NOT_ALLOWED;
+            return (isOpen ? STYLE_OPEN_NOT_ALLOWED : STYLE_NOT_ALLOWED);
         case INCOMPLETE:
-            return STYLE_INCOMPLETE;
+            return (isOpen ? STYLE_OPEN_INCOMPLETE : STYLE_INCOMPLETE);
         case COMPLETE:
-            return STYLE_COMPLETE;
+            return (isOpen ? STYLE_OPEN_COMPLETE : STYLE_COMPLETE);
         default:
                 return null;
         }
@@ -231,8 +236,9 @@ public class WizardStepDisclosurePanel extends Composite {
             disclosureButton.removeStyleDependentName(STYLE_OPEN);
             if (currentItem != null) 
             {
-                currentItem.removeStyleDependentName(STYLE_OPEN);
-                currentItem.addStyleDependentName(getStyleByState(currentItem.getPanel().getState()));
+                WizardStepPanelState state = currentItem.getPanel().getState();;
+                currentItem.removeStyleDependentName(getStyleByState(state, true));
+                currentItem.addStyleDependentName(getStyleByState(state, false));
             }
             currentItem = null;
         }
@@ -289,10 +295,10 @@ public class WizardStepDisclosurePanel extends Composite {
     {
 //        Window.alert("panel changed=" + panel.getName() + " old=" + oldState + " new=" + newState);
         WizardStepPanelButton button = getButtonByPanel(panel);
-        if (button != null && button != currentItem) {
+        if (button != null) {
             button.setVisible(newState != WizardStepPanelState.SKIPPED);
-            button.removeStyleDependentName(getStyleByState(oldState));
-            button.addStyleDependentName(getStyleByState(newState));
+            button.removeStyleDependentName(getStyleByState(oldState, (button == currentItem)));
+            button.addStyleDependentName(getStyleByState(newState, (button == currentItem)));
         }
     }
 }
