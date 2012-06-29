@@ -30,10 +30,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -99,10 +101,10 @@ implements ClickHandler, ChangeHandler {
             GlimmpseWeb.constants.hypothesisPanelTrend());
     // hypothesis type containers - allows us to hide/show these 
     // depending on the between/within participant factors
-    protected  HorizontalPanel grandMeanSelectPanel = new HorizontalPanel();
-    protected  HorizontalPanel mainEffectSelectPanel = new HorizontalPanel();
-    protected  HorizontalPanel interactionSelectPanel = new HorizontalPanel();
-    protected  HorizontalPanel trendSelectPanel = new HorizontalPanel();
+    protected  DecoratorPanel grandMeanSelectPanel = new DecoratorPanel();
+    protected  DecoratorPanel mainEffectSelectPanel = new DecoratorPanel();
+    protected  DecoratorPanel interactionSelectPanel = new DecoratorPanel();
+    protected  DecoratorPanel trendSelectPanel = new DecoratorPanel();
 
     /**
      * Constructor
@@ -123,29 +125,33 @@ implements ClickHandler, ChangeHandler {
 
         // hypothesis type selection panel
         // one sample 
-        HtmlTextWithExplanationPanel grandMean = new HtmlTextWithExplanationPanel("",
+        HorizontalPanel grandMeanLayout = new HorizontalPanel();
+        grandMeanLayout.add(grandMeanRadioButton);
+        grandMeanLayout.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelGrandMean(),
-                GlimmpseWeb.constants.hypothesisPanelGrandMeanExplanation());
-        grandMeanSelectPanel.add(grandMeanRadioButton);
-        grandMeanSelectPanel.add(grandMean);
+                GlimmpseWeb.constants.hypothesisPanelGrandMeanExplanation()));
+        grandMeanSelectPanel.add(grandMeanLayout);
         // main effects
-        HtmlTextWithExplanationPanel mainEffect = new HtmlTextWithExplanationPanel("",
+        HorizontalPanel mainEffectLayout = new HorizontalPanel();
+        mainEffectLayout.add(mainEffectRadioButton);
+        mainEffectLayout.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffect(),
-                GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation());
-        mainEffectSelectPanel.add(mainEffectRadioButton);
-        mainEffectSelectPanel.add(mainEffect);
+                GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation()));
+        mainEffectSelectPanel.add(mainEffectLayout);
         // interaction
-        HtmlTextWithExplanationPanel interaction = new HtmlTextWithExplanationPanel("",
+        HorizontalPanel interactionLayout = new HorizontalPanel();
+        interactionLayout.add(interactionRadioButton);
+        interactionLayout.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelInteraction(),
-                GlimmpseWeb.constants.hypothesisPanelInteractionExplanation());
-        interactionSelectPanel.add(interactionRadioButton);
-        interactionSelectPanel.add(interaction);
+                GlimmpseWeb.constants.hypothesisPanelInteractionExplanation()));
+        interactionSelectPanel.add(interactionLayout);
         // trend
-        HtmlTextWithExplanationPanel trend = new HtmlTextWithExplanationPanel("",
+        HorizontalPanel trendLayout = new HorizontalPanel();
+        trendLayout.add(trendRadioButton);
+        trendLayout.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelTrend(),
-                GlimmpseWeb.constants.hypothesisPanelTrendExplanation());
-        trendSelectPanel.add(trendRadioButton);
-        trendSelectPanel.add(trend);		
+                GlimmpseWeb.constants.hypothesisPanelTrendExplanation()));
+        trendSelectPanel.add(trendLayout);
 
         // layout overall panel
         HorizontalPanel typeSelectPanel = new HorizontalPanel();
@@ -210,7 +216,11 @@ implements ClickHandler, ChangeHandler {
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         typeSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
         contentPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_CONTENT);
-
+        grandMeanSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
+        grandMeanSelectPanel.addStyleDependentName(GlimmpseConstants.STYLE_LEFT);
+        mainEffectSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
+        interactionSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
+        trendSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
         // initialize
         updateHypothesisOptions();
         initWidget(panel);
@@ -319,6 +329,7 @@ implements ClickHandler, ChangeHandler {
             break;
         }
 
+        // reset the right most tab
         
         // if no factors or one-sample with no responses, set state to not-allowed.  
         // Otherwise check if the panel is complete
@@ -379,6 +390,17 @@ implements ClickHandler, ChangeHandler {
      * @param index index in deck panel
      */
     private void showWidget(int index) {
+        switch (index) {
+        case GRAND_MEAN_INDEX:
+            
+            break;
+        case MAIN_EFFECT_INDEX:
+            break;
+        case INTERACTION_INDEX:
+            break;
+        case TREND_INDEX:
+            break;
+        }
         deckPanel.showWidget(index);
     }
 
