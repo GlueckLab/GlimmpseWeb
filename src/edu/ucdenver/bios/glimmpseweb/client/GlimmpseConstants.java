@@ -83,6 +83,8 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_SHORT = "short";
     public static final String STYLE_MED = "medium";
     public static final String STYLE_LONG = "long";
+    public static final String STYLE_LEFT = "left";
+    public static final String STYLE_RIGHT = "right";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
@@ -339,18 +341,14 @@ public interface GlimmpseConstants extends Constants
     public String grandMeanHypothesisPanelText();
     
     //edit trend panel
+    public String editTrendLabel();
+    public String editTrendSelectedTrendPrefix();
     public String editTrendNoTrend();
     public String editTrendChangeFromBaseline();
     public String editTrendAllPolynomialTrends();
     public String editTrendLinearTrendOnly();
     public String editTrendQudraticTrendOnly(); 
-    public String editTrendCubicTrendOnly();
-    public String editTrendChangeFromBaselineImage();
-    public String editTrendAllPolynomialTrendsImage();
-    public String editTrendLinearTrendOnlyImage();
-    public String editTrendQudraticTrendOnlyImage();
-    public String editTrendCubicTrendOnlyImage();
-    
+    public String editTrendCubicTrendOnly();    
     
     /* mean differences section */
     public String meanDifferenceIntroTitle();

@@ -28,9 +28,9 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.DynamicTabPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextWithExplanationPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
@@ -61,6 +62,15 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 public class HypothesisPanel extends WizardStepPanel 
 implements ClickHandler, ChangeHandler {
 
+    // clickable panel
+    private class ClickableHorizontalPanel extends HorizontalPanel 
+    implements HasClickHandlers {
+        @Override
+        public HandlerRegistration addClickHandler(ClickHandler handler) {
+            return addDomHandler(handler, ClickEvent.getType());
+        }
+    }
+    
     // context object
     protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     
@@ -72,9 +82,6 @@ implements ClickHandler, ChangeHandler {
     private static final int MAIN_EFFECT_INDEX = 1;
     private static final int INTERACTION_INDEX = 2;
     private static final int TREND_INDEX = 3;
-    
-    // contains subpanels for different types of hypotheses (main effect, interaction, etc)
-    protected DeckPanel deckPanel = new DeckPanel();
 
     // subpanels for each type of hypothesis
     protected GrandMeanHypothesisPanel grandMeanHypothesisPanelInstance =
@@ -99,13 +106,20 @@ implements ClickHandler, ChangeHandler {
     protected RadioButton trendRadioButton = new RadioButton(
             BUTTON_GROUP,
             GlimmpseWeb.constants.hypothesisPanelTrend());
-    // hypothesis type containers - allows us to hide/show these 
-    // depending on the between/within participant factors
-    protected  DecoratorPanel grandMeanSelectPanel = new DecoratorPanel();
-    protected  DecoratorPanel mainEffectSelectPanel = new DecoratorPanel();
-    protected  DecoratorPanel interactionSelectPanel = new DecoratorPanel();
-    protected  DecoratorPanel trendSelectPanel = new DecoratorPanel();
+    
+    // hypothesis type containers
+    protected  ClickableHorizontalPanel grandMeanSelectPanel = 
+            new ClickableHorizontalPanel();
+    protected  ClickableHorizontalPanel mainEffectSelectPanel = 
+            new ClickableHorizontalPanel();
+    protected  ClickableHorizontalPanel interactionSelectPanel = 
+            new ClickableHorizontalPanel();
+    protected  ClickableHorizontalPanel trendSelectPanel = 
+            new ClickableHorizontalPanel();
 
+    // tab panel to organize the hypothesis sub screens
+    DynamicTabPanel tabPanel = new DynamicTabPanel();
+    
     /**
      * Constructor
      * @param context wizard context
@@ -125,88 +139,39 @@ implements ClickHandler, ChangeHandler {
 
         // hypothesis type selection panel
         // one sample 
-        HorizontalPanel grandMeanLayout = new HorizontalPanel();
-        grandMeanLayout.add(grandMeanRadioButton);
-        grandMeanLayout.add(new HtmlTextWithExplanationPanel("",
+        grandMeanSelectPanel.add(grandMeanRadioButton);
+        grandMeanSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelGrandMean(),
                 GlimmpseWeb.constants.hypothesisPanelGrandMeanExplanation()));
-        grandMeanSelectPanel.add(grandMeanLayout);
+
         // main effects
-        HorizontalPanel mainEffectLayout = new HorizontalPanel();
-        mainEffectLayout.add(mainEffectRadioButton);
-        mainEffectLayout.add(new HtmlTextWithExplanationPanel("",
+        mainEffectSelectPanel.add(mainEffectRadioButton);
+        mainEffectSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffect(),
                 GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation()));
-        mainEffectSelectPanel.add(mainEffectLayout);
+        
         // interaction
-        HorizontalPanel interactionLayout = new HorizontalPanel();
-        interactionLayout.add(interactionRadioButton);
-        interactionLayout.add(new HtmlTextWithExplanationPanel("",
+        interactionSelectPanel.add(interactionRadioButton);
+        interactionSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelInteraction(),
                 GlimmpseWeb.constants.hypothesisPanelInteractionExplanation()));
-        interactionSelectPanel.add(interactionLayout);
+
         // trend
-        HorizontalPanel trendLayout = new HorizontalPanel();
-        trendLayout.add(trendRadioButton);
-        trendLayout.add(new HtmlTextWithExplanationPanel("",
+        trendSelectPanel.add(trendRadioButton);
+        trendSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelTrend(),
                 GlimmpseWeb.constants.hypothesisPanelTrendExplanation()));
-        trendSelectPanel.add(trendLayout);
 
-        // layout overall panel
-        HorizontalPanel typeSelectPanel = new HorizontalPanel();
-        typeSelectPanel.add(grandMeanSelectPanel);
-        typeSelectPanel.add(mainEffectSelectPanel);
-        typeSelectPanel.add(interactionSelectPanel);
-        typeSelectPanel.add(trendSelectPanel);
-
-        // subpanels for each hypothesis type
-        HorizontalPanel contentPanel = new HorizontalPanel();
-        deckPanel.add(grandMeanHypothesisPanelInstance);
-        deckPanel.add(mainEffectHypothesisPanelInstance);
-        deckPanel.add(interactionHypothesisPanelInstance);
-        deckPanel.add(trendHypothesisPanelInstance);
-        contentPanel.add(deckPanel);
-        
-        // add radio button handlers
-        grandMeanRadioButton.addClickHandler(new ClickHandler() 
-        {
-            @Override
-            public void onClick(ClickEvent event)
-            {           
-                showWidget(GRAND_MEAN_INDEX);
-            }
-        });
-        mainEffectRadioButton.addClickHandler(new ClickHandler() 
-        {
-            @Override
-            public void onClick(ClickEvent event)
-            {			
-                showWidget(MAIN_EFFECT_INDEX);
-            }
-        });
-        interactionRadioButton.addClickHandler(new ClickHandler()
-        {
-            @Override
-            public void onClick(ClickEvent event) 
-            {
-                showWidget(INTERACTION_INDEX);
-            }
-        });
-        trendRadioButton.addClickHandler(new ClickHandler() 
-        {
-            @Override
-            public void onClick(ClickEvent event) 
-            {
-                showWidget(TREND_INDEX);
-            }
-        });
+        // add tabs to the tab panel
+        tabPanel.add(grandMeanSelectPanel, (Widget) grandMeanHypothesisPanelInstance);
+        tabPanel.add(mainEffectSelectPanel, (Widget) mainEffectHypothesisPanelInstance);
+        tabPanel.add(interactionSelectPanel, (Widget) interactionHypothesisPanelInstance);
+        tabPanel.add(trendSelectPanel, (Widget) trendHypothesisPanelInstance);
 
         // layout panel
         panel.add(title);
         panel.add(description);
-        panel.add(typeSelectPanel);
-        panel.add(contentPanel);
+        panel.add(tabPanel);
   
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -214,13 +179,6 @@ implements ClickHandler, ChangeHandler {
                 GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        typeSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
-        contentPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_CONTENT);
-        grandMeanSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
-        grandMeanSelectPanel.addStyleDependentName(GlimmpseConstants.STYLE_LEFT);
-        mainEffectSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
-        interactionSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
-        trendSelectPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
         // initialize
         updateHypothesisOptions();
         initWidget(panel);
@@ -303,31 +261,11 @@ implements ClickHandler, ChangeHandler {
         
         // if no selected panel or selected panel now unavailable, open the first
         // available hypothesis subpanel
-        switch (deckPanel.getVisibleWidget()) {
-        case MAIN_EFFECT_INDEX:
-            if (!mainEffectSelectPanel.isVisible()) {
-                grandMeanRadioButton.setValue(true);
-                deckPanel.showWidget(GRAND_MEAN_INDEX);
-            }
-            break;
-        case INTERACTION_INDEX:
-            if (!interactionSelectPanel.isVisible()) {
-                grandMeanRadioButton.setValue(true);
-                deckPanel.showWidget(GRAND_MEAN_INDEX);
-            }
-            break;
-        case TREND_INDEX:
-            if (!trendSelectPanel.isVisible()) {
-                grandMeanRadioButton.setValue(true);
-                deckPanel.showWidget(GRAND_MEAN_INDEX);
-            }
-            break;
-        default:
-            // show grand mean
-            grandMeanRadioButton.setValue(true);
-            deckPanel.showWidget(GRAND_MEAN_INDEX);
-            break;
-        }
+        tabPanel.setVisible(mainEffectSelectPanel, (totalFactors > 0 && maxLevels > 1));
+        tabPanel.setVisible(interactionSelectPanel, (totalFactors > 1));
+        tabPanel.setVisible(trendSelectPanel, (maxLevels > 1));
+
+
 
         // reset the right most tab
         
@@ -353,8 +291,8 @@ implements ClickHandler, ChangeHandler {
 
     private void checkComplete() {
         // get the currently visible widget
-        if (deckPanel.getVisibleWidget() > -1) {
-            HypothesisBuilder builder = (HypothesisBuilder) deckPanel.getWidget(deckPanel.getVisibleWidget());
+        HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
+        if (builder != null) { 
             if (builder.checkComplete()) {
                 changeState(WizardStepPanelState.COMPLETE);
             } else {
@@ -371,37 +309,16 @@ implements ClickHandler, ChangeHandler {
     public void onExit()
     {
         // get the currently visible widget
-        if (deckPanel.getVisibleWidget() > -1) {
-            HypothesisBuilder builder = (HypothesisBuilder) deckPanel.getWidget(deckPanel.getVisibleWidget());
-            if (builder != null) {
-                studyDesignContext.setHypothesis(this, builder.buildHypothesis());
-                NamedMatrix thetaNull = builder.buildThetaNull();
-                if (thetaNull != null) {
-                    studyDesignContext.setThetaNull(this, thetaNull);
-                }
-            } 
+        HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
+        if (builder != null) {
+            studyDesignContext.setHypothesis(this, builder.buildHypothesis());
+            NamedMatrix thetaNull = builder.buildThetaNull();
+            if (thetaNull != null) {
+                studyDesignContext.setThetaNull(this, thetaNull);
+            }
         } else {
             studyDesignContext.setHypothesis(this, null);
         }
-    }
-
-    /**
-     * Display the widget at the specified index
-     * @param index index in deck panel
-     */
-    private void showWidget(int index) {
-        switch (index) {
-        case GRAND_MEAN_INDEX:
-            
-            break;
-        case MAIN_EFFECT_INDEX:
-            break;
-        case INTERACTION_INDEX:
-            break;
-        case TREND_INDEX:
-            break;
-        }
-        deckPanel.showWidget(index);
     }
 
     @Override

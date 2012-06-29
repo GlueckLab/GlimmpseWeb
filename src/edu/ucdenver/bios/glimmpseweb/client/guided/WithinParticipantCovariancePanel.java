@@ -113,21 +113,21 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
     {
         tabPanel.clear();
 
-        List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
-            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-        if (repeatedMeasuresNodeList != null) {
-            for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
-            {
-                tabPanel.add(node.getDimension(), 
-                        new CovarianceCorrelationDeckPanel(node));
-            }
-        }
-        List<ResponseNode> responseNodeList = 
-            studyDesignContext.getStudyDesign().getResponseList();
-        if (responseNodeList != null && responseNodeList.size() > 0) {
-            tabPanel.add(GlimmpseWeb.constants.responsesTableColumn(),
-                    new CovarianceCorrelationDeckPanel(responseNodeList));
-        }
+//        List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
+//            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+//        if (repeatedMeasuresNodeList != null) {
+//            for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
+//            {
+//                tabPanel.add(node.getDimension(), 
+//                        new CovarianceCorrelationDeckPanel(node));
+//            }
+//        }
+//        List<ResponseNode> responseNodeList = 
+//            studyDesignContext.getStudyDesign().getResponseList();
+//        if (responseNodeList != null && responseNodeList.size() > 0) {
+//            tabPanel.add(GlimmpseWeb.constants.responsesTableColumn(),
+//                    new CovarianceCorrelationDeckPanel(responseNodeList));
+//        }
 
         checkComplete();
     }
