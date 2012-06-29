@@ -638,20 +638,110 @@ body {
 	width: 20px;
 }
 
-
 /* tab panel style */
 .wizardStepTabPanel {
-	border: 1px solid #ddd;
+	background-color: white;
+	border-collapse: collapse;
+	border-spacing: 0;
 }
 
+/* tab header bar */
 .wizardStepTabPanelHeader {
-  background-color: #e4eaef;
-  border: 1px solid #ddd;
-  width: 700px;
+  background-color: white;
+  	border-collapse: collapse;
+	border-spacing: 0;
 }
 
+/* tabs - uses GWT DecoratorPanel */
 .wizardStepTabPanelTab {
-	
+	height: 32px;
+	background-color: #e4eaef;
+  	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.wizardStepTabPanelTab .topCenter {
+	height: 1px;
+	background-color: white;
+	border-bottom: 1px solid #ddd;
+}
+
+.wizardStepTabPanelTab .topRight {
+	height: 1px;
+	background-color: white;
+	border: none;
+}
+
+.wizardStepTabPanelTab .topLeft {
+	height: 1px;
+	background-color: white;
+	border: none;
+}
+
+/* center tabs */
+.wizardStepTabPanelTab-selected {
+	background-color: white;
+}
+
+.wizardStepTabPanelTab-selected .middleRight {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-image: url('/images/middle-right-active.png');
+	background-repeat: no-repeat;
+	border: none;
+}
+
+/* selected left most tab */
+.wizardStepTabPanelTab-left .middleLeft {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-image: url('/images/left-inactive.png');
+	background-repeat: no-repeat;
+	border: none;
+}
+
+.wizardStepTabPanelTab-selectedLeft {
+	background-color: white;
+}
+
+.wizardStepTabPanelTab-selectedLeft .middleRight {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-image: url('/images/middle-right-active.png');
+	background-repeat: no-repeat;
+	border: none;
+}
+
+.wizardStepTabPanelTab-selectedLeft .middleLeftt {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-image: url('/images/left-active.png');
+	background-repeat: no-repeat;
+	border: none;
+}
+
+.wizardStepTabPanelTab-selectedLeft .middleLeft {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-image: url('/images/middle-active.png');
+	background-repeat: no-repeat;
+	border: none;
+}
+
+
+
+.wizardStepTabPanelTab-right .middleRight {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-image: url('/images/right-inactive.png');
+	background-repeat: no-repeat;
+	border: none;
 }
 
 .wizardStepTabPanelContent {
@@ -690,7 +780,7 @@ body {
 }
 
 .explanationButton {
-	background-image: url('/images/help.png');
+	background: url('/images/help.png') no-repeat;
 	width: 16px;
 	height: 16px;
 	border: none;
