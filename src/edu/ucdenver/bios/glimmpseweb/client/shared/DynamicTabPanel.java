@@ -44,8 +44,11 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
  *
  */
 public class DynamicTabPanel extends Composite {
-    
+    // current number of tabs
     protected int tabCount = 0;
+    
+    // currently selected tab
+    protected int selectedIndex = -1;
     
     // header bar simulating tabs since you can't dynamically add stuff to a tab panel
     protected FlexTable tabPanel = new FlexTable();
@@ -77,6 +80,8 @@ public class DynamicTabPanel extends Composite {
         panel.add(tabDeck);
 
         // set style
+        tabPanel.setCellPadding(0);
+        tabPanel.setCellSpacing(0);
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_PANEL);
         tabPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
         tabPanel.getRowFormatter().setStyleName(0, GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
@@ -93,31 +98,47 @@ public class DynamicTabPanel extends Composite {
      */
     public void insert(int position, Widget tabHeader, Widget tabContents) {
         if (position >= 0 && position <= tabCount) {
+            // create the new tab
             IndexedDecoratorPanel panel = 
                     new IndexedDecoratorPanel(position, tabHeader);
             panel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     IndexedDecoratorPanel panel = (IndexedDecoratorPanel) event.getSource();
-                    showWidget(panel.index);
+                    openTab(panel.index);
                 }
             });
+            // dependent style depends on position
             panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB);
             if (position == 0) {
-                panel.addStyleDependentName(GlimmpseConstants.STYLE_LEFT);
+                if (tabCount == 0) {
+                    panel.addStyleDependentName(GlimmpseConstants.STYLE_SINGLE);
+                } else {
+                    panel.addStyleDependentName(GlimmpseConstants.STYLE_LEFT);
+                }
             } else if (position == tabCount) {
                 IndexedDecoratorPanel rightmost = (IndexedDecoratorPanel) tabPanel.getWidget(0, tabCount-1);
                 rightmost.removeStyleDependentName(GlimmpseConstants.STYLE_RIGHT);
                 panel.addStyleDependentName(GlimmpseConstants.STYLE_RIGHT);
             }
+            // add the new tab to the header bar
+            tabPanel.insertCell(0, position);
             tabPanel.setWidget(0, position, panel);
-            tabDeck.add(tabContents);
+            // add the new contents to the deck panel
+            tabDeck.insert(tabContents, position);
             tabCount++;
+            // adjust the index for the remaining tabs to keep the deck panel and
+            // tabs synchronized
             for(int col = position+1; col < tabCount; col++) {
                 IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
                 current.index++;
             }
+            if (position < selectedIndex) {
+                selectedIndex++;
+            }
+            updateStyles();
         }
+
     }
     
     /**
@@ -139,12 +160,92 @@ public class DynamicTabPanel extends Composite {
     }
         
     /**
-     * Show the specified tab
+     * Open the tab at the specified index
      * @param index
      */
-    private void showWidget(int index) {
-        tabDeck.showWidget(index);
+    public void openTab(int index) {
+        if (index >= 0 && index < tabCount) {
+            selectedIndex = index;
+            tabDeck.showWidget(index);
+            updateStyles();
+        }
     }
+    
+    /**
+     * Open the tab with the specified header widget
+     * @param tabHeader
+     */
+    public void openTab(Widget tabHeader) {
+        int index = -1;
+        for(int col = 0; col < tabPanel.getCellCount(0); col++) {
+            IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
+            if ((HasClickHandlers) current.getWidget() == tabHeader) {
+                index = col;
+                break;
+            }
+        }
+        if (index != -1) {
+            openTab(index);
+        }
+    }
+    
+    private void clearStyles(Widget w) {
+        // clear all previous styles
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_LEFT);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_LEFT_ACTIVE);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_LEFT_NEXT_TO_ACTIVE);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_MIDDLE);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_MIDDLE_ACTIVE);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_MIDDLE_NEXT_TO_ACTIVE);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_RIGHT);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_RIGHT_ACTIVE);
+        w.removeStyleDependentName(GlimmpseConstants.STYLE_SINGLE);
+    }
+    
+    /**
+     * Update the selection styles
+     * @param selectedIndex
+     */
+    private void updateStyles() {
+        if (tabCount == 1) {
+            IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, 0);
+            clearStyles(current);
+            current.addStyleDependentName(GlimmpseConstants.STYLE_SINGLE);
+        } else {
+            for(int i = 0; i < tabCount; i++) {
+                IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, i);
+                clearStyles(current);
+                String newStyle = "";
+                // set style of leftmost tab
+                if (i == 0) {
+                    if (selectedIndex == i+1) {
+                        newStyle = GlimmpseConstants.STYLE_LEFT_NEXT_TO_ACTIVE;
+                    } else if (selectedIndex == i) {
+                        newStyle = GlimmpseConstants.STYLE_LEFT_ACTIVE;
+                    } else {
+                        newStyle = GlimmpseConstants.STYLE_LEFT;
+                    }
+                } else if (i == tabCount-1) {
+                    // set style of rightmost tab
+                    if (selectedIndex == i) {
+                        newStyle = GlimmpseConstants.STYLE_RIGHT_ACTIVE;
+                    } else {
+                        newStyle = GlimmpseConstants.STYLE_RIGHT;
+                    }
+                } else {
+                    // set style for middle tabs
+                    if (selectedIndex == i+1) {
+                        newStyle = GlimmpseConstants.STYLE_MIDDLE_NEXT_TO_ACTIVE;
+                    } else if (selectedIndex == i) {
+                        newStyle = GlimmpseConstants.STYLE_MIDDLE_ACTIVE;
+                    } else {
+                        newStyle = GlimmpseConstants.STYLE_MIDDLE;
+                    }
+                }
+                current.addStyleDependentName(newStyle);
+            }
+        }
+    }    
     
     /**
      * Get the total number of tabs
@@ -185,10 +286,10 @@ public class DynamicTabPanel extends Composite {
      * Hide the tab at the specified index
      * @param i index
      */
-    public void setVisible(HasClickHandlers tabHeader, boolean visible) {
+    public void setVisible(Widget tabHeader, boolean visible) {
         for(int col = 0; col < tabPanel.getCellCount(0); col++) {
             IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
-            if ((HasClickHandlers) current.getWidget() == tabHeader) {
+            if (current.getWidget() == tabHeader) {
                 current.setVisible(visible);
                 if (!visible) {
                     
@@ -204,17 +305,42 @@ public class DynamicTabPanel extends Composite {
 
     }
     
-    public void remove(HasClickHandlers tabHeader) {
+    /**
+     * Removed the tab matching the specified widget header
+     * @param tabHeader
+     */
+    public void remove(Widget tabHeader) {
+        int index = -1;
         for(int col = 0; col < tabPanel.getCellCount(0); col++) {
             IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
             if ((HasClickHandlers) current.getWidget() == tabHeader) {
-
-
-                // select the leftmost tab
-
-                // update styles
+                index = col;
                 break;
             }
+        }
+        if (index != -1) {
+            remove(index);
+            updateStyles();
+        }
+    }
+    
+    /**
+     * Remove the tab at the specified index
+     * @param index
+     */
+    public void remove(int index) {
+        if (index >= 0 && index < tabCount) {
+            tabDeck.remove(index);
+            tabPanel.removeCell(0, index);
+            tabCount--;
+            for(int i = index; i < tabCount; i++) {
+                IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, i);
+                current.index--;
+            }
+            if (index < selectedIndex) {
+                selectedIndex--;
+            }
+            updateStyles();
         }
     }
     
