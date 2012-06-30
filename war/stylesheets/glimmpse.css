@@ -658,6 +658,15 @@ body {
 	background-color: #e4eaef;
   	border-collapse: collapse;
 	border-spacing: 0;
+	font-weight: normal;
+}
+
+.wizardStepTabPanelTab .middleRight {
+	height: 32px;
+	width: 32px;
+	background-color: white;
+	background-repeat: no-repeat;
+	border: none;
 }
 
 .wizardStepTabPanelTab .topCenter {
@@ -678,21 +687,44 @@ body {
 	border: none;
 }
 
-/* center tabs */
-.wizardStepTabPanelTab-selected {
+/* single tab - always highlighted */
+.wizardStepTabPanelTab-single {
 	background-color: white;
 }
 
-.wizardStepTabPanelTab-selected .middleRight {
+.wizardStepTabPanelTab-single .middleRight {
+	background-image: url('/images/right-active.png');
+}
+
+.wizardStepTabPanelTab-single .middleLeft {
 	height: 32px;
 	width: 32px;
 	background-color: white;
-	background-image: url('/images/middle-right-active.png');
+	background-image: url('/images/left-active.png');
 	background-repeat: no-repeat;
 	border: none;
 }
 
-/* selected left most tab */
+/* center tabs */
+.wizardStepTabPanelTab-middle .middleRight {
+	background-image: url('/images/middle-inactive.png');
+}
+
+.wizardStepTabPanelTab-middleActive {
+	background-color: white;
+	font-weight: bold;
+}
+
+.wizardStepTabPanelTab-middleActive .middleRight {
+	background-image: url('/images/middle-right-active.png');
+}
+
+.wizardStepTabPanelTab-middleNextToActive .middleRight {
+	background-image: url('/images/middle-left-active.png');
+}
+
+
+/* left most tab */
 .wizardStepTabPanelTab-left .middleLeft {
 	height: 32px;
 	width: 32px;
@@ -702,20 +734,16 @@ body {
 	border: none;
 }
 
-.wizardStepTabPanelTab-selectedLeft {
-	background-color: white;
+.wizardStepTabPanelTab-left .middleRight {
+	background-image: url('/images/middle-inactive.png');
 }
 
-.wizardStepTabPanelTab-selectedLeft .middleRight {
-	height: 32px;
-	width: 32px;
+.wizardStepTabPanelTab-leftActive {
 	background-color: white;
-	background-image: url('/images/middle-right-active.png');
-	background-repeat: no-repeat;
-	border: none;
+	font-weight: bold;
 }
 
-.wizardStepTabPanelTab-selectedLeft .middleLeftt {
+.wizardStepTabPanelTab-leftActive .middleLeft {
 	height: 32px;
 	width: 32px;
 	background-color: white;
@@ -724,26 +752,40 @@ body {
 	border: none;
 }
 
-.wizardStepTabPanelTab-selectedLeft .middleLeft {
+.wizardStepTabPanelTab-leftActive .middleRight {
+	background-image: url('/images/middle-right-active.png');
+}
+
+.wizardStepTabPanelTab-leftNextToActive .middleLeft {
 	height: 32px;
 	width: 32px;
 	background-color: white;
-	background-image: url('/images/middle-active.png');
+	background-image: url('/images/left-inactive.png');
 	background-repeat: no-repeat;
 	border: none;
 }
 
+.wizardStepTabPanelTab-leftNextToActive .middleRight {
+	background-image: url('/images/middle-left-active.png');
+}
 
+
+/* right most tab */
+.wizardStepTabPanelTab-rightActive {
+	background-color: white;
+	font-weight: bold;
+}
 
 .wizardStepTabPanelTab-right .middleRight {
-	height: 32px;
-	width: 32px;
-	background-color: white;
 	background-image: url('/images/right-inactive.png');
-	background-repeat: no-repeat;
-	border: none;
 }
 
+.wizardStepTabPanelTab-rightActive .middleRight {
+	background-image: url('/images/right-active.png');
+}
+
+
+/* contents associated with tab */
 .wizardStepTabPanelContent {
 	border: 1px solid #ddd;
 	padding: 5px;
