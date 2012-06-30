@@ -84,7 +84,14 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MED = "medium";
     public static final String STYLE_LONG = "long";
     public static final String STYLE_LEFT = "left";
+    public static final String STYLE_LEFT_ACTIVE = "leftActive";
+    public static final String STYLE_LEFT_NEXT_TO_ACTIVE = "leftNextToActive";
+    public static final String STYLE_MIDDLE = "middle";
+    public static final String STYLE_MIDDLE_ACTIVE = "middleActive";
+    public static final String STYLE_MIDDLE_NEXT_TO_ACTIVE = "middleNextToActive";
     public static final String STYLE_RIGHT = "right";
+    public static final String STYLE_RIGHT_ACTIVE = "rightActive";
+    public static final String STYLE_SINGLE = "single";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
