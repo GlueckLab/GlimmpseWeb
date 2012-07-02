@@ -42,6 +42,8 @@ import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
@@ -54,7 +56,7 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
 public class GaussianCovariateCovariancePanel extends WizardStepPanel
 {
 	// context object
-    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    StudyDesignContext studyDesignContext;
     
     HorizontalPanel hp = new HorizontalPanel();
     
@@ -78,6 +80,7 @@ public class GaussianCovariateCovariancePanel extends WizardStepPanel
 	public GaussianCovariateCovariancePanel(WizardContext context) 
 	{
 		super(context, "Random Covariate Covariance Screen");
+		studyDesignContext = (StudyDesignContext) context;
 		
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
@@ -369,10 +372,22 @@ public class GaussianCovariateCovariancePanel extends WizardStepPanel
 
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
-        // TODO Auto-generated method stub
-        
+        switch(((StudyDesignChangeEvent) e).getType()) {
+        case COVARIATE:
+            if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
+                checkComplete();
+            } else {
+                changeState(WizardStepPanelState.SKIPPED);
+            }
+            break;
+        }
     }
 
+    
+    public void checkComplete() {
+        
+    }
+    
     @Override
     public void onWizardContextLoad() {
         // TODO Auto-generated method stub

@@ -260,9 +260,25 @@ public class DynamicTabPanel extends Composite {
      * @param i
      * @return
      */
-    public Widget getWidget(int i) {
+    public Widget getTabContents(int i) {
         if (i >=0 && i < tabCount) {
             return tabDeck.getWidget(i);
+        } else {
+            return null;
+        }
+    }
+    
+    public Widget getTabContents(Widget tabHeader) {
+        int index = -1;
+        for(int col = 0; col < tabPanel.getCellCount(0); col++) {
+            IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
+            if ((HasClickHandlers) current.getWidget() == tabHeader) {
+                index = col;
+                break;
+            }
+        }
+        if (index != -1) {
+            return getTabContents(index);
         } else {
             return null;
         }

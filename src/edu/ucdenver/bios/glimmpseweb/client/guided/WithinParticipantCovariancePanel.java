@@ -23,14 +23,11 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -45,6 +42,7 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
+
 /**
  * 
  * @author VIJAY AKULA
@@ -54,92 +52,125 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 public class WithinParticipantCovariancePanel extends WizardStepPanel
 {
     // context object
-    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-
-    DynamicTabPanel tabPanel = new DynamicTabPanel();
-
+    protected StudyDesignContext studyDesignContext;
+    // tabs for each covariance
+    protected DynamicTabPanel tabPanel = new DynamicTabPanel();
+    // keep a ptr to the responses tab header
+    protected HTML responsesTabHeader = new HTML(GlimmpseWeb.constants.covarianceResponsesLabel());
+    
     /**
      * Constructor
-     * @param context
+     * @param context study design context
      */
     WithinParticipantCovariancePanel(WizardContext context) 
     {
         super(context, GlimmpseWeb.constants.navItemVariabilityWithinParticipant(),
                 WizardStepPanelState.NOT_ALLOWED);
-
+        studyDesignContext = (StudyDesignContext) context;
+        
         VerticalPanel panel = new VerticalPanel();
+        
+        // header text
         HTML header = new HTML(GlimmpseWeb.constants.withinSubjectCovarianceHeader());
         HTML instructions = new HTML(GlimmpseWeb.constants.withinSubjectCovarianceInstructions());
+        
+        // TODO: allow upload of a full covariance - not necessarily Kronecker
+        // for V2 we will just force the user into the Kronecker format for
+        // reversible mixed model support - return to this later
+//        // upload a covariance button
+//        ButtonWithExplanationPanel uploadFullCovarianceMatrixButton =
+//            new ButtonWithExplanationPanel(
+//                    GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
+//                    GlimmpseWeb.constants.fullCovarianceMatrixHeader(), 
+//                    GlimmpseWeb.constants.fullCovarianceMatrixText());
+//        uploadFullCovarianceMatrixButton.addClickHandler(new ClickHandler()
+//        {
+//            @Override
+//            public void onClick(ClickEvent event) 
+//            {
+//
+//            }
+//
+//        });
 
-        ButtonWithExplanationPanel uploadFullCovarianceMatrixButton =
-            new ButtonWithExplanationPanel(
-                    GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
-                    GlimmpseWeb.constants.fullCovarianceMatrixHeader(), 
-                    GlimmpseWeb.constants.fullCovarianceMatrixText());
-
-        uploadFullCovarianceMatrixButton.addClickHandler(new ClickHandler()
-        {
-            @Override
-            public void onClick(ClickEvent event) 
-            {
-
-            }
-
-        });
-
+        
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
         panel.add(header);
         panel.add(instructions);
         panel.add(tabPanel);
-        panel.add(uploadFullCovarianceMatrixButton);
+        //panel.add(uploadFullCovarianceMatrixButton);
 
         initWidget(panel);
     }
 
 
-
+    /**
+     * Clear the panel
+     */
     @Override
     public void reset() 
     {
-
-
+        tabPanel.clear();
     }
 
-    private void loadFromContext()
+    /**
+     * Load repeated measures information
+     */
+    private void loadRepeatedMeasuresFromContext()
     {
-        tabPanel.clear();
-
-//        List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
-//            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-//        if (repeatedMeasuresNodeList != null) {
-//            for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
-//            {
-//                tabPanel.add(node.getDimension(), 
-//                        new CovarianceCorrelationDeckPanel(node));
-//            }
-//        }
-//        List<ResponseNode> responseNodeList = 
-//            studyDesignContext.getStudyDesign().getResponseList();
-//        if (responseNodeList != null && responseNodeList.size() > 0) {
-//            tabPanel.add(GlimmpseWeb.constants.responsesTableColumn(),
-//                    new CovarianceCorrelationDeckPanel(responseNodeList));
-//        }
-
+        // if the responses tab has been added, don't clear it
+        Widget responseTabContents = tabPanel.getTabContents(responsesTabHeader);
+        if (responseTabContents != null) {
+            for(int col = 0; col > tabPanel.getTabCount()-1; col++) {
+                tabPanel.remove(0);
+            }
+        } else {
+            tabPanel.clear();
+        }
+        
+        // now create panels for the repeated measures
+        List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
+            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();        
+        if (repeatedMeasuresNodeList != null) {
+            for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
+            {
+                tabPanel.insert(tabPanel.getTabCount()-1,
+                        new HTML(node.getDimension()), 
+                        new CovarianceCorrelationDeckPanel(node));
+            }
+        }
+    }
+    
+    /**
+     * Load the response variables from the context
+     */
+    private void loadResponsesFromContext()
+    {
+        // remove the tab for the responses if it is set
+        tabPanel.remove(responsesTabHeader);
+        // load the new responses
+        List<ResponseNode> responseNodeList = 
+            studyDesignContext.getStudyDesign().getResponseList();
+        if (responseNodeList != null && responseNodeList.size() > 0) {
+            tabPanel.add(responsesTabHeader,
+                    new CovarianceCorrelationDeckPanel(responseNodeList));
+        }
         checkComplete();
     }
 
-
+    /**
+     * Determine if the user has completed this screen
+     */
     private void checkComplete() {
 
         if (tabPanel.getTabCount() > 0) {
             boolean complete = true;
             for(int i = 0; i < tabPanel.getTabCount(); i++) {
                 CovarianceCorrelationDeckPanel panel = 
-                    (CovarianceCorrelationDeckPanel) tabPanel.getWidget(i);
+                    (CovarianceCorrelationDeckPanel) tabPanel.getTabContents(i);
                 if (!panel.checkComplete()) {
                     complete = false;
                     break;
@@ -166,8 +197,10 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
     {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case REPEATED_MEASURES:
+            loadRepeatedMeasuresFromContext();
+            break;
         case RESPONSES_LIST:
-            loadFromContext();
+            loadResponsesFromContext();
             break;
         }
     };
@@ -178,17 +211,21 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
     @Override
     public void onWizardContextLoad() 
     {
-        loadFromContext();
+        loadRepeatedMeasuresFromContext();
+        loadResponsesFromContext();
     }
 
 
-
+    /**
+     * Build the covariance objects as we exit the screen
+     */
     @Override
     public void onExit()
     {
         for(int i = 0; i < tabPanel.getTabCount(); i++)
         {
-            CovarianceCorrelationDeckPanel panel = (CovarianceCorrelationDeckPanel) tabPanel.getWidget(i);
+            CovarianceCorrelationDeckPanel panel = 
+                (CovarianceCorrelationDeckPanel) tabPanel.getTabContents(i);
             Covariance covariance = panel.getCovariance();
             studyDesignContext.setCovariance(this, covariance);
         }

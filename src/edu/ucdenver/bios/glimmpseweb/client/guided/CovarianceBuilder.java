@@ -31,11 +31,11 @@ import edu.ucdenver.bios.webservice.common.domain.Covariance;
  */
 public interface CovarianceBuilder 
 {
-    
-/**
- * Gets the covariance.
- *
- * @return the covariance
- */
-public Covariance getCovariance();
+
+    /**
+     * Gets the covariance.
+     *
+     * @return the covariance
+     */
+    public Covariance getCovariance();
 }

@@ -25,13 +25,11 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -41,6 +39,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
+
 /**
  * 
  * @author VIJAY AKULA
@@ -49,22 +48,29 @@ import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
  */
 public class UnStructuredCorrelationPanel extends Composite implements CovarianceBuilder
 {    
+    // name of this covariance piece
+    protected String name;
+    
     //Grid to construct the Standard Deviation Entry Text boxes
-    FlexTable standardDeviationFlexTable = new FlexTable();	
+    protected FlexTable standardDeviationFlexTable = new FlexTable();	
 
     // error display for standard deviation list
-    HTML errorHTML = new HTML();
+    protected HTML errorHTML = new HTML();
 
     // matrix panel for correlation matrix
-    ResizableMatrixPanel correlationMatrix;
+    protected ResizableMatrixPanel correlationMatrix;
 
     /**
      * Constructor for the unStructuredCorrelationPanel class
      * @param stringList
      * @param integerList
      */
-    public UnStructuredCorrelationPanel(List<String> labelList, List<Integer> spacingList)
+    public UnStructuredCorrelationPanel(String covarianceName,
+            List<String> labelList, List<Integer> spacingList)
     {
+        // store the covariance name
+        name = covarianceName;
+        
         //Instance of vertical panel to hold all the widgets created in this class
         VerticalPanel verticalPanel = new VerticalPanel();
 
@@ -82,7 +88,9 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         correlationMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
         correlationMatrix.setRowLabels(labelList);
         correlationMatrix.setColumnLabels(labelList);
-
+        // only show the correlation when the matrix is not 1x1
+        correlationMatrix.setVisible(size != 1);
+        
         verticalPanel.add(expectedStandardDeviationText);
         verticalPanel.add(standardDeviationFlexTable);
         verticalPanel.add(errorHTML);
@@ -111,7 +119,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
                     TextBox tb = (TextBox)event.getSource();
                     try
                     {
-                        Double value = TextValidation.parseDouble(tb.getText(), 0.0, true);
+                        TextValidation.parseDouble(tb.getText(), 0.0, true);
                         TextValidation.displayOkay(errorHTML, "");
                     }
                     catch (Exception e)
@@ -133,9 +141,9 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
      */
     public boolean checkComplete() {
         boolean complete = true;
-        for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
+        for(int row = 0; row < standardDeviationFlexTable.getRowCount(); row++)
         {
-            TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
+            TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(row, 1);
             String value = tb.getText();
             if (value == null || value.isEmpty()) {
                 complete = false;
@@ -145,6 +153,9 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         return complete;
     }
 
+    /**
+     * Create a covariance domain object
+     */
     @Override
     public Covariance getCovariance() 
     {
@@ -159,7 +170,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         }
         covariance.setStandardDeviationList(sdList);
 
-        NamedMatrix matrix = correlationMatrix.toNamedMatrix("N/A");
+        NamedMatrix matrix = correlationMatrix.toNamedMatrix(name);
         covariance.setBlob(matrix.getData());
         return covariance;
     }

@@ -87,7 +87,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     public FixedPredictorsPanel(WizardContext context)
     {
     	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
-    	        WizardStepPanelState.COMPLETE);
+    	        WizardStepPanelState.INCOMPLETE);
         VerticalPanel panel = new VerticalPanel();
         
         // create header/instruction text
@@ -117,7 +117,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
             }
         });
         // hide multi-sample panel by default
-        oneSampleRadioButton.setValue(true);
+        oneSampleRadioButton.setValue(false);
         multiSamplePanel.setVisible(false);
         
         // layout the overall panel
@@ -343,7 +343,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     	            break;
     	        }
     	    }
-    	} else {
+    	} else if (oneSampleRadioButton.getValue()) {
     	    // one sample
     	    isComplete = true;
     	}
@@ -358,6 +358,8 @@ public class FixedPredictorsPanel extends WizardStepPanel
     	predictorList.clear();
     	categoryList.clear();
     	predictorCategoryMap.clear();
+        oneSampleRadioButton.setValue(false);
+        multiSamplePanel.setVisible(false);
     	checkComplete();
     }
 
@@ -431,9 +433,9 @@ public class FixedPredictorsPanel extends WizardStepPanel
         } else {
             // build a single predictor
             BetweenParticipantFactor factor = new BetweenParticipantFactor();
-            factor.setPredictorName("oneSamplePredictor");
+            factor.setPredictorName("Sample");
             ArrayList<Category> categoryNameList = new ArrayList<Category>();
-            categoryNameList.add(new Category("oneSampleCategory"));
+            categoryNameList.add(new Category("Sample"));
             factor.setCategoryList(categoryNameList);
             factorList.add(factor);
         }

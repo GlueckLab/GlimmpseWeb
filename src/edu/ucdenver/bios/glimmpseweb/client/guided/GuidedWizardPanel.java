@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.connector.FileSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.shared.BaselineCovariatePanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.DynamicTabPanelTest;
 import edu.ucdenver.bios.glimmpseweb.client.shared.IntroPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsConfidenceIntervalsPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.OptionsDisplayPanel;
@@ -148,6 +149,7 @@ implements WizardActionListener
 		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
 		WizardStepPanelGroup group = 
 		    new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart(), startIntroPanel);
+		group.addPanel(new DynamicTabPanelTest(context));
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
 		group.addPanel(typeIErrorPanel);

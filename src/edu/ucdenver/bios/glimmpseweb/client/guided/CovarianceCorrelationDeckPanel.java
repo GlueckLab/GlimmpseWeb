@@ -29,7 +29,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
@@ -39,6 +38,7 @@ import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
+
 /**
  * Class which allows input of covariance matrices either as
  * 1. Lear correlation
@@ -51,62 +51,72 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
  */
 public class CovarianceCorrelationDeckPanel extends Composite
 {
-    protected String name = "";
+    // deck panel indices for the correlation/covariance views
+    private static final int STRUCT_CORRELATION_INDEX = 0;
+    private static final int UNSTRUCT_CORRELATION_INDEX = 1;
+    private static final int UNSTRUCT_COVARIANCE_INDEX = 2;
     
+    // name of the dimension
+    protected String name = "";
+    // size of the covariance matrix
+    protected int size = -1;
+    
+    // main deck panel containing covariance views
 	protected DeckPanel deckPanel = new DeckPanel();
+	// 
 	protected VerticalPanel controlButtonPanel = new VerticalPanel();
 	
-	protected ButtonWithExplanationPanel useCustomVariability =
+	/* buttons to switch between covariance / correlation views */
+	// switch to unstructured covariance view 
+	protected ButtonWithExplanationPanel unstructuredCovarianceButton =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomVariablity(),
 			GlimmpseWeb.constants.useCustomVariablityAlertHeader(), 
 			GlimmpseWeb.constants.useCustomVariabilityAlertText());
 	
-	protected ButtonWithExplanationPanel useCustomCorrelation =
+	protected ButtonWithExplanationPanel unstructuredCorrelationButton =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomCorrelation(),
 			GlimmpseWeb.constants.useCustomCorrelationAlertHeader(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertText());
 	
-	protected ButtonWithExplanationPanel uploadCorrelationMatrix =
-	        new ButtonWithExplanationPanel(
-	                GlimmpseWeb.constants.uploadCorrelationMatrix(),
-			GlimmpseWeb.constants.correlationMatrixAlertHeader(), 
-			GlimmpseWeb.constants.correlationMatrixAlertText());
-	
-	protected ButtonWithExplanationPanel useStructuredVariability =
+	protected ButtonWithExplanationPanel structuredCorrelationButton =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useStructuredVariability(),
 			GlimmpseWeb.constants.useStructuredVariabilityAlertHeader(), 
 			GlimmpseWeb.constants.useStructuredVariabilityAlertText());
 	
-	
-	protected ButtonWithExplanationPanel uploadCovarianceMatrix =
-	        new ButtonWithExplanationPanel(
-	                GlimmpseWeb.constants.uploadCovarianceMatrix(),
-			GlimmpseWeb.constants.covarianceMatrixAlertHeader(), 
-			GlimmpseWeb.constants.covarianceMatrixAlertText());
-	
 	/**
 	 * Build a covariance deck for a repeated measures dimension
 	 * @param repeatedMeasuresNode
 	 */
-	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode)
-		
-	{
+	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode) {
 	    name = repeatedMeasuresNode.getDimension();
-		String dimension = repeatedMeasuresNode.getDimension();
+	    // build a list of labels and spacing values
+		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
 		List<Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
 		List<Integer> integerSpacingList = new ArrayList<Integer>();
-		 
-		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
-		for(Spacing spacing: spacingList) {
-		    labelList.add(dimension+","+spacing.getValue());
-		    integerSpacingList.add(spacing.getValue());
+		if (spacingList != null && 
+		        spacingList.size() == repeatedMeasuresNode.getNumberOfMeasurements()) {
+		    // potentially unequal spacing for numeric repeated measures (time, weeks, etc.)
+		    for(Spacing spacing: spacingList) {
+		        labelList.add(name+","+spacing.getValue());
+		        integerSpacingList.add(spacing.getValue());
+		    }
+		} else {
+		    // use equal spacing for categorical and nominal repeated measures
+            for(int i = 1; i <= repeatedMeasuresNode.getNumberOfMeasurements(); i++) {
+                labelList.add(name + "," + i);
+                integerSpacingList.add(i);
+            }
 		}
 		buildDeckPanel(labelList, integerSpacingList);
 	}
 	
+	/**
+	 * Create a covariance input panel for the specified response list
+	 * @param responseList response variable list
+	 */
 	public CovarianceCorrelationDeckPanel(List<ResponseNode> responseList)
 	{
 	    name = GlimmpseConstants.RESPONSES_COVARIANCE_LABEL;
@@ -114,148 +124,92 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		List<Integer> spacingList = new ArrayList<Integer>(responseList.size());
 		int i = 1;
 		for(ResponseNode node: responseList) {
-			spacingList.add(new Integer(i));
+			spacingList.add(i);
 			labels.add(node.getName());
 			i++;
 		}
 		buildDeckPanel(labels, spacingList);
 	}
 	
-	
+	/**
+	 * Create the structured correlation, unstructured correlation,
+	 * and unstructured covariance input panels
+	 * 
+	 * @param labelList
+	 * @param spacingList
+	 */
 	private void buildDeckPanel(List<String> labelList, List<Integer>spacingList)
 	{
+	    size = spacingList.size();
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
 		StructuredCorrelationPanel structuredCorrelationPanelInstance = 
 				new StructuredCorrelationPanel(labelList, spacingList);
-		UnStructuredCovariancePanel unstructuredCorrelationPanelInstance = 
+	      UnStructuredCorrelationPanel unstructuredCorrelationPanelInstance = 
+              new UnStructuredCorrelationPanel(name, labelList, spacingList);
+		UnStructuredCovariancePanel unstructuredCovariancePanelInstance = 
 				new UnStructuredCovariancePanel(labelList, spacingList);
-		UnStructuredCorrelationPanel unstructuredCovariancePanelInstance = 
-				new UnStructuredCorrelationPanel(labelList, spacingList);
 		
-		if (spacingList.size() > 2) {
-		    // only add the Lear for values > 2.  Otherwise it is sort of useless
-		    deckPanel.add(structuredCorrelationPanelInstance);
-		}
-		deckPanel.add(unstructuredCovariancePanelInstance);
+		deckPanel.add(structuredCorrelationPanelInstance);
 		deckPanel.add(unstructuredCorrelationPanelInstance);
+		deckPanel.add(unstructuredCovariancePanelInstance);
 		
+		// show the first widget
+		showWidget(UNSTRUCT_CORRELATION_INDEX);
 		
-		deckPanel.showWidget(0);
-		
-		useCustomVariability.addClickHandler(new ClickHandler()
+		// add button handlers to switch views
+		unstructuredCovarianceButton.addClickHandler(new ClickHandler()
 		{
 			@Override
 			public void onClick(ClickEvent event) 
 			{
-				useCustomVariabilityEvent();				
+				showWidget(UNSTRUCT_COVARIANCE_INDEX);
 			}
 		});
 			
-		useCustomCorrelation.addClickHandler(new ClickHandler()
+		unstructuredCorrelationButton.addClickHandler(new ClickHandler()
 		{
 			@Override
 			public void onClick(ClickEvent event) 
 			{
-				useCustomCorrelationEvent();
-							
+                showWidget(UNSTRUCT_CORRELATION_INDEX);	
 			}
 		});
 		
-		uploadCorrelationMatrix.addClickHandler(new ClickHandler()
+		structuredCorrelationButton.addClickHandler(new ClickHandler()
 		{
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				uploadCorrelationMatrixEvent();
-			}
-		});
+		    @Override
+		    public void onClick(ClickEvent event) 
+		    {
+		        showWidget(STRUCT_CORRELATION_INDEX); 
+		    }
+		});	
 		
-		useStructuredVariability.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				useStructuredVariabilityEvent();
-			}
-		});
-		
-		uploadCovarianceMatrix.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				uploadCovarianceMatrixEvent();
-			}
-		});
-		
-		uploadCorrelationMatrix.setVisible(false);
-		useStructuredVariability.setVisible(false);
-		uploadCovarianceMatrix.setVisible(false);
-		
-		
-		controlButtonPanel.add(useCustomVariability);
-		controlButtonPanel.add(useCustomCorrelation);
-		controlButtonPanel.add(uploadCorrelationMatrix);
-		controlButtonPanel.add(useStructuredVariability);
-		controlButtonPanel.add(uploadCovarianceMatrix);
-		
-		
-		controlButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		controlButtonPanel.add(unstructuredCovarianceButton);
+		controlButtonPanel.add(unstructuredCorrelationButton);
+		controlButtonPanel.add(structuredCorrelationButton);		
 				
 		verticalPanel.add(deckPanel);
 		verticalPanel.add(controlButtonPanel);
-		
 		
 		initWidget(verticalPanel);
 
 	}
 	
-	public VerticalPanel createControlButtonPanel()
-	{
-		return createControlButtonPanel();		
+	private void showWidget(int index) {
+	    deckPanel.showWidget(index);
+	    unstructuredCovarianceButton.setVisible(index != UNSTRUCT_COVARIANCE_INDEX &&
+	            size > 1);
+	    unstructuredCorrelationButton.setVisible(index != UNSTRUCT_CORRELATION_INDEX);
+	    structuredCorrelationButton.setVisible(index != STRUCT_CORRELATION_INDEX &&
+	            size > 2);
 	}
 	
-	public void useCustomVariabilityEvent()
-	{
-		deckPanel.showWidget(2);
-		useCustomVariability.setVisible(false);
-		useCustomCorrelation.setVisible(true);
-		uploadCorrelationMatrix.setVisible(false);
-		useStructuredVariability.setVisible(true);
-		uploadCovarianceMatrix.setVisible(true);
-	}
-	
-	public void useCustomCorrelationEvent()
-	{
-		deckPanel.showWidget(1);
-		useCustomVariability.setVisible(true);
-		useCustomCorrelation.setVisible(false);
-		uploadCorrelationMatrix.setVisible(true);
-		useStructuredVariability.setVisible(true);
-		uploadCovarianceMatrix.setVisible(false);
-	}
-	
-	public void useStructuredVariabilityEvent()
-	{
-		deckPanel.showWidget(0);
-		useCustomVariability.setVisible(true);
-		useCustomCorrelation.setVisible(true);
-		uploadCorrelationMatrix.setVisible(false);
-		useStructuredVariability.setVisible(false);
-		uploadCovarianceMatrix.setVisible(false);
-	}
-	
-	public void uploadCorrelationMatrixEvent()
-	{
-		
-	}
-	
-	public void uploadCovarianceMatrixEvent()
-	{
-		
-	}
-	
+	/**
+	 * Create a covariance domain object based on the currently
+	 * visible covariance view
+	 * @return Covariance domain object
+	 */
 	public Covariance getCovariance()
 	{
 	    int visibleIndex = deckPanel.getVisibleWidget();
@@ -264,7 +218,12 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	    return covariance;
 	}
 	
+	/**
+	 * Check if the panel is complete
+	 * @return true if complete, false otherwise
+	 */
 	public boolean checkComplete() {
+	    // TODO: add check complete to covariance builder?
 	    return true;
 	}
 }
