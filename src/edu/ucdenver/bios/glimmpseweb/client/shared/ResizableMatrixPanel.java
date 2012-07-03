@@ -590,7 +590,12 @@ public class ResizableMatrixPanel extends Composite
             for(int column = 0; column < columns; column++)
             {
                 TextBox tb = (TextBox) matrixCellAndLabelTable.getWidget(row+1, column+1);
-                data[row][column] = Double.parseDouble(tb.getValue());
+                String value = tb.getValue();
+                if (value != null && !value.isEmpty()) {
+                    data[row][column] = Double.parseDouble(tb.getValue());
+                } else {
+                    data[row][column] = Double.NaN;
+                }
             }
         }
         namedMatrix.setDataFromArray(data);
@@ -667,7 +672,12 @@ public class ResizableMatrixPanel extends Composite
             {
                 for(int column = 0; column < columns; column++)
                 {
-                    setCellValue(row, column, Double.toString(data[row][column]));
+                    double value = data[row][column];
+                    if (value != Double.NaN) {
+                        setCellValue(row, column, Double.toString(value));
+                    } else {
+                        setCellValue(row, column, "");
+                    }
                 }
             }
             rowTextBox.setValue(Integer.toString(rows));

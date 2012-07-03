@@ -160,12 +160,18 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
     public Covariance getCovariance() 
     {
         Covariance covariance = new Covariance();
+        covariance.setName(name);
         List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
-        StandardDeviation sd = new StandardDeviation();
         for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
         {
             TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
-            sd.setValue(Double.parseDouble(tb.getValue()));
+            String value = tb.getValue();
+            StandardDeviation sd = new StandardDeviation();
+            if (value != null && !value.isEmpty()) {
+                sd.setValue(Double.parseDouble(tb.getValue()));
+            } else {
+                sd.setValue(Double.NaN);
+            }
             sdList.add(sd);
         }
         covariance.setStandardDeviationList(sdList);

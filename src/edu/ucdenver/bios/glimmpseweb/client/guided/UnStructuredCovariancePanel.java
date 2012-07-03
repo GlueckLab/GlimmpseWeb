@@ -43,10 +43,13 @@ implements CovarianceBuilder
 {
     // matrix display panel
 	protected ResizableMatrixPanel covarianceMatrix;
+	// name for this covariance component
+	protected String name;
 	
-	public UnStructuredCovariancePanel(List<String> labelList, List<Integer> spacingList)
+	public UnStructuredCovariancePanel(String name, List<String> labelList, List<Integer> spacingList)
 	{
 		VerticalPanel verticalPanel = new VerticalPanel();
+		this.name = name;
 		
 		HTML header = new HTML();
 		header.setText(GlimmpseWeb.constants.unstructuredCovarianceHeader());
@@ -70,8 +73,11 @@ implements CovarianceBuilder
     @Override
     public Covariance getCovariance() 
     {
-        NamedMatrix matrix = covarianceMatrix.toNamedMatrix("N/A");
+        NamedMatrix matrix = covarianceMatrix.toNamedMatrix(name);
         Covariance covariance = new Covariance();
+        covariance.setName(name);
+        covariance.setColumns(matrix.getColumns());
+        covariance.setRows(matrix.getRows());
         covariance.setBlob(matrix.getData());
         return covariance;
     }

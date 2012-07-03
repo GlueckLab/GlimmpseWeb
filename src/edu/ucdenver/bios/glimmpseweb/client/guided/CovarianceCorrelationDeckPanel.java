@@ -144,11 +144,11 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
 		StructuredCorrelationPanel structuredCorrelationPanelInstance = 
-				new StructuredCorrelationPanel(labelList, spacingList);
+				new StructuredCorrelationPanel(name, labelList, spacingList);
 	      UnStructuredCorrelationPanel unstructuredCorrelationPanelInstance = 
               new UnStructuredCorrelationPanel(name, labelList, spacingList);
 		UnStructuredCovariancePanel unstructuredCovariancePanelInstance = 
-				new UnStructuredCovariancePanel(labelList, spacingList);
+				new UnStructuredCovariancePanel(name, labelList, spacingList);
 		
 		deckPanel.add(structuredCorrelationPanelInstance);
 		deckPanel.add(unstructuredCorrelationPanelInstance);

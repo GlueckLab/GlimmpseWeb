@@ -51,6 +51,9 @@ import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
  */
 public class StructuredCorrelationPanel extends Composite implements CovarianceBuilder
 {
+    // name of this covariance component
+    protected String name;
+    
     // input boxes for Lear parameters
     protected TextBox standardDeviationTextBox = new TextBox();
     protected TextBox strongestCorrelationTextBox = new TextBox();
@@ -71,10 +74,10 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     /**
      * Constructor 
      */
-    public StructuredCorrelationPanel(List<String> labelList, List<Integer> spacingList)
+    public StructuredCorrelationPanel(String name, List<String> labelList, List<Integer> spacingList)
     {
         VerticalPanel verticalPanel = new VerticalPanel();
-
+        this.name = name;
         // create a lear calculator for the given spacing
         if (spacingList.size() > 1) {
             learCorrelation = new LearCorrelation(spacingList);
@@ -83,12 +86,18 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         HTML header = new HTML(GlimmpseWeb.constants.structuredCorrelationPanelHeader());
         HTML description = new HTML(GlimmpseWeb.constants.structuredCorrelationPanelText());
 
-        HtmlTextWithExplanationPanel standardDeviation = new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.standardDeviationLabel(),
-                GlimmpseWeb.constants.standardDeviationExplinationHeader(), GlimmpseWeb.constants.standardDeviationExplinationText());
-        HtmlTextWithExplanationPanel strongestCorrelation = new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.strongestCorrelationLabel(),
-                GlimmpseWeb.constants.strongestCorrelationExplinationHeader(), GlimmpseWeb.constants.strongestCorrelationExplinationText());
-        HtmlTextWithExplanationPanel rateOfDecayOfCorrelation = new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.rateOfDecayOfCorrelationLabel(),
-                GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationHeader(), GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationText());
+        HtmlTextWithExplanationPanel standardDeviation = 
+                new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.standardDeviationLabel(),
+                GlimmpseWeb.constants.standardDeviationExplinationHeader(), 
+                GlimmpseWeb.constants.standardDeviationExplinationText());
+        HtmlTextWithExplanationPanel strongestCorrelation = 
+                new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.strongestCorrelationLabel(),
+                GlimmpseWeb.constants.strongestCorrelationExplinationHeader(), 
+                GlimmpseWeb.constants.strongestCorrelationExplinationText());
+        HtmlTextWithExplanationPanel rateOfDecayOfCorrelation = 
+                new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.rateOfDecayOfCorrelationLabel(),
+                GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationHeader(), 
+                GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationText());
 
         Grid grid = new Grid(3,2);
 
@@ -102,7 +111,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 {
                     Double value = TextValidation.parseDouble(tb.getText(),0,true,false);
                     setStandardDeviation(value);
-                    poplutateMatrix();
+                    populateMatrix();
                     TextValidation.displayOkay(errorHTML, "");
                 }
                 catch(Exception e)
@@ -125,7 +134,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 {
                     Double strongestCorrelationValue =TextValidation.parseDouble(tb.getText(), -1.0, 1.0, true);
                     setStrongestCorrelation(strongestCorrelationValue);
-                    poplutateMatrix();
+                    populateMatrix();
                     TextValidation.displayOkay(errorHTML, "");
                 }
                 catch(Exception e)
@@ -150,7 +159,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                     Double rateOfDecayvalue = TextValidation.parseDouble(tb.getText(),
                             0,true);
                     setRateOfDecay(rateOfDecayvalue);
-                    poplutateMatrix();
+                    populateMatrix();
                     TextValidation.displayOkay(errorHTML, "");
                 }
                 catch(Exception e)
@@ -207,7 +216,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 !Double.isNaN(rateOfDecay));
     }
 
-    public void poplutateMatrix()
+    private void populateMatrix()
     {
         int rows = resizableMatrix.getRowDimension();
         int columns = resizableMatrix.getColumnDimension();
@@ -249,7 +258,9 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
 
     public Covariance getCovariance()
     {
-        Covariance covariance = null;
+        Covariance covariance = new Covariance();
+        covariance.setName(name);
+        
         if (checkComplete()) {
             covariance = new Covariance();
             sdList.clear();

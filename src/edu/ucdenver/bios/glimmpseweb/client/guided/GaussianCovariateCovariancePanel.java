@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -48,116 +47,119 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
+
 /**
- * 
+ * Screen to input the correlation between the gaussian covariate
+ * and the outcomes.
  * @author VIJAY AKULA
  *
  */
 public class GaussianCovariateCovariancePanel extends WizardStepPanel
 {
 	// context object
-    StudyDesignContext studyDesignContext;
+    protected StudyDesignContext studyDesignContext;
     
-    HorizontalPanel hp = new HorizontalPanel();
+    protected HorizontalPanel hp = new HorizontalPanel();
     
-    FlexTable flexTable = new FlexTable();
+    protected FlexTable flexTable = new FlexTable();
     
-    int flexTableRows = 1;
+    protected int flexTableRows = 1;
     
-    boolean CHECKBOXVALUE;
+    protected TextBox textBox = new TextBox();
     
-    TextBox textBox = new TextBox();
-    
-    List<RepeatedMeasuresNode> repeatedMeasuresNodeList= new ArrayList<RepeatedMeasuresNode>();
+    protected List<RepeatedMeasuresNode> repeatedMeasuresNodeList= new ArrayList<RepeatedMeasuresNode>();
     //this is the List of List of Strings to keep track of
     //all the repeated nodes objects label list
-    List<List<String>> dataList = new ArrayList<List<String>>();
+    protected List<List<String>> dataList = new ArrayList<List<String>>();
     
     HTML errorHTMLUP = new HTML();
     HTML errorHTMLDOWN = new HTML();
     
-    
+    /**
+     * Constructor
+     * @param context study design context object
+     */
 	public GaussianCovariateCovariancePanel(WizardContext context) 
 	{
-		super(context, "Random Covariate Covariance Screen");
+		super(context, GlimmpseWeb.constants.navItemVariabilityGaussianCovariate(),
+		        WizardStepPanelState.SKIPPED);
 		studyDesignContext = (StudyDesignContext) context;
 		
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
-//		HTML header = new HTML();
-//		header.setText(GlimmpseWeb.constants.randomCovariateCovarianceHeader());
-//		
-//		HTML description = new HTML();
-//		description.setText(GlimmpseWeb.constants.randomCovariateCovarianceDescription());
-//		
-//		HTML enterStandardDeviationExpectedInstruction = new HTML();
-//		enterStandardDeviationExpectedInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterStandardDeviationExpectedInstruction());
-//		
-//		HTML enterCorrelationYouExpectToObserveInstruction = new HTML();
-//		enterCorrelationYouExpectToObserveInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction());
-//		
-//		HorizontalPanel horizontalPanel = new HorizontalPanel();
-//
-//		HTML label = new HTML("Covarite");
-//		
-//		
-//		textBox.addChangeHandler(new ChangeHandler(){ 
-//            @Override
-//            public void onChange(ChangeEvent event)
-//            {
-//                TextBox tb = (TextBox)event.getSource();
-//                try
-//                {
-//                    
-//                    String value = tb.getValue();
-//                    double d = TextValidation.parseDouble(value);
-//                    TextValidation.displayOkay(errorHTMLUP, "");
-//                    TextValidation.displayOkay(errorHTMLDOWN, "");
-//                }
-//                catch (Exception e)
-//                {
-//                    TextValidation.displayError(errorHTMLUP,
-//                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
-//                    TextValidation.displayError(errorHTMLDOWN,
-//                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
-//                }
-//            }
-//        });
-//		
-//		horizontalPanel.add(label);
-//		horizontalPanel.add(textBox);
-//		
-//		
-//		CheckBox sampleCorrelationCheckBox = new CheckBox("");
-//		
-//		sampleCorrelationCheckBox.addClickHandler(new ClickHandler()
-//		{
-//			@Override
-//			public void onClick(ClickEvent event)
-//			{
-//				CheckBox cb = (CheckBox)event.getSource();
-//				CHECKBOXVALUE = cb.isChecked();
-//				editCorrelationTextBoxes();
-//				
-//			}
-//		});
-//		sampleCorrelationCheckBox.setHTML("Use the sample correlation for all outcomes");
-//
-//		constructFlexTable();
-//		
-//		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-//		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-//		sampleCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-//		
-//		verticalPanel.add(header);
-//		verticalPanel.add(description);
-//		verticalPanel.add(enterStandardDeviationExpectedInstruction);
-//		verticalPanel.add(horizontalPanel);
-//		verticalPanel.add(enterCorrelationYouExpectToObserveInstruction);
-//		verticalPanel.add(sampleCorrelationCheckBox);
-//		verticalPanel.add(errorHTMLUP);
-//		verticalPanel.add(hp);
-//		verticalPanel.add(errorHTMLDOWN);
+		HTML header = new HTML();
+		header.setText(GlimmpseWeb.constants.randomCovariateCovarianceHeader());
+		
+		HTML description = new HTML();
+		description.setText(GlimmpseWeb.constants.randomCovariateCovarianceDescription());
+		
+		HTML enterStandardDeviationExpectedInstruction = new HTML();
+		enterStandardDeviationExpectedInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterStandardDeviationExpectedInstruction());
+		
+		HTML enterCorrelationYouExpectToObserveInstruction = new HTML();
+		enterCorrelationYouExpectToObserveInstruction.setText(GlimmpseWeb.constants.randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction());
+		
+		HorizontalPanel horizontalPanel = new HorizontalPanel();
+
+		HTML label = new HTML("Covarite");
+		
+		
+		textBox.addChangeHandler(new ChangeHandler(){ 
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                TextBox tb = (TextBox)event.getSource();
+                try
+                {
+                    
+                    String value = tb.getValue();
+                    double d = TextValidation.parseDouble(value);
+                    TextValidation.displayOkay(errorHTMLUP, "");
+                    TextValidation.displayOkay(errorHTMLDOWN, "");
+                }
+                catch (Exception e)
+                {
+                    TextValidation.displayError(errorHTMLUP,
+                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
+                    TextValidation.displayError(errorHTMLDOWN,
+                            GlimmpseWeb.constants.randomCovariateCovarianceCovariateValueError());
+                }
+            }
+        });
+		
+		horizontalPanel.add(label);
+		horizontalPanel.add(textBox);
+		
+		
+		CheckBox sampleCorrelationCheckBox = new CheckBox("");
+		
+		sampleCorrelationCheckBox.addClickHandler(new ClickHandler()
+		{
+			@Override
+			public void onClick(ClickEvent event)
+			{
+				CheckBox cb = (CheckBox)event.getSource();
+				editCorrelationTextBoxes(cb.getValue());
+				
+			}
+		});
+		sampleCorrelationCheckBox.setHTML("Use the sample correlation for all outcomes");
+
+		constructFlexTable();
+		
+		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		sampleCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		
+		verticalPanel.add(header);
+		verticalPanel.add(description);
+		verticalPanel.add(enterStandardDeviationExpectedInstruction);
+		verticalPanel.add(horizontalPanel);
+		verticalPanel.add(enterCorrelationYouExpectToObserveInstruction);
+		verticalPanel.add(sampleCorrelationCheckBox);
+		verticalPanel.add(errorHTMLUP);
+		verticalPanel.add(hp);
+		verticalPanel.add(errorHTMLDOWN);
 		initWidget(verticalPanel);
 
 	}
@@ -173,131 +175,131 @@ public class GaussianCovariateCovariancePanel extends WizardStepPanel
 		//getting repeated measures tree form a study design
 		repeatedMeasuresNodeList = studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
 		
-		//integer value to keep the track of number of repeated measures node objects in the repeated measures tree
-		int noOfRepeatedMeasures = repeatedMeasuresNodeList.size();
-		
-		//Construction of the flexTable
-		
-		
-		//this for loop is used to display the Headings of the flex table
-		// which are present in the first row of the tabel
-		
-		for(int i = 0; i < noOfRepeatedMeasures; i++)
-		{
-			RepeatedMeasuresNode repeatedMeasuresNode = new RepeatedMeasuresNode();
-			
-			repeatedMeasuresNode = repeatedMeasuresNodeList.get(i);
-			
-			List<String> labelList = new ArrayList<String>();
-			
-			List <Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
-			
-			String dimension = repeatedMeasuresNode.getDimension();
-			
-			//code to construct the label list
-			for(int j = 0; j < spacingList.size(); j++)
-			{
-				labelList.add(dimension+" "+spacingList.get(j).toString());
-			}
-			
-			//this is to display the dimension as the heading of the cloumn
-			HTML label = new HTML(repeatedMeasuresNode.getDimension());
-			label.setSize("60", "20");
-			flexTable.setWidget(0, i, label);
-			
-			dataList.add(labelList);
-			
-			//this integer variable is to store the total number of rows 
-			//to be displayed in the flex table
-			flexTableRows = flexTableRows*labelList.size();
-		}
-		
-		//this integer variable is to find the number of lists in the dataList
-		//so that Responses and Correlatio n will be displayed as heading in the next columns of the flex table
-		int dataListSize = dataList.size();
-		
-		HTML responses = new HTML("Responses");
-		responses.setSize("60", "20");
-		HTML correlation = new HTML("Correlation");
-		correlation.setSize("60", "20");
-		flexTable.setWidget(0, dataListSize, responses);
-		flexTable.setWidget(0, dataListSize+1, correlation);
-		
-		List <String> responseList = studyDesignContext.getStudyDesign().getResponseListNames();
-
-		//adding responseList to the dataList
-		dataList.add(responseList);
-		
-		//Calculating the numbers of rows to be displayed a
-		flexTableRows = flexTableRows*responseList.size();
-		
-		
-		int i;
-		for( i = 0; i <= dataList.size()-1; i++)
-		{
-			int numberOfRows = 1;
-			for(int x = i+1; x < dataList.size(); x++)
-			{
-				int c = dataList.get(x).size();
-				numberOfRows = numberOfRows*c;
-			}
-			int a = 0;
-			String abc="";
-			for(int j = 0; j < flexTableRows; j++)
-				{
-				HTML text = new HTML();
-					if(j % numberOfRows == 0)
-					{
-						abc = dataList.get(i).get(a);
-						int check = dataList.get(i).size();
-						if(a == check-1)
-						{
-							a = 0;
-						}
-						else
-						{
-							a++;
-						}
-					}
-				text.setText(abc);
-				flexTable.setWidget(j+1, i, text);
-			}
-		}
-		for(int t = 1; t <= flexTableRows; t++ )
-		{
-			TextBox tb = new TextBox();
-			tb.addChangeHandler(new ChangeHandler() 
-			{
-				@Override
-				public void onChange(ChangeEvent event) 
-				{
-					TextBox correlationTextBox = (TextBox)event.getSource();
-					try
-					{
-						String value = correlationTextBox.getValue();
-						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
-						correlationTextBox.setValue(""+d);
-						TextValidation.displayOkay(errorHTMLUP, "");
-						TextValidation.displayOkay(errorHTMLDOWN, "");
-						
-					}
-					catch(Exception e)
-					{
-						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-					}	
-				}
-			});
-			tb.setSize("75", "30");
-			flexTable.setWidget(t, dataList.size(), tb);
-		}
-	
-		hp.add(flexTable);
+//		//integer value to keep the track of number of repeated measures node objects in the repeated measures tree
+//		int noOfRepeatedMeasures = repeatedMeasuresNodeList.size();
+//		
+//		//Construction of the flexTable
+//		
+//		
+//		//this for loop is used to display the Headings of the flex table
+//		// which are present in the first row of the tabel
+//		
+//		for(int i = 0; i < noOfRepeatedMeasures; i++)
+//		{
+//			RepeatedMeasuresNode repeatedMeasuresNode = new RepeatedMeasuresNode();
+//			
+//			repeatedMeasuresNode = repeatedMeasuresNodeList.get(i);
+//			
+//			List<String> labelList = new ArrayList<String>();
+//			
+//			List <Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
+//			
+//			String dimension = repeatedMeasuresNode.getDimension();
+//			
+//			//code to construct the label list
+//			for(int j = 0; j < spacingList.size(); j++)
+//			{
+//				labelList.add(dimension+" "+spacingList.get(j).toString());
+//			}
+//			
+//			//this is to display the dimension as the heading of the cloumn
+//			HTML label = new HTML(repeatedMeasuresNode.getDimension());
+//			label.setSize("60", "20");
+//			flexTable.setWidget(0, i, label);
+//			
+//			dataList.add(labelList);
+//			
+//			//this integer variable is to store the total number of rows 
+//			//to be displayed in the flex table
+//			flexTableRows = flexTableRows*labelList.size();
+//		}
+//		
+//		//this integer variable is to find the number of lists in the dataList
+//		//so that Responses and Correlatio n will be displayed as heading in the next columns of the flex table
+//		int dataListSize = dataList.size();
+//		
+//		HTML responses = new HTML("Responses");
+//		responses.setSize("60", "20");
+//		HTML correlation = new HTML("Correlation");
+//		correlation.setSize("60", "20");
+//		flexTable.setWidget(0, dataListSize, responses);
+//		flexTable.setWidget(0, dataListSize+1, correlation);
+//		
+//		List <String> responseList = studyDesignContext.getStudyDesign().getResponseListNames();
+//
+//		//adding responseList to the dataList
+//		dataList.add(responseList);
+//		
+//		//Calculating the numbers of rows to be displayed a
+//		flexTableRows = flexTableRows*responseList.size();
+//		
+//		
+//		int i;
+//		for( i = 0; i <= dataList.size()-1; i++)
+//		{
+//			int numberOfRows = 1;
+//			for(int x = i+1; x < dataList.size(); x++)
+//			{
+//				int c = dataList.get(x).size();
+//				numberOfRows = numberOfRows*c;
+//			}
+//			int a = 0;
+//			String abc="";
+//			for(int j = 0; j < flexTableRows; j++)
+//				{
+//				HTML text = new HTML();
+//					if(j % numberOfRows == 0)
+//					{
+//						abc = dataList.get(i).get(a);
+//						int check = dataList.get(i).size();
+//						if(a == check-1)
+//						{
+//							a = 0;
+//						}
+//						else
+//						{
+//							a++;
+//						}
+//					}
+//				text.setText(abc);
+//				flexTable.setWidget(j+1, i, text);
+//			}
+//		}
+//		for(int t = 1; t <= flexTableRows; t++ )
+//		{
+//			TextBox tb = new TextBox();
+//			tb.addChangeHandler(new ChangeHandler() 
+//			{
+//				@Override
+//				public void onChange(ChangeEvent event) 
+//				{
+//					TextBox correlationTextBox = (TextBox)event.getSource();
+//					try
+//					{
+//						String value = correlationTextBox.getValue();
+//						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
+//						correlationTextBox.setValue(""+d);
+//						TextValidation.displayOkay(errorHTMLUP, "");
+//						TextValidation.displayOkay(errorHTMLDOWN, "");
+//						
+//					}
+//					catch(Exception e)
+//					{
+//						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+//						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+//					}	
+//				}
+//			});
+//			tb.setSize("75", "30");
+//			flexTable.setWidget(t, dataList.size(), tb);
+//		}
+//	
+//		hp.add(flexTable);
 	}
 
-	public void editCorrelationTextBoxes()
+	public void editCorrelationTextBoxes(boolean allowEdit)
 	{
-		if(CHECKBOXVALUE)
+		if(allowEdit)
 		{
 			for(int i = 2; i <= flexTableRows; i++)
 			{

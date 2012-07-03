@@ -27,6 +27,7 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -102,7 +103,8 @@ implements ClickHandler
      */
     public OptionsPowerMethodsPanel(WizardContext context, String mode)
     {
-        super(context, "Power Method", WizardStepPanelState.SKIPPED);
+        super(context, GlimmpseWeb.constants.navItemPowerMethod(), 
+                WizardStepPanelState.SKIPPED);
         studyDesignContext = (StudyDesignContext) context;
         VerticalPanel panel = new VerticalPanel();
 
@@ -161,7 +163,6 @@ implements ClickHandler
         numQuantiles = 0;
         quantileListPanel.reset();
         changeState(WizardStepPanelState.SKIPPED);
-        checkComplete();
     }
 
     /**
@@ -278,8 +279,8 @@ implements ClickHandler
      */
     private void loadPowerMethodListFromContext()
     {
-        List<PowerMethod> methodList = studyDesignContext.getStudyDesign().getPowerMethodList();
         reset();
+        List<PowerMethod> methodList = studyDesignContext.getStudyDesign().getPowerMethodList();
         if (methodList != null) {
             for(PowerMethod method: methodList)
             {
@@ -295,6 +296,7 @@ implements ClickHandler
             }
         }
     }
+
 
     /**
      * Set the quantile list information from the context

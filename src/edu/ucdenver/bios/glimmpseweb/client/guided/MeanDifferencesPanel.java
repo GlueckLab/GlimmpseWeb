@@ -26,13 +26,10 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.visualization.client.DataTable;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -45,7 +42,6 @@ import edu.ucdenver.bios.glimmpseweb.context.FactorTable;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
-import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 
 /**
@@ -57,7 +53,16 @@ implements ChangeHandler
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 
+    // complete matrix data 
+    protected double[][] betaMatrixData;
+    protected ArrayList<Integer> columnOffsets = new ArrayList<Integer>();
+    
+    // column offsets for each within participant factor
+    
+    // flex table of mean values
     protected FlexTable meansTable = new FlexTable();
+    protected FlexTable repeatedMeasuresTable = new FlexTable();
+    
     protected int betaRows = 0;
     protected int betaColumns = 0;
     protected int dataStartRow = 0;
@@ -66,7 +71,10 @@ implements ChangeHandler
     protected boolean hasCovariate = false;
     protected int totalBetweenFactors = 0;
     protected int totalBetweenFactorCombinations = 0;
-    protected int totalWithinFactorCombinations = 0;
+    protected int totalRepeatedMeasures = 0;
+    protected int totalRepeatedMeasuresCombinations = 0;
+    protected int totalResponseVariables = 0;
+    // product of repeated measure combinations and #response variables
     protected int totalResponses = 0;
     
     protected HTML errorHTML = new HTML();
@@ -156,6 +164,7 @@ implements ChangeHandler
                 
                 // lastly, fill in the text boxes
                 fillTextBoxes();
+                updateMatrixData();
             }
         }
         checkComplete();
@@ -164,14 +173,35 @@ implements ChangeHandler
     private void loadRepeatedMeasuresFromContext() {
         FactorTable withinParticipantMeasures = studyDesignContext.getWithinParticipantMeasures();
         
+        checkComplete();
+    }
+    
+    private void updateMatrixData() {
+        if (totalBetweenFactorCombinations > 0 && totalResponseVariables > 0) {
+            int totalResponses = totalResponseVariables;
+            if (totalRepeatedMeasuresCombinations > 0) {
+                totalResponses *= totalRepeatedMeasuresCombinations;
+            }
+            betaMatrixData = 
+                    new double[totalBetweenFactorCombinations][totalResponses];
+            for(int row = 0; row < totalBetweenFactorCombinations; row++) {
+                for(int col = 0; col < totalResponses; col++) {
+                    if (row == 0 && col == 0) {
+                        betaMatrixData[row][col] = 1;
+                    } else {
+                        betaMatrixData[row][col] = 0;
+                    }
+                }
+            }
+        }
     }
     
     private void fillTextBoxes() {
-        if (totalBetweenFactors > 0 && totalResponses > 0) {
+        if (totalBetweenFactors > 0 && totalResponseVariables > 0) {
             for(int row = 1; row < meansTable.getRowCount(); row++) {
                 meansTable.getRowFormatter().setStyleName(row, 
                         GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
-                for(int col = totalBetweenFactors; col < totalResponses+totalBetweenFactors; col++) {
+                for(int col = totalBetweenFactors; col < totalResponseVariables+totalBetweenFactors; col++) {
                     TextBox tb = new TextBox();
                     tb.setText("0");
                     tb.addChangeHandler(this);
@@ -182,9 +212,9 @@ implements ChangeHandler
     }
     
     private void loadResponsesFromContext() {
-        if (totalResponses > 0) {
+        if (totalResponseVariables > 0) {
             // remove the columns associated with the responses
-            for(int col = totalBetweenFactors; col < totalResponses; col++) {
+            for(int col = totalBetweenFactors; col < totalResponseVariables; col++) {
                 for(int row = meansTable.getRowCount()-1; row >= 0; row--) {
                     meansTable.removeCell(row, col);
                 }
@@ -192,8 +222,8 @@ implements ChangeHandler
         }
         // now load the new responses
         List<ResponseNode> outcomeList = studyDesignContext.getStudyDesign().getResponseList();
-        totalResponses = outcomeList.size();
         if (outcomeList != null && outcomeList.size() > 0) {
+            totalResponseVariables = outcomeList.size();
             int col = totalBetweenFactors;
             for(ResponseNode outcome: outcomeList) {
                 meansTable.setWidget(0, col, new HTML(outcome.getName()));
@@ -202,13 +232,29 @@ implements ChangeHandler
         }
         // create text boxes to hold the means
         fillTextBoxes();
-        
+        updateMatrixData();
         checkComplete();
     }
 
     private void checkComplete() {        
-        if (totalBetweenFactors > 0 && totalResponses > 0) {
-            changeState(WizardStepPanelState.INCOMPLETE);
+        if (totalBetweenFactors > 0 && totalResponseVariables > 0) {
+            boolean hasNonZero = false;
+            for(int row = 0; row < totalBetweenFactorCombinations; row++) {
+                for(int col = 0; col < totalResponses; col++) {
+                    if (betaMatrixData[row][col] != 0) {
+                        hasNonZero = true;
+                        break;
+                    }
+                }
+                if (hasNonZero) {
+                    break;
+                }
+            }
+            if (hasNonZero) {
+                changeState(WizardStepPanelState.COMPLETE);
+            } else {
+                changeState(WizardStepPanelState.INCOMPLETE);
+            }
         } else {
             changeState(WizardStepPanelState.NOT_ALLOWED);
         }

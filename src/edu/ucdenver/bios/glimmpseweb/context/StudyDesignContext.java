@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -309,7 +310,7 @@ public class StudyDesignContext extends WizardContext
         boolean gaussianCovariate = studyDesign.isGaussianCovariate();
 
         boolean hasBetweenFactors = false;
-        boolean hasResponses = false;
+        int totalWithinFactors = 0;
         boolean hasHypothesis = false;
         boolean hasCovariance = false;
         boolean hasThetaNull = false;
@@ -321,7 +322,15 @@ public class StudyDesignContext extends WizardContext
         hasBetweenFactors = (betweenFactorList != null && betweenFactorList.size() > 0);
         // do we have responses?
         List<ResponseNode> responseList = studyDesign.getResponseList();
-        hasResponses = (responseList != null && responseList.size() > 0);
+        if (responseList != null) {
+            totalWithinFactors++;
+        }
+        // do we have repeated measures (optional) ?
+        List<RepeatedMeasuresNode> rmNodeList = studyDesign.getRepeatedMeasuresTree();
+        if (rmNodeList != null) {
+            totalWithinFactors += rmNodeList.size();
+        }
+        
         // do we have a hypothesis?
         Set<Hypothesis> hypothesisSet = studyDesign.getHypothesis();
         hasHypothesis = (hypothesisSet != null && hypothesisSet.size() > 0);
@@ -350,17 +359,18 @@ public class StudyDesignContext extends WizardContext
         }
         // do we have covariance information?
         Set<Covariance> covarianceSet = studyDesign.getCovariance();
-        hasCovariance = (covarianceSet != null && covarianceSet.size() > 0);
+        hasCovariance = (covarianceSet != null && covarianceSet.size() == totalWithinFactors);
 
-        complete = (validLists() 
-                && hasBetweenFactors && hasResponses
-                && hasHypothesis && hasCovariance
-                && hasBeta && hasBetaRandom
-                && hasThetaNull);
+        complete = (validLists() && 
+                hasBetweenFactors && 
+                totalWithinFactors > 0 &&
+                hasHypothesis && 
+                hasCovariance && 
+                hasBeta && 
+                hasBetaRandom &&
+                hasThetaNull);
 
         GWT.log("Study design complete? " + complete);
-        //TODO: remove
-        complete = true;
     }
 
     /**
