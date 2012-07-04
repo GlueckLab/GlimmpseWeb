@@ -51,6 +51,7 @@ import com.google.gwt.visualization.client.visualizations.Table;
 
 import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.connector.ChartSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -149,7 +150,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	
 	public ResultsDisplayPanel(WizardContext context)
 	{
-		super(context, "Results", // TODO: GlimmpseWeb.constants.navItemFinish(),
+		super(context, GlimmpseWeb.constants.navItemFinish(),
 		        WizardStepPanelState.NOT_ALLOWED);
 		VerticalPanel panel = new VerticalPanel();
 
@@ -471,7 +472,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     List<NamedMatrix> matrixList = powerSvcConnector.parseMatrixList(response.getText());
-                    matrixDisplayPanel.loadFromMatrixList(matrixList);
+                    //matrixDisplayPanel.loadFromMatrixList(matrixList);
                 }
 
                 @Override

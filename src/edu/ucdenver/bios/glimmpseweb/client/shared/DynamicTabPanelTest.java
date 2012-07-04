@@ -54,6 +54,8 @@ public class DynamicTabPanelTest extends WizardStepPanel {
             }
             
         });
+        
+        
         panel.add(tabPanel);
         panel.add(addFirstButton);
         panel.add(addLastButton);
@@ -84,6 +86,7 @@ public class DynamicTabPanelTest extends WizardStepPanel {
             tabPanel.remove(0);
         }
     }
+    
     
     private VerticalPanel makeTabContents() {
         VerticalPanel panel = new VerticalPanel();

@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -34,6 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.connector.DomainObjectSerializer;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
@@ -42,6 +44,7 @@ import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMa
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 /**
@@ -201,6 +204,7 @@ implements HypothesisBuilder {
             HypothesisRepeatedMeasuresMapping mappingNode =
                 new HypothesisRepeatedMeasuresMapping();
             mappingNode.setRepeatedMeasuresNode(selectedRepeatedMeasuresNode);
+            mappingNode.setType(HypothesisTrendTypeEnum.NONE);
             List<HypothesisRepeatedMeasuresMapping> mappingList =
                 new ArrayList<HypothesisRepeatedMeasuresMapping>();
             mappingList.add(mappingNode);
@@ -210,10 +214,12 @@ implements HypothesisBuilder {
             HypothesisBetweenParticipantMapping mappingParticipant =
                 new HypothesisBetweenParticipantMapping();
             mappingParticipant.setBetweenParticipantFactor(selectedBetweenParticipantFactor);
+            mappingParticipant.setType(HypothesisTrendTypeEnum.NONE);
             List<HypothesisBetweenParticipantMapping> mappingList = 
                 new ArrayList<HypothesisBetweenParticipantMapping>();
             mappingList.add(mappingParticipant);
             hypothesis.setBetweenParticipantFactorMapList(mappingList);
+            
         } else {
             return null;
         }

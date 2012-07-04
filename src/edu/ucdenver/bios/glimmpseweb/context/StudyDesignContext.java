@@ -208,7 +208,16 @@ public class StudyDesignContext extends WizardContext
 
     public void setThetaNull(WizardStepPanel panel, NamedMatrix thetaNull)
     {
-        studyDesign.setNamedMatrix(thetaNull);
+        if (thetaNull != null) {
+            studyDesign.setNamedMatrix(thetaNull);
+        } else {
+            Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
+            // TODO
+//            if (matrixSet != null) {
+//                matrixSet.remove(arg0)
+//            }
+        }
+
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.THETA_NULL_MATRIX));
     }
@@ -371,6 +380,7 @@ public class StudyDesignContext extends WizardContext
                 hasThetaNull);
 
         GWT.log("Study design complete? " + complete);
+        complete= true;
     }
 
     /**

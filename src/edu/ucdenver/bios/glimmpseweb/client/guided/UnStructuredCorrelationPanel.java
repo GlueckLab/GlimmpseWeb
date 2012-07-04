@@ -39,6 +39,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
+import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
  * 
@@ -161,6 +162,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
     {
         Covariance covariance = new Covariance();
         covariance.setName(name);
+        covariance.setType(CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
         List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
         for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
         {

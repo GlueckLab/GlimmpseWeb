@@ -31,6 +31,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
+import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
  * Entry panel for a generic covariance matrix
@@ -76,6 +77,7 @@ implements CovarianceBuilder
         NamedMatrix matrix = covarianceMatrix.toNamedMatrix(name);
         Covariance covariance = new Covariance();
         covariance.setName(name);
+        covariance.setType(CovarianceTypeEnum.UNSTRUCTURED_COVARIANCE);
         covariance.setColumns(matrix.getColumns());
         covariance.setRows(matrix.getRows());
         covariance.setBlob(matrix.getData());

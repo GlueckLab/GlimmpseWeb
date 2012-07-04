@@ -164,9 +164,6 @@ implements ClickHandler, ChangeHandler {
 
         // add tabs to the tab panel
         tabPanel.add(grandMeanSelectPanel, (Widget) grandMeanHypothesisPanelInstance);
-        tabPanel.add(mainEffectSelectPanel, (Widget) mainEffectHypothesisPanelInstance);
-        tabPanel.add(interactionSelectPanel, (Widget) interactionHypothesisPanelInstance);
-        tabPanel.add(trendSelectPanel, (Widget) trendHypothesisPanelInstance);
 
         // layout panel
         panel.add(title);
@@ -236,12 +233,18 @@ implements ClickHandler, ChangeHandler {
                 studyDesignContext.getStudyDesign().getResponseList();
         int totalFactors = 0;
         int maxLevels = 0;
+        int totalMultiCategoryFactors = 0;
         if (factorList != null) {
             totalFactors += factorList.size();
             for(BetweenParticipantFactor factor: factorList) {
                 List<Category> categoryList = factor.getCategoryList();
-                if (categoryList != null && categoryList.size() > maxLevels) {
-                    maxLevels = categoryList.size();
+                if (categoryList != null) {
+                    if (categoryList.size() > maxLevels) {
+                        maxLevels = categoryList.size();
+                    }
+                    if (categoryList.size() > 1) {
+                        totalMultiCategoryFactors++;
+                    }
                 }
             }
         }
@@ -255,19 +258,17 @@ implements ClickHandler, ChangeHandler {
         }
         
         // show the hypotheses based on the number of factors
-        mainEffectSelectPanel.setVisible(totalFactors > 0 && maxLevels > 1);
-        interactionSelectPanel.setVisible(totalFactors > 1);
-        trendSelectPanel.setVisible(maxLevels > 1);
-        
-        // if no selected panel or selected panel now unavailable, open the first
-        // available hypothesis subpanel
-        tabPanel.setVisible(mainEffectSelectPanel, (totalFactors > 0 && maxLevels > 1));
-        tabPanel.setVisible(interactionSelectPanel, (totalFactors > 1));
-        tabPanel.setVisible(trendSelectPanel, (maxLevels > 1));
-
-
-
-        // reset the right most tab
+        tabPanel.remove(mainEffectSelectPanel);
+        tabPanel.remove(interactionSelectPanel);
+        tabPanel.remove(trendSelectPanel);
+        if (totalFactors > 0 && maxLevels > 1) {
+            tabPanel.add(mainEffectSelectPanel, (Widget) mainEffectHypothesisPanelInstance);
+            tabPanel.add(trendSelectPanel, (Widget) trendHypothesisPanelInstance);
+        } 
+        if (totalMultiCategoryFactors > 1) {
+            tabPanel.add(interactionSelectPanel, (Widget) interactionHypothesisPanelInstance);
+        }
+        tabPanel.openTab(0);
         
         // if no factors or one-sample with no responses, set state to not-allowed.  
         // Otherwise check if the panel is complete

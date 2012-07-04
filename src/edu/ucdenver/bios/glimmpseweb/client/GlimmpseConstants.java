@@ -197,6 +197,7 @@ public interface GlimmpseConstants extends Constants
     public String navItemVariabilityWithinParticipant();
     public String navItemVariabilityGaussianCovariate();
     public String navItemVariabilityScaleFactors();
+    public String navItemFinish();
     
     // tools menu
     public String toolsMenu();
@@ -373,7 +374,7 @@ public interface GlimmpseConstants extends Constants
     public String meanDifferenceScaleDescription();
     public String meanDifferenceScaleQuestion();
     public String meanDifferenceScaleAnswer();
-
+    public String meanDifferenceRepeatedMeasuresInstructions();
     /* Variability section */
     // intro panel
     public String variabilityIntroTitle();

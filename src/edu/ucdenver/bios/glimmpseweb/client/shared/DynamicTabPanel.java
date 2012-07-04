@@ -46,10 +46,10 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 public class DynamicTabPanel extends Composite {
     // current number of tabs
     protected int tabCount = 0;
-    
+
     // currently selected tab
     protected int selectedIndex = -1;
-    
+
     // header bar simulating tabs since you can't dynamically add stuff to a tab panel
     protected FlexTable tabPanel = new FlexTable();
     // deck containing covariance panels
@@ -63,13 +63,13 @@ public class DynamicTabPanel extends Composite {
             index = i;
             add(widget);
         }
-        
+
         @Override
         public HandlerRegistration addClickHandler(ClickHandler handler) {
             return addDomHandler(handler, ClickEvent.getType());
         }
     }
-    
+
     /**
      * Create an empty dynamic tab panel
      */
@@ -86,10 +86,10 @@ public class DynamicTabPanel extends Composite {
         tabPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
         tabPanel.getRowFormatter().setStyleName(0, GlimmpseConstants.STYLE_WIZARD_STEP_TAB_HEADER);
         tabDeck.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TAB_CONTENT);
-        
+
         initWidget(panel);
     }
-    
+
     /**
      * Insert a tab at the specified position
      * @param position position
@@ -100,7 +100,7 @@ public class DynamicTabPanel extends Composite {
         if (position >= 0 && position <= tabCount) {
             // create the new tab
             IndexedDecoratorPanel panel = 
-                    new IndexedDecoratorPanel(position, tabHeader);
+                new IndexedDecoratorPanel(position, tabHeader);
             panel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -133,14 +133,14 @@ public class DynamicTabPanel extends Composite {
                 IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
                 current.index++;
             }
-            if (position < selectedIndex) {
+            if (position <= selectedIndex) {
                 selectedIndex++;
             }
             updateStyles();
         }
 
     }
-    
+
     /**
      * Add a tab to the panel
      * @param tabHeader widget for the tab
@@ -149,28 +149,31 @@ public class DynamicTabPanel extends Composite {
     public void add(Widget tabHeader, Widget tabContents) {
         insert(tabCount, tabHeader, tabContents);
     }
-    
+
     /**
      * Clear all tabs
      */
     public void clear() {
-        //tabPanel.removeAllRows();
+        tabPanel.removeAllRows();
         tabDeck.clear();
         tabCount = 0;
     }
-        
+
     /**
      * Open the tab at the specified index
      * @param index
      */
     public void openTab(int index) {
         if (index >= 0 && index < tabCount) {
-            selectedIndex = index;
-            tabDeck.showWidget(index);
-            updateStyles();
+            IndexedDecoratorPanel panel = (IndexedDecoratorPanel) tabPanel.getWidget(0, index);
+            if (panel.isVisible()) {
+                selectedIndex = index;
+                tabDeck.showWidget(index);
+                updateStyles();
+            }
         }
     }
-    
+
     /**
      * Open the tab with the specified header widget
      * @param tabHeader
@@ -188,7 +191,7 @@ public class DynamicTabPanel extends Composite {
             openTab(index);
         }
     }
-    
+
     private void clearStyles(Widget w) {
         // clear all previous styles
         w.removeStyleDependentName(GlimmpseConstants.STYLE_LEFT);
@@ -201,7 +204,7 @@ public class DynamicTabPanel extends Composite {
         w.removeStyleDependentName(GlimmpseConstants.STYLE_RIGHT_ACTIVE);
         w.removeStyleDependentName(GlimmpseConstants.STYLE_SINGLE);
     }
-    
+
     /**
      * Update the selection styles
      * @param selectedIndex
@@ -245,8 +248,8 @@ public class DynamicTabPanel extends Composite {
                 current.addStyleDependentName(newStyle);
             }
         }
-    }    
-    
+    }
+
     /**
      * Get the total number of tabs
      * @return number of tabs
@@ -254,7 +257,7 @@ public class DynamicTabPanel extends Composite {
     public int  getTabCount() {
         return tabCount;
     }
-    
+
     /**
      * Get the 
      * @param i
@@ -267,7 +270,7 @@ public class DynamicTabPanel extends Composite {
             return null;
         }
     }
-    
+
     public Widget getTabContents(Widget tabHeader) {
         int index = -1;
         for(int col = 0; col < tabPanel.getCellCount(0); col++) {
@@ -283,7 +286,7 @@ public class DynamicTabPanel extends Composite {
             return null;
         }
     }
-    
+
     /**
      * Get the 
      * @param i
@@ -295,32 +298,7 @@ public class DynamicTabPanel extends Composite {
         }
         return null;
     }
-    
-    
-    
-    /**
-     * Hide the tab at the specified index
-     * @param i index
-     */
-    public void setVisible(Widget tabHeader, boolean visible) {
-        for(int col = 0; col < tabPanel.getCellCount(0); col++) {
-            IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
-            if (current.getWidget() == tabHeader) {
-                current.setVisible(visible);
-                if (!visible) {
-                    
-                }
-                
-                // select the leftmost tab
-                
-                // update styles
-                break;
-            }
-        }
-        
 
-    }
-    
     /**
      * Removed the tab matching the specified widget header
      * @param tabHeader
@@ -336,16 +314,18 @@ public class DynamicTabPanel extends Composite {
         }
         if (index != -1) {
             remove(index);
-            updateStyles();
         }
     }
-    
+
     /**
      * Remove the tab at the specified index
      * @param index
      */
     public void remove(int index) {
         if (index >= 0 && index < tabCount) {
+            if (index == selectedIndex) {
+                selectedIndex = -1;
+            }
             tabDeck.remove(index);
             tabPanel.removeCell(0, index);
             tabCount--;
@@ -359,11 +339,5 @@ public class DynamicTabPanel extends Composite {
             updateStyles();
         }
     }
-    
-        
-        
-    
-    
-
 
 }

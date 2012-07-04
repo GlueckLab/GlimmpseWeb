@@ -37,12 +37,12 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 public class FactorTable {
     protected ArrayList<String> columnLabels = new ArrayList<String>();
     protected ArrayList<ArrayList<String>> columns = new ArrayList<ArrayList<String>>();
-    
+
     /**
      * Create an empty factor table
      */
     public FactorTable() {}
-    
+
     /**
      * Fill the factor table from a list of between participant factors.
      * Generates all possible combinations of levels of each factor
@@ -50,107 +50,123 @@ public class FactorTable {
      * @param factorList list of between participant factors
      */
     public void loadBetweenParticipantFactors(List<BetweenParticipantFactor> factorList) {
-        clear();
+        clear();        
         if (factorList != null && factorList.size() > 0) {
             int totalPermutations = 1;
-            // add column names for factors which are complete, that is,
-            // have at least 2 categories.  Also calculate total rows
-            for(BetweenParticipantFactor factor: factorList)
-            {
+
+            if (factorList.size() == 1) {
+                /* special case - either one sample or single factor with multiple levels */
+                BetweenParticipantFactor factor = factorList.get(0);
+                columnLabels.add(factor.getPredictorName());
                 List<Category> categoryList = factor.getCategoryList();
-                if (categoryList != null && categoryList.size() > 1) {
+                if (categoryList != null && categoryList.size() > 0) {
                     columnLabels.add(factor.getPredictorName());
-                    totalPermutations *= categoryList.size();
+                    totalPermutations = categoryList.size();
                 }
-            }
-            
-            // now that we have the total permutations, fill in the column values
-            // for each factor
-            int numRepetitions = totalPermutations;
-            for(BetweenParticipantFactor factor: factorList)
-            {
-                List<Category> categoryList = factor.getCategoryList();
-                int numCategories = categoryList.size();
-                if (categoryList != null && numCategories > 1) {
-                    // number of times each category repeats
-                    numRepetitions /= numCategories;
-                    ArrayList<String> permutationValues = new ArrayList<String>();
-                    int currentCategory = 0;
-                    int currentRepetition = 0;
-                    String category = categoryList.get(currentCategory).getCategory();
-                    for(int i = 0; i < totalPermutations; i++) {
-                        if (currentRepetition == numRepetitions) {
-                            currentCategory++;
-                            if (currentCategory >= numCategories) {
-                                currentCategory = 0;
-                            }
-                            category = categoryList.get(currentCategory).getCategory();
-                            currentRepetition = 0;
-                        }
-                        permutationValues.add(category);
-                        currentRepetition++;
+                ArrayList<String> permutationList = new ArrayList<String>();
+                for(Category category: categoryList) {
+                    permutationList.add(category.getCategory());
+                }
+                columns.add(permutationList);
+            } else {
+                // add column names for factors which are complete, that is,
+                // have at least 2 categories.  Also calculate total rows
+                for(BetweenParticipantFactor factor: factorList)
+                {
+                    List<Category> categoryList = factor.getCategoryList();
+                    if (categoryList != null && categoryList.size() > 1) {
+                        columnLabels.add(factor.getPredictorName());
+                        totalPermutations *= categoryList.size();
                     }
-                    columns.add(permutationValues);
-                }
-            } 
+                }     
+                // now that we have the total permutations, fill in the column values
+                // for each factor
+                int numRepetitions = totalPermutations;
+                for(BetweenParticipantFactor factor: factorList)
+                {
+                    List<Category> categoryList = factor.getCategoryList();
+                    int numCategories = categoryList.size();
+                    if (categoryList != null && numCategories > 1) {
+                        // number of times each category repeats
+                        numRepetitions /= numCategories;
+                        ArrayList<String> permutationValues = new ArrayList<String>();
+                        int currentCategory = 0;
+                        int currentRepetition = 0;
+                        String category = categoryList.get(currentCategory).getCategory();
+                        for(int i = 0; i < totalPermutations; i++) {
+                            if (currentRepetition == numRepetitions) {
+                                currentCategory++;
+                                if (currentCategory >= numCategories) {
+                                    currentCategory = 0;
+                                }
+                                category = categoryList.get(currentCategory).getCategory();
+                                currentRepetition = 0;
+                            }
+                            permutationValues.add(category);
+                            currentRepetition++;
+                        }
+                        columns.add(permutationValues);
+                    }
+                } 
+            }
         }
     }
-    
+
     public void loadRepeatedMeasures(List<RepeatedMeasuresNode> factorList) {
         clear();
-//        if (factorList != null && factorList.size() > 0) {
-//            int totalPermutations = 1;
-//            // add column names for factors which are complete, that is,
-//            // have at least 2 categories.  Also calculate total rows
-//            for(RepeatedMeasuresNode factor: factorList)
-//            {
-//                List<Category> categoryList = factor.;
-//                if (categoryList != null && categoryList.size() > 1) {
-//                    columnLabels.add(factor.getPredictorName());
-//                    totalPermutations *= categoryList.size();
-//                }
-//            }
-//            
-//            // now that we have the total permutations, fill in the column values
-//            // for each factor
-//            int numRepetitions = totalPermutations;
-//            for(BetweenParticipantFactor factor: factorList)
-//            {
-//                List<Category> categoryList = factor.getCategoryList();
-//                int numCategories = categoryList.size();
-//                if (categoryList != null && numCategories > 1) {
-//                    // number of times each category repeats
-//                    numRepetitions /= numCategories;
-//                    ArrayList<String> permutationValues = new ArrayList<String>();
-//                    int currentCategory = 0;
-//                    int currentRepetition = 0;
-//                    String category = categoryList.get(currentCategory).getCategory();
-//                    for(int i = 0; i < totalPermutations; i++) {
-//                        if (currentRepetition == numRepetitions) {
-//                            currentCategory++;
-//                            if (currentCategory >= numCategories) {
-//                                currentCategory = 0;
-//                            }
-//                            category = categoryList.get(currentCategory).getCategory();
-//                            currentRepetition = 0;
-//                        }
-//                        permutationValues.add(category);
-//                        currentRepetition++;
-//                    }
-//                    columns.add(permutationValues);
-//                }
-//            } 
-//        }
+        //        if (factorList != null && factorList.size() > 0) {
+        //            int totalPermutations = 1;
+        //            // add column names for factors which are complete, that is,
+        //            // have at least 2 categories.  Also calculate total rows
+        //            for(RepeatedMeasuresNode factor: factorList)
+        //            {
+        //                List<Category> categoryList = factor.;
+        //                if (categoryList != null && categoryList.size() > 1) {
+        //                    columnLabels.add(factor.getPredictorName());
+        //                    totalPermutations *= categoryList.size();
+        //                }
+        //            }
+        //            
+        //            // now that we have the total permutations, fill in the column values
+        //            // for each factor
+        //            int numRepetitions = totalPermutations;
+        //            for(BetweenParticipantFactor factor: factorList)
+        //            {
+        //                List<Category> categoryList = factor.getCategoryList();
+        //                int numCategories = categoryList.size();
+        //                if (categoryList != null && numCategories > 1) {
+        //                    // number of times each category repeats
+        //                    numRepetitions /= numCategories;
+        //                    ArrayList<String> permutationValues = new ArrayList<String>();
+        //                    int currentCategory = 0;
+        //                    int currentRepetition = 0;
+        //                    String category = categoryList.get(currentCategory).getCategory();
+        //                    for(int i = 0; i < totalPermutations; i++) {
+        //                        if (currentRepetition == numRepetitions) {
+        //                            currentCategory++;
+        //                            if (currentCategory >= numCategories) {
+        //                                currentCategory = 0;
+        //                            }
+        //                            category = categoryList.get(currentCategory).getCategory();
+        //                            currentRepetition = 0;
+        //                        }
+        //                        permutationValues.add(category);
+        //                        currentRepetition++;
+        //                    }
+        //                    columns.add(permutationValues);
+        //                }
+        //            } 
+        //        }
     }
-    
+
     public List<String> getColumnLabels() {
         return columnLabels;
     }
-    
+
     public int getNumberOfColumns() {
         return columns.size();
     }
-    
+
     public int getNumberOfRows() {
         int rows = 0;
         if (columns.size() > 0) {
@@ -164,7 +180,7 @@ public class FactorTable {
         }
         return columns.get(index);
     }
-    
+
     public void clear() {
         columnLabels.clear();
         columns.clear(); // TODO: clear individuals columns?

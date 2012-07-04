@@ -42,6 +42,7 @@ import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextWithExplanationPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
+import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
  * Lear correlation structure entry panel
@@ -260,13 +261,17 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     {
         Covariance covariance = new Covariance();
         covariance.setName(name);
-        
-        if (checkComplete()) {
-            covariance = new Covariance();
-            sdList.clear();
+        covariance.setType(CovarianceTypeEnum.LEAR_CORRELATION);
+
+        sdList.clear();
+        if (standardDeviation != Double.NaN) {
             sdList.add(new StandardDeviation(standardDeviation));
             covariance.setStandardDeviationList(sdList);
+        }
+        if (rateOfDecay != Double.NaN) {
             covariance.setDelta(rateOfDecay);
+        }
+        if (strongestCorrelation != Double.NaN) {
             covariance.setRho(strongestCorrelation);
         }
         return covariance;
