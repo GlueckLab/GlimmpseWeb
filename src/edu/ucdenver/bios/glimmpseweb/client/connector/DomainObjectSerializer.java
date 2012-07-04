@@ -17,6 +17,8 @@ import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
+import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
@@ -68,6 +70,28 @@ public class DomainObjectSerializer {
     public static final HypothesisReader hypothesisReader = GWT.create(HypothesisReader.class);
     public interface HypothesisWriter extends JsonWriter<Hypothesis> {}
     public static final HypothesisWriter hypothesisWriter = GWT.create(HypothesisWriter.class);    
+    // mappings to between participant factors
+    public interface HypothesisBetweenParticipantMappingReader 
+    extends JsonReader<HypothesisBetweenParticipantMapping> {}
+    public static final HypothesisBetweenParticipantMappingReader 
+    hypothesisBetweenParticipantMappingReader = 
+        GWT.create(HypothesisBetweenParticipantMappingReader.class);
+    public interface HypothesisBetweenParticipantMappingWriter extends 
+    JsonWriter<HypothesisBetweenParticipantMapping> {}
+    public static final HypothesisBetweenParticipantMappingWriter 
+    hypothesisBetweenParticipantMappingWriter = 
+        GWT.create(HypothesisBetweenParticipantMappingWriter.class);    
+    // mappings to repeated measures
+    public interface HypothesisRepeatedMeasuresMappingReader 
+    extends JsonReader<HypothesisRepeatedMeasuresMapping> {}
+    public static final HypothesisRepeatedMeasuresMappingReader 
+    hypothesisRepeatedMeasuresMappingReader = 
+        GWT.create(HypothesisRepeatedMeasuresMappingReader.class);
+    public interface HypothesisRepeatedMeasuresMappingWriter 
+    extends JsonWriter<HypothesisRepeatedMeasuresMapping> {}
+    public static final HypothesisRepeatedMeasuresMappingWriter 
+    hypothesisRepeatedMeasuresMappingWriter = 
+        GWT.create(HypothesisRepeatedMeasuresMappingWriter.class);    
     
     // clustering
     public interface ClusterNodeReader extends JsonReader<ClusterNode> {}
