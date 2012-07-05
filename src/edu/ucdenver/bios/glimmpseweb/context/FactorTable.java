@@ -57,17 +57,18 @@ public class FactorTable {
             if (factorList.size() == 1) {
                 /* special case - either one sample or single factor with multiple levels */
                 BetweenParticipantFactor factor = factorList.get(0);
-                columnLabels.add(factor.getPredictorName());
                 List<Category> categoryList = factor.getCategoryList();
                 if (categoryList != null && categoryList.size() > 0) {
                     columnLabels.add(factor.getPredictorName());
                     totalPermutations = categoryList.size();
+                    
+                    ArrayList<String> permutationList = new ArrayList<String>();
+                    for(Category category: categoryList) {
+                        permutationList.add(category.getCategory());
+                    }
+                    columns.add(permutationList);
                 }
-                ArrayList<String> permutationList = new ArrayList<String>();
-                for(Category category: categoryList) {
-                    permutationList.add(category.getCategory());
-                }
-                columns.add(permutationList);
+
             } else {
                 // add column names for factors which are complete, that is,
                 // have at least 2 categories.  Also calculate total rows
