@@ -21,6 +21,7 @@ import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMa
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
@@ -32,6 +33,7 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
+import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
@@ -135,6 +137,14 @@ public class DomainObjectSerializer {
     public interface PowerCurveDescriptionWriter extends JsonWriter<PowerCurveDescription> {}
     public static final PowerCurveDescriptionWriter powerCurveDescriptionWriter = GWT.create(PowerCurveDescriptionWriter.class);    
 
+    // power curve description
+    public interface PowerCurveDataSeriesReader extends JsonReader<PowerCurveDataSeries> {}
+    public static final PowerCurveDataSeriesReader powerCurveDataSeriesReader = 
+        GWT.create(PowerCurveDataSeriesReader.class);
+    public interface PowerCurveDataSeriesWriter extends JsonWriter<PowerCurveDataSeries> {}
+    public static final PowerCurveDataSeriesWriter powerCurveDataSeriesWriter = 
+        GWT.create(PowerCurveDataSeriesWriter.class);    
+
     // type I error
     public interface TypeIErrorReader extends JsonReader<TypeIError> {}
     public static final TypeIErrorReader typeIErrorReader = GWT.create(TypeIErrorReader.class);
@@ -188,6 +198,14 @@ public class DomainObjectSerializer {
     public static final NominalPowerReader nominalPowerReader = GWT.create(NominalPowerReader.class);
     public interface NominalPowerWriter extends JsonWriter<NominalPower> {}
     public static final NominalPowerWriter nominalPowerWriter = GWT.create(NominalPowerWriter.class);    
+
+    // standard deviations
+    public interface StandardDeviationReader extends JsonReader<StandardDeviation> {}
+    public static final StandardDeviationReader standardDeviationReader = 
+        GWT.create(StandardDeviationReader.class);
+    public interface StandardDeviationWriter extends JsonWriter<StandardDeviation> {}
+    public static final StandardDeviationWriter standardDeviationWriter = 
+        GWT.create(StandardDeviationWriter.class);    
 
     // responses
     public interface ResponseNodeReader extends JsonReader<ResponseNode> {}

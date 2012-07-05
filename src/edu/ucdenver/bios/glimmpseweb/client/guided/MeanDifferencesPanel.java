@@ -266,6 +266,8 @@ implements ChangeHandler
         if (totalWithinFactorCombinations > 0 && totalBetweenFactorCombinations > 0) {
             betaFixedData = 
                 new double[totalBetweenFactorCombinations][totalWithinFactorCombinations];
+            betaRows = totalBetweenFactorCombinations;
+            betaColumns = totalWithinFactorCombinations;
             for(int row = 0; row < totalBetweenFactorCombinations; row++) {
                 for(int col = 0; col < totalWithinFactorCombinations; col++) {
                     betaFixedData[row][col] = 0;

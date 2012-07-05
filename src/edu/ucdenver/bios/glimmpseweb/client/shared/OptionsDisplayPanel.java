@@ -48,10 +48,13 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
+import edu.ucdenver.bios.webservice.common.enums.HorizontalAxisLabelEnum;
 import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 
 /**
@@ -66,44 +69,26 @@ import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 public class OptionsDisplayPanel extends WizardStepPanel
 implements ClickHandler, WizardContextListener
 {
- // context object
-    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-    // constants for xml parsing
-	private static final String ATTR_VALUE_TOTAL_N = "totalN";
-	private static final String ATTR_VALUE_BETA_SCALE = "betaScale";
-	private static final String ATTR_VALUE_SIGMA_SCALE = "sigmaScale";
-	private static final String ATTR_VALUE_ALPHA = "alpha";
-	private static final String ATTR_VALUE_TEST = "test";
-	private static final String ATTR_VALUE_POWER_METHOD = "powerMethod";
-	private static final String ATTR_VALUE_QUANTILE = "quantile";
-	
-	protected boolean hasCovariate = false;
-	protected boolean solvingForPower = true;
-	
-	protected String radioGroupSuffix  = "";
-	
-	protected static final String XAXIS_RADIO_GROUP = "xAxis";
-	protected static final String CURVE_TYPE_RADIO_GROUP = "curve";
+    private static final int TOTAL_N_INDEX = 0;
+    private static final int BETA_SCALE_INDEX = 1;
+    private static final int SIGMA_SCALE_INDEX = 2;
     
-	// mutliplier to get total sample size from relative sizes
-	protected int totalSampleSizeMultiplier = 1;
-	protected ArrayList<Integer> perGroupNList = new ArrayList<Integer>();
-	
-	// skip curve button
-	protected CheckBox disableCheckbox = new CheckBox();
-	
-    // options for x-axis
-	protected ListBox xAxisListBox = new ListBox();
+    // context object
+    protected StudyDesignContext studyDesignContext;
 
-    // options for the stratification variable
-	protected ListBox stratifyListBox = new ListBox();
-    
-    // need to hang onto the power method and quantile labels
-    // so we can actively hide / show depending on whether we are controlling
-    // for a baseline covariate
-    protected HTML powerMethodLabel = new HTML(GlimmpseWeb.constants.curveOptionsPowerMethodLabel());
-    protected HTML quantileLabel = new HTML(GlimmpseWeb.constants.curveOptionsQuantileLabel());
-    protected HTML totalNLabel = new HTML(GlimmpseWeb.constants.curveOptionsSampleSizeLabel());
+    protected boolean hasCovariate;
+    protected boolean solvingForPower;
+
+    // mutliplier to get total sample size from relative sizes
+    protected int totalSampleSizeMultiplier = 1;
+    protected ArrayList<Integer> perGroupNList = new ArrayList<Integer>();
+
+    // skip curve button
+    protected CheckBox disableCheckbox = new CheckBox();
+
+    // options for x-axis
+    protected ListBox xAxisListBox = new ListBox();
+
     // select boxes for items that must be fixed for the curve
     protected ListBox totalNListBox = new ListBox();
     protected ListBox betaScaleListBox = new ListBox();
@@ -112,451 +97,340 @@ implements ClickHandler, WizardContextListener
     protected ListBox alphaListBox = new ListBox();
     protected ListBox powerMethodListBox = new ListBox();
     protected ListBox quantileListBox = new ListBox();
-    private VerticalPanel xAxisPanel = null;
-    private VerticalPanel fixValuesPanel = null;
-    private VerticalPanel stratPanel = null;
+    // labels for each listbox
+    protected HTML totalNHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsSampleSizeLabel());
+    protected HTML betaScaleHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsBetaScaleLabel());
+    protected HTML sigmaScaleHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsSigmaScaleLabel());
+    protected HTML testHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsTestLabel());
+    protected HTML alphaHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsAlphaLabel());
+    protected HTML powerMethodHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsPowerMethodLabel());
+    protected HTML quantileHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsQuantileLabel());
+
+    // listbox showing currently entered data series
+    protected ListBox dataSeriesTable = new ListBox();
+    
+    // panels for x-axis type selection and data series input
+    private VerticalPanel xAxisPanel = new VerticalPanel();
+    private VerticalPanel dataSeriesPanel = new VerticalPanel();
+
+    // list of data series
+    protected ArrayList<PowerCurveDataSeries> dataSeriesList = 
+        new ArrayList<PowerCurveDataSeries>();
     
     /**
      * Constructor
      * @param mode mode identifier (needed for unique widget identifiers)
      */
     public OptionsDisplayPanel(WizardContext context, String radioGroupSuffix)
-	{
-		super(context, "Power Curve");
-		this.radioGroupSuffix = radioGroupSuffix;
-		VerticalPanel panel = new VerticalPanel();
-
-		// create header, description
-		HTML header = new HTML(GlimmpseWeb.constants.curveOptionsTitle());
-		HTML description = new HTML(GlimmpseWeb.constants.curveOptionsDescription());        
-
-		// layout the overall panel
-		panel.add(header);
-		panel.add(description);
-		panel.add(createDisablePanel());
-		panel.add(createXAxisPanel());
-		panel.add(createStratificationPanel());
-		panel.add(createFixValuesPanel());
-
-		// set defaults
-		reset();
-
-		// set style
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-
-		// initialize
-		initWidget(panel);
-	}
-    
-	private void enableOptions(boolean enabled)
-	{
-//		Window.alert("in enableOptions(), enabled="+enabled);
-		xAxisPanel.setVisible(enabled);
-		stratPanel.setVisible(enabled);
-		fixValuesPanel.setVisible(enabled);
-	}
-	
-	private HorizontalPanel createDisablePanel()
-	{
-		HorizontalPanel panel = new HorizontalPanel();
-		
-		// add callbacks
-		disableCheckbox.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				CheckBox cb = (CheckBox) event.getSource();
-				enableOptions(!cb.getValue());
-			}
-		});
-		disableCheckbox.setValue(true);
-		panel.add(disableCheckbox);
-		panel.add(new HTML(GlimmpseWeb.constants.curveOptionsNone()));
-		
-		// set style
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
-		
-		return panel;
-	}
-	
-	private VerticalPanel createXAxisPanel()
-	{
-		xAxisPanel = new VerticalPanel();
-
-		// create the listbox for the x-axis values
-		xAxisListBox.addItem(GlimmpseWeb.constants.curveOptionsSampleSizeLabel(), 
-				ATTR_VALUE_TOTAL_N);
-		xAxisListBox.addItem(GlimmpseWeb.constants.curveOptionsBetaScaleLabel(), 
-				ATTR_VALUE_BETA_SCALE);
-		xAxisListBox.addItem(GlimmpseWeb.constants.curveOptionsSigmaScaleLabel(), 
-				ATTR_VALUE_SIGMA_SCALE);
-		
-		// add callback
-		xAxisListBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				ListBox lb = (ListBox) event.getSource();
-				int stratSelect = stratifyListBox.getSelectedIndex();
-				if (lb.getSelectedIndex() == stratSelect)
-				{
-					if (stratSelect == 0) 
-						lb.setSelectedIndex(1);
-					else
-						lb.setSelectedIndex(0);
-				}
-			}
-		});
-		
-		// layout the panel
-		xAxisPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsXAxisLabel()));
-		xAxisPanel.add(xAxisListBox);
-		
-		// set style
-		xAxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		xAxisPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
-		
-		return xAxisPanel;
-	}
-	
-	private VerticalPanel createStratificationPanel()
-	{
-		stratPanel = new VerticalPanel();
-		
-		fillStratificationListBox(false);
-		
-		stratifyListBox.setSelectedIndex(1);
-		stratifyListBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				ListBox lb = (ListBox) event.getSource();
-				int xaxisSelect = xAxisListBox.getSelectedIndex();
-				if (lb.getSelectedIndex() == xaxisSelect)
-				{
-					if (xaxisSelect == 0) 
-						lb.setSelectedIndex(1);
-					else
-						lb.setSelectedIndex(0);
-				}
-			}
-		});
-		
-		// layout the panel
-		stratPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsStratifyLabel()));
-		stratPanel.add(stratifyListBox);
-		
-		// set style
-		stratifyListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		stratPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
-		
-		return stratPanel;
-	}
-	
-	private VerticalPanel createFixValuesPanel()
-	{
-		fixValuesPanel = new VerticalPanel();
-		
-		Grid grid = new Grid(7,2);
-		// add drop down lists for remaining values that need to be fixed
-		grid.setWidget(0, 1, totalNListBox);
-		grid.setWidget(1, 1, betaScaleListBox);
-		grid.setWidget(2, 1, sigmaScaleListBox);
-		grid.setWidget(3, 1, testListBox);
-		grid.setWidget(4, 1, alphaListBox);
-		grid.setWidget(5, 1, powerMethodListBox);
-		grid.setWidget(6, 1, quantileListBox);
-		grid.setWidget(0, 0, totalNLabel);
-		grid.setWidget(1, 0, new HTML(GlimmpseWeb.constants.curveOptionsBetaScaleLabel()));
-		grid.setWidget(2, 0, new HTML(GlimmpseWeb.constants.curveOptionsSigmaScaleLabel()));
-		grid.setWidget(3, 0, new HTML(GlimmpseWeb.constants.curveOptionsTestLabel()));
-		grid.setWidget(4, 0, new HTML(GlimmpseWeb.constants.curveOptionsAlphaLabel()));
-		grid.setWidget(5, 0, powerMethodLabel);
-		grid.setWidget(6, 0, quantileLabel);
-		
-		// layout the panel
-		fixValuesPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsFixValuesLabel()));
-		fixValuesPanel.add(grid);
-		
-		// set style
-		grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-		fixValuesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
-		
-		showFixedItems(hasCovariate, solvingForPower);
-		
-		return fixValuesPanel;
-	}
-
-	private void fillStratificationListBox(boolean hasCovariate)
     {
-    	stratifyListBox.clear();
-		// create the list entries for the curve types
-		stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsSampleSizeLabel(), 
-				ATTR_VALUE_TOTAL_N);
-		stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsBetaScaleLabel(), 
-				ATTR_VALUE_BETA_SCALE);
-		stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsSigmaScaleLabel(), 
-				ATTR_VALUE_SIGMA_SCALE);
-		stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsAlphaLabel(), 
-				ATTR_VALUE_ALPHA);
-		stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsTestLabel(), 
-				ATTR_VALUE_TEST);
-		if (hasCovariate)
-		{
-			stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsPowerMethodLabel(), 
-					ATTR_VALUE_POWER_METHOD);
-			stratifyListBox.addItem(GlimmpseWeb.constants.curveOptionsQuantileLabel(), 
-					ATTR_VALUE_QUANTILE);
-		}
+        super(context, GlimmpseWeb.constants.navItemPowerCurve(),
+                WizardStepPanelState.COMPLETE);
+        studyDesignContext = (StudyDesignContext) context;
+        
+        VerticalPanel panel = new VerticalPanel();
+
+        // create header, description
+        HTML header = new HTML(GlimmpseWeb.constants.curveOptionsTitle());
+        HTML description = new HTML(GlimmpseWeb.constants.curveOptionsDescription());        
+
+        // layout the overall panel
+        panel.add(header);
+        panel.add(description);
+        panel.add(createDisablePanel());
+        panel.add(createXAxisPanel());
+        panel.add(createDataSeriesPanel());
+
+        // set defaults
+        reset();
+
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+
+        // initialize
+        initWidget(panel);
     }
-    
-    private void showFixedItems(boolean hasCovariate, boolean solvingForPower)
+
+    /**
+     * Enable or disable the curve options
+     * @param enabled
+     */
+    private void enableOptions(boolean enabled)
     {
-    	//we should never display these two list boxes if the user isn't controlling
-    	//for a Gaussian predictor.
-    	if(!hasCovariate)
-    	{
-			powerMethodLabel.setVisible(hasCovariate);
-			powerMethodListBox.setVisible(hasCovariate);
-			quantileLabel.setVisible(hasCovariate);
-			quantileListBox.setVisible(hasCovariate);
-    	}
-		totalNLabel.setVisible(solvingForPower);
-		totalNListBox.setVisible(solvingForPower);
-		
+        xAxisPanel.setVisible(enabled);
+        dataSeriesPanel.setVisible(enabled);
     }
-    
-	/**
-	 * Clear the options panel
-	 */
-	public void reset()
-	{		
-		// set the display to remove power options
-		disableCheckbox.setValue(true);
-		enableOptions(false);
-		
-		// set defaults
-		xAxisListBox.setSelectedIndex(0);
-		stratifyListBox.setSelectedIndex(1);
-		
-		changeState(WizardStepPanelState.COMPLETE);
-	}
-	
-	/**
-	 * Click handler for all checkboxes on the Options screen.
-	 * Determines if the current selections represent a complete
-	 * set of options.
-	 */
-	@Override
-	public void onClick(ClickEvent event)
-	{
-		checkComplete();			
-	}
-	
-	/**
-	 * Check if the user has selected a complete set of options, and
-	 * if so notify that forward navigation is allowed
-	 */
-	private void checkComplete()
-	{
-//		if (showTableCheckBox.getValue() || showCurveCheckBox.getValue())
-//		{
-//			notifyComplete();
-//		}
-//		else
-//		{
-//			notifyInProgress();
-//		}
-	}
-	
-	/**
-	 * Notify options listeners of selected options as we exit the options screen
-	 */
-	@Override
-	public void onExit()
-	{
-		// create the ChartRequestBuilder and notify listeners
-		ChartRequestBuilder builder = null;
-		if (!disableCheckbox.getValue())
-		{
-			builder = new ChartRequestBuilder();
-			
-			setBuilderAxisType(builder);
-			setBuilderCurveType(builder);
-			
-			// curve group description			
-			builder.setAlpha(Double.parseDouble(alphaListBox.getItemText(alphaListBox.getSelectedIndex())));
-			builder.setTest(testListBox.getItemText(testListBox.getSelectedIndex()));
-			builder.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
-			builder.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
-			builder.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
-			if (powerMethodListBox.isVisible())
-				builder.setPowerMethod(powerMethodListBox.getItemText(powerMethodListBox.getSelectedIndex()));
-			if (quantileListBox.isVisible())
-				builder.setQuantile(Double.parseDouble(quantileListBox.getItemText(quantileListBox.getSelectedIndex())));
-		}
-	}
-	
-	private void setBuilderAxisType(ChartRequestBuilder builder)
-	{
-		String value = xAxisListBox.getValue(xAxisListBox.getSelectedIndex());
-		if (ATTR_VALUE_BETA_SCALE.equals(value))
-		{
-			builder.setXAxisType(AxisType.BETA_SCALE);
-			builder.addAxisLabel("Regression Coefficient Scale Factor");
-		}
-		else if (ATTR_VALUE_SIGMA_SCALE.equals(value))
-		{
-			builder.setXAxisType(AxisType.SIGMA_SCALE);
-			builder.addAxisLabel("Variance Scale Factor");
-		}
-		else if (ATTR_VALUE_TOTAL_N.equals(value))
-		{
-			builder.setXAxisType(AxisType.SAMPLE_SIZE);
-			builder.addAxisLabel("Total Sample Size");
-		}
-		
-		builder.addAxisLabel("Power");
-	}
-	
-	private void setBuilderCurveType(ChartRequestBuilder builder)
-	{
-		String value = stratifyListBox.getValue(stratifyListBox.getSelectedIndex());
-	    if (ATTR_VALUE_TOTAL_N.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.TOTAL_N);
-	    	for(int i = 0; i < totalNListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Total N = " + totalNListBox.getItemText(i));
-	    	}
-	    }
-	    else if (ATTR_VALUE_BETA_SCALE.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.BETA_SCALE);
-	    	for(int i = 0; i < betaScaleListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Beta Scale = " + betaScaleListBox.getItemText(i));
-	    	}
-	    }
-	    else if (ATTR_VALUE_SIGMA_SCALE.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.SIGMA_SCALE);
-	    	for(int i = 0; i < sigmaScaleListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Sigma Scale = " + sigmaScaleListBox.getItemText(i));
-	    	}
-	    }
-	    else if (ATTR_VALUE_TEST.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.TEST);
-	    	for(int i = 0; i < testListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Test = " + testListBox.getItemText(i));
-	    	}
-	    }
-	    else if (ATTR_VALUE_ALPHA.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.ALPHA);
-	    	for(int i = 0; i < alphaListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Alpha = " + alphaListBox.getItemText(i));
-	    	}
-	    }
-	    else if (ATTR_VALUE_POWER_METHOD.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.POWER_METHOD);
-	    	for(int i = 0; i < powerMethodListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Method = " + powerMethodListBox.getItemText(i));
-	    	}
-	    }
-	    else if (ATTR_VALUE_QUANTILE.equals(value))
-	    {
-	    	builder.setStratificationType(StratificationType.QUANTILE);
-	    	for(int i = 0; i < quantileListBox.getItemCount(); i++)
-	    	{
-		    	builder.addLegendLabel("Quantile = " + quantileListBox.getItemText(i));
-	    	}
-	    }
-	}
-	
-	@Override
-	public void onEnter()
-	{
-		// we need to combine the relative group sizes and per group sample sizes
-		// on enter since we get this info from two difference screens
-		totalNListBox.clear();
-		for(Integer perGroupSize: perGroupNList)
-		{
-			int totalN = perGroupSize * totalSampleSizeMultiplier;
-			totalNListBox.addItem(Integer.toString(totalN));
-		}
-	}
-	
-	@Override
-	public void onWizardContextChange(WizardContextChangeEvent e)
-	{
-	    StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
-	    switch(changeEvent.getType())
-	    {
-	    case PER_GROUP_N_LIST:
-	        List<SampleSize> sampleSizeList = studyDesignContext.getStudyDesign().getSampleSizeList();
-	        totalNListBox.clear();
-	        if (sampleSizeList != null) {
-	            for(SampleSize size: sampleSizeList) {
-	                totalNListBox.addItem(size.toString());
-	            }
-	        }
-	        break;
-	        
-	    case BETA_SCALE_LIST:
-	        List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
-	        betaScaleListBox.clear();
-	        if (betaScaleList != null) {
-	            for(BetaScale scale: betaScaleList) {
-	                betaScaleListBox.addItem(scale.toString());
-	            }
-	        }
-	        break;
-	        
-	    case SIGMA_SCALE_LIST:
-	        List<SigmaScale> sigmaScaleList = studyDesignContext.getStudyDesign().getSigmaScaleList();
-	        sigmaScaleListBox.clear();
-	        if (sigmaScaleList != null) {
-	            for(SigmaScale scale: sigmaScaleList) {
-	                sigmaScaleListBox.addItem(scale.toString());
-	            }
-	        }
-	        break;
-	        
-	    case STATISTICAL_TEST_LIST:
-	        List<StatisticalTest> testList = studyDesignContext.getStudyDesign().getStatisticalTestList();
-	        testListBox.clear();
-	        if (testList != null) {
-	            for(StatisticalTest test: testList) {
-	                testListBox.addItem(test.toString());
-	            }
-	        }
-	        break;
-	        
-	    case ALPHA_LIST:
-	        List<TypeIError> alphaList = studyDesignContext.getStudyDesign().getAlphaList();
-	        alphaListBox.clear();
-	        if (alphaList != null) {
-	            for(TypeIError alpha: alphaList) {
-	                alphaListBox.addItem(alpha.toString());
-	            }
-	        }
-	        break;
-	    }
-	}
+
+    /** 
+     * Create panel with checkbox to enable/disable power curves
+     * @return HorizontalPanel containing the checkbox
+     */
+    private HorizontalPanel createDisablePanel()
+    {
+        HorizontalPanel panel = new HorizontalPanel();
+
+        // add callbacks
+        disableCheckbox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                CheckBox cb = (CheckBox) event.getSource();
+                enableOptions(!cb.getValue());
+            }
+        });
+        disableCheckbox.setValue(true);
+        panel.add(disableCheckbox);
+        panel.add(new HTML(GlimmpseWeb.constants.curveOptionsNone()));
+
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+
+        return panel;
+    }
+
+    /**
+     * Create the panel containing the x-axis type selection dropdown
+     * @return VerticalPanel
+     */
+    private VerticalPanel createXAxisPanel()
+    {
+        // create the listbox for the x-axis values
+        xAxisListBox.addItem(GlimmpseWeb.constants.curveOptionsSampleSizeLabel());
+        xAxisListBox.addItem(GlimmpseWeb.constants.curveOptionsBetaScaleLabel());
+        xAxisListBox.addItem(GlimmpseWeb.constants.curveOptionsSigmaScaleLabel());
+
+        // add callback
+        xAxisListBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                ListBox lb = (ListBox) event.getSource();
+                updateDataSeriesDisplay();
+            }
+        });
+
+        // layout the panel
+        xAxisPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsXAxisLabel()));
+        xAxisPanel.add(xAxisListBox);
+
+        // set style
+        xAxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+        xAxisPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+
+        return xAxisPanel;
+    }    
+
+    private VerticalPanel createDataSeriesPanel()
+    {
+        Grid grid = new Grid(7,2);
+        // add drop down lists for remaining values that need to be fixed
+        grid.setWidget(0, 1, totalNListBox);
+        grid.setWidget(1, 1, betaScaleListBox);
+        grid.setWidget(2, 1, sigmaScaleListBox);
+        grid.setWidget(3, 1, testListBox);
+        grid.setWidget(4, 1, alphaListBox);
+        grid.setWidget(5, 1, powerMethodListBox);
+        grid.setWidget(6, 1, quantileListBox);
+        grid.setWidget(0, 0, totalNHTML);
+        grid.setWidget(1, 0, betaScaleHTML);
+        grid.setWidget(2, 0, sigmaScaleHTML);
+        grid.setWidget(3, 0, testHTML);
+        grid.setWidget(4, 0, alphaHTML);
+        grid.setWidget(5, 0, powerMethodHTML);
+        grid.setWidget(6, 0, quantileHTML);
+
+        // layout the panel
+        dataSeriesPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsDataSeriesLabel()));
+        dataSeriesPanel.add(grid);
+        dataSeriesPanel.add(new HTML("Data Series"));
+        dataSeriesPanel.add(dataSeriesTable);
+
+        // set style
+        grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+        dataSeriesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+
+        return dataSeriesPanel;
+    }
+
+    private void updateDataSeriesDisplay() {
+        //we should never display these two list boxes if the user isn't controlling
+        //for a Gaussian predictor.
+        if(!hasCovariate)
+        {
+            powerMethodHTML.setVisible(hasCovariate);
+            powerMethodListBox.setVisible(hasCovariate);
+            quantileHTML.setVisible(hasCovariate);
+            quantileListBox.setVisible(hasCovariate);
+        }
+        totalNHTML.setVisible(solvingForPower && 
+                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        totalNListBox.setVisible(solvingForPower && 
+                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        betaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        betaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        sigmaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        sigmaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+    }
+
+    /**
+     * Clear the options panel
+     */
+    public void reset()
+    {		
+        dataSeriesList.clear();
+        // set the display to remove power options
+        disableCheckbox.setValue(true);
+        enableOptions(false);
+
+        // clear the list boxes
+        totalNListBox.clear();
+        betaScaleListBox.clear();
+        sigmaScaleListBox.clear();
+        testListBox.clear();
+        alphaListBox.clear();
+        powerMethodListBox.clear();
+        quantileListBox.clear();
+        
+        // set defaults
+        xAxisListBox.setSelectedIndex(TOTAL_N_INDEX);
+        changeState(WizardStepPanelState.COMPLETE);
+    }
+
+    /**
+     * Click handler for all checkboxes on the Options screen.
+     * Determines if the current selections represent a complete
+     * set of options.
+     */
+    @Override
+    public void onClick(ClickEvent event)
+    {
+        checkComplete();			
+    }
+
+    /**
+     * Check if the user has selected a complete set of options, and
+     * if so notify that forward navigation is allowed
+     */
+    private void checkComplete()
+    {
+        if (disableCheckbox.getValue())
+        {
+            changeState(WizardStepPanelState.COMPLETE);
+        }
+        else
+        {
+            if (dataSeriesList.size() > 0) {
+                changeState(WizardStepPanelState.COMPLETE);
+            } else {
+                changeState(WizardStepPanelState.INCOMPLETE);
+            }
+        }
+    }
+
+    /**
+     * Notify options listeners of selected options as we exit the options screen
+     */
+    @Override
+    public void onExit()
+    {
+        // build a power curve description object
+        if (!disableCheckbox.getValue())
+        {
+            PowerCurveDescription curveDescription = new PowerCurveDescription();
+            if (xAxisListBox.getSelectedIndex() == TOTAL_N_INDEX) {
+                curveDescription.setHorizontalAxisLabelEnum(
+                        HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
+            } else if (xAxisListBox.getSelectedIndex() == BETA_SCALE_INDEX) {
+                curveDescription.setHorizontalAxisLabelEnum(
+                        HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
+            } else {
+                curveDescription.setHorizontalAxisLabelEnum(
+                        HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);;
+            }
+            
+            
+        } else {
+            // clear the power curve
+        }
+    }
+
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+        StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+        switch(changeEvent.getType())
+        {
+        case COVARIATE:
+            powerMethodHTML.setVisible(hasCovariate);
+            powerMethodListBox.setVisible(hasCovariate);
+            quantileHTML.setVisible(hasCovariate);
+            quantileListBox.setVisible(hasCovariate);
+            break;
+        case PER_GROUP_N_LIST:
+            List<SampleSize> sampleSizeList = studyDesignContext.getStudyDesign().getSampleSizeList();
+            totalNListBox.clear();
+            if (sampleSizeList != null) {
+                for(SampleSize size: sampleSizeList) {
+                    int totalN = size.getValue() * totalSampleSizeMultiplier;
+                    totalNListBox.addItem(Integer.toString(totalN));
+                }
+            }
+            break;
+
+        case BETA_SCALE_LIST:
+            List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
+            betaScaleListBox.clear();
+            if (betaScaleList != null) {
+                for(BetaScale scale: betaScaleList) {
+                    betaScaleListBox.addItem(scale.toString());
+                }
+            }
+            break;
+
+        case SIGMA_SCALE_LIST:
+            List<SigmaScale> sigmaScaleList = studyDesignContext.getStudyDesign().getSigmaScaleList();
+            sigmaScaleListBox.clear();
+            if (sigmaScaleList != null) {
+                for(SigmaScale scale: sigmaScaleList) {
+                    sigmaScaleListBox.addItem(scale.toString());
+                }
+            }
+            break;
+
+        case STATISTICAL_TEST_LIST:
+            List<StatisticalTest> testList = studyDesignContext.getStudyDesign().getStatisticalTestList();
+            testListBox.clear();
+            if (testList != null) {
+                for(StatisticalTest test: testList) {
+                    testListBox.addItem(test.toString());
+                }
+            }
+            break;
+
+        case ALPHA_LIST:
+            List<TypeIError> alphaList = studyDesignContext.getStudyDesign().getAlphaList();
+            alphaListBox.clear();
+            if (alphaList != null) {
+                for(TypeIError alpha: alphaList) {
+                    alphaListBox.addItem(alpha.toString());
+                }
+            }
+            break;
+        }
+    }
 
     @Override
     public void onWizardContextLoad() {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

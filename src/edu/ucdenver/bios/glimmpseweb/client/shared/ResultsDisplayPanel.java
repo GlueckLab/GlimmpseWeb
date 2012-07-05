@@ -261,9 +261,10 @@ public class ResultsDisplayPanel extends WizardStepPanel
     	resultsTablePanel.add(header);
     	resultsTablePanel.add(description);
     	resultsTablePanel.add(resultsTable);
-    	resultsTablePanel.add(panel);
+    	resultsTablePanel.add(saveButton);
+        resultsTablePanel.add(viewMatricesPanel);
         // set style
-		saveButton.setStyleName(STYLE_RESULT_BUTTON);
+		saveButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
 		saveButton.addStyleDependentName(STYLE_SEPARATOR);
 //		viewMatrixButton.setStyleName(STYLE_RESULT_BUTTON);
 		resultsTablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -390,15 +391,15 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	    }
 	}
 
-	private void showCurveResults(List<PowerResult> results, 
-	        PowerCurveDescription curveDescription)
+	private void showCurveResults(List<PowerResult> resultList)
 	{
-	    if (results != null && results.size() > 0
-	            && curveDescription != null) {
+	    if (resultList != null && resultList.size() > 0) {
 	        // submit the result to the chart service
-//	        ChartSvcConnector.buildChartRequest(results, 
-//	                curveDescription, powerCurveImage, legendImage);
-//	        resultsCurvePanel.setVisible(true);
+	        String queryStr = chartSvcConnector.buildQueryString(resultList, 
+	                studyDesignContext.getStudyDesign().getPowerCurveDescriptions());
+	        powerCurveImage.setUrl(chartSvcConnector.buildScatterURL(queryStr));
+	        legendImage.setUrl(chartSvcConnector.buildLegendURL(queryStr));
+	        resultsCurvePanel.setVisible(true);
 	    }
 	}
 
@@ -436,19 +437,22 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
                 @Override
                 public void onResponseReceived(Request request, Response response) {
-                    // TODO Auto-generated method stub
                     hideWorkingDialog();
-                    List<PowerResult> results = powerSvcConnector.parsePowerResultList(response.getText());
-                    if (results != null && results.size() > 0) {
-                        showResults(results);
+                    if (response.getStatusCode() == Response.SC_OK) {
+                        List<PowerResult> results = powerSvcConnector.parsePowerResultList(response.getText());
+                        if (results != null && results.size() > 0) {
+                            showResults(results);
+                            showCurveResults(results);
+                        } else {
+                            showError("0 results");
+                        }
                     } else {
-                        showError("0 results");
+                        showError(response.getText());
                     }
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    // TODO Auto-generated method stub
                     hideWorkingDialog();
                     showError(exception.getMessage());
                 }
@@ -471,8 +475,12 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
                 @Override
                 public void onResponseReceived(Request request, Response response) {
-                    List<NamedMatrix> matrixList = powerSvcConnector.parseMatrixList(response.getText());
-                    //matrixDisplayPanel.loadFromMatrixList(matrixList);
+                    if (response.getStatusCode() == Response.SC_OK) {
+                        List<NamedMatrix> matrixList = powerSvcConnector.parseMatrixList(response.getText());
+                        matrixDisplayPanel.loadFromMatrixList(matrixList);
+                    } else {
+                        matrixDisplayPanel.showError(response.getText());
+                    }
                 }
 
                 @Override

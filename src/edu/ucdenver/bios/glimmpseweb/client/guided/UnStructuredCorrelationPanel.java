@@ -179,6 +179,8 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         covariance.setStandardDeviationList(sdList);
 
         NamedMatrix matrix = correlationMatrix.toNamedMatrix(name);
+        covariance.setRows(matrix.getRows());
+        covariance.setColumns(matrix.getColumns());
         covariance.setBlob(matrix.getData());
         return covariance;
     }

@@ -263,6 +263,9 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         covariance.setName(name);
         covariance.setType(CovarianceTypeEnum.LEAR_CORRELATION);
 
+        covariance.setRows(resizableMatrix.getRowDimension());
+        covariance.setColumns(resizableMatrix.getRowDimension());
+        
         sdList.clear();
         if (standardDeviation != Double.NaN) {
             sdList.add(new StandardDeviation(standardDeviation));

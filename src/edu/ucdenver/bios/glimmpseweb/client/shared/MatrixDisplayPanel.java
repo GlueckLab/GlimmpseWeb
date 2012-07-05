@@ -64,15 +64,19 @@ public class MatrixDisplayPanel extends Composite
 	public void loadFromMatrixList(List<NamedMatrix> matrixList)
 	{
 	    tableOfMatrices.removeAllRows();
-	    int row = 0;
-	    for(NamedMatrix matrix: matrixList) {
-	        tableOfMatrices.setWidget(row, 0, new HTML(prettyMatrixName(matrix.getName())));
-	        ResizableMatrixPanel panel = new ResizableMatrixPanel(matrix.getRows(), matrix.getColumns(), true, false, false, false);
-	        panel.setEnabledColumnDimension(false);
-	        panel.setEnabledRowDimension(false);
-	        panel.loadFromNamedMatrix(matrix);
-            tableOfMatrices.setWidget(row, 1, panel);
-            row++;
+	    if (matrixList != null) {
+	        int row = 0;
+	        for(NamedMatrix matrix: matrixList) {
+	            tableOfMatrices.setWidget(row, 0, new HTML(prettyMatrixName(matrix.getName())));
+	            ResizableMatrixPanel panel = new ResizableMatrixPanel(matrix.getRows(), matrix.getColumns(), true, false, false, false);
+	            panel.setEnabledColumnDimension(false);
+	            panel.setEnabledRowDimension(false);
+	            panel.loadFromNamedMatrix(matrix);
+	            tableOfMatrices.setWidget(row, 1, panel);
+	            row++;
+	        }
+	    } else {
+	        showError("Matrix information unavailable");
 	    }
 	}
 	
