@@ -28,11 +28,13 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
@@ -50,11 +52,15 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
+import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
+import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.HorizontalAxisLabelEnum;
+import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 
 /**
@@ -72,7 +78,7 @@ implements ClickHandler, WizardContextListener
     private static final int TOTAL_N_INDEX = 0;
     private static final int BETA_SCALE_INDEX = 1;
     private static final int SIGMA_SCALE_INDEX = 2;
-    
+
     // context object
     protected StudyDesignContext studyDesignContext;
 
@@ -91,13 +97,18 @@ implements ClickHandler, WizardContextListener
 
     // select boxes for items that must be fixed for the curve
     protected ListBox totalNListBox = new ListBox();
+    protected ListBox nominalPowerListBox = new ListBox();
     protected ListBox betaScaleListBox = new ListBox();
     protected ListBox sigmaScaleListBox = new ListBox();
     protected ListBox testListBox = new ListBox();
     protected ListBox alphaListBox = new ListBox();
     protected ListBox powerMethodListBox = new ListBox();
     protected ListBox quantileListBox = new ListBox();
+    protected TextBox dataSeriesLabelTextBox = new TextBox();
+    
     // labels for each listbox
+    protected HTML nominalPowerHTML = 
+        new HTML(GlimmpseWeb.constants.curveOptionsPowerLabel());
     protected HTML totalNHTML = 
         new HTML(GlimmpseWeb.constants.curveOptionsSampleSizeLabel());
     protected HTML betaScaleHTML = 
@@ -112,10 +123,12 @@ implements ClickHandler, WizardContextListener
         new HTML(GlimmpseWeb.constants.curveOptionsPowerMethodLabel());
     protected HTML quantileHTML = 
         new HTML(GlimmpseWeb.constants.curveOptionsQuantileLabel());
-
-    // listbox showing currently entered data series
-    protected ListBox dataSeriesTable = new ListBox();
+    protected HTML dataSeriesLabelHTML = 
+        new HTML("Data Series Label");
     
+    // listbox showing currently entered data series
+    protected ListBox dataSeriesTable = new ListBox(true);
+
     // panels for x-axis type selection and data series input
     private VerticalPanel xAxisPanel = new VerticalPanel();
     private VerticalPanel dataSeriesPanel = new VerticalPanel();
@@ -123,7 +136,7 @@ implements ClickHandler, WizardContextListener
     // list of data series
     protected ArrayList<PowerCurveDataSeries> dataSeriesList = 
         new ArrayList<PowerCurveDataSeries>();
-    
+
     /**
      * Constructor
      * @param mode mode identifier (needed for unique widget identifiers)
@@ -131,9 +144,9 @@ implements ClickHandler, WizardContextListener
     public OptionsDisplayPanel(WizardContext context, String radioGroupSuffix)
     {
         super(context, GlimmpseWeb.constants.navItemPowerCurve(),
-                WizardStepPanelState.COMPLETE);
+                WizardStepPanelState.NOT_ALLOWED);
         studyDesignContext = (StudyDesignContext) context;
-        
+
         VerticalPanel panel = new VerticalPanel();
 
         // create header, description
@@ -212,8 +225,9 @@ implements ClickHandler, WizardContextListener
             @Override
             public void onChange(ChangeEvent event)
             {
-                ListBox lb = (ListBox) event.getSource();
-                updateDataSeriesDisplay();
+                dataSeriesList.clear();
+                dataSeriesTable.clear();
+                updateDataSeriesOptions();
             }
         });
 
@@ -230,7 +244,7 @@ implements ClickHandler, WizardContextListener
 
     private VerticalPanel createDataSeriesPanel()
     {
-        Grid grid = new Grid(7,2);
+        Grid grid = new Grid(8,2);
         // add drop down lists for remaining values that need to be fixed
         grid.setWidget(0, 1, totalNListBox);
         grid.setWidget(1, 1, betaScaleListBox);
@@ -239,6 +253,7 @@ implements ClickHandler, WizardContextListener
         grid.setWidget(4, 1, alphaListBox);
         grid.setWidget(5, 1, powerMethodListBox);
         grid.setWidget(6, 1, quantileListBox);
+        grid.setWidget(7, 1, dataSeriesLabelTextBox);
         grid.setWidget(0, 0, totalNHTML);
         grid.setWidget(1, 0, betaScaleHTML);
         grid.setWidget(2, 0, sigmaScaleHTML);
@@ -246,38 +261,42 @@ implements ClickHandler, WizardContextListener
         grid.setWidget(4, 0, alphaHTML);
         grid.setWidget(5, 0, powerMethodHTML);
         grid.setWidget(6, 0, quantileHTML);
+        grid.setWidget(7, 0, dataSeriesLabelHTML);
+
+        Button addSeriesButton = new Button(GlimmpseWeb.constants.buttonAdd(),
+                new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                addSeries();
+            }
+        });
+        Button removeSeriesButton = new Button(GlimmpseWeb.constants.buttonDelete(),
+                new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                // TODO Auto-generated method stub
+                removeSeries();
+            }
+        });
+
+        HorizontalPanel addRemovePanel = new HorizontalPanel();
+        addRemovePanel.add(new HTML("Data Series: "));
+        addRemovePanel.add(addSeriesButton);
+        addRemovePanel.add(removeSeriesButton);
+
 
         // layout the panel
         dataSeriesPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsDataSeriesLabel()));
         dataSeriesPanel.add(grid);
-        dataSeriesPanel.add(new HTML("Data Series"));
+        dataSeriesPanel.add(addRemovePanel);
         dataSeriesPanel.add(dataSeriesTable);
+        dataSeriesTable.setVisibleItemCount(5);
 
         // set style
         grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
         dataSeriesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 
         return dataSeriesPanel;
-    }
-
-    private void updateDataSeriesDisplay() {
-        //we should never display these two list boxes if the user isn't controlling
-        //for a Gaussian predictor.
-        if(!hasCovariate)
-        {
-            powerMethodHTML.setVisible(hasCovariate);
-            powerMethodListBox.setVisible(hasCovariate);
-            quantileHTML.setVisible(hasCovariate);
-            quantileListBox.setVisible(hasCovariate);
-        }
-        totalNHTML.setVisible(solvingForPower && 
-                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
-        totalNListBox.setVisible(solvingForPower && 
-                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
-        betaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
-        betaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
-        sigmaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
-        sigmaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
     }
 
     /**
@@ -298,10 +317,182 @@ implements ClickHandler, WizardContextListener
         alphaListBox.clear();
         powerMethodListBox.clear();
         quantileListBox.clear();
-        
+
+        // reset the flags
+        hasCovariate = false;
+        solvingForPower = true;
+
+        updateDataSeriesOptions();
+
         // set defaults
         xAxisListBox.setSelectedIndex(TOTAL_N_INDEX);
-        changeState(WizardStepPanelState.COMPLETE);
+        changeState(WizardStepPanelState.NOT_ALLOWED);
+    }
+
+    /**
+     * Add a data series from the current list box selections
+     */
+    private void addSeries() {
+        PowerCurveDataSeries series = new PowerCurveDataSeries();
+        series.setLabel(dataSeriesLabelTextBox.getText());
+        if (hasCovariate) {
+            series.setPowerMethod(powerMethodStringToEnum(
+                    powerMethodListBox.getItemText(powerMethodListBox.getSelectedIndex())));
+            series.setQuantile(Double.parseDouble(quantileListBox.getItemText(quantileListBox.getSelectedIndex())));
+        }
+
+        if (xAxisListBox.getSelectedIndex() == TOTAL_N_INDEX) {
+            series.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
+            series.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+
+        } else if (xAxisListBox.getSelectedIndex() == BETA_SCALE_INDEX) {
+            series.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
+            series.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+
+        } else {
+            // sigma scale selected
+            series.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
+            series.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
+        }
+
+        // add alpha
+        series.setTypeIError(Double.parseDouble(alphaListBox.getItemText(alphaListBox.getSelectedIndex())));
+        // add test
+        series.setStatisticalTestTypeEnum(
+                statisticalTestStringToEnum(testListBox.getItemText(testListBox.getSelectedIndex())));
+
+        dataSeriesList.add(series);
+        dataSeriesTable.addItem(dataSeriesAsString(series));
+    }
+
+    /**
+     * Remove the currently selected data series
+     */
+    private void removeSeries() {
+        int index = dataSeriesTable.getSelectedIndex();
+        if (index >=0 && index < dataSeriesList.size()) {
+            dataSeriesList.remove(index);
+            dataSeriesTable.removeItem(index);
+        }
+    }
+
+    /**
+     * Format data series into pretty string
+     * @param series
+     * @return
+     */
+    private String dataSeriesAsString(PowerCurveDataSeries series) {
+        StringBuffer display = new StringBuffer();
+        display.append(series.getLabel() + ":");
+        if (series.getSampleSize() > 0) {
+            display.append(" Sample Size=" + series.getSampleSize());
+        }
+        if (series.getNominalPower() > 0) {
+            display.append(" Nominal Power=" + series.getNominalPower());
+        }
+        if (series.getStatisticalTestTypeEnum() != null) {
+            display.append(" Test=" + statisticalTestToString(series.getStatisticalTestTypeEnum()));
+        }
+        if (series.getBetaScale() != 0) {
+            display.append(" Regr. Scale=" + series.getBetaScale());
+        }  
+        if (series.getSigmaScale() != 0) {
+            display.append(" Var. Scale=" + series.getSigmaScale());
+        }  
+        if (series.getTypeIError() > 0) {
+            display.append(" Alpha=" + series.getTypeIError());
+        }  
+        if (series.getPowerMethod() != null) {
+            display.append(" Method=" + powerMethodToString(series.getPowerMethod()));
+        }  
+        if (series.getQuantile() > 0) {
+            display.append(" Quantile=" + series.getQuantile());
+        }  
+        return display.toString();
+    }
+
+    /**
+     * Get the test enum for this string
+     * @param testStr
+     * @return
+     */
+    public static StatisticalTestTypeEnum statisticalTestStringToEnum(String testStr) {
+        if (testStr.equals(GlimmpseWeb.constants.testHotellingLawleyTraceLabel())) {
+            return StatisticalTestTypeEnum.HLT;
+        } else if (testStr.equals(GlimmpseWeb.constants.testPillaiBartlettTraceLabel())) {
+            return StatisticalTestTypeEnum.PBT;
+        } else if (testStr.equals(GlimmpseWeb.constants.testWilksLambdaLabel())) {
+            return StatisticalTestTypeEnum.WL;
+        } else if (testStr.equals(GlimmpseWeb.constants.testUnirepBoxLabel())) {
+            return StatisticalTestTypeEnum.UNIREPBOX;
+        } else if (testStr.equals(GlimmpseWeb.constants.testUnirepGeisserGreenhouseLabel())) {
+            return StatisticalTestTypeEnum.UNIREPGG;
+        } else if (testStr.equals(GlimmpseWeb.constants.testUnirepHuynhFeldtLabel())) {
+            return StatisticalTestTypeEnum.UNIREPHF;
+        } else if (testStr.equals(GlimmpseWeb.constants.testUnirepLabel())) {
+            return StatisticalTestTypeEnum.UNIREP;
+        }
+        return null;
+    }
+
+    /**
+     * Get the test string for this StatisticalTest object
+     * @param testStr
+     * @return
+     */
+    public static String statisticalTestToString(StatisticalTestTypeEnum test) {
+        switch (test) {
+        case HLT:
+            return GlimmpseWeb.constants.testHotellingLawleyTraceLabel();
+        case PBT:
+            return GlimmpseWeb.constants.testPillaiBartlettTraceLabel();
+        case WL:
+            return GlimmpseWeb.constants.testWilksLambdaLabel();
+        case UNIREPBOX:
+            return GlimmpseWeb.constants.testUnirepBoxLabel();
+        case UNIREPGG:
+            return GlimmpseWeb.constants.testUnirepGeisserGreenhouseLabel();
+        case UNIREPHF:
+            return GlimmpseWeb.constants.testUnirepHuynhFeldtLabel();
+        case UNIREP:
+            return GlimmpseWeb.constants.testUnirepLabel();
+        }
+
+        return null;
+    }
+    
+    /**
+     * Get the power method enum for this string
+     * @param testStr
+     * @return
+     */
+    public static PowerMethodEnum powerMethodStringToEnum(String powerMethodStr) {
+        if (powerMethodStr.equals(GlimmpseWeb.constants.powerMethodConditionalLabel())) {
+            return PowerMethodEnum.CONDITIONAL;
+        } else if (powerMethodStr.equals(GlimmpseWeb.constants.powerMethodUnconditionalLabel())) {
+            return PowerMethodEnum.UNCONDITIONAL;
+        } else if (powerMethodStr.equals(GlimmpseWeb.constants.powerMethodQuantileLabel())) {
+            return PowerMethodEnum.QUANTILE;
+        } 
+        return null;
+    }
+
+    /**
+     * Get the test string for this StatisticalTest object
+     * @param testStr
+     * @return
+     */
+    public static String powerMethodToString(PowerMethodEnum powerMethod) {
+        switch (powerMethod) {
+        case CONDITIONAL:
+            return GlimmpseWeb.constants.powerMethodConditionalLabel();
+        case UNCONDITIONAL:
+            return GlimmpseWeb.constants.powerMethodUnconditionalLabel();
+        case QUANTILE:
+            return GlimmpseWeb.constants.powerMethodQuantileLabel();
+        }
+
+        return null;
     }
 
     /**
@@ -355,11 +546,37 @@ implements ClickHandler, WizardContextListener
                 curveDescription.setHorizontalAxisLabelEnum(
                         HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);;
             }
-            
-            
+            curveDescription.setDataSeriesList(dataSeriesList);
+            studyDesignContext.setPowerCurveDescription(this, curveDescription);
+
         } else {
             // clear the power curve
         }
+    }
+
+    private void updateDataSeriesOptions() {
+
+        // select boxes for items that must be fixed for the curve
+        totalNListBox.setVisible(solvingForPower && 
+                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        nominalPowerListBox.setVisible(!solvingForPower);
+        betaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        sigmaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        testListBox.setVisible(true);
+        alphaListBox.setVisible(true);
+        powerMethodListBox.setVisible(hasCovariate);
+        quantileListBox.setVisible(hasCovariate);
+
+        // labels for each listbox
+        totalNHTML.setVisible(solvingForPower && 
+                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        nominalPowerHTML.setVisible(!solvingForPower);
+        betaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        sigmaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        testHTML.setVisible(true);
+        alphaHTML.setVisible(true);
+        powerMethodHTML.setVisible(hasCovariate);
+        quantileHTML.setVisible(hasCovariate);
     }
 
     @Override
@@ -368,11 +585,13 @@ implements ClickHandler, WizardContextListener
         StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
         switch(changeEvent.getType())
         {
+        case SOLVING_FOR:
+            solvingForPower = 
+                (studyDesignContext.getStudyDesign().getSolutionTypeEnum() ==
+                    SolutionTypeEnum.POWER);
+            break;
         case COVARIATE:
-            powerMethodHTML.setVisible(hasCovariate);
-            powerMethodListBox.setVisible(hasCovariate);
-            quantileHTML.setVisible(hasCovariate);
-            quantileListBox.setVisible(hasCovariate);
+            hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
             break;
         case PER_GROUP_N_LIST:
             List<SampleSize> sampleSizeList = studyDesignContext.getStudyDesign().getSampleSizeList();
@@ -384,13 +603,12 @@ implements ClickHandler, WizardContextListener
                 }
             }
             break;
-
         case BETA_SCALE_LIST:
             List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign().getBetaScaleList();
             betaScaleListBox.clear();
             if (betaScaleList != null) {
                 for(BetaScale scale: betaScaleList) {
-                    betaScaleListBox.addItem(scale.toString());
+                    betaScaleListBox.addItem(Double.toString(scale.getValue()));
                 }
             }
             break;
@@ -400,7 +618,7 @@ implements ClickHandler, WizardContextListener
             sigmaScaleListBox.clear();
             if (sigmaScaleList != null) {
                 for(SigmaScale scale: sigmaScaleList) {
-                    sigmaScaleListBox.addItem(scale.toString());
+                    sigmaScaleListBox.addItem(Double.toString(scale.getValue()));
                 }
             }
             break;
@@ -410,7 +628,7 @@ implements ClickHandler, WizardContextListener
             testListBox.clear();
             if (testList != null) {
                 for(StatisticalTest test: testList) {
-                    testListBox.addItem(test.toString());
+                    testListBox.addItem(statisticalTestToString(test.getType()));
                 }
             }
             break;
@@ -420,11 +638,32 @@ implements ClickHandler, WizardContextListener
             alphaListBox.clear();
             if (alphaList != null) {
                 for(TypeIError alpha: alphaList) {
-                    alphaListBox.addItem(alpha.toString());
+                    alphaListBox.addItem(Double.toString(alpha.getAlphaValue()));
+                }
+            }
+            break;
+        case POWER_METHOD_LIST:
+            List<PowerMethod> powerMethodList = studyDesignContext.getStudyDesign().getPowerMethodList();
+            powerMethodListBox.clear();
+            if (powerMethodList != null) {
+                for(PowerMethod powerMethod: powerMethodList) {
+                    powerMethodListBox.addItem(powerMethodToString(powerMethod.getPowerMethodEnum()));
+                }
+            }
+            break;
+        case QUANTILE_LIST:
+            List<Quantile> quantileList = studyDesignContext.getStudyDesign().getQuantileList();
+            quantileListBox.clear();
+            if (quantileList != null) {
+                for(Quantile quantile: quantileList) {
+                    quantileListBox.addItem(Double.toString(quantile.getValue()));
                 }
             }
             break;
         }
+
+        updateDataSeriesOptions();
+        checkComplete();
     }
 
     @Override

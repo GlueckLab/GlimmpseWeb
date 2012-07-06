@@ -23,6 +23,8 @@ package edu.ucdenver.bios.glimmpseweb.client;
 
 import com.google.gwt.i18n.client.Constants;
 
+import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
+
 /**
  * Container class for constants used throughout the GLIMMPSE interface.
  * Also used by Google Web Toolkit for internationalization
@@ -431,6 +433,7 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsSigmaScaleLabel();
     public String curveOptionsTestLabel();
     public String curveOptionsAlphaLabel();
+    public String curveOptionsNominalPowerLabel();
     public String curveOptionsPowerLabel();
     public String curveOptionsPowerMethodLabel();
     public String curveOptionsQuantileLabel();   

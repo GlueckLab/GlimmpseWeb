@@ -84,6 +84,8 @@ public class FixedPredictorsPanel extends WizardStepPanel
     protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
     	new HashMap<String,ArrayList<String>>();
     
+    protected boolean changed = false;
+    
     public FixedPredictorsPanel(WizardContext context)
     {
     	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
@@ -269,6 +271,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     
     private void showMultiSamplePanel(boolean show) {
         multiSamplePanel.setVisible(show);
+        changed = true;
     }
     
     
@@ -291,6 +294,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     		predictorList.addItem(name);
     		predictorCategoryMap.put(name, new ArrayList<String>());
     	}
+        changed = true;
     }
     
     private void selectPredictor(int selectedIndex)
@@ -307,6 +311,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     private void deletePredictor(String name)
     {
     	predictorCategoryMap.remove(name);
+        changed = true;
     }
     
     private void addCategory(String predictor, String category)
@@ -317,6 +322,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     		categories.add(category);
 			categoryList.addItem(category);
     	}
+        changed = true;
 		checkComplete();
     }
     
@@ -327,6 +333,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     	{
     		categories.remove(category);
     	}
+        changed = true;
 		checkComplete();
     }
     
@@ -408,8 +415,11 @@ public class FixedPredictorsPanel extends WizardStepPanel
     @Override
     public void onExit()
     {
-    	studyDesignContext.setBetweenParticipantFactorList(this, 
-    			buildBetweenParticipantFactorList());
+        if (changed) {
+            studyDesignContext.setBetweenParticipantFactorList(this, 
+                    buildBetweenParticipantFactorList());
+            changed = false;
+        }
     }
     
     /**

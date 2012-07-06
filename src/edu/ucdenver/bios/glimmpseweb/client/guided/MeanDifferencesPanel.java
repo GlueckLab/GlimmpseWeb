@@ -56,7 +56,7 @@ implements ChangeHandler
 {
     // column indices for repeated measures dropdown lists
     protected static final int LABEL_COLUMN = 0;
-    protected static final int LISTBOX_COLUMN = 0;
+    protected static final int LISTBOX_COLUMN = 1;
 
 
     // context object
@@ -68,7 +68,11 @@ implements ChangeHandler
 
     // flex table of mean values
     protected FlexTable meansTable = new FlexTable();
+    // selection of repeated measures
+    protected HTML rmInstructions = 
+        new HTML(GlimmpseWeb.constants.meanDifferenceRepeatedMeasuresInstructions());
     protected FlexTable repeatedMeasuresTable = new FlexTable();
+    protected ArrayList<Integer> rmOffsetList = new ArrayList<Integer>();
 
     protected int betaRows = 0;
     protected int betaColumns = 0;
@@ -113,8 +117,7 @@ implements ChangeHandler
 
         HTML header = new HTML(GlimmpseWeb.constants.meanDifferenceTitle());
         HTML description = new HTML(GlimmpseWeb.constants.meanDifferenceDescription());
-        HTML rmInstructions = 
-            new HTML(GlimmpseWeb.constants.meanDifferenceRepeatedMeasuresInstructions());
+
         panel.add(header);
         panel.add(description);
         panel.add(meansTable);
@@ -122,6 +125,10 @@ implements ChangeHandler
         panel.add(rmInstructions);
         panel.add(repeatedMeasuresTable);
 
+        // hide the repeated measures info initially
+        rmInstructions.setVisible(false);
+        repeatedMeasuresTable.setVisible(false);
+        
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -202,6 +209,9 @@ implements ChangeHandler
      */
     private void loadRepeatedMeasuresFromContext() {
         repeatedMeasuresTable.removeAllRows();
+        rmInstructions.setVisible(false);
+        repeatedMeasuresTable.setVisible(false);
+        rmOffsetList.clear();
         totalRepeatedMeasures = 0;
         totalWithinFactorCombinations = totalResponseVariables;
         List<RepeatedMeasuresNode> rmNodeList = 
@@ -231,13 +241,22 @@ implements ChangeHandler
                 int row = 0;
                 int offset = (totalWithinFactorCombinations > 0 ?
                         totalWithinFactorCombinations : 1);
+                int rmOffset = totalRepeatedMeasuresCombinations;
                 for(RepeatedMeasuresNode rmNode: rmNodeList) {
                     offset /= rmNode.getNumberOfMeasurements();
+                    rmOffset /= rmNode.getNumberOfMeasurements();
+                    rmOffsetList.add(rmOffset);
                     // add the label
                     repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
                             new HTML(rmNode.getDimension()));
                     // add the listbox
                     ListBox lb = new ListBox();
+                    lb.addChangeHandler(new ChangeHandler() {
+                        @Override
+                        public void onChange(ChangeEvent event) {
+                            updateTextBoxes();
+                        }                      
+                    });
                     List<Spacing> spacingList = rmNode.getSpacingList();
                     if (spacingList != null) {
                         int index = 0;
@@ -251,16 +270,56 @@ implements ChangeHandler
                             lb.addItem(Integer.toString(i), Integer.toString(i*offset));
                         }
                     }
+                    repeatedMeasuresTable.setWidget(row, LISTBOX_COLUMN, 
+                            lb);
                     row++;
                 }
 
             }
-
+            rmInstructions.setVisible(true);
+            repeatedMeasuresTable.setVisible(true);
         }
         updateMatrixData();
         checkComplete();
     }
 
+    private void updateOffsets() {
+        for(int row = 0; row < repeatedMeasuresTable.getRowCount(); row++) {
+            ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(row, LISTBOX_COLUMN);
+            for(int i = 0; i < lb.getItemCount(); i++) {
+                lb.setValue(i, Integer.toString(totalResponseVariables * rmOffsetList.get(i)));
+            }
+        }
+    }
+    
+    /**
+     * Update the textbox view into the beta matrix
+     */
+    private void updateTextBoxes() {
+        // calculate the new column offset
+        currentColumnOffset = 0;
+        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
+            ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
+            String valueStr = lb.getValue(lb.getSelectedIndex());
+            int value = Integer.parseInt(valueStr);
+            currentColumnOffset += value;
+        }
+        // update the values in the textboxes
+        for(int row = 1; row < meansTable.getRowCount(); row++) {
+            meansTable.getRowFormatter().setStyleName(row, 
+                    GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
+            for(int col = totalBetweenFactors; col < totalResponseVariables+totalBetweenFactors; col++) {
+                RowColumnTextBox tb = new RowColumnTextBox(row-1, col-totalBetweenFactors);
+                tb.setText(Double.toString(betaFixedData[row-1][col-totalBetweenFactors+currentColumnOffset]));
+                tb.addChangeHandler(this);
+                meansTable.setWidget(row, col, tb);
+            }
+        }
+    }
+    
+    /**
+     * Allocate a new beta matrix
+     */
     private void updateMatrixData() {
         betaFixedData = null;
         if (totalWithinFactorCombinations > 0 && totalBetweenFactorCombinations > 0) {
@@ -345,6 +404,7 @@ implements ChangeHandler
         // create text boxes to hold the means
         fillTextBoxes();
         updateMatrixData();
+        updateOffsets();
         checkComplete();
     }
 

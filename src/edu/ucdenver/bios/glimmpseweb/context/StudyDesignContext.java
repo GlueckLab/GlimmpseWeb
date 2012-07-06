@@ -20,6 +20,7 @@ import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
@@ -297,6 +298,12 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.CONFIDENCE_INTERVAL));
     }
 
+    public void setPowerCurveDescription(WizardStepPanel panel,
+            PowerCurveDescription curveDescription) {
+        studyDesign.setPowerCurveDescriptions(curveDescription);
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.POWER_CURVE));
+    }
 
     /**
      * Checks if the study design is complete
@@ -513,5 +520,6 @@ public class StudyDesignContext extends WizardContext
         }
 
     }
+
 
 }

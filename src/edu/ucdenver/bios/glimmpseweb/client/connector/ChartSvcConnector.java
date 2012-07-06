@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.visualization.client.DataTable;
 
@@ -35,6 +36,7 @@ import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.enums.HorizontalAxisLabelEnum;
+import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.StratificationVariableEnum;
 
 /**
@@ -108,17 +110,8 @@ public class ChartSvcConnector {
     public String buildQueryString(List<PowerResult> resultList,
             PowerCurveDescription curveDescription) {
         StringBuffer queryStr = new StringBuffer();
-        boolean first = true;
-        // add the chart title
-        if (curveDescription.getTitle() != null) {
-            queryStr.append("chtt=" + curveDescription.getTitle());
-            first = false;
-        }
         
         // add axis labels
-        if (!first) {
-            queryStr.append("&");
-        }
         switch(curveDescription.getHorizontalAxisLabelEnum()) {
         case TOTAL_SAMPLE_SIZE:
             queryStr.append("chxl=" + URL.encode(GlimmpseWeb.constants.curveOptionsSampleSizeLabel()));
@@ -130,6 +123,12 @@ public class ChartSvcConnector {
             queryStr.append("chxl=" + URL.encode(GlimmpseWeb.constants.curveOptionsSigmaScaleLabel()));
             break;
         }
+        queryStr.append(SERIES_DELIM + GlimmpseWeb.constants.curveOptionsPowerLabel());
+        
+        // add the chart title (optional)
+        if (curveDescription.getTitle() != null) {
+            queryStr.append("&chtt=" + curveDescription.getTitle());
+        }
         
         // add the width/height parameters
         queryStr.append(buildSizeQueryString(curveDescription.getWidth(),
@@ -137,56 +136,76 @@ public class ChartSvcConnector {
         
         // add data series
         List<PowerCurveDataSeries> dataSeriesList = curveDescription.getDataSeriesList();
-        boolean firstSeries = false;
+        boolean firstSeries = true;
         if (dataSeriesList != null) {
             StringBuffer seriesLabels = new StringBuffer();
-            seriesLabels.append("chdl=");
+            seriesLabels.append("&chdl=");
+            queryStr.append("&chd=t:");
             for(PowerCurveDataSeries dataSeries: dataSeriesList) {
+                if (!firstSeries) {
+                    seriesLabels.append(SERIES_DELIM);
+                }
+                seriesLabels.append(dataSeries.getLabel());
                 StringBuffer lowerCI = new StringBuffer();
                 StringBuffer upperCI = new StringBuffer();
                 StringBuffer main = new StringBuffer();
                 StringBuffer xValues = new StringBuffer();
                 
-                boolean firstMatch = true;
-                
+                boolean hasMatch = false;
                 for(PowerResult result: resultList) {
                     if (isMatch(result, dataSeries, curveDescription.getHorizontalAxisLabelEnum())) {
-                        if (!firstMatch) {
+                        if (hasMatch) {
                             main.append(",");
                             xValues.append(",");
                         }
                         main.append(result.getActualPower());
+                        switch(curveDescription.getHorizontalAxisLabelEnum())
+                        {
+                        case TOTAL_SAMPLE_SIZE:
+                            xValues.append(result.getTotalSampleSize());
+                            break;
+                        case REGRESSION_COEEFICIENT_SCALE_FACTOR:
+                            xValues.append(result.getBetaScale().getValue());
+                            break;
+                        case VARIABILITY_SCALE_FACTOR:
+                            xValues.append(result.getSigmaScale().getValue());
+                            break;
+                        }
+
                         
                         if (dataSeries.isConfidenceLimits() && 
                                 result.getConfidenceInterval() != null) {
-                            if (!firstMatch) {
+                            if (hasMatch) {
                                 lowerCI.append(",");
                                 upperCI.append(",");
                             }
                             lowerCI.append(result.getConfidenceInterval().getLowerLimit());
                             upperCI.append(result.getConfidenceInterval().getUpperLimit());
                         }
-                        firstMatch = false;
+                        hasMatch = true;
+                    }
+                    
+
+                }
+                if (hasMatch) {
+                    if (!firstSeries) {
+                        queryStr.append(SERIES_DELIM);
+                        seriesLabels.append(SERIES_DELIM);
+                    }
+                    queryStr.append(xValues.toString() + SERIES_DELIM + main.toString());
+                    if (lowerCI.length() > 0) {
+                        queryStr.append(SERIES_DELIM + xValues.toString() + 
+                                SERIES_DELIM + lowerCI.toString());
+                    }
+                    if (upperCI.length() > 0) {
+                        queryStr.append(SERIES_DELIM + xValues.toString() + 
+                                SERIES_DELIM + upperCI.toString());
                     }
                 }
-                
-                if (!firstSeries) {
-                    queryStr.append(SERIES_DELIM);
-                    seriesLabels.append(SERIES_DELIM);
-                }
-                queryStr.append(xValues.toString() + SERIES_DELIM + main.toString());
-                if (lowerCI.length() > 0) {
-                    queryStr.append(SERIES_DELIM + xValues.toString() + 
-                            SERIES_DELIM + lowerCI.toString());
-                }
-                if (upperCI.length() > 0) {
-                    queryStr.append(SERIES_DELIM + xValues.toString() + 
-                            SERIES_DELIM + upperCI.toString());
-                }
-                
                 firstSeries = false;
             }
-            
+            Window.alert(queryStr.toString());
+
             // append the series labels 
             queryStr.append(seriesLabels);
         }
@@ -201,7 +220,8 @@ public class ChartSvcConnector {
      * @return
      */
     private boolean isMatch(PowerResult result, PowerCurveDataSeries dataSeries, 
-            HorizontalAxisLabelEnum axisType) {
+            HorizontalAxisLabelEnum axisType) {        
+        
         switch(axisType)
         {
         case TOTAL_SAMPLE_SIZE:
@@ -212,12 +232,15 @@ public class ChartSvcConnector {
                                 (result.getSigmaScale() != null &&
                                         result.getSigmaScale().getValue() == 
                                             dataSeries.getSigmaScale()) &&
-                                            (result.getPowerMethod() != null && 
+                                            (result.getPowerMethod().getPowerMethodEnum() == 
+                                                PowerMethodEnum.CONDITIONAL || 
+                                                    (result.getPowerMethod() != null && 
                                                     result.getPowerMethod().getPowerMethodEnum() == 
-                                                        dataSeries.getPowerMethod()) &&
-                                                        (result.getQuantile() != null && 
+                                                        dataSeries.getPowerMethod())) &&
+                                                        (result.getQuantile() == null ||
+                                                                (result.getQuantile() != null && 
                                                                 result.getQuantile().getValue() ==
-                                                                    dataSeries.getQuantile()) &&
+                                                                    dataSeries.getQuantile())) &&
                                                                     (result.getTest() != null &&
                                                                             result.getTest().getType() == 
                                                                                 dataSeries.getStatisticalTestTypeEnum()) &&   
@@ -231,12 +254,15 @@ public class ChartSvcConnector {
                         (result.getSigmaScale() != null &&
                                 result.getSigmaScale().getValue() == 
                                     dataSeries.getSigmaScale()) &&
-                                    (result.getPowerMethod() != null && 
+                                    (result.getPowerMethod().getPowerMethodEnum() == 
+                                        PowerMethodEnum.CONDITIONAL || 
+                                            (result.getPowerMethod() != null && 
                                             result.getPowerMethod().getPowerMethodEnum() == 
-                                                dataSeries.getPowerMethod()) &&
-                                                (result.getQuantile() != null && 
+                                                dataSeries.getPowerMethod())) &&
+                                                (result.getQuantile() == null ||
+                                                        (result.getQuantile() != null && 
                                                         result.getQuantile().getValue() ==
-                                                            dataSeries.getQuantile()) &&
+                                                            dataSeries.getQuantile())) &&
                                                             (result.getTest() != null &&
                                                                     result.getTest().getType() == 
                                                                         dataSeries.getStatisticalTestTypeEnum()) &&   
@@ -250,12 +276,15 @@ public class ChartSvcConnector {
                         (result.getBetaScale() != null &&
                                 result.getBetaScale().getValue() == 
                                     dataSeries.getBetaScale()) &&
-                                    (result.getPowerMethod() != null && 
+                                    (result.getPowerMethod().getPowerMethodEnum() == 
+                                        PowerMethodEnum.CONDITIONAL || 
+                                            (result.getPowerMethod() != null && 
                                             result.getPowerMethod().getPowerMethodEnum() == 
-                                                dataSeries.getPowerMethod()) &&
-                                                (result.getQuantile() != null && 
+                                                dataSeries.getPowerMethod())) &&
+                                                (result.getQuantile() == null ||
+                                                        (result.getQuantile() != null && 
                                                         result.getQuantile().getValue() ==
-                                                            dataSeries.getQuantile()) &&
+                                                            dataSeries.getQuantile())) &&
                                                             (result.getTest() != null &&
                                                                     result.getTest().getType() == 
                                                                         dataSeries.getStatisticalTestTypeEnum()) &&   

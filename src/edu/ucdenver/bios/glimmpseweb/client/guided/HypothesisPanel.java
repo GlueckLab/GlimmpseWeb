@@ -254,6 +254,9 @@ implements ClickHandler, ChangeHandler {
                 if (node.getNumberOfMeasurements() > maxLevels) {
                     maxLevels = node.getNumberOfMeasurements();
                 }
+                if (node.getNumberOfMeasurements() > 1) {
+                    totalMultiCategoryFactors++;
+                }
             }
         }
         

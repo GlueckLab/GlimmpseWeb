@@ -57,6 +57,9 @@ implements ListValidator
     // array list to hold output
     ArrayList<ResponseNode> outcomesList = new ArrayList<ResponseNode>();
     
+    // indicates if anything on the panel has changed
+    protected boolean changed;
+    
     /**
      * Constructor.
      * @param context wizard context
@@ -99,15 +102,18 @@ implements ListValidator
     @Override
     public void onExit()
     {
-        List<String> stringValues = outcomesListPanel.getValues();
-        outcomesList.clear();
-        for(String value: stringValues)
-        {
-            outcomesList.add(new ResponseNode(value));
+        if (changed) {
+            List<String> stringValues = outcomesListPanel.getValues();
+            outcomesList.clear();
+            for(String value: stringValues)
+            {
+                outcomesList.add(new ResponseNode(value));
+            }
+            // save to context object
+            studyDesignContext.setResponseList(this, 
+                    PARTICIPANT_LABEL, outcomesList);
+            changed = false;
         }
-        // save to context object
-        studyDesignContext.setResponseList(this, 
-                PARTICIPANT_LABEL, outcomesList);
     }
     
     /**
@@ -162,6 +168,7 @@ implements ListValidator
      */
     public void onValidRowCount(int validRowCount)
     {
+        changed = true;
         if (validRowCount > 0)
             changeState(WizardStepPanelState.COMPLETE);
         else
