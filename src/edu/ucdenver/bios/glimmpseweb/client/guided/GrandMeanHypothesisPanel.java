@@ -138,6 +138,7 @@ implements HypothesisBuilder {
         NamedMatrix thetaNull = new NamedMatrix();
         thetaNull.setName(GlimmpseConstants.MATRIX_THETA);
         thetaNull.setColumns(1);
+        thetaNull.setColumns(comparisonMeanTable.getRowCount());
         double[][] data = new double[comparisonMeanTable.getRowCount()][1];
         for(int row = 0; row < comparisonMeanTable.getRowCount(); row++) {
             TextBox tb = (TextBox) comparisonMeanTable.getWidget(row, TEXTBOX_COLUMN);
@@ -148,6 +149,7 @@ implements HypothesisBuilder {
                 data[row][0] = Double.NaN;
             }
         }
+        thetaNull.setDataFromArray(data);
         return thetaNull;
         
     }
