@@ -189,7 +189,7 @@ implements HypothesisBuilder {
     @Override
     public Hypothesis buildHypothesis() {
         Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.MAIN_EFFECT);
+        hypothesis.setType(HypothesisTypeEnum.TREND);
 
         if (selectedRepeatedMeasuresNode != null) {
             HypothesisRepeatedMeasuresMapping mappingNode =
