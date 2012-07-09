@@ -417,15 +417,21 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	@Override
 	public void onExit()
 	{
-	    ConfidenceIntervalDescription ciDescr = null;
-	    if (WizardStepPanelState.COMPLETE == getState() 
-	            && !noCICheckbox.getValue() ) {
+	    ConfidenceIntervalDescription ciDescr = null;	    
+	    if (!noCICheckbox.getValue() ) {
 	        ciDescr =  new ConfidenceIntervalDescription();
-	        ciDescr.setLowerTailProbability(Float.parseFloat(alphaLowerTextBox.getValue()));
-	        ciDescr.setUpperTailProbability(Float.parseFloat(alphaUpperTextBox.getValue()));
-	        ciDescr.setRankOfDesignMatrix(Integer.parseInt(rankTextBox.getValue()));
-	        ciDescr.setSampleSize(Integer.parseInt(sampleSizeTextBox.getValue()));
+	        if(!alphaLowerTextBox.getValue().isEmpty())
+	            ciDescr.setLowerTailProbability(Float.parseFloat(alphaLowerTextBox.getValue()));
+	        if(!alphaUpperTextBox.getValue().isEmpty())
+	            ciDescr.setUpperTailProbability(Float.parseFloat(alphaUpperTextBox.getValue()));
+	        if(!rankTextBox.getValue().isEmpty())
+	            ciDescr.setRankOfDesignMatrix(Integer.parseInt(rankTextBox.getValue()));
+	        if(!sampleSizeTextBox.getValue().isEmpty())
+	            ciDescr.setSampleSize(Integer.parseInt(sampleSizeTextBox.getValue()));
 	    } 
+	    else {
+	        // clear the confidence interval description object
+	    }
         studyDesignContext.setConfidenceIntervalOptions(this, ciDescr);
 	    
 	}
