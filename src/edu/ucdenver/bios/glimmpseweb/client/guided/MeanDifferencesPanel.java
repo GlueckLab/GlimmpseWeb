@@ -476,7 +476,7 @@ implements ChangeHandler
         {
             double value = Double.parseDouble(tb.getText());
             TextValidation.displayOkay(errorHTML, "");
-            Window.alert("row=" + tb.getRow() + " column=" + tb.getColumn() + " offset=" + currentColumnOffset);
+//            Window.alert("row=" + tb.getRow() + " column=" + tb.getColumn() + " offset=" + currentColumnOffset);
             betaFixedData[tb.getRow()][tb.getColumn() + currentColumnOffset] = value;
         }
         catch (NumberFormatException nfe)

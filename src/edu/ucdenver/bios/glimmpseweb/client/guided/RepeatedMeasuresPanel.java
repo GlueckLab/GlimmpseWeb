@@ -250,6 +250,7 @@ implements ChangeHandler
         removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
         addSubDimensionButton.setVisible(hasRepeatedMeasures);
         removeSubDimensionButton.setVisible(hasRepeatedMeasures);
+        changed = true;
         checkComplete();
     }
     

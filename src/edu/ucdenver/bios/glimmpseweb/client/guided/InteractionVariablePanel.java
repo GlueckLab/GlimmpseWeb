@@ -68,7 +68,7 @@ public class InteractionVariablePanel extends Composite
 	protected HTML selectedTrendHTML = 
 	        new HTML(GlimmpseWeb.constants.editTrendNoTrend());
 	// sub panel to select a trend type
-	protected EditTrendPanel editTrendPanel;
+	protected EditTrendPanel editTrendPanel = null;
 	
 	/**
 	 * Constructor.
@@ -101,13 +101,14 @@ public class InteractionVariablePanel extends Composite
                 selectedTrendHTML.setVisible(checked);
 			}
 		});
+		checkBox.addClickHandler(handler);
 		
 		// build the selected trend display panel
 		selectedTrendPanel.add(new HTML(GlimmpseWeb.constants.editTrendSelectedTrendPrefix()));
 		selectedTrendPanel.add(selectedTrendHTML);
 		
 		// create the edit trend panel
-		EditTrendPanel editTrendPanel = new EditTrendPanel(label, numLevels);
+		editTrendPanel = new EditTrendPanel(label, numLevels);
 		trendPanel.add(editTrendPanel);
 		editTrendPanel.addClickHandler(new ClickHandler ()
 		{
@@ -122,6 +123,7 @@ public class InteractionVariablePanel extends Composite
 					editTrendButton.setVisible(true);
 			}
 		});
+		editTrendPanel.addClickHandler(handler);
 		
 		
 		// layout the top panel for the checkbox and trend display

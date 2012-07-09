@@ -26,18 +26,13 @@ import java.util.List;
 
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.visualization.client.DataTable;
 
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.enums.HorizontalAxisLabelEnum;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
-import edu.ucdenver.bios.webservice.common.enums.StratificationVariableEnum;
 
 /**
  * Creates a chart request, typically stored to an image widget
@@ -204,8 +199,6 @@ public class ChartSvcConnector {
                 }
                 firstSeries = false;
             }
-            Window.alert(queryStr.toString());
-
             // append the series labels 
             queryStr.append(seriesLabels);
         }

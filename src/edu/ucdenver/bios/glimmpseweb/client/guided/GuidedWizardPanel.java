@@ -149,7 +149,7 @@ implements WizardActionListener
 		ArrayList<WizardStepPanelGroup> groupList = new ArrayList<WizardStepPanelGroup>();
 		WizardStepPanelGroup group = 
 		    new WizardStepPanelGroup(GlimmpseWeb.constants.navGroupStart(), startIntroPanel);
-		//group.addPanel(new DynamicTabPanelTest(context));
+//		group.addPanel(new DynamicTabPanelTest(context));
 		group.addPanel(solvingForPanel);
 		group.addPanel(powerPanel);
 		group.addPanel(typeIErrorPanel);

@@ -21,16 +21,16 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import java.util.ArrayList;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -49,6 +49,9 @@ public class DynamicTabPanel extends Composite {
 
     // currently selected tab
     protected int selectedIndex = -1;
+    
+    // external click handlers - notified when a tab is selected
+    protected ArrayList<ClickHandler> handlers = new ArrayList<ClickHandler>();
 
     // header bar simulating tabs since you can't dynamically add stuff to a tab panel
     protected FlexTable tabPanel = new FlexTable();
@@ -76,6 +79,7 @@ public class DynamicTabPanel extends Composite {
     public DynamicTabPanel() {
         VerticalPanel panel = new VerticalPanel();
 
+        tabPanel.removeAllRows();
         panel.add(tabPanel);
         panel.add(tabDeck);
 
@@ -106,6 +110,7 @@ public class DynamicTabPanel extends Composite {
                 public void onClick(ClickEvent event) {
                     IndexedDecoratorPanel panel = (IndexedDecoratorPanel) event.getSource();
                     openTab(panel.index);
+                    notifyOnClick(event);
                 }
             });
             // dependent style depends on position
@@ -122,7 +127,9 @@ public class DynamicTabPanel extends Composite {
                 panel.addStyleDependentName(GlimmpseConstants.STYLE_RIGHT);
             }
             // add the new tab to the header bar
-            tabPanel.insertCell(0, position);
+            if (tabCount > 0) {
+                tabPanel.insertCell(0, position);
+            }
             tabPanel.setWidget(0, position, panel);
             // add the new contents to the deck panel
             tabDeck.insert(tabContents, position);
@@ -338,6 +345,23 @@ public class DynamicTabPanel extends Composite {
             }
             updateStyles();
         }
+    }
+    
+    /**
+     * Notify external handlers that a tab has been clicked
+     */
+    private void notifyOnClick(ClickEvent e) {
+        for(ClickHandler handler: handlers) {
+            handler.onClick(e);
+        }
+    }
+    
+    /**
+     * Add a handler for click events on the tabs
+     * @param handler
+     */
+    public void addClickHandler(ClickHandler handler) {
+        handlers.add(handler);
     }
 
 }

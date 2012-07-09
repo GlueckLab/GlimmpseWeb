@@ -30,10 +30,9 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -73,15 +72,6 @@ implements ClickHandler, ChangeHandler {
     
     // context object
     protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-    
-    // radio button group for hypothesis types
-    private static final String BUTTON_GROUP = "HypothesisRadioButtonGroup";
-    
-    // deck panel order
-    private static final int GRAND_MEAN_INDEX = 0;
-    private static final int MAIN_EFFECT_INDEX = 1;
-    private static final int INTERACTION_INDEX = 2;
-    private static final int TREND_INDEX = 3;
 
     // subpanels for each type of hypothesis
     protected GrandMeanHypothesisPanel grandMeanHypothesisPanelInstance =
@@ -94,17 +84,13 @@ implements ClickHandler, ChangeHandler {
         new TrendHypothesisPanel(this);
     
     /* hypothesis type buttons */
-    protected RadioButton grandMeanRadioButton = new RadioButton(
-            BUTTON_GROUP,
+    protected HTML grandMeanHTML = new HTML(
             GlimmpseWeb.constants.hypothesisPanelGrandMean()); 
-    protected RadioButton mainEffectRadioButton = new RadioButton(
-            BUTTON_GROUP,
+    protected HTML mainEffectHTML = new HTML(
             GlimmpseWeb.constants.hypothesisPanelMainEffect()); 
-    protected RadioButton interactionRadioButton = new RadioButton(
-            BUTTON_GROUP,
+    protected HTML interactionHTML = new HTML(
             GlimmpseWeb.constants.hypothesisPanelInteraction()); 
-    protected RadioButton trendRadioButton = new RadioButton(
-            BUTTON_GROUP,
+    protected HTML trendHTML = new HTML(
             GlimmpseWeb.constants.hypothesisPanelTrend());
     
     // hypothesis type containers
@@ -139,32 +125,33 @@ implements ClickHandler, ChangeHandler {
 
         // hypothesis type selection panel
         // one sample 
-        grandMeanSelectPanel.add(grandMeanRadioButton);
+        grandMeanSelectPanel.add(grandMeanHTML);
         grandMeanSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelGrandMean(),
                 GlimmpseWeb.constants.hypothesisPanelGrandMeanExplanation()));
 
         // main effects
-        mainEffectSelectPanel.add(mainEffectRadioButton);
+        mainEffectSelectPanel.add(mainEffectHTML);
         mainEffectSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffect(),
                 GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation()));
         
         // interaction
-        interactionSelectPanel.add(interactionRadioButton);
+        interactionSelectPanel.add(interactionHTML);
         interactionSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelInteraction(),
                 GlimmpseWeb.constants.hypothesisPanelInteractionExplanation()));
 
         // trend
-        trendSelectPanel.add(trendRadioButton);
+        trendSelectPanel.add(trendHTML);
         trendSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelTrend(),
                 GlimmpseWeb.constants.hypothesisPanelTrendExplanation()));
 
         // add tabs to the tab panel
         tabPanel.add(grandMeanSelectPanel, (Widget) grandMeanHypothesisPanelInstance);
-
+        tabPanel.addClickHandler(this);
+        
         // layout panel
         panel.add(title);
         panel.add(description);

@@ -54,6 +54,12 @@ public class DynamicTabPanelTest extends WizardStepPanel {
             }
             
         });
+        Button clearButton = new Button("Clear", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                clearPanel();
+            }
+        });
         
         
         panel.add(tabPanel);
@@ -61,12 +67,17 @@ public class DynamicTabPanelTest extends WizardStepPanel {
         panel.add(addLastButton);
         panel.add(removeFirstButton);
         panel.add(removeLastButton);
-        
+        panel.add(clearButton);
         initWidget(panel);
     }
     
     private void addFirstTab() {
         tabPanel.insert(0, new HTML("Tab " + tabPanel.getTabCount()), makeTabContents());
+
+    }
+    
+    private void clearPanel() {
+        tabPanel.clear();
 
     }
     

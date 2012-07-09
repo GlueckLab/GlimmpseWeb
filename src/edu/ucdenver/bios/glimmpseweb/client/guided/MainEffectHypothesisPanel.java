@@ -220,9 +220,8 @@ implements HypothesisBuilder {
             mappingList.add(mappingParticipant);
             hypothesis.setBetweenParticipantFactorMapList(mappingList);
             
-        } else {
-            return null;
-        }
+        } 
+        
         return hypothesis;
     }
 

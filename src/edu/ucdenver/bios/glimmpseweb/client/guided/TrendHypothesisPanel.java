@@ -62,6 +62,9 @@ implements HypothesisBuilder {
     // trend description panel
     protected EditTrendPanel editTrendPanel =  new EditTrendPanel("_TREND_PANEL_", -1); // TODO
 
+    // parent panel
+    protected ClickHandler parent = null;
+    
     // RadioButton which contains a between participant effect
     private class BetweenParticipantRadioButton extends RadioButton {
         public BetweenParticipantFactor factor;
@@ -90,6 +93,8 @@ implements HypothesisBuilder {
     {
         VerticalPanel verticalPanel = new VerticalPanel();
 
+        parent = handler;
+        
         HTML text = new HTML(GlimmpseWeb.constants.trendHypothesisPanelText());
         HTML betweenParticipantFactors = 
                 new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
@@ -107,8 +112,7 @@ implements HypothesisBuilder {
         selectTypeOfTrend.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         selectTypeOfTrend.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 
-        HorizontalPanel editTrendHorizontalPanel = new HorizontalPanel();
-        editTrendHorizontalPanel.add(editTrendPanel);
+        // layout the panel
         verticalPanel.add(text);
         verticalPanel.add(betweenParticipantFactors);
         verticalPanel.add(betweenParticipantFactorsFlexTable);
@@ -210,9 +214,7 @@ implements HypothesisBuilder {
                 new ArrayList<HypothesisBetweenParticipantMapping>();
             mappingList.add(mappingParticipant);
             hypothesis.setBetweenParticipantFactorMapList(mappingList);
-        } else {
-            return null;
-        }
+        } 
         return hypothesis;
     }
 

@@ -27,6 +27,7 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -208,21 +209,25 @@ implements HypothesisBuilder, ClickHandler
         return hypothesis;
     }
     
+    /**
+     * Panel is complete provided two or more variables are selected
+     */
     @Override
     public boolean checkComplete() {     
-        return (selectedCount > 0);
+        return (selectedCount > 1);
     }
 
 
     @Override
     public void onClick(ClickEvent event) {
-        InteractionVariablePanel panel = 
-            (InteractionVariablePanel) event.getSource();
-        if (panel.isChecked()) {
+        CheckBox checkBox = 
+            (CheckBox) event.getSource();
+        if (checkBox.getValue()) {
             selectedCount++;
         } else {
             selectedCount--;
         }
+        parent.onClick(event);
     }
 
 

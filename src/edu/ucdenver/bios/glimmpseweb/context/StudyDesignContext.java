@@ -49,10 +49,12 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
+import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
+import edu.ucdenver.bios.webservice.common.enums.RepeatedMeasuresDimensionType;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
@@ -480,7 +482,11 @@ public class StudyDesignContext extends WizardContext
      */
     public void setHypothesis(WizardStepPanel panel, Hypothesis hypothesis)
     {
-        studyDesign.setHypothesisToSet(hypothesis);
+        if (hypothesis != null) { 
+            studyDesign.setHypothesisToSet(hypothesis);
+        } else {
+            studyDesign.setHypothesis(null);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.HYPOTHESIS));
     }
@@ -539,76 +545,80 @@ public class StudyDesignContext extends WizardContext
      */
     private void checkCompleteGuided() {
         Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
-        boolean gaussianCovariate = studyDesign.isGaussianCovariate();
+        boolean hasCovariate = studyDesign.isGaussianCovariate();
 
-        boolean hasBetweenFactors = false;
-        int totalWithinFactors = 0;
-        boolean hasHypothesis = false;
-        boolean hasCovariance = false;
-        boolean hasThetaNull = false;
-        boolean hasBeta = false;
-        boolean hasBetaRandom = !gaussianCovariate;
-
-        // do we have fixed predictors?
-        List<BetweenParticipantFactor> betweenFactorList = studyDesign.getBetweenParticipantFactorList();
-        if (validBetweenFactors(betweenFactorList)) {
-            
+        if (studyDesign.getSolutionTypeEnum() == null) {
+            complete =  false;
         } else {
-            complete = false;
-        }
-        hasBetweenFactors = (betweenFactorList != null && betweenFactorList.size() > 0);
-        // do we have responses?
-        List<ResponseNode> responseList = studyDesign.getResponseList();
-        if (responseList != null) {
-            totalWithinFactors++;
-        }
-        // do we have repeated measures (optional) ?
-        List<RepeatedMeasuresNode> rmNodeList = studyDesign.getRepeatedMeasuresTree();
-        if (rmNodeList != null) {
-            totalWithinFactors += rmNodeList.size();
-        }
-
-        // do we have a hypothesis?
-        Set<Hypothesis> hypothesisSet = studyDesign.getHypothesis();
-        hasHypothesis = (hypothesisSet != null && hypothesisSet.size() > 0);
-
-        if (matrixSet != null) {
-            Iterator<NamedMatrix> iterator = matrixSet.iterator();
-            while (iterator.hasNext()) {
-                NamedMatrix matrix = iterator.next();
-                if (matrix != null) {
-                    if  (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName())) {
-                        // do we have means?
-                        hasBeta = true;
-                    } else if (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName())) {
-                        // do we have a null hypothesis?
-                        hasThetaNull = true;
-                    }
-
-                    if (gaussianCovariate) {
-                        // check matrices for covariate designs
-                        if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName())) {
-                            hasBetaRandom = true;
+            boolean hasBeta = false;
+            boolean hasBetaRandom = !hasCovariate;
+            boolean hasSigmaG = !hasCovariate;
+            boolean hasSigmaYG = !hasCovariate;
+            boolean hasThetaNull = true;
+            // check if we have some of the required matrices
+            if (matrixSet != null) {
+                for(NamedMatrix matrix: matrixSet) {
+                    String name = matrix.getName();
+                    if (matrix != null) {
+                        if  (GlimmpseConstants.MATRIX_BETA.equals(name)) {
+                            // do we have means?
+                            hasBeta = true;
+                        } else if (GlimmpseConstants.MATRIX_THETA.equals(name)) {
+                            // do we have a null hypothesis?
+                            hasThetaNull = true;
                         }
-                    } 
+                        if (hasCovariate) {
+                            // check matrices for covariate designs
+                            if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(name)) {
+                                hasBetaRandom = true;
+                            } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equals(name)) {
+                                hasSigmaYG = true;
+                            } else if (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equals(name)) {
+                                hasSigmaG = true;
+                            }
+                        } 
+                    }
                 }
             }
+
+
+            // do we have fixed predictors?
+            List<BetweenParticipantFactor> betweenFactorList = studyDesign.getBetweenParticipantFactorList();
+            if (validBetweenFactors(betweenFactorList)) {
+                // do we have at least 1 response?
+                List<ResponseNode> responseList = studyDesign.getResponseList();
+                if (responseList != null && responseList.size() > 0) {
+                    // do we have a hypothesis?
+                    if (validHypothesis(studyDesign.getHypothesis(), hasThetaNull)) {
+                        if (validCovariance(studyDesign.getCovariance(), hasCovariate, hasSigmaG, hasSigmaYG)) {
+                            // if repeated measures are present, are they valid?
+                            if (validRepeatedMeasures(studyDesign.getRepeatedMeasuresTree())) {
+                                // if clustering is present, is it valid?
+                                if (validClustering(studyDesign.getClusteringTree())) {
+                                    complete = true;
+                                } else {
+                                    complete = false;
+                                }
+                            } else {
+                                complete = false;
+                            }
+                        } else {
+                            complete = false;
+                        }
+                    } else {
+                        complete = false;
+                    }
+                } else {
+                    complete = false;
+                }
+            } else {
+                complete = false;
+            }
+
+            complete = validLists() && validOptions() &&
+                    (hasBeta && hasBetaRandom && hasSigmaYG && hasSigmaG);
         }
-        // do we have covariance information?
-        Set<Covariance> covarianceSet = studyDesign.getCovariance();
-        hasCovariance = (covarianceSet != null && covarianceSet.size() == totalWithinFactors);
-
-        complete = (validLists() && validOptions() &&
-                hasBetweenFactors && 
-                totalWithinFactors > 0 &&
-                hasHypothesis && 
-                hasCovariance && 
-                hasBeta && 
-                hasBetaRandom &&
-                hasThetaNull);
-
         GWT.log("Study design complete? " + complete);
-        complete= true;
     }
 
     /**
@@ -642,20 +652,19 @@ public class StudyDesignContext extends WizardContext
 
             // spin over the matrices and make sure all are present
             if (matrixSet != null) {
-                Iterator<NamedMatrix> iterator = matrixSet.iterator();
-                while (iterator.hasNext()) {
-                    NamedMatrix matrix = iterator.next();
+                for (NamedMatrix matrix: matrixSet) {
+                    String name = matrix.getName();
                     if (matrix != null) {
                         // check matrices used for both covariate/fixed designs
-                        if (GlimmpseConstants.MATRIX_DESIGN.equals(matrix.getName())) {
+                        if (GlimmpseConstants.MATRIX_DESIGN.equals(name)) {
                             hasX = true;
-                        } else if  (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName())) {
+                        } else if  (GlimmpseConstants.MATRIX_BETA.equals(name)) {
                             hasBeta = true;
-                        } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(matrix.getName())) {
+                        } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(name)) {
                             hasC = true;
-                        } else if  (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(matrix.getName())) {
+                        } else if  (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(name)) {
                             hasU = true;
-                        } else if (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName())) {
+                        } else if (GlimmpseConstants.MATRIX_THETA.equals(name)) {
                             hasThetaNull = true;
                         }
 
@@ -681,9 +690,9 @@ public class StudyDesignContext extends WizardContext
                 }
             }
             complete = validLists() && validOptions() &&
-            (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
-                    && hasU && hasThetaNull
-                    && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
+                    (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
+                            && hasU && hasThetaNull
+                            && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
         }
     }
 
@@ -704,10 +713,10 @@ public class StudyDesignContext extends WizardContext
                 }
             }
         } 
-        
+
         return complete;
     }
-    
+
     /**
      * Checks if all required list inputs have been entered (used to validate both
      * matrix and guided designs).
@@ -719,25 +728,25 @@ public class StudyDesignContext extends WizardContext
             switch(studyDesign.getSolutionTypeEnum()) {
             case POWER:
                 if (studyDesign.getSampleSizeList() == null
-                        || studyDesign.getSampleSizeList().size() < 1
-                        || studyDesign.getBetaScaleList() == null 
-                        || studyDesign.getBetaScaleList().size() < 1) {
+                || studyDesign.getSampleSizeList().size() < 1
+                || studyDesign.getBetaScaleList() == null 
+                || studyDesign.getBetaScaleList().size() < 1) {
                     return false;
                 }
                 break;
             case SAMPLE_SIZE:
                 if (studyDesign.getNominalPowerList() == null
-                        || studyDesign.getNominalPowerList().size() < 1
-                        || studyDesign.getBetaScaleList() == null 
-                        || studyDesign.getBetaScaleList().size() < 1) {
+                || studyDesign.getNominalPowerList().size() < 1
+                || studyDesign.getBetaScaleList() == null 
+                || studyDesign.getBetaScaleList().size() < 1) {
                     return false;
                 }
                 break;
             case DETECTABLE_DIFFERENCE:
                 if (studyDesign.getSampleSizeList() == null
-                        || studyDesign.getSampleSizeList().size() < 1
-                        || studyDesign.getNominalPowerList() == null 
-                        || studyDesign.getNominalPowerList().size() < 1) {
+                || studyDesign.getSampleSizeList().size() < 1
+                || studyDesign.getNominalPowerList() == null 
+                || studyDesign.getNominalPowerList().size() < 1) {
                     return false;
                 }
                 break;
@@ -758,7 +767,7 @@ public class StudyDesignContext extends WizardContext
                     for(PowerMethod method : studyDesign.getPowerMethodList()) {
                         if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
                                 && (studyDesign.getPowerMethodList() == null 
-                                        || studyDesign.getPowerMethodList().size() < 1)){
+                                || studyDesign.getPowerMethodList().size() < 1)){
                             return false;
                         }
                     }
@@ -780,16 +789,177 @@ public class StudyDesignContext extends WizardContext
         ConfidenceIntervalDescription ciDescr = studyDesign.getConfidenceIntervalDescriptions();
         return (
                 (curveDescr == null ||
-                        (curveDescr.getHorizontalAxisLabelEnum() != null &&
-                                curveDescr.getDataSeriesList() != null &&
-                                curveDescr.getDataSeriesList().size() > 0)) &&
-                                (ciDescr == null ||
-                                        ((ciDescr.isBetaFixed() || ciDescr.isSigmaFixed()) &&
-                                                ciDescr.getLowerTailProbability() >= 0 &&
-                                                ciDescr.getUpperTailProbability() >= 0 &&
-                                                ciDescr.getSampleSize() > 1 &&
-                                                ciDescr.getRankOfDesignMatrix() > 0))
-        );
+                (curveDescr.getHorizontalAxisLabelEnum() != null &&
+                curveDescr.getDataSeriesList() != null &&
+                curveDescr.getDataSeriesList().size() > 0)) &&
+                (ciDescr == null ||
+                ((ciDescr.isBetaFixed() || ciDescr.isSigmaFixed()) &&
+                        ciDescr.getLowerTailProbability() >= 0 &&
+                        ciDescr.getUpperTailProbability() >= 0 &&
+                        ciDescr.getSampleSize() > 1 &&
+                        ciDescr.getRankOfDesignMatrix() > 0))
+                );
+    }
+
+    /**
+     * Checks if the context has a valid hypothesis
+     * @param hypothesisSet
+     * @param hasThetaNull
+     * @return
+     */
+    private boolean validHypothesis(Set<Hypothesis> hypothesisSet,
+            boolean hasThetaNull) {
+        boolean valid = false;
+        if (hypothesisSet != null && hypothesisSet.size() > 0) {
+            for(Hypothesis hypothesis: hypothesisSet) {
+                switch (hypothesis.getType()) {
+                case GRAND_MEAN:
+                    return hasThetaNull;
+                case MAIN_EFFECT:
+                    if ((hypothesis.getBetweenParticipantFactorList() == null ||
+                    hypothesis.getBetweenParticipantFactorList().size() <= 0) &&
+                    (hypothesis.getRepeatedMeasuresList() == null ||
+                    hypothesis.getRepeatedMeasuresList().size() <= 0)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                case TREND:
+                    if ((hypothesis.getBetweenParticipantFactorList() == null ||
+                    hypothesis.getBetweenParticipantFactorList().size() <= 0 ||
+                    hypothesis.getBetweenParticipantFactorMapList() == null ||
+                    hypothesis.getBetweenParticipantFactorMapList().size() <= 0) &&
+                    (hypothesis.getRepeatedMeasuresList() == null ||
+                    hypothesis.getRepeatedMeasuresList().size() <= 0 ||
+                    hypothesis.getRepeatedMeasuresMapTree() == null ||
+                    hypothesis.getRepeatedMeasuresMapTree().size() <= 0)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                case INTERACTION:
+                    if ((hypothesis.getBetweenParticipantFactorList() == null ||
+                    hypothesis.getBetweenParticipantFactorList().size() <= 1 ||
+                    hypothesis.getBetweenParticipantFactorMapList() == null ||
+                    hypothesis.getBetweenParticipantFactorMapList().size() <= 1) &&
+                    (hypothesis.getRepeatedMeasuresList() == null ||
+                    hypothesis.getRepeatedMeasuresList().size() <= 1 ||
+                    hypothesis.getRepeatedMeasuresMapTree() == null ||
+                    hypothesis.getRepeatedMeasuresMapTree().size() <= 1)) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                // only one hypothesis so kick out of the loop here
+                break;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Make sure the repeated measures are valid in the studydesign object
+     * @param rmList repeated measures information
+     * @return true if valid, false otherwise
+     */
+    private boolean validRepeatedMeasures(List<RepeatedMeasuresNode> rmList) {
+        if (rmList == null) {
+            return true;
+        } else {
+            for(RepeatedMeasuresNode rmNode: rmList) {
+                if (rmNode.getDimension() != null && rmNode.getDimension().isEmpty()
+                        && rmNode.getNumberOfMeasurements() > 1) {
+                    if (rmNode.getRepeatedMeasuresDimensionType() == 
+                            RepeatedMeasuresDimensionType.NUMERICAL) {
+                        if (rmNode.getSpacingList() == null || rmNode.getSpacingList().size() <= 0) {
+                            return false;
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    private boolean validCovariance(Set<Covariance> covarianceSet, 
+            boolean hasCovariate, boolean hasSigmaG, boolean hasSigmaYG) {
+        if (covarianceSet == null) {
+            return false;
+        } else {
+            boolean hasResponseCovar = false;
+            for(Covariance covariance: covarianceSet) {
+                if (GlimmpseConstants.RESPONSES_COVARIANCE_LABEL.equals(
+                        covariance.getName())) {
+                    hasResponseCovar = true;
+                }
+                if (covariance.getColumns() <= 0 || 
+                        covariance.getRows() <= 0) {
+                    return false;
+                } else {
+                    switch (covariance.getType()) {
+                    case LEAR_CORRELATION:
+                        if (covariance.getDelta() <= 0 || 
+                        covariance.getRho() < -1 || covariance.getRho() > 1 ||
+                        covariance.getStandardDeviationList() == null || 
+                        covariance.getStandardDeviationList().size() != 1 ||
+                        covariance.getStandardDeviationList().get(0).getValue() <= 0) {
+                            return false;
+                        }
+                        break;
+                    case UNSTRUCTURED_CORRELATION:
+                        if (covariance.getBlob() == null ||
+                        covariance.getBlob().getData() == null ||
+                        covariance.getStandardDeviationList() == null ||
+                        covariance.getStandardDeviationList().size() != covariance.getRows()) {
+                            return false;
+                        } else {
+                            // make sure the std dev list is valid
+                            for(StandardDeviation stddev: covariance.getStandardDeviationList()) {
+                                if (stddev.getValue() <= 0) {
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+                    case UNSTRUCTURED_COVARIANCE:
+                        if (covariance.getBlob() == null ||
+                        covariance.getBlob().getData() == null) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        return false;
+                    }
+                }
+            }
+            return hasResponseCovar;
+        }
+    }
+
+    /**
+     * Check if clustering information is valid in the context.  Clustering is
+     * optional, so null is considered valid.
+     * @param clusteringList
+     * @return
+     */
+    private boolean validClustering(List<ClusterNode> clusteringList) {
+        if (clusteringList == null) {
+            return true;
+        } else {
+            for(ClusterNode node: clusteringList) {
+                if (node.getGroupName() == null ||
+                        node.getGroupName().isEmpty() ||
+                        node.getGroupSize() <= 1 ||
+                        node.getIntraClusterCorrelation() < -1 ||
+                        node.getIntraClusterCorrelation() > 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     /**

@@ -638,7 +638,6 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
             } else {
                 curveDescription
                         .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
-                ;
             }
             curveDescription.setDataSeriesList(dataSeriesList);            
 

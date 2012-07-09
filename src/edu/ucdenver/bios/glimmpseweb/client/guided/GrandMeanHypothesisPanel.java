@@ -86,7 +86,10 @@ implements HypothesisBuilder {
     @Override
     public boolean checkComplete() {
         for(int i = 0; i < comparisonMeanTable.getRowCount(); i++) {
-            
+            TextBox tb = (TextBox) comparisonMeanTable.getWidget(i, TEXTBOX_COLUMN);
+            if (tb.getValue() == null || tb.getValue().isEmpty()) {
+                return false;
+            }
         }
         return true;
     }
@@ -111,12 +114,7 @@ implements HypothesisBuilder {
      */
     private TextBox createTextBox() {
         TextBox tb = new TextBox();
-        tb.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                checkComplete();
-            }       
-        });
+        tb.addChangeHandler(parent);
         return tb;
     }
     

@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -124,22 +125,27 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         // if the responses tab has been added, don't clear it
         Widget responseTabContents = tabPanel.getTabContents(responsesTabHeader);
         if (responseTabContents != null) {
-            for(int col = 0; col > tabPanel.getTabCount()-1; col++) {
+            int tabCount = tabPanel.getTabCount();
+            for(int col = 0; col < tabCount-1; col++) {
                 tabPanel.remove(0);
             }
         } else {
             tabPanel.clear();
         }
-        
         // now create panels for the repeated measures
         List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();        
         if (repeatedMeasuresNodeList != null) {
             for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
             {
-                tabPanel.insert(tabPanel.getTabCount()-1,
-                        new HTML(node.getDimension()), 
-                        new CovarianceCorrelationDeckPanel(node));
+                if (tabPanel.getTabCount() <= 0) {
+                    tabPanel.insert(0, new HTML(node.getDimension()), 
+                            new CovarianceCorrelationDeckPanel(node));
+                } else {
+                    tabPanel.insert(tabPanel.getTabCount()-1,
+                            new HTML(node.getDimension()), 
+                            new CovarianceCorrelationDeckPanel(node));
+                }
             }
         }
     }
