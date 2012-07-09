@@ -68,10 +68,15 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TAB_HEADER = "wizardStepTabPanelHeader";
     public static final String STYLE_WIZARD_STEP_TAB = "wizardStepTabPanelTab";
     public static final String STYLE_WIZARD_STEP_TAB_CONTENT = "wizardStepTabPanelContent";
+    // Begin : Added for Power Curve Screen
+    public static final String STYLE_WIZARD_STEP_LIST_BOX = "wizardStepListBox";
+    public static final String STYLE_WIZARD_STEP_CHECK_BOX = "wizardStepCheckBox";    
+    // End : Added for Power Curve Screen
     public static final String STYLE_MATRIX_PANEL = "matrixPanel";
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
-    public static final String STYLE_MATRIX_CELL= "matrixCell";    
+    public static final String STYLE_MATRIX_CELL= "matrixCell";  
+    
     
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
@@ -437,7 +442,10 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsPowerLabel();
     public String curveOptionsPowerMethodLabel();
     public String curveOptionsQuantileLabel();   
-    public String curveOptionsNoneLabel();   
+    public String curveOptionsNoneLabel();
+    // Begin Change : Added a new label for checkbox option
+    public String curveOptionsConfidenceLimitsLabel();
+    // End Change : Added a new label for checkbox option
 
     
     // confidence interval constants
