@@ -567,3 +567,18 @@ html>body .gwt-DecoratedStackPanel {
 	margin-bottom: 10px;
 	cursor: pointer;
 }
+
+.wizardStepListBox {
+	border: none;
+	border-top: 1px solid #999;
+	width: 100%;
+	padding: 5px;
+}
+
+.wizardStepCheckBox {
+	border: none;
+	border-top: 1px solid #999;
+	width: 100%;
+	padding: 5px;
+}
+
