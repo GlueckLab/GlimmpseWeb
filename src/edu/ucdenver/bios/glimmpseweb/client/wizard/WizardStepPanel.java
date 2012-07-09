@@ -39,6 +39,9 @@ implements WizardContextListener
 	protected WizardContext context = null;
 	// panel completion state.  incomplete by default
 	protected WizardStepPanelState state = WizardStepPanelState.INCOMPLETE;
+	// indicates if unsaved changes are present in the panel
+	protected boolean changed = false;
+	
 	// handlers for state changes
 	ArrayList<WizardStepPanelStateChangeHandler> handlers = 
 		new ArrayList<WizardStepPanelStateChangeHandler>();

@@ -48,53 +48,53 @@ import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 public class PowerPanel extends WizardStepPanel
 implements ListValidator
 {
-	// study design context
-	StudyDesignContext studyDesignContext;
-	
-	// list of nominal power values.  Only displayed when solving for effect size or sample size
+    // study design context
+    StudyDesignContext studyDesignContext;
+
+    // list of nominal power values.  Only displayed when solving for effect size or sample size
     protected ListEntryPanel nominalPowerListPanel = 
-    	new ListEntryPanel(GlimmpseWeb.constants.solvingForNominalPowerTableColumn(), this);
-    
+        new ListEntryPanel(GlimmpseWeb.constants.solvingForNominalPowerTableColumn(), this);
+
     // avoids reallocating this everytime we exit
     ArrayList<NominalPower> powerList = new ArrayList<NominalPower>();
-    
-	public PowerPanel(WizardContext context)
-	{
-		super(context, GlimmpseWeb.constants.navItemNominalPower(), 
-		        WizardStepPanelState.SKIPPED);
-		studyDesignContext = (StudyDesignContext) context;
-		VerticalPanel panel = new VerticalPanel();
 
-		HTML header = new HTML(GlimmpseWeb.constants.solvingForNominalPowerTitle());
-		HTML description = new HTML(GlimmpseWeb.constants.solvingForNominalPowerDescription());
+    public PowerPanel(WizardContext context)
+    {
+        super(context, GlimmpseWeb.constants.navItemNominalPower(), 
+                WizardStepPanelState.SKIPPED);
+        studyDesignContext = (StudyDesignContext) context;
+        VerticalPanel panel = new VerticalPanel();
 
-		panel.add(header);
-		panel.add(description);
-		panel.add(nominalPowerListPanel);
-		
-		// set style
-		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
-		
-		initWidget(panel);
-	}
-	
-	/**
-	 * Validate new entries in the alpha list
-	 * @see DynamicListValidator
-	 */
-	public void validate(String value) throws IllegalArgumentException
-	{
-		try
-		{
-			TextValidation.parseDouble(value, 0, 1, false);
-		}
-		catch (NumberFormatException nfe)
-		{
-			throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidPower());
-		}
-	}
+        HTML header = new HTML(GlimmpseWeb.constants.solvingForNominalPowerTitle());
+        HTML description = new HTML(GlimmpseWeb.constants.solvingForNominalPowerDescription());
+
+        panel.add(header);
+        panel.add(description);
+        panel.add(nominalPowerListPanel);
+
+        // set style
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+
+        initWidget(panel);
+    }
+
+    /**
+     * Validate new entries in the alpha list
+     * @see DynamicListValidator
+     */
+    public void validate(String value) throws IllegalArgumentException
+    {
+        try
+        {
+            TextValidation.parseDouble(value, 0, 1, false);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidPower());
+        }
+    }
 
     /**
      * Callback when the number of valid entries in the list of
@@ -104,60 +104,60 @@ implements ListValidator
      */
     public void onValidRowCount(int validRowCount)
     {
-    	if (validRowCount > 0)
-    		changeState(WizardStepPanelState.COMPLETE);
-    	else
-    		changeState(WizardStepPanelState.INCOMPLETE);
+        if (validRowCount > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
     }
-	
+
     /**
      * Clear the power panel.
      */
-	@Override
-	public void reset()
-	{
-		nominalPowerListPanel.reset();
-    	onValidRowCount(nominalPowerListPanel.getValidRowCount());
-    	changeState(WizardStepPanelState.SKIPPED);
-	}
+    @Override
+    public void reset()
+    {
+        nominalPowerListPanel.reset();
+        onValidRowCount(nominalPowerListPanel.getValidRowCount());
+        changeState(WizardStepPanelState.SKIPPED);
+    }
 
-	/**
-	 * Respond to context changes.
-	 */
-	@Override
-	public void onWizardContextChange(WizardContextChangeEvent e)
-	{
-		StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
-		switch (changeEvent.getType())
-		{
-		case SOLVING_FOR:
-			if (SolutionTypeEnum.POWER == studyDesignContext.getStudyDesign().getSolutionTypeEnum())
-			{
-				changeState(WizardStepPanelState.SKIPPED);
-			}
-			else
-			{
-				onValidRowCount(nominalPowerListPanel.getValidRowCount());
-			}			
-			break;
-		case POWER_LIST:
-			if (this != changeEvent.getSource())
-			{
-				loadFromContext();
-			}
-			break;
-		}
-	}
-	
-	/**
-	 * Respond to context load events
-	 */
-	@Override
-	public void onWizardContextLoad()
-	{
-		loadFromContext();
-	}
-	
+    /**
+     * Respond to context changes.
+     */
+    @Override
+    public void onWizardContextChange(WizardContextChangeEvent e)
+    {
+        StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+        switch (changeEvent.getType())
+        {
+        case SOLVING_FOR:
+            if (SolutionTypeEnum.POWER == studyDesignContext.getStudyDesign().getSolutionTypeEnum())
+            {
+                changeState(WizardStepPanelState.SKIPPED);
+            }
+            else
+            {
+                onValidRowCount(nominalPowerListPanel.getValidRowCount());
+            }			
+            break;
+        case POWER_LIST:
+            if (this != changeEvent.getSource())
+            {
+                loadFromContext();
+            }
+            break;
+        }
+    }
+
+    /**
+     * Respond to context load events
+     */
+    @Override
+    public void onWizardContextLoad()
+    {
+        loadFromContext();
+    }
+
     /**
      * Load the power panel from the study design context information
      */
@@ -175,20 +175,23 @@ implements ListValidator
         }
         onValidRowCount(nominalPowerListPanel.getValidRowCount());
     }
-    
+
     /**
      * Notify context of any changes as we exit the screen
      */
     @Override
     public void onExit()
     {
-    	List<String> stringValues = nominalPowerListPanel.getValues();
-    	powerList.clear();
-    	for(String value: stringValues)
-    	{
-    		powerList.add(new NominalPower(Double.parseDouble(value)));
-    	}
-    	// save to context object
-    	studyDesignContext.setNominalPowerList(this, powerList);
+        if (nominalPowerListPanel.isChanged()) {
+            List<String> stringValues = nominalPowerListPanel.getValues();
+            powerList.clear();
+            for(String value: stringValues)
+            {
+                powerList.add(new NominalPower(Double.parseDouble(value)));
+            }
+            // save to context object
+            studyDesignContext.setNominalPowerList(this, powerList);
+            nominalPowerListPanel.resetChanged();
+        }
     }
 }

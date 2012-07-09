@@ -57,9 +57,6 @@ implements ListValidator
     // array list to hold output
     ArrayList<ResponseNode> outcomesList = new ArrayList<ResponseNode>();
     
-    // indicates if anything on the panel has changed
-    protected boolean changed;
-    
     /**
      * Constructor.
      * @param context wizard context
@@ -102,7 +99,7 @@ implements ListValidator
     @Override
     public void onExit()
     {
-        if (changed) {
+        if (outcomesListPanel.isChanged()) {
             List<String> stringValues = outcomesListPanel.getValues();
             outcomesList.clear();
             for(String value: stringValues)
@@ -112,7 +109,7 @@ implements ListValidator
             // save to context object
             studyDesignContext.setResponseList(this, 
                     PARTICIPANT_LABEL, outcomesList);
-            changed = false;
+            outcomesListPanel.resetChanged();
         }
     }
     

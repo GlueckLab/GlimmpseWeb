@@ -201,6 +201,7 @@ implements ChangeHandler {
             }			
         }
         itemCount++;
+        changed = true;
         currentLeaf = newLeaf;
         checkComplete();
     }
@@ -224,6 +225,7 @@ implements ChangeHandler {
             {
                 addSubgroupButton.setVisible(true);
             }
+            changed = true;
         }
         checkComplete();
     };
@@ -265,6 +267,7 @@ implements ChangeHandler {
      */
     public void onChange(ChangeEvent e) 
     {
+        changed = true;
         checkComplete();
     }
 
@@ -311,9 +314,14 @@ implements ChangeHandler {
     {
         clusteringTree.removeItems();
         clusteringNodeList.clear();
-//        if (hasClustering) toggleClustering();
+        hasClustering = false;
+        addClusteringButton.setVisible(!hasClustering);
+        removeClusteringButton.setVisible(hasClustering);
+        addSubgroupButton.setVisible(hasClustering);
+        removeSubgroupButton.setVisible(hasClustering);
         currentLeaf = null;
         itemCount = 0;
+        changed = false;
     }
     
     /**
@@ -322,12 +330,15 @@ implements ChangeHandler {
      */
     public void onExit()
     {
-        clusteringNodeList.clear();
-        TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
-        if (clusteringNodeList.size() > 0) {
-            studyDesignContext.setClustering(this, clusteringNodeList);
-        } else {
-            studyDesignContext.setClustering(this, null);
+        if (changed) {
+            clusteringNodeList.clear();
+            TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
+            if (clusteringNodeList.size() > 0) {
+                studyDesignContext.setClustering(this, clusteringNodeList);
+            } else {
+                studyDesignContext.setClustering(this, null);
+            }
+            changed = false;
         }
     }
 
@@ -372,7 +383,6 @@ implements ChangeHandler {
 
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
-        // TODO Auto-generated method stub
-        
+        // no action needed here        
     }
 }

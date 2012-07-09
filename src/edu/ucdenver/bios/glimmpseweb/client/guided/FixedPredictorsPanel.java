@@ -84,8 +84,6 @@ public class FixedPredictorsPanel extends WizardStepPanel
     protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
     	new HashMap<String,ArrayList<String>>();
     
-    protected boolean changed = false;
-    
     public FixedPredictorsPanel(WizardContext context)
     {
     	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),

@@ -49,7 +49,7 @@ public class TextValidation
         {
             char ch = str.charAt(pos);
             if (!Character.isDigit(ch) && !Character.isLetter(ch) &&  
-                    validPunctuationChars.indexOf(ch) != -1)
+                    validPunctuationChars.indexOf(ch) < 0)
                 throw new ParseException("invalid character at ", pos);
             pos++;
         }

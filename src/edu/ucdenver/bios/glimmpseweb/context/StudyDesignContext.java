@@ -1,3 +1,24 @@
+/*
+ * Web Interface for the GLIMMPSE Software System.  Allows
+ * users to perform power, sample size, and detectable difference
+ * calculations. 
+ * 
+ * Copyright (C) 2010 Regents of the University of Colorado.  
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import java.util.ArrayList;
@@ -6,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -14,6 +34,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
+import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceIntervalDescription;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
@@ -35,6 +56,12 @@ import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
+/**
+ * Wizard context for study designs
+ * @author Sarah Kreidler
+ * @author Vijay Akula
+ *
+ */
 public class StudyDesignContext extends WizardContext
 {
     // main study design object
@@ -43,19 +70,28 @@ public class StudyDesignContext extends WizardContext
     // cache of all possible between participant effects
     private FactorTable participantGroups = new FactorTable();
 
-    // cache of all possible combinations of within participant effects
-    private FactorTable withinParticipantMeasures = new FactorTable();
-
+    /**
+     * Create a new context with an empty study design object
+     */
     public StudyDesignContext()
     {
         studyDesign = new StudyDesign();
     }
 
+    /**
+     * Get the study design object associated with this context
+     * @return StudyDesign object
+     */
     public StudyDesign getStudyDesign()
     {
         return studyDesign;
     }
 
+    /**
+     * Load the context from an existing StudyDesign object.
+     * Fires a wizard context load event to all panels
+     * @param design StudyDesign object
+     */
     public void loadStudyDesign(StudyDesign design)
     {
         if (design == null) {
@@ -66,16 +102,21 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextLoad();
     }
 
+    /**
+     * Get a table with all possible combinations of 
+     * between participant factors.
+     * @return between participant factor table
+     */
     public FactorTable getParticipantGroups()
     {
         return participantGroups;
     }
 
-    public FactorTable getWithinParticipantMeasures()
-    {
-        return withinParticipantMeasures;
-    }
-
+    /**
+     * Store the list of Type I error values in the StudyDesign object.
+     * @param panel wizard panel initiating the change
+     * @param alphaList list of Type I error values
+     */
     public void setAlphaList(WizardStepPanel panel, ArrayList<TypeIError> alphaList)
     {
         studyDesign.setAlphaList(alphaList);
@@ -83,6 +124,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.ALPHA_LIST));
     }
 
+    /**
+     * Store the list of beta scale values in the StudyDesign object.
+     * @param panel wizard panel initiating the change
+     * @param betaScaleList list of beta scale values
+     */
     public void setBetaScaleList(WizardStepPanel panel, List<BetaScale> betaScaleList)
     {
         studyDesign.setBetaScaleList(betaScaleList);
@@ -90,6 +136,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.BETA_SCALE_LIST));
     }
 
+    /**
+     * Store the list of sigma scale values in the StudyDesign object.
+     * @param panel wizard panel initiating the change
+     * @param sigmaScaleList list of sigma scale values
+     */
     public void setSigmaScaleList(WizardStepPanel panel, List<SigmaScale> sigmaScaleList)
     {
         studyDesign.setSigmaScaleList(sigmaScaleList);
@@ -97,6 +148,12 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.SIGMA_SCALE_LIST));
     }
 
+    /**
+     * Store the list of nominal power values in the StudyDesign object. Specified
+     * when solving for sample size.
+     * @param panel wizard panel initiating the change
+     * @param powerList list of nominal power values
+     */
     public void setNominalPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
     {
         studyDesign.setNominalPowerList(powerList);
@@ -104,6 +161,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.POWER_LIST));
     }
 
+    /**
+     * Store the list of power methods in the StudyDesign object. 
+     * @param panel wizard panel initiating the change
+     * @param powerMethodList list of power methods
+     */
     public void setPowerMethodList(WizardStepPanel panel, ArrayList<PowerMethod> powerMethodList)
     {
         studyDesign.setPowerMethodList(powerMethodList);
@@ -111,6 +173,12 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.POWER_METHOD_LIST));
     }
 
+    /**
+     * Store the list of quantiles in the StudyDesign object. Specified when using 
+     * the quantile power method
+     * @param panel wizard panel initiating the change
+     * @param quantileList list of quantiles
+     */
     public void setQuantileList(WizardStepPanel panel, ArrayList<Quantile> quantileList)
     {
         studyDesign.setQuantileList(quantileList);
@@ -118,13 +186,25 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.QUANTILE_LIST));
     }
 
-    public void setPerGroupSampleSizeList(WizardStepPanel panel, ArrayList<SampleSize> sampleSizeList)
+    /**
+     * Store the list of sample size values in the StudyDesign object. Specified when 
+     * solving for power.
+     * @param panel wizard panel initiating the change
+     * @param sampleSizeList list of sample sizes
+     */
+    public void setPerGroupSampleSizeList(WizardStepPanel panel, 
+            ArrayList<SampleSize> sampleSizeList)
     {
         studyDesign.setSampleSizeList(sampleSizeList);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.PER_GROUP_N_LIST));
     }
 
+    /**
+     * Store the list of statistical tests in the StudyDesign object. 
+     * @param panel wizard panel initiating the change
+     * @param statisticalTestList list of tests
+     */
     public void setStatisticalTestList(WizardStepPanel panel, ArrayList<StatisticalTest> statisticalTestList)
     {
         studyDesign.setStatisticalTestList(statisticalTestList);
@@ -132,6 +212,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.STATISTICAL_TEST_LIST));
     }
 
+    /**
+     * Update the StudyDesign with the solution type (i.e. power or sample size).
+     * @param panel wizard panel initiating the change
+     * @param solutionType indicates if the user is solving for power or sample size
+     */
     public void setSolutionType(WizardStepPanel panel, SolutionTypeEnum solutionType)
     {
         studyDesign.setSolutionTypeEnum(solutionType);
@@ -139,6 +224,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.SOLVING_FOR));
     }
 
+    /**
+     * Store the covariate information in the StudyDesign object.
+     * @param panel wizard panel initiating the change
+     * @param hasCovariate indicates if the design controls for a Gaussian covariate
+     */
     public void setCovariate(WizardStepPanel panel, boolean hasCovariate)
     {
         studyDesign.setGaussianCovariate(hasCovariate);
@@ -146,83 +236,180 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.COVARIATE));
     }
 
+    /**
+     * Store the design essence matrix to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param designFixed the fixed sub-matrix of the design essence matrix
+     * @param designRandom for GLMM(F,g) designs, specifies the random
+     * portion of the design essence matrix
+     */
     public void setDesignEssenceMatrix(WizardStepPanel panel, NamedMatrix designFixed,
             NamedMatrix designRandom)
     {
-        studyDesign.setNamedMatrix(designFixed);
-        if (designRandom != null) studyDesign.setNamedMatrix(designRandom);
+        if (designFixed != null) {
+            studyDesign.setNamedMatrix(designFixed);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_DESIGN);
+        }
+        if (designRandom != null) {
+            studyDesign.setNamedMatrix(designRandom);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_DESIGN);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.DESIGN_ESSENCE_MATRIX));
     }
 
+    /**
+     * Store the between participant contrast matrix to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param fixed the fixed sub-matrix of the contrast
+     * @param random for GLMM(F,g) designs, specifies the random
+     * portion of the contrast
+     */
     public void setBetweenParticipantContrast(WizardStepPanel panel, 
             NamedMatrix fixed, NamedMatrix random)
     {
-        studyDesign.setNamedMatrix(fixed);
-        if (random != null) studyDesign.setNamedMatrix(random);
+        if (fixed != null) {
+            studyDesign.setNamedMatrix(fixed);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST);
+        }
+        if (random != null) {
+            studyDesign.setNamedMatrix(random);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_RANDOM);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_CONTRAST_MATRIX));
     }
 
+    /**
+     * Store the within participant contrast matrix to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param withinParticipantContrast the contrast matrix
+     */
     public void setWithinParticipantContrast(WizardStepPanel panel, NamedMatrix withinParticipantContrast)
     {
-        studyDesign.setNamedMatrix(withinParticipantContrast);
+        if (withinParticipantContrast != null) {
+            studyDesign.setNamedMatrix(withinParticipantContrast);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_WITHIN_CONTRAST);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.WITHIN_CONTRAST_MATRIX));
     }
 
+    /**
+     * Store the beta matrix to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param fixed the fixed sub-matrix of the beta matrix
+     * @param random for GLMM(F,g) designs, specifies the random
+     * portion of the beta matrix
+     */
     public void setBeta(WizardStepPanel panel, NamedMatrix fixed, NamedMatrix random)
     {
-        studyDesign.setNamedMatrix(fixed);
-        if (random != null) studyDesign.setNamedMatrix(random);
+        if (fixed != null) {
+            studyDesign.setNamedMatrix(fixed);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_BETA);
+        }
+        if (random != null) {
+            studyDesign.setNamedMatrix(random);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETA_MATRIX));
     }
 
+    /**
+     * Store the covariance matrix for the Gaussian covariate  to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param sigmaCovariate the covariance matrix of the Gaussian covariate (1x1)
+     */
     public void setSigmaCovariate(WizardStepPanel panel, NamedMatrix sigmaCovariate)
     {
-        studyDesign.setNamedMatrix(sigmaCovariate);
+        if (sigmaCovariate != null) {
+            studyDesign.setNamedMatrix(sigmaCovariate);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.SIGMA_COVARIATE_MATRIX));
     }
 
+    /**
+     * Store the covariance matrix for errors  to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param sigmaCovariate the covariance matrix of errors
+     */
     public void setSigmaError(WizardStepPanel panel, NamedMatrix sigmaError)
     {
-        studyDesign.setNamedMatrix(sigmaError);
+        if (sigmaError != null) {
+            studyDesign.setNamedMatrix(sigmaError);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_ERROR);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.SIGMA_ERROR_MATRIX));
     }
 
+    /**
+     * Store the covariance matrix of the Gaussian covariate and outcomes  to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param sigmaYG the covariance matrix of the Gaussian covariate and outcomes
+     */
     public void setSigmaOutcomesCovariate(WizardStepPanel panel, NamedMatrix sigmaYG)
     {
-        studyDesign.setNamedMatrix(sigmaYG);
+        if (sigmaYG != null) {
+            studyDesign.setNamedMatrix(sigmaYG);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+        }
+
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.SIGMA_OUTCOME_COVARIATE_MATRIX));
     }
 
+    /**
+     * Store the covariance matrix of outcomes to the StudyDesign (for GLMM(F,g) designs).
+     * @param panel wizard panel initiating the change
+     * @param sigmaYG the covariance matrix of the outcomes
+     */
     public void setSigmaOutcomes(WizardStepPanel panel, NamedMatrix sigmaY)
     {
-        studyDesign.setNamedMatrix(sigmaY);
+        if (sigmaY != null) {
+            studyDesign.setNamedMatrix(sigmaY);
+        } else {
+            removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.SIGMA_OUTCOME_MATRIX));
     }
 
+    /**
+     * Store the null hypothesis matrix to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param thetaNull the null hypothesis matrix
+     */
     public void setThetaNull(WizardStepPanel panel, NamedMatrix thetaNull)
     {
         if (thetaNull != null) {
             studyDesign.setNamedMatrix(thetaNull);
         } else {
-            Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
-            // TODO
-//            if (matrixSet != null) {
-//                matrixSet.remove(arg0)
-//            }
+            removeMatrixByName(GlimmpseConstants.MATRIX_THETA);
         }
 
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.THETA_NULL_MATRIX));
     }
 
+    /**
+     * Store the clustering information to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param clusteringNodeList tree of clustering information
+     */
     public void setClustering(WizardStepPanel panel, ArrayList<ClusterNode> clusteringNodeList)
     {
         studyDesign.setClusteringTree(clusteringNodeList);
@@ -230,15 +417,24 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.CLUSTERING));
     }
 
+    /**
+     * Store the repeated measures information to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param repeatedMeasuresNodeList tree of repeated measures information
+     */
     public void setRepeatedMeasures(WizardStepPanel panel, 
             ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList)
     {
         studyDesign.setRepeatedMeasuresTree(repeatedMeasuresNodeList);
-        this.withinParticipantMeasures.loadRepeatedMeasures(repeatedMeasuresNodeList);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.REPEATED_MEASURES));
     }
 
+    /**
+     * Store the between participant factor information to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param factorList list of between participant factors
+     */
     public void setBetweenParticipantFactorList(WizardStepPanel panel, 
             List<BetweenParticipantFactor> factorList)
     {
@@ -250,6 +446,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
 
+    /**
+     * Store the relative group size information to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param relativeGroupSizeList list of relative group sizes
+     */
     public void setRelativeGroupSizeList(WizardStepPanel panel, 
             List<RelativeGroupSize> relativeGroupSizeList)
     {
@@ -258,6 +459,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.RELATIVE_GROUP_SIZE_LIST));
     }
 
+    /**
+     * Store the response variable information to the StudyDesign.
+     * @param panel wizard panel initiating the change
+     * @param responseList list of response variables
+     */
     public void setResponseList(WizardStepPanel panel, String label,
             List<ResponseNode> responseList)
     {
@@ -269,8 +475,8 @@ public class StudyDesignContext extends WizardContext
 
     /**
      * Store the hypothesis in the study design
-     * @param panel
-     * @param hypothesis
+     * @param panel wizard panel initiating the change
+     * @param hypothesis hypothesis objects
      */
     public void setHypothesis(WizardStepPanel panel, Hypothesis hypothesis)
     {
@@ -280,9 +486,9 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
-     * Store the covariance information in the study design
-     * @param panel
-     * @param covariance
+     * Add covariance information in the study design.
+     * @param panel wizard panel initiating the change
+     * @param covariance covariance for a single dimension
      */
     public void setCovariance(WizardStepPanel panel, Covariance covariance)
     {
@@ -291,6 +497,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.COVARIANCE));
     }
 
+    /**
+     * Store the power confidence interval description to the context
+     * @param panel wizard panel initiating the change
+     * @param confidenceIntervalDescription confidence interval description
+     */
     public void setConfidenceIntervalOptions(WizardStepPanel panel, ConfidenceIntervalDescription confidenceIntervalDescription)
     {
         studyDesign.setConfidenceIntervalDescriptions(confidenceIntervalDescription);
@@ -298,6 +509,11 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.CONFIDENCE_INTERVAL));
     }
 
+    /**
+     * Store the power curve description to the context
+     * @param panel wizard panel initiating the change
+     * @param curveDescription power curve description
+     */
     public void setPowerCurveDescription(WizardStepPanel panel,
             PowerCurveDescription curveDescription) {
         studyDesign.setPowerCurveDescriptions(curveDescription);
@@ -335,6 +551,11 @@ public class StudyDesignContext extends WizardContext
 
         // do we have fixed predictors?
         List<BetweenParticipantFactor> betweenFactorList = studyDesign.getBetweenParticipantFactorList();
+        if (validBetweenFactors(betweenFactorList)) {
+            
+        } else {
+            complete = false;
+        }
         hasBetweenFactors = (betweenFactorList != null && betweenFactorList.size() > 0);
         // do we have responses?
         List<ResponseNode> responseList = studyDesign.getResponseList();
@@ -346,7 +567,7 @@ public class StudyDesignContext extends WizardContext
         if (rmNodeList != null) {
             totalWithinFactors += rmNodeList.size();
         }
-        
+
         // do we have a hypothesis?
         Set<Hypothesis> hypothesisSet = studyDesign.getHypothesis();
         hasHypothesis = (hypothesisSet != null && hypothesisSet.size() > 0);
@@ -377,7 +598,7 @@ public class StudyDesignContext extends WizardContext
         Set<Covariance> covarianceSet = studyDesign.getCovariance();
         hasCovariance = (covarianceSet != null && covarianceSet.size() == totalWithinFactors);
 
-        complete = (validLists() && 
+        complete = (validLists() && validOptions() &&
                 hasBetweenFactors && 
                 totalWithinFactors > 0 &&
                 hasHypothesis && 
@@ -398,66 +619,95 @@ public class StudyDesignContext extends WizardContext
     private void checkCompleteMatrixOnly() {
         Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
         boolean gaussianCovariate = studyDesign.isGaussianCovariate();
-        // flags to make sure all matrices are present.  This avoids
-        // multiple calls to hasNamedMatrix so we limit traversal of the 
-        // matrix set.
-        boolean hasX = false;
-        boolean hasBeta = false;
-        boolean hasBetaRandom = !gaussianCovariate;
-        boolean hasC = false;
-        boolean hasCRandom = !gaussianCovariate;
-        boolean hasU = false;
-        boolean hasThetaNull = false;
-        boolean hasSigmaE = gaussianCovariate;
-        boolean hasSigmaY = !gaussianCovariate;
-        boolean hasSigmaYG = !gaussianCovariate;
-        boolean hasSigmaG = !gaussianCovariate;
 
-        // spin over the matrices and make sure all are present
-        if (matrixSet != null) {
-            Iterator<NamedMatrix> iterator = matrixSet.iterator();
-            while (iterator.hasNext()) {
-                NamedMatrix matrix = iterator.next();
-                if (matrix != null) {
-                    // check matrices used for both covariate/fixed designs
-                    if (GlimmpseConstants.MATRIX_DESIGN.equals(matrix.getName())) {
-                        hasX = true;
-                    } else if  (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName())) {
-                        hasBeta = true;
-                    } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(matrix.getName())) {
-                        hasC = true;
-                    } else if  (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(matrix.getName())) {
-                        hasU = true;
-                    } else if (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName())) {
-                        hasThetaNull = true;
-                    }
+        // make sure the solution type is set
+        if (studyDesign.getSolutionTypeEnum() == null) {
+            complete = false;
+        } else {
 
-                    if (gaussianCovariate) {
-                        // check matrices for covariate designs
-                        if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName())) {
-                            hasBetaRandom = true;
-                        } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_RANDOM.equals(matrix.getName())) {
-                            hasCRandom = true;
-                        } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equals(matrix.getName())) {
-                            hasSigmaY = true;
-                        } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equals(matrix.getName())) {
-                            hasSigmaYG = true;
-                        } else if (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equals(matrix.getName())) {
-                            hasSigmaG = true;
+            // flags to make sure all matrices are present.  This avoids
+            // multiple calls to hasNamedMatrix so we limit traversal of the 
+            // matrix set.
+            boolean hasX = false;
+            boolean hasBeta = false;
+            boolean hasBetaRandom = !gaussianCovariate;
+            boolean hasC = false;
+            boolean hasCRandom = !gaussianCovariate;
+            boolean hasU = false;
+            boolean hasThetaNull = false;
+            boolean hasSigmaE = gaussianCovariate;
+            boolean hasSigmaY = !gaussianCovariate;
+            boolean hasSigmaYG = !gaussianCovariate;
+            boolean hasSigmaG = !gaussianCovariate;
+
+            // spin over the matrices and make sure all are present
+            if (matrixSet != null) {
+                Iterator<NamedMatrix> iterator = matrixSet.iterator();
+                while (iterator.hasNext()) {
+                    NamedMatrix matrix = iterator.next();
+                    if (matrix != null) {
+                        // check matrices used for both covariate/fixed designs
+                        if (GlimmpseConstants.MATRIX_DESIGN.equals(matrix.getName())) {
+                            hasX = true;
+                        } else if  (GlimmpseConstants.MATRIX_BETA.equals(matrix.getName())) {
+                            hasBeta = true;
+                        } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST.equals(matrix.getName())) {
+                            hasC = true;
+                        } else if  (GlimmpseConstants.MATRIX_WITHIN_CONTRAST.equals(matrix.getName())) {
+                            hasU = true;
+                        } else if (GlimmpseConstants.MATRIX_THETA.equals(matrix.getName())) {
+                            hasThetaNull = true;
                         }
-                    } else {
-                        if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equals(matrix.getName())) {
-                            hasSigmaE = true;
+
+                        if (gaussianCovariate) {
+                            // check matrices for covariate designs
+                            if (GlimmpseConstants.MATRIX_BETA_RANDOM.equals(matrix.getName())) {
+                                hasBetaRandom = true;
+                            } else if (GlimmpseConstants.MATRIX_BETWEEN_CONTRAST_RANDOM.equals(matrix.getName())) {
+                                hasCRandom = true;
+                            } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME.equals(matrix.getName())) {
+                                hasSigmaY = true;
+                            } else if (GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE.equals(matrix.getName())) {
+                                hasSigmaYG = true;
+                            } else if (GlimmpseConstants.MATRIX_SIGMA_COVARIATE.equals(matrix.getName())) {
+                                hasSigmaG = true;
+                            }
+                        } else {
+                            if (GlimmpseConstants.MATRIX_SIGMA_ERROR.equals(matrix.getName())) {
+                                hasSigmaE = true;
+                            }
                         }
                     }
                 }
             }
+            complete = validLists() && validOptions() &&
+            (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
+                    && hasU && hasThetaNull
+                    && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
         }
-        complete = validLists() && (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
-                && hasU && hasThetaNull
-                && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
     }
 
+    private boolean validBetweenFactors(List<BetweenParticipantFactor> factorList) {
+        boolean complete = false;
+        if (factorList != null && factorList.size() > 0) {
+            if (factorList.size() == 1) {
+                List<Category> categoryList = factorList.get(0).getCategoryList();
+                complete = (categoryList != null && categoryList.size() > 0);
+            } else {
+                complete = true;
+                for(BetweenParticipantFactor factor: factorList) {
+                    List<Category> categoryList = factor.getCategoryList();
+                    if (categoryList.size() < 2) {
+                        complete = false;
+                        break;
+                    }
+                }
+            }
+        } 
+        
+        return complete;
+    }
+    
     /**
      * Checks if all required list inputs have been entered (used to validate both
      * matrix and guided designs).
@@ -521,5 +771,42 @@ public class StudyDesignContext extends WizardContext
 
     }
 
+    /**
+     * Indicates if the options are completely specified in the StudyDesign object
+     * @return true if complete, false otherwise
+     */
+    private boolean validOptions() {
+        PowerCurveDescription curveDescr = studyDesign.getPowerCurveDescriptions();
+        ConfidenceIntervalDescription ciDescr = studyDesign.getConfidenceIntervalDescriptions();
+        return (
+                (curveDescr == null ||
+                        (curveDescr.getHorizontalAxisLabelEnum() != null &&
+                                curveDescr.getDataSeriesList() != null &&
+                                curveDescr.getDataSeriesList().size() > 0)) &&
+                                (ciDescr == null ||
+                                        ((ciDescr.isBetaFixed() || ciDescr.isSigmaFixed()) &&
+                                                ciDescr.getLowerTailProbability() >= 0 &&
+                                                ciDescr.getUpperTailProbability() >= 0 &&
+                                                ciDescr.getSampleSize() > 1 &&
+                                                ciDescr.getRankOfDesignMatrix() > 0))
+        );
+    }
+
+    /**
+     * Convenience routine to remove a matrix from the study design.
+     * 
+     * @param name name of matrix to remove.
+     */
+    private void removeMatrixByName(String name) {
+        // TODO: move this to StudyDesign object in domain layer?
+        Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
+        for(NamedMatrix matrix : matrixSet) {
+            if (matrix.getName() != null && 
+                    matrix.getName().equals(name)) {
+                matrixSet.remove(matrix);
+                break;
+            }
+        }
+    }
 
 }

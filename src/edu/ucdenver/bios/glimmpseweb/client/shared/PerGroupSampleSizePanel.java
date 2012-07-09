@@ -173,14 +173,17 @@ implements ListValidator
     @Override
     public void onExit()
     {
-    	List<String> stringValues = perGroupNListPanel.getValues();
-    	sampleSizeList.clear();
-    	for(String value: stringValues)
-    	{
-    		sampleSizeList.add(new SampleSize(Integer.parseInt(value)));
-    	}
-    	// save to context object
-    	studyDesignContext.setPerGroupSampleSizeList(this, sampleSizeList);
+        if (perGroupNListPanel.isChanged()) {
+            List<String> stringValues = perGroupNListPanel.getValues();
+            sampleSizeList.clear();
+            for(String value: stringValues)
+            {
+                sampleSizeList.add(new SampleSize(Integer.parseInt(value)));
+            }
+            // save to context object
+            studyDesignContext.setPerGroupSampleSizeList(this, sampleSizeList);
+            perGroupNListPanel.resetChanged();
+        }
     }
     
 	

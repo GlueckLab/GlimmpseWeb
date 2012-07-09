@@ -66,6 +66,8 @@ public class ListEntryPanel extends Composite
     protected int validRowCount = 0;
     // optional maximum number of entries for list
     protected int maxRows = -1;
+    // indcates if the panel has changed since the last call to resetChanged();
+    protected boolean changed = false;
     
     /**
      * Construct a new list entry panel
@@ -155,6 +157,7 @@ public class ListEntryPanel extends Composite
 				validator.validate(value);
 				listBox.addItem(value);
 				TextValidation.displayOkay(errorHTML, "");
+				changed = true;
 				validator.onValidRowCount(listBox.getItemCount());
 			}
 			catch (IllegalArgumentException iae)
@@ -177,6 +180,7 @@ public class ListEntryPanel extends Composite
 		{
 			if (listBox.isItemSelected(i)) listBox.removeItem(i);
 		}
+		changed = true;
 		validator.onValidRowCount(listBox.getItemCount());
 	}
 	
@@ -231,6 +235,7 @@ public class ListEntryPanel extends Composite
     public void reset()
     {
     	listBox.clear();
+    	changed = false;
     	TextValidation.displayOkay(errorHTML, "");
     }
     
@@ -301,5 +306,18 @@ public class ListEntryPanel extends Composite
 		validator.onValidRowCount(listBox.getItemCount());
     }
     
+    /**
+     * Indicates if the panel has changed since the last call to resetChanged
+     * @return
+     */
+    public boolean isChanged() {
+        return changed;
+    }
     
+    /**
+     * Set the panel to unchanged
+     */
+    public void resetChanged() {
+        changed = false;
+    }
 }

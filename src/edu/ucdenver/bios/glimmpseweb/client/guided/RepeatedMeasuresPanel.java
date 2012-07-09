@@ -67,8 +67,6 @@ implements ChangeHandler
     protected TreeItem currentLeaf = null;
     // used to verify completeness
     protected boolean complete = false;
-    // indcates if the panel has changed
-    protected boolean changed = false;
     
     // list of repeated measures node domain objects
     protected ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
@@ -199,6 +197,7 @@ implements ChangeHandler
             }           
         }
         itemCount++;
+        changed = true;
         currentLeaf = newLeaf;
         checkComplete();
     }
@@ -223,6 +222,7 @@ implements ChangeHandler
             {
                 addSubDimensionButton.setVisible(true);
             }
+            changed = true;
         }
         checkComplete();
     };
@@ -235,6 +235,7 @@ implements ChangeHandler
      */
     public void onChange(ChangeEvent e) 
     {
+        changed = true;
         checkComplete();
     }
     
@@ -260,7 +261,6 @@ implements ChangeHandler
     {
         // intialize to true
         complete = true;
-        changed = true;
         // set back to false if any subpanels are incomplete
         TreeItemIterator.traverseDepthFirst(repeatedMeasuresTree, checkCompleteAction);
         if (complete)
@@ -280,7 +280,7 @@ implements ChangeHandler
         repeatedMeasuresNodeList.clear();
         currentLeaf = null;
         itemCount = 0;
-        changed = true;
+        changed = false;
     }
 
     /**
@@ -293,7 +293,7 @@ implements ChangeHandler
             repeatedMeasuresNodeList.clear();
             TreeItemIterator.traverseDepthFirst(repeatedMeasuresTree, buildClusteringObjectAction);
             studyDesignContext.setRepeatedMeasures(this, repeatedMeasuresNodeList);
-            changed = true;
+            changed = false;
         }
     }
 

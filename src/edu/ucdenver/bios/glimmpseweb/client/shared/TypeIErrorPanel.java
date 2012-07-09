@@ -24,6 +24,7 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -170,13 +171,16 @@ implements ListValidator
     @Override
     public void onExit()
     {
-        List<String> stringValues = alphaListPanel.getValues();
-        alphaList.clear();
-        for(String value: stringValues)
-        {
-            alphaList.add(new TypeIError(Double.parseDouble(value)));
+        if (alphaListPanel.isChanged()) {
+            List<String> stringValues = alphaListPanel.getValues();
+            alphaList.clear();
+            for(String value: stringValues)
+            {
+                alphaList.add(new TypeIError(Double.parseDouble(value)));
+            }
+            // save to context object
+            studyDesignContext.setAlphaList(this, alphaList);
+            alphaListPanel.resetChanged();
         }
-        // save to context object
-        studyDesignContext.setAlphaList(this, alphaList);
     }
 }
