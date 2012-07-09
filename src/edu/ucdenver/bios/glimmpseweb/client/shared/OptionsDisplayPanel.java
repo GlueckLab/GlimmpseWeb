@@ -105,6 +105,9 @@ implements ClickHandler, WizardContextListener
     protected ListBox powerMethodListBox = new ListBox();
     protected ListBox quantileListBox = new ListBox();
     protected TextBox dataSeriesLabelTextBox = new TextBox();
+    // Begin Change : Added a new checkbox option     
+    protected CheckBox confidenceLimitsCheckBox = new CheckBox();
+    // End Change : Added a new checkbox option
     
     // labels for each listbox
     protected HTML nominalPowerHTML = 
@@ -125,6 +128,10 @@ implements ClickHandler, WizardContextListener
         new HTML(GlimmpseWeb.constants.curveOptionsQuantileLabel());
     protected HTML dataSeriesLabelHTML = 
         new HTML("Data Series Label");
+    // Begin Change : Added a new label for checkbox option
+    protected HTML confidenceLimitsLabelHTML = 
+            new HTML(GlimmpseWeb.constants.curveOptionsConfidenceLimitsLabel());
+    // End Change : Added a new label for checkbox option
     
     // listbox showing currently entered data series
     protected ListBox dataSeriesTable = new ListBox(true);
@@ -232,19 +239,23 @@ implements ClickHandler, WizardContextListener
         });
 
         // layout the panel
-        xAxisPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsXAxisLabel()));
+        HTML xAxixDescription = new HTML(GlimmpseWeb.constants.curveOptionsXAxisLabel());               
+        xAxisPanel.add(xAxixDescription);
         xAxisPanel.add(xAxisListBox);
 
-        // set style
-        xAxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+        // set style        
+        //xAxixDescription.addStyleDependentName("subText");        
         xAxisPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+        xAxisListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 
         return xAxisPanel;
     }    
 
     private VerticalPanel createDataSeriesPanel()
-    {
-        Grid grid = new Grid(8,2);
+    {        
+        VerticalPanel mainPanel = new VerticalPanel();                       
+        
+        Grid grid = new Grid(10,2);        
         // add drop down lists for remaining values that need to be fixed
         grid.setWidget(0, 1, totalNListBox);
         grid.setWidget(1, 1, betaScaleListBox);
@@ -254,6 +265,8 @@ implements ClickHandler, WizardContextListener
         grid.setWidget(5, 1, powerMethodListBox);
         grid.setWidget(6, 1, quantileListBox);
         grid.setWidget(7, 1, dataSeriesLabelTextBox);
+        grid.setWidget(8, 1, confidenceLimitsCheckBox);
+        
         grid.setWidget(0, 0, totalNHTML);
         grid.setWidget(1, 0, betaScaleHTML);
         grid.setWidget(2, 0, sigmaScaleHTML);
@@ -262,6 +275,7 @@ implements ClickHandler, WizardContextListener
         grid.setWidget(5, 0, powerMethodHTML);
         grid.setWidget(6, 0, quantileHTML);
         grid.setWidget(7, 0, dataSeriesLabelHTML);
+        grid.setWidget(8, 0, confidenceLimitsLabelHTML);
 
         Button addSeriesButton = new Button(GlimmpseWeb.constants.buttonAdd(),
                 new ClickHandler() {
@@ -277,22 +291,35 @@ implements ClickHandler, WizardContextListener
                 // TODO Auto-generated method stub
                 removeSeries();
             }
-        });
-
-        HorizontalPanel addRemovePanel = new HorizontalPanel();
-        addRemovePanel.add(new HTML("Data Series: "));
-        addRemovePanel.add(addSeriesButton);
-        addRemovePanel.add(removeSeriesButton);
-
-
+        });        
+        
+        HorizontalPanel addRemovePanel = new HorizontalPanel();             
+        addRemovePanel.add(addSeriesButton);        
+        addRemovePanel.add(removeSeriesButton);                                
+        grid.setWidget(9, 0, addRemovePanel);
+        
+        mainPanel.add(grid);               
+        mainPanel.add(dataSeriesTable);      
+        
         // layout the panel
         dataSeriesPanel.add(new HTML(GlimmpseWeb.constants.curveOptionsDataSeriesLabel()));
-        dataSeriesPanel.add(grid);
-        dataSeriesPanel.add(addRemovePanel);
-        dataSeriesPanel.add(dataSeriesTable);
+        dataSeriesPanel.add(mainPanel);        
         dataSeriesTable.setVisibleItemCount(5);
 
         // set style
+        totalNListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        betaScaleListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        sigmaScaleListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        testListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        alphaListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        powerMethodListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        quantileListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX); 
+        dataSeriesLabelTextBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        confidenceLimitsCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_CHECK_BOX);
+        
+        addSeriesButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        removeSeriesButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        mainPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
         grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
         dataSeriesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 
@@ -307,6 +334,8 @@ implements ClickHandler, WizardContextListener
         dataSeriesList.clear();
         // set the display to remove power options
         disableCheckbox.setValue(true);
+        // reset confidence limits checkbox
+        confidenceLimitsCheckBox.setValue(false);
         enableOptions(false);
 
         // clear the list boxes
@@ -332,34 +361,68 @@ implements ClickHandler, WizardContextListener
     /**
      * Add a data series from the current list box selections
      */
-    private void addSeries() {
+    private void addSeries() {        
         PowerCurveDataSeries series = new PowerCurveDataSeries();
+        int index = -1;
         series.setLabel(dataSeriesLabelTextBox.getText());
-        if (hasCovariate) {
-            series.setPowerMethod(powerMethodStringToEnum(
+        if(confidenceLimitsCheckBox.getValue()) {
+            series.setConfidenceLimits(true);
+        }                  
+        if (hasCovariate) { 
+            index = powerMethodListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setPowerMethod(powerMethodStringToEnum(
                     powerMethodListBox.getItemText(powerMethodListBox.getSelectedIndex())));
-            series.setQuantile(Double.parseDouble(quantileListBox.getItemText(quantileListBox.getSelectedIndex())));
+            }
+            index = quantileListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setQuantile(Double.parseDouble(quantileListBox.getItemText(quantileListBox.getSelectedIndex())));
+            }
         }
 
         if (xAxisListBox.getSelectedIndex() == TOTAL_N_INDEX) {
-            series.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
-            series.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+            index = betaScaleListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
+            }
+            index = sigmaScaleListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+            }
 
         } else if (xAxisListBox.getSelectedIndex() == BETA_SCALE_INDEX) {
-            series.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
-            series.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+            index = totalNListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
+            }
+            index = sigmaScaleListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setSigmaScale(Double.parseDouble(sigmaScaleListBox.getItemText(sigmaScaleListBox.getSelectedIndex())));
+            }
 
         } else {
             // sigma scale selected
-            series.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
-            series.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
+            index = totalNListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setSampleSize(Integer.parseInt(totalNListBox.getItemText(totalNListBox.getSelectedIndex())));
+            }
+            index = betaScaleListBox.getSelectedIndex();
+            if(index >= 0) {
+                series.setBetaScale(Double.parseDouble(betaScaleListBox.getItemText(betaScaleListBox.getSelectedIndex())));
+            }
         }
 
         // add alpha
-        series.setTypeIError(Double.parseDouble(alphaListBox.getItemText(alphaListBox.getSelectedIndex())));
+        index = alphaListBox.getSelectedIndex();
+        if(index >= 0) {
+            series.setTypeIError(Double.parseDouble(alphaListBox.getItemText(alphaListBox.getSelectedIndex())));
+        }
         // add test
-        series.setStatisticalTestTypeEnum(
+        index = testListBox.getSelectedIndex();
+        if(index >= 0) {
+            series.setStatisticalTestTypeEnum(
                 statisticalTestStringToEnum(testListBox.getItemText(testListBox.getSelectedIndex())));
+        }
 
         dataSeriesList.add(series);
         dataSeriesTable.addItem(dataSeriesAsString(series));
