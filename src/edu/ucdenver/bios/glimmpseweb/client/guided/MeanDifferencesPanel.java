@@ -25,6 +25,7 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
@@ -216,9 +217,18 @@ implements ChangeHandler
 
         if (rmNodeList != null && rmNodeList.size() > 0) {
             // calculate the total repeated measures combinations
-            totalRepeatedMeasuresCombinations = 1;
+            totalRepeatedMeasuresCombinations = 0;
             for(RepeatedMeasuresNode rmNode: rmNodeList) {
-                totalRepeatedMeasuresCombinations *= rmNode.getNumberOfMeasurements();
+                if (rmNode.getDimension() != null &&
+                        !rmNode.getDimension().isEmpty() &&
+                        rmNode.getNumberOfMeasurements() != null &&
+                        rmNode.getNumberOfMeasurements() > 1) {
+                    if (totalRepeatedMeasuresCombinations == 0) {
+                        totalRepeatedMeasuresCombinations = rmNode.getNumberOfMeasurements();
+                    } else {
+                        totalRepeatedMeasuresCombinations *= rmNode.getNumberOfMeasurements();
+                    }
+                }
             }
             if (totalRepeatedMeasuresCombinations > 0 && 
                     totalResponseVariables > 0) {
@@ -283,19 +293,22 @@ implements ChangeHandler
     private void updateTextBoxes() {
         // calculate the new column offset
         currentColumnOffset = 0;
+//        String foo = "";
         for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
             ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
             String valueStr = lb.getValue(lb.getSelectedIndex());
             int value = Integer.parseInt(valueStr);
+//            foo += ",offset[" + i +"]=" + value;
             currentColumnOffset += value;
         }
+//        Window.alert(foo);
         // update the values in the textboxes
         for(int row = 1; row < meansTable.getRowCount(); row++) {
             meansTable.getRowFormatter().setStyleName(row, 
                     GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
-            for(int col = totalBetweenFactors; col < totalResponseVariables+totalBetweenFactors; col++) {
-                RowColumnTextBox tb = new RowColumnTextBox(row-1, col-totalBetweenFactors);
-                tb.setText(Double.toString(betaFixedData[row-1][col-totalBetweenFactors+currentColumnOffset]));
+            for(int dataCol = 0, col = totalBetweenFactors; col < totalResponseVariables+totalBetweenFactors; dataCol++, col++) {
+                RowColumnTextBox tb = new RowColumnTextBox(row-1, dataCol);
+                tb.setText(Double.toString(betaFixedData[row-1][dataCol+currentColumnOffset]));
                 tb.addChangeHandler(this);
                 meansTable.setWidget(row, col, tb);
             }

@@ -356,16 +356,18 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         case NUMERIC_INDEX:
             node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.NUMERICAL);
             ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
-            for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
-                TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
-                String valueStr = tb.getText();
-                int value = Integer.MIN_VALUE;
-                if (valueStr != null && !valueStr.isEmpty()) {
-                    value = Integer.parseInt(tb.getText());
+            if (spacingFlexTable.getRowCount() > 0) {
+                for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
+                    TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
+                    String valueStr = tb.getText();
+                    int value = Integer.MIN_VALUE;
+                    if (valueStr != null && !valueStr.isEmpty()) {
+                        value = Integer.parseInt(tb.getText());
+                    }
+                    Spacing spacingValue = new Spacing();
+                    spacingValue.setValue(value);
+                    spacingList.add(spacingValue);
                 }
-                Spacing spacingValue = new Spacing();
-                spacingValue.setValue(value);
-                spacingList.add(spacingValue);
             }
             node.setSpacingList(spacingList);
             break;

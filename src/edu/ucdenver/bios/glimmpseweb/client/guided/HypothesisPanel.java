@@ -241,11 +241,13 @@ implements ClickHandler, ChangeHandler {
         if (rmNodeList != null) {
             totalFactors += rmNodeList.size();
             for(RepeatedMeasuresNode node: rmNodeList) {
-                if (node.getNumberOfMeasurements() > maxLevels) {
-                    maxLevels = node.getNumberOfMeasurements();
-                }
-                if (node.getNumberOfMeasurements() > 1) {
-                    totalMultiCategoryFactors++;
+                if (node.getNumberOfMeasurements() != null) {
+                    if (node.getNumberOfMeasurements() > maxLevels) {
+                        maxLevels = node.getNumberOfMeasurements();
+                    }
+                    if (node.getNumberOfMeasurements() > 1) {
+                        totalMultiCategoryFactors++;
+                    }
                 }
             }
         }

@@ -141,13 +141,18 @@ implements ChangeHandler
         if (repeatedMeasuresNodeList != null) {
             for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
             {
-                if (tabPanel.getTabCount() <= 0) {
-                    tabPanel.insert(0, new HTML(node.getDimension()), 
-                            new CovarianceCorrelationDeckPanel(node, this));
-                } else {
-                    tabPanel.insert(tabPanel.getTabCount()-1,
-                            new HTML(node.getDimension()), 
-                            new CovarianceCorrelationDeckPanel(node, this));
+                if (node.getDimension() != null &&
+                        !node.getDimension().isEmpty() &&
+                        node.getNumberOfMeasurements() != null &&
+                                node.getNumberOfMeasurements() > 1) {
+                    if (tabPanel.getTabCount() <= 0) {
+                        tabPanel.insert(0, new HTML(node.getDimension()), 
+                                new CovarianceCorrelationDeckPanel(node, this));
+                    } else {
+                        tabPanel.insert(tabPanel.getTabCount()-1,
+                                new HTML(node.getDimension()), 
+                                new CovarianceCorrelationDeckPanel(node, this));
+                    }
                 }
             }
         }

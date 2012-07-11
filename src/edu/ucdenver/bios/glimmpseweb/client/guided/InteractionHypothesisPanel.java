@@ -149,12 +149,17 @@ implements HypothesisBuilder, ClickHandler
             int row = 0;
             for(RepeatedMeasuresNode rmNode : rmNodeList)
             {
-                RepeatedMeasuresVariablePanel panel = 
-                    new RepeatedMeasuresVariablePanel(
-                            rmNode.getDimension(), this, rmNode);
-                withinParticipantFactorsFlexTable.setWidget(
-                        row, 0, panel);
-                row++;
+                if (rmNode.getDimension() != null &&
+                        !rmNode.getDimension().isEmpty() &&
+                        rmNode.getNumberOfMeasurements() != null &&
+                        rmNode.getNumberOfMeasurements() > 1) {
+                    RepeatedMeasuresVariablePanel panel = 
+                            new RepeatedMeasuresVariablePanel(
+                                    rmNode.getDimension(), this, rmNode);
+                    withinParticipantFactorsFlexTable.setWidget(
+                            row, 0, panel);
+                    row++;
+                }
             }
         }
     }
