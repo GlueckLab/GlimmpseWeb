@@ -67,11 +67,12 @@ implements ClickHandler
     protected CheckBox quantilePowerCheckBox = new CheckBox();
     protected PowerMethod quantileMethod = new PowerMethod(PowerMethodEnum.QUANTILE);
     // list of current power methods
-    ArrayList<PowerMethod> powerMethodList = new ArrayList<PowerMethod>();
+    protected ArrayList<PowerMethod> powerMethodList = new ArrayList<PowerMethod>();
     // list of quantile values
-    ArrayList<Quantile> quantileList = new ArrayList<Quantile>();
+    protected ArrayList<Quantile> quantileList = new ArrayList<Quantile>();
 
-    protected int numQuantiles = 0;
+    // indicates a design with a gaussian covariate
+    protected boolean hasCovariate = false;
 
     // dynamic list of quantile values
     protected ListEntryPanel quantileListPanel = 
@@ -79,7 +80,6 @@ implements ClickHandler
             @Override
             public void onValidRowCount(int validRowCount)
             {
-                numQuantiles = validRowCount;
                 checkComplete();
             }
             @Override
@@ -160,8 +160,8 @@ implements ClickHandler
         unconditionalPowerCheckBox.setValue(false);
         quantilePowerCheckBox.setValue(false);
         quantileListPanel.setVisible(false);
-        numQuantiles = 0;
         quantileListPanel.reset();
+        hasCovariate = false;
         changeState(WizardStepPanelState.SKIPPED);
     }
 
@@ -182,23 +182,27 @@ implements ClickHandler
      */
     private void checkComplete()
     {
-        // check if continue is allowed
-        // must have at least one test checked, at least one power method
-        if (unconditionalPowerCheckBox.getValue() || 
-                quantilePowerCheckBox.getValue())
-        {
-            if (!quantilePowerCheckBox.getValue() || numQuantiles > 0)
+        if (!hasCovariate) {
+            changeState(WizardStepPanelState.SKIPPED);
+        } else {
+            // check if continue is allowed
+            // must have at least one test checked, at least one power method
+            if (unconditionalPowerCheckBox.getValue() || 
+                    quantilePowerCheckBox.getValue())
             {
-                changeState(WizardStepPanelState.COMPLETE);
+                if (!quantilePowerCheckBox.getValue() || quantileListPanel.getValidRowCount() > 0)
+                {
+                    changeState(WizardStepPanelState.COMPLETE);
+                }
+                else
+                {
+                    changeState(WizardStepPanelState.INCOMPLETE);
+                }
             }
             else
             {
                 changeState(WizardStepPanelState.INCOMPLETE);
             }
-        }
-        else
-        {
-            changeState(WizardStepPanelState.INCOMPLETE);
         }
     }
 
@@ -239,14 +243,8 @@ implements ClickHandler
         switch (changeEvent.getType())
         {
         case COVARIATE:
-            if (!studyDesignContext.getStudyDesign().isGaussianCovariate())
-            {
-                changeState(WizardStepPanelState.SKIPPED);
-            }		
-            else
-            {
-                checkComplete();
-            }
+            hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
+            checkComplete();
             break;
         case POWER_METHOD_LIST:
             if (this != changeEvent.getSource())
@@ -317,6 +315,7 @@ implements ClickHandler
      */
     public void loadFromContext()
     {
+        hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
         loadPowerMethodListFromContext();
         loadQuantileListFromContext();
         checkComplete();
