@@ -38,4 +38,10 @@ public interface CovarianceBuilder
      * @return the covariance
      */
     public Covariance getCovariance();
+    
+    /**
+     * Returns true if the builder panel has enough information
+     * to build a valid covariance object.
+     */
+    public boolean checkComplete();
 }

@@ -364,6 +364,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     	categoryList.clear();
     	predictorCategoryMap.clear();
         oneSampleRadioButton.setValue(false);
+        multiSampleRadioButton.setValue(false);
         multiSamplePanel.setVisible(false);
     	checkComplete();
     }

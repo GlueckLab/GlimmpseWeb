@@ -116,9 +116,9 @@ implements ClickHandler
 	 */
 	public void reset()
 	{
-		solvingForPowerRadioButton.setValue(true);
+		solvingForPowerRadioButton.setValue(false);
 		solvingForSampleSizeRadioButton.setValue(false);
-		changeState(WizardStepPanelState.COMPLETE);
+		changeState(WizardStepPanelState.INCOMPLETE);
 	}
 	
 
@@ -166,14 +166,21 @@ implements ClickHandler
      */
     private void loadFromContext()
     {
+        reset();
         SolutionTypeEnum solutionType = studyDesignContext.getStudyDesign().getSolutionTypeEnum();
-        if (solutionType != null 
-                && solutionType == SolutionTypeEnum.SAMPLE_SIZE) {
-            solvingForSampleSizeRadioButton.setValue(true);
+        if (solutionType != null) {
+            if (solutionType == SolutionTypeEnum.SAMPLE_SIZE) {
+                solvingForSampleSizeRadioButton.setValue(true);
+                changeState(WizardStepPanelState.COMPLETE);
+            } else if (solutionType == SolutionTypeEnum.POWER) {
+                solvingForPowerRadioButton.setValue(true);
+                changeState(WizardStepPanelState.COMPLETE);
+            } else {
+                changeState(WizardStepPanelState.INCOMPLETE);
+            }
         } else {
-            solvingForPowerRadioButton.setValue(true);
+            changeState(WizardStepPanelState.INCOMPLETE);
         }
-        changeState(WizardStepPanelState.COMPLETE);
     }
 	
     

@@ -23,6 +23,8 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -51,6 +53,7 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
  *
  */
 public class WithinParticipantCovariancePanel extends WizardStepPanel
+implements ChangeHandler
 {
     // context object
     protected StudyDesignContext studyDesignContext;
@@ -140,11 +143,11 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
             {
                 if (tabPanel.getTabCount() <= 0) {
                     tabPanel.insert(0, new HTML(node.getDimension()), 
-                            new CovarianceCorrelationDeckPanel(node));
+                            new CovarianceCorrelationDeckPanel(node, this));
                 } else {
                     tabPanel.insert(tabPanel.getTabCount()-1,
                             new HTML(node.getDimension()), 
-                            new CovarianceCorrelationDeckPanel(node));
+                            new CovarianceCorrelationDeckPanel(node, this));
                 }
             }
         }
@@ -162,7 +165,7 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
             studyDesignContext.getStudyDesign().getResponseList();
         if (responseNodeList != null && responseNodeList.size() > 0) {
             tabPanel.add(responsesTabHeader,
-                    new CovarianceCorrelationDeckPanel(responseNodeList));
+                    new CovarianceCorrelationDeckPanel(responseNodeList, this));
         }
         checkComplete();
     }
@@ -204,9 +207,11 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
         switch(((StudyDesignChangeEvent) e).getType()) {
         case REPEATED_MEASURES:
             loadRepeatedMeasuresFromContext();
+            tabPanel.openTab(0);
             break;
         case RESPONSES_LIST:
             loadResponsesFromContext();
+            tabPanel.openTab(0);
             break;
         }
     };
@@ -235,6 +240,12 @@ public class WithinParticipantCovariancePanel extends WizardStepPanel
             Covariance covariance = panel.getCovariance();
             studyDesignContext.setCovariance(this, covariance);
         }
+    }
+
+
+    @Override
+    public void onChange(ChangeEvent event) {
+        checkComplete();
     }
 }
 

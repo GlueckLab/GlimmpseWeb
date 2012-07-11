@@ -21,12 +21,10 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
@@ -72,7 +70,6 @@ implements ChangeHandler
     protected HTML rmInstructions = 
         new HTML(GlimmpseWeb.constants.meanDifferenceRepeatedMeasuresInstructions());
     protected FlexTable repeatedMeasuresTable = new FlexTable();
-    protected ArrayList<Integer> rmOffsetList = new ArrayList<Integer>();
 
     protected int betaRows = 0;
     protected int betaColumns = 0;
@@ -211,8 +208,8 @@ implements ChangeHandler
         repeatedMeasuresTable.removeAllRows();
         rmInstructions.setVisible(false);
         repeatedMeasuresTable.setVisible(false);
-        rmOffsetList.clear();
         totalRepeatedMeasures = 0;
+        totalRepeatedMeasuresCombinations = 0;
         totalWithinFactorCombinations = totalResponseVariables;
         List<RepeatedMeasuresNode> rmNodeList = 
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
@@ -241,11 +238,8 @@ implements ChangeHandler
                 int row = 0;
                 int offset = (totalWithinFactorCombinations > 0 ?
                         totalWithinFactorCombinations : 1);
-                int rmOffset = totalRepeatedMeasuresCombinations;
                 for(RepeatedMeasuresNode rmNode: rmNodeList) {
                     offset /= rmNode.getNumberOfMeasurements();
-                    rmOffset /= rmNode.getNumberOfMeasurements();
-                    rmOffsetList.add(rmOffset);
                     // add the label
                     repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
                             new HTML(rmNode.getDimension()));
@@ -281,15 +275,6 @@ implements ChangeHandler
         }
         updateMatrixData();
         checkComplete();
-    }
-
-    private void updateOffsets() {
-        for(int row = 0; row < repeatedMeasuresTable.getRowCount(); row++) {
-            ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(row, LISTBOX_COLUMN);
-            for(int i = 0; i < lb.getItemCount(); i++) {
-                lb.setValue(i, Integer.toString(totalResponseVariables * rmOffsetList.get(i)));
-            }
-        }
     }
     
     /**
@@ -372,7 +357,7 @@ implements ChangeHandler
                 }
             }
         }
-        totalWithinFactorCombinations = 0;
+        totalWithinFactorCombinations = totalRepeatedMeasuresCombinations;
         totalResponseVariables = 0;
         
         // now load the new responses
@@ -404,7 +389,6 @@ implements ChangeHandler
         // create text boxes to hold the means
         fillTextBoxes();
         updateMatrixData();
-        updateOffsets();
         checkComplete();
     }
 
@@ -476,7 +460,6 @@ implements ChangeHandler
         {
             double value = Double.parseDouble(tb.getText());
             TextValidation.displayOkay(errorHTML, "");
-//            Window.alert("row=" + tb.getRow() + " column=" + tb.getColumn() + " offset=" + currentColumnOffset);
             betaFixedData[tb.getRow()][tb.getColumn() + currentColumnOffset] = value;
         }
         catch (NumberFormatException nfe)

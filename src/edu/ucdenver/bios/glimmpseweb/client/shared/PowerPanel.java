@@ -117,7 +117,6 @@ implements ListValidator
     public void reset()
     {
         nominalPowerListPanel.reset();
-        onValidRowCount(nominalPowerListPanel.getValidRowCount());
         changeState(WizardStepPanelState.SKIPPED);
     }
 
@@ -172,8 +171,8 @@ implements ListValidator
             {
                 nominalPowerListPanel.add(Double.toString(power.getValue()));
             }
-        }
-        onValidRowCount(nominalPowerListPanel.getValidRowCount());
+            onValidRowCount(nominalPowerListPanel.getValidRowCount());
+        } 
     }
 
     /**

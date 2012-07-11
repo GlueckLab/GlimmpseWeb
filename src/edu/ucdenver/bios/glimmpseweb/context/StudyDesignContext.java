@@ -101,6 +101,7 @@ public class StudyDesignContext extends WizardContext
         } else {
             studyDesign = design;
         }
+        participantGroups = new FactorTable();
         notifyWizardContextLoad();
     }
 
@@ -618,7 +619,6 @@ public class StudyDesignContext extends WizardContext
             complete = validLists() && validOptions() &&
                     (hasBeta && hasBetaRandom && hasSigmaYG && hasSigmaG);
         }
-        GWT.log("Study design complete? " + complete);
     }
 
     /**

@@ -27,7 +27,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -54,6 +53,8 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
 {
     // name of this covariance component
     protected String name;
+    // parent panel
+    protected ChangeHandler parent = null;
     
     // input boxes for Lear parameters
     protected TextBox standardDeviationTextBox = new TextBox();
@@ -75,10 +76,12 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     /**
      * Constructor 
      */
-    public StructuredCorrelationPanel(String name, List<String> labelList, List<Integer> spacingList)
+    public StructuredCorrelationPanel(String name, List<String> labelList, List<Integer> spacingList,
+            ChangeHandler handler)
     {
         VerticalPanel verticalPanel = new VerticalPanel();
         this.name = name;
+        parent = handler;
         // create a lear calculator for the given spacing
         if (spacingList.size() > 1) {
             learCorrelation = new LearCorrelation(spacingList);
@@ -124,7 +127,8 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
             }
 
         });
-
+        standardDeviationTextBox.addChangeHandler(parent);
+        
         strongestCorrelationTextBox.addChangeHandler(new ChangeHandler()
         {
             @Override
@@ -147,7 +151,8 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
 
             }
         });
-
+        strongestCorrelationTextBox.addChangeHandler(parent);
+        
         rateOfDecayOfCorrelationTextBox.addChangeHandler(new ChangeHandler()
         {
             @Override
@@ -171,7 +176,8 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 }
             }
         });
-
+        rateOfDecayOfCorrelationTextBox.addChangeHandler(parent);
+        
         grid.setWidget(0, 0, standardDeviation);
         grid.setWidget(0, 1, standardDeviationTextBox);
         grid.setWidget(1, 0, strongestCorrelation);

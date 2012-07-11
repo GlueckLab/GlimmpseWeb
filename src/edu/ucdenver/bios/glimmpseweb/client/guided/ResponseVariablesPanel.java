@@ -118,6 +118,7 @@ implements ListValidator
      */
     private void loadFromContext()
     {
+        reset();
         List<ResponseNode> responsesList = studyDesignContext.getStudyDesign().getResponseList();
         if (responsesList != null) {
             for(ResponseNode response: responsesList)

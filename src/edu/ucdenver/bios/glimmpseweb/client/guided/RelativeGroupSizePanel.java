@@ -148,6 +148,11 @@ public class RelativeGroupSizePanel extends WizardStepPanel
                 }
             }
         }
+        if (groups.getNumberOfRows() <= 1) {
+            changeState(WizardStepPanelState.SKIPPED);
+        } else {
+            changeState(WizardStepPanelState.COMPLETE);
+        }
     }
 
     /**
@@ -178,13 +183,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
         switch (changeEvent.getType())
         {
         case BETWEEN_PARTICIPANT_FACTORS:
-            FactorTable groups = studyDesignContext.getParticipantGroups();
-            if (groups.getNumberOfRows() <= 1) {
-                changeState(WizardStepPanelState.SKIPPED);
-            } else {
-                changeState(WizardStepPanelState.COMPLETE);
-                loadFromContext();
-            }
+            loadFromContext();
             changed = true;
             break;
         case RELATIVE_GROUP_SIZE_LIST:

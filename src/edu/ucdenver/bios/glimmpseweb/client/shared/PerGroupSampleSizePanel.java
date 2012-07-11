@@ -159,9 +159,8 @@ implements ListValidator
                 for(SampleSize size: perGroupNList) {
                     perGroupNListPanel.add(Integer.toString(size.getValue()));
                 }
-                
+                onValidRowCount(perGroupNListPanel.getValidRowCount());
             } 
-            onValidRowCount(perGroupNListPanel.getValidRowCount());
         } else {
             changeState(WizardStepPanelState.SKIPPED);
         }

@@ -111,7 +111,7 @@ implements ChangeHandler
         @Override
         public void onClick(ClickEvent event) {
             reset();
-            toggleRepeatedMeasures();
+            changed = true;
         }
     });
 
@@ -281,7 +281,13 @@ implements ChangeHandler
         repeatedMeasuresNodeList.clear();
         currentLeaf = null;
         itemCount = 0;
+        hasRepeatedMeasures = false;
+        addRepeatedMeasuresButton.setVisible(!hasRepeatedMeasures);
+        removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
+        addSubDimensionButton.setVisible(hasRepeatedMeasures);
+        removeSubDimensionButton.setVisible(hasRepeatedMeasures);
         changed = false;
+        checkComplete();
     }
 
     /**

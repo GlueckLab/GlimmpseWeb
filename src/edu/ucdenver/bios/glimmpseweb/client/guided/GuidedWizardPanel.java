@@ -45,6 +45,8 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelGroup;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.BetaScale;
+import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
@@ -128,7 +130,7 @@ implements WizardActionListener
 	{
         // indicate that this is a guided study design
         context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.GUIDED_MODE);
-        
+        setStudyDesignDefaults();
 		VerticalPanel panel = new VerticalPanel();
 
 		// set up the wizard for Guided Mode
@@ -142,6 +144,15 @@ implements WizardActionListener
 		// set style
 		// initialize
 		initWidget(panel);
+	}
+	
+	private void setStudyDesignDefaults() {
+	    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
+	    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
+	    betaScaleList.add(new BetaScale(1));
+        sigmaScaleList.add(new SigmaScale(1));
+        context.setSigmaScaleList(variabilityScalePanel, sigmaScaleList);
+        context.setSigmaScaleList(meanDifferencesScalePanel, sigmaScaleList);
 	}
 	
 	private ArrayList<WizardStepPanelGroup> buildPanelGroups()
@@ -239,7 +250,9 @@ implements WizardActionListener
      * Clear the context
      */
     public void reset() {
+        wizardPanel.setVisiblePanel(startIntroPanel);
         context.loadStudyDesign(null);
+        setStudyDesignDefaults();
     }
     
     /**

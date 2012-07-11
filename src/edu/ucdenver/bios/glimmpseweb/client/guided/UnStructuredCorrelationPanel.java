@@ -52,7 +52,8 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
 {    
     // name of this covariance piece
     protected String name;
-    
+    // parent panel
+    protected ChangeHandler parent = null;
     //Grid to construct the Standard Deviation Entry Text boxes
     protected FlexTable standardDeviationFlexTable = new FlexTable();	
 
@@ -68,11 +69,11 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
      * @param integerList
      */
     public UnStructuredCorrelationPanel(String covarianceName,
-            List<String> labelList, List<Integer> spacingList)
+            List<String> labelList, List<Integer> spacingList, ChangeHandler handler)
     {
         // store the covariance name
         name = covarianceName;
-        
+        parent = handler;
         //Instance of vertical panel to hold all the widgets created in this class
         VerticalPanel verticalPanel = new VerticalPanel();
 
@@ -131,6 +132,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
                     }
                 }
             });
+            textBox.addChangeHandler(parent);
             standardDeviationFlexTable.setWidget(row, 0, new HTML(label));
             standardDeviationFlexTable.setWidget(row, 1, textBox);
             row++;
@@ -139,7 +141,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
 
     /**
      * Indicates if all required information has been entered
-     * @return
+     * @return true if the screen is complete
      */
     public boolean checkComplete() {
         boolean complete = true;

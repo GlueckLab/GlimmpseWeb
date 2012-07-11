@@ -280,11 +280,13 @@ public class DynamicTabPanel extends Composite {
 
     public Widget getTabContents(Widget tabHeader) {
         int index = -1;
-        for(int col = 0; col < tabPanel.getCellCount(0); col++) {
-            IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
-            if ((HasClickHandlers) current.getWidget() == tabHeader) {
-                index = col;
-                break;
+        if (tabPanel.getRowCount() > 0) {
+            for(int col = 0; col < tabPanel.getCellCount(0); col++) {
+                IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
+                if ((HasClickHandlers) current.getWidget() == tabHeader) {
+                    index = col;
+                    break;
+                }
             }
         }
         if (index != -1) {
@@ -312,11 +314,13 @@ public class DynamicTabPanel extends Composite {
      */
     public void remove(Widget tabHeader) {
         int index = -1;
-        for(int col = 0; col < tabPanel.getCellCount(0); col++) {
-            IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
-            if ((HasClickHandlers) current.getWidget() == tabHeader) {
-                index = col;
-                break;
+        if (tabPanel.getRowCount() > 0) {
+            for(int col = 0; col < tabPanel.getCellCount(0); col++) {
+                IndexedDecoratorPanel current = (IndexedDecoratorPanel) tabPanel.getWidget(0, col);
+                if ((HasClickHandlers) current.getWidget() == tabHeader) {
+                    index = col;
+                    break;
+                }
             }
         }
         if (index != -1) {

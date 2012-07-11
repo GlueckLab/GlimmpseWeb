@@ -21,6 +21,7 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -46,6 +47,11 @@ import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
  */
 public class ResizableMatrixPanel extends Composite
 {
+    // change handler for matrix cell values
+    // at present we only allow one of these - didn't have time to deal with
+    // the timing issues of resize events and adding change handlers
+    protected ChangeHandler handler = null;
+    
     // maximum allowed rows and columns
     protected static final int DEFAULT_MAX_ROWS = 50;
     protected static final int DEFAULT_MAX_COLS = 50;
@@ -79,7 +85,9 @@ public class ResizableMatrixPanel extends Composite
     protected TextBox rowTextBox = new TextBox();
     // text box for column dimension
     protected TextBox columnTextBox = new TextBox();
-
+    // change event handlers
+    protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+    
     // error html
     HTML errorHTML = new HTML();
 
@@ -120,9 +128,9 @@ public class ResizableMatrixPanel extends Composite
      */
     public ResizableMatrixPanel(int rows, int columns)
     {
-        this(rows, columns, true, true, true, false);
+        this(rows, columns, true, true, true, false, null);
     }
-
+    
     /**
      * Create a ResizableMatrixPanel with the specified restrictions
      * 
@@ -136,8 +144,26 @@ public class ResizableMatrixPanel extends Composite
     public ResizableMatrixPanel(int rows, int columns, boolean showDimensions, boolean allowEditDiagonal,
             boolean allowEditOffDiagonal, boolean isSymmetric)
     {
-        VerticalPanel verticalPanel = new VerticalPanel();
+        this(rows, columns, showDimensions, 
+                allowEditDiagonal, allowEditOffDiagonal, isSymmetric, null);
+    }
 
+    /**
+     * Create a ResizableMatrixPanel with the specified restrictions
+     * 
+     * @param row row dimension
+     * @param column column dimension
+     * @param showDimensions if true, the row x column dimensions will be displayed in the panel
+     * @param allowEditDiagonal if true, diagonal elements will be editable
+     * @param allowEditOffDiagonal if true, off diagonal elements will be editable
+     * @param isSymmetric indicates if the matrix is symmetric
+     * @param handler change handler for text boxes
+     */
+    public ResizableMatrixPanel(int rows, int columns, boolean showDimensions, boolean allowEditDiagonal,
+            boolean allowEditOffDiagonal, boolean isSymmetric, ChangeHandler handler)
+    {
+        VerticalPanel verticalPanel = new VerticalPanel();
+        this.handler = handler;
         this.rows = rows;
         this.columns = columns;
         this.isSymmetric = isSymmetric;
@@ -702,4 +728,5 @@ public class ResizableMatrixPanel extends Composite
     {
         return columns;
     }
+
 }

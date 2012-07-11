@@ -69,20 +69,20 @@ implements ClickHandler, ChangeHandler {
             return addDomHandler(handler, ClickEvent.getType());
         }
     }
-    
+
     // context object
     protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 
     // subpanels for each type of hypothesis
     protected GrandMeanHypothesisPanel grandMeanHypothesisPanelInstance =
-        new GrandMeanHypothesisPanel(this);
+            new GrandMeanHypothesisPanel(this);
     protected MainEffectHypothesisPanel mainEffectHypothesisPanelInstance =
-        new MainEffectHypothesisPanel(this);
+            new MainEffectHypothesisPanel(this);
     protected InteractionHypothesisPanel interactionHypothesisPanelInstance =
-        new InteractionHypothesisPanel(this);
+            new InteractionHypothesisPanel(this);
     protected TrendHypothesisPanel trendHypothesisPanelInstance =
-        new TrendHypothesisPanel(this);
-    
+            new TrendHypothesisPanel(this);
+
     /* hypothesis type buttons */
     protected HTML grandMeanHTML = new HTML(
             GlimmpseWeb.constants.hypothesisPanelGrandMean()); 
@@ -92,7 +92,7 @@ implements ClickHandler, ChangeHandler {
             GlimmpseWeb.constants.hypothesisPanelInteraction()); 
     protected HTML trendHTML = new HTML(
             GlimmpseWeb.constants.hypothesisPanelTrend());
-    
+
     // hypothesis type containers
     protected  ClickableHorizontalPanel grandMeanSelectPanel = 
             new ClickableHorizontalPanel();
@@ -105,7 +105,7 @@ implements ClickHandler, ChangeHandler {
 
     // tab panel to organize the hypothesis sub screens
     DynamicTabPanel tabPanel = new DynamicTabPanel();
-    
+
     /**
      * Constructor
      * @param context wizard context
@@ -116,7 +116,7 @@ implements ClickHandler, ChangeHandler {
                 WizardStepPanelState.NOT_ALLOWED);
 
         VerticalPanel panel = new VerticalPanel();
-        
+
         // descriptive text
         HTML title = new HTML(
                 GlimmpseWeb.constants.hypothesisTitle());
@@ -135,7 +135,7 @@ implements ClickHandler, ChangeHandler {
         mainEffectSelectPanel.add(new HtmlTextWithExplanationPanel("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffect(),
                 GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation()));
-        
+
         // interaction
         interactionSelectPanel.add(interactionHTML);
         interactionSelectPanel.add(new HtmlTextWithExplanationPanel("",
@@ -151,12 +151,12 @@ implements ClickHandler, ChangeHandler {
         // add tabs to the tab panel
         tabPanel.add(grandMeanSelectPanel, (Widget) grandMeanHypothesisPanelInstance);
         tabPanel.addClickHandler(this);
-        
+
         // layout panel
         panel.add(title);
         panel.add(description);
         panel.add(tabPanel);
-  
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         title.setStyleName(
@@ -187,26 +187,29 @@ implements ClickHandler, ChangeHandler {
             grandMeanHypothesisPanelInstance.loadResponseList(
                     studyDesignContext.getStudyDesign().getResponseList());
             updateHypothesisOptions();
+            tabPanel.openTab(0);
             break;
         case BETWEEN_PARTICIPANT_FACTORS:
             List<BetweenParticipantFactor> factorList = 
-                studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
             mainEffectHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
             interactionHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
             trendHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
             updateHypothesisOptions();
+            tabPanel.openTab(0);
             break;
         case REPEATED_MEASURES:
             List<RepeatedMeasuresNode> rmNodeList = 
-                studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
             mainEffectHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
             interactionHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
             trendHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
             updateHypothesisOptions();
+            tabPanel.openTab(0);
             break;
         }
     };
-    
+
     /**
      * Show or hide specific hypothesis classes depending on the 
      * number of factors, etc.
@@ -246,7 +249,7 @@ implements ClickHandler, ChangeHandler {
                 }
             }
         }
-        
+
         // show the hypotheses based on the number of factors
         tabPanel.remove(mainEffectSelectPanel);
         tabPanel.remove(interactionSelectPanel);
@@ -259,12 +262,10 @@ implements ClickHandler, ChangeHandler {
             tabPanel.add(interactionSelectPanel, (Widget) interactionHypothesisPanelInstance);
         }
         tabPanel.openTab(0);
-        
+
         // if no factors or one-sample with no responses, set state to not-allowed.  
         // Otherwise check if the panel is complete
-        if (totalFactors <= 0 || 
-                (totalFactors == 1 && 
-                (responsesList == null || responsesList.size() == 0))) {
+        if (totalFactors <= 0 || responsesList == null || responsesList.size() == 0) {
             changeState(WizardStepPanelState.NOT_ALLOWED);
         } else {
             checkComplete();
@@ -277,9 +278,35 @@ implements ClickHandler, ChangeHandler {
     @Override
     public void onWizardContextLoad() 
     {
-        
+        loadFromContext();
     }
 
+    /**
+     * Load the hypothesis panel from the context
+     */
+    private void loadFromContext() {
+        // load the responses
+        grandMeanHypothesisPanelInstance.loadResponseList(
+                studyDesignContext.getStudyDesign().getResponseList());
+        // load the between participant factors
+        List<BetweenParticipantFactor> factorList = 
+                studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+        mainEffectHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
+        interactionHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
+        trendHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
+        // load the repeated measures
+        List<RepeatedMeasuresNode> rmNodeList = 
+                studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+        mainEffectHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
+        interactionHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
+        trendHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
+        updateHypothesisOptions();       
+        tabPanel.openTab(0);
+    }
+
+    /**
+     * Check if the hypothesis is completely specified
+     */
     private void checkComplete() {
         // get the currently visible widget
         HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
@@ -293,7 +320,7 @@ implements ClickHandler, ChangeHandler {
             changeState(WizardStepPanelState.INCOMPLETE);
         }
     }
-    
+
     /**
      * Build the hypothesis object and store in the context
      */

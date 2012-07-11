@@ -25,6 +25,8 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -50,12 +52,15 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
  *
  */
 public class CovarianceCorrelationDeckPanel extends Composite
+implements ChangeHandler
 {
     // deck panel indices for the correlation/covariance views
     private static final int STRUCT_CORRELATION_INDEX = 0;
     private static final int UNSTRUCT_CORRELATION_INDEX = 1;
     private static final int UNSTRUCT_COVARIANCE_INDEX = 2;
     
+    // parent panel
+    protected ChangeHandler parent = null;
     // name of the dimension
     protected String name = "";
     // size of the covariance matrix
@@ -90,7 +95,9 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	 * Build a covariance deck for a repeated measures dimension
 	 * @param repeatedMeasuresNode
 	 */
-	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode) {
+	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode,
+	        ChangeHandler handler) {
+	    parent = handler;
 	    name = repeatedMeasuresNode.getDimension();
 	    // build a list of labels and spacing values
 		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
@@ -117,8 +124,10 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	 * Create a covariance input panel for the specified response list
 	 * @param responseList response variable list
 	 */
-	public CovarianceCorrelationDeckPanel(List<ResponseNode> responseList)
+	public CovarianceCorrelationDeckPanel(List<ResponseNode> responseList,
+	        ChangeHandler handler)
 	{
+	    parent = handler;
 	    name = GlimmpseConstants.RESPONSES_COVARIANCE_LABEL;
 	    ArrayList<String> labels = new ArrayList<String>(responseList.size());
 		List<Integer> spacingList = new ArrayList<Integer>(responseList.size());
@@ -144,11 +153,11 @@ public class CovarianceCorrelationDeckPanel extends Composite
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
 		StructuredCorrelationPanel structuredCorrelationPanelInstance = 
-				new StructuredCorrelationPanel(name, labelList, spacingList);
+				new StructuredCorrelationPanel(name, labelList, spacingList, this);
 	      UnStructuredCorrelationPanel unstructuredCorrelationPanelInstance = 
-              new UnStructuredCorrelationPanel(name, labelList, spacingList);
+              new UnStructuredCorrelationPanel(name, labelList, spacingList, this);
 		UnStructuredCovariancePanel unstructuredCovariancePanelInstance = 
-				new UnStructuredCovariancePanel(name, labelList, spacingList);
+				new UnStructuredCovariancePanel(name, labelList, spacingList, this);
 		
 		deckPanel.add(structuredCorrelationPanelInstance);
 		deckPanel.add(unstructuredCorrelationPanelInstance);
@@ -223,8 +232,14 @@ public class CovarianceCorrelationDeckPanel extends Composite
 	 * @return true if complete, false otherwise
 	 */
 	public boolean checkComplete() {
-	    // TODO: add check complete to covariance builder?
-	    return true;
+        int visibleIndex = deckPanel.getVisibleWidget();
+        CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
+        return covarianceBuilder.checkComplete();
 	}
+
+    @Override
+    public void onChange(ChangeEvent event) {
+        parent.onChange(event);
+    }
 }
 

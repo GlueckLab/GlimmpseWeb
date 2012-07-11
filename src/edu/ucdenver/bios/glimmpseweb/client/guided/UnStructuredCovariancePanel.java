@@ -23,8 +23,10 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -46,12 +48,15 @@ implements CovarianceBuilder
 	protected ResizableMatrixPanel covarianceMatrix;
 	// name for this covariance component
 	protected String name;
-	
-	public UnStructuredCovariancePanel(String name, List<String> labelList, List<Integer> spacingList)
+    // parent panel
+    protected ChangeHandler parent = null;
+    
+	public UnStructuredCovariancePanel(String name, List<String> labelList, 
+	        List<Integer> spacingList, ChangeHandler handler)
 	{
 		VerticalPanel verticalPanel = new VerticalPanel();
 		this.name = name;
-		
+        parent = handler;
 		HTML header = new HTML();
 		header.setText(GlimmpseWeb.constants.unstructuredCovarianceHeader());
 		HTML instructions = new HTML();
@@ -82,5 +87,14 @@ implements CovarianceBuilder
         covariance.setRows(matrix.getRows());
         covariance.setBlob(matrix.getData());
         return covariance;
+    }
+    
+
+    /**
+     * Indicates if all required information has been entered
+     * @return true if the screen is complete
+     */
+    public boolean checkComplete() {
+        return true;
     }
 }
