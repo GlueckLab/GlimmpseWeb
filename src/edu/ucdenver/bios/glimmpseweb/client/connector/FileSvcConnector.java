@@ -5,6 +5,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.visualization.client.DataTable;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
@@ -19,7 +21,9 @@ import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 public class FileSvcConnector extends Composite {
     
     // default filename for save
-    protected static final String SAVE_FILENAME = "study.json";
+    protected static final String STUDY_FILENAME = "study.json";
+    // default filename for save
+    protected static final String DATA_FILENAME = "powerResults.csv";
     // url for file save web service
     protected static final String SAVEAS_URL = GlimmpseWeb.constants.fileSvcHostSaveAs(); 
     // form for saving the study design
@@ -58,7 +62,7 @@ public class FileSvcConnector extends Composite {
         if (studyDesign != null) {
             String jsonEncoded = serializer.toJSON(studyDesign);
             dataHidden.setValue(jsonEncoded);
-            String saveFilename = SAVE_FILENAME;
+            String saveFilename = STUDY_FILENAME;
             if (filename != null && !filename.isEmpty()) {
                 saveFilename = filename;
             }
@@ -66,5 +70,60 @@ public class FileSvcConnector extends Composite {
             saveForm.submit();
         }
     }
+    
+    /**
+     * Send a save request to the File web service.  A service is used to force
+     * the browser to pop-up the save as dialog box.
+     * 
+     * @param data the data to be saved
+     * @param filename default filename to use
+     */
+    public void saveDataTableAsCSV(DataTable dataTable, String filename)
+    {
+        if (dataTable != null) {
+            dataHidden.setValue(dataTableToCSV(dataTable));
+            String saveFilename = DATA_FILENAME;
+            if (filename != null && !filename.isEmpty()) {
+                saveFilename = filename;
+            }
+            filenameHidden.setValue(saveFilename);
+            saveForm.submit();
+        }
+    }
+    
+    /**
+     * Output the data table in CSV format
+     * @return CSV formatted data
+     */
+    private String dataTableToCSV(DataTable dataTable)
+    {
+        StringBuffer buffer = new StringBuffer();
+        
+        if (dataTable.getNumberOfRows() > 0)
+        {
+            // add the column headers
+            for(int col = 0; col < dataTable.getNumberOfColumns(); col++)
+            {
+                if (col > 0) buffer.append(",");
+                buffer.append(dataTable.getColumnId(col));
+            }
+            buffer.append("\n");
+            // now add the data
+            for(int row = 0; row < dataTable.getNumberOfRows(); row++)
+            {
+                for(int col = 0; col < dataTable.getNumberOfColumns(); col++)
+                {
+                    if (col > 0) buffer.append(",");
+                    if (dataTable.getColumnType(col) == ColumnType.STRING)
+                        buffer.append(dataTable.getValueString(row, col));
+                    else    
+                        buffer.append(dataTable.getValueDouble(row, col));    
+                }
+                buffer.append("\n");
+            }
+        }
+        return buffer.toString();
+    }
+    
     
 }

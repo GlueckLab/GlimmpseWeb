@@ -53,6 +53,7 @@ import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.connector.ChartSvcConnector;
+import edu.ucdenver.bios.glimmpseweb.client.connector.FileSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.connector.PowerSvcConnector;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
@@ -93,7 +94,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
     private static final String CHART_INPUT_NAME = "chart";
     private static final String SAVE_INPUT_NAME = "save";
     private static final String FILENAME_INPUT_NAME = "filename";
-    private static final String SAVE_CSV_FILENAME = "powerResults.csv";
     private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
     
     // context object
@@ -103,12 +103,14 @@ public class ResultsDisplayPanel extends WizardStepPanel
     PowerSvcConnector powerSvcConnector = new PowerSvcConnector();
     // connector to the power service
     ChartSvcConnector chartSvcConnector = new ChartSvcConnector();
+    // connector to the file service
+    FileSvcConnector fileSvcConnector = new FileSvcConnector();
     
 	// wait dialog
 	protected DialogBox waitDialog;
 
 	// google visualization api data table to hold results
-	protected DataTable resultsData; 
+	protected DataTable resultsData = null; 
 
 	// tabular display of results
 	protected VerticalPanel resultsTablePanel = new VerticalPanel();
@@ -250,7 +252,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 			@Override
 			public void onClick(ClickEvent event)
 			{
-				saveTableData();
+				fileSvcConnector.saveDataTableAsCSV(resultsData, null);
 			}
     	});
     	DisclosurePanel viewMatricesPanel = new DisclosurePanel("View matrices for this study design");
@@ -493,55 +495,17 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 	}
 	
-	/**
-	 * Output the data table in CSV format
-	 * @return CSV formatted data
-	 */
-	public String dataTableToCSV()
-	{
-		StringBuffer buffer = new StringBuffer();
-		
-		if (resultsData.getNumberOfRows() > 0)
-		{
-			// add the column headers
-			for(int col = 0; col < resultsData.getNumberOfColumns(); col++)
-			{
-				if (col > 0) buffer.append(",");
-				buffer.append(resultsData.getColumnId(col));
-			}
-			buffer.append("\n");
-			// now add the data
-			for(int row = 0; row < resultsData.getNumberOfRows(); row++)
-			{
-				for(int col = 0; col < resultsData.getNumberOfColumns(); col++)
-				{
-					if (col > 0) buffer.append(",");
-					if (resultsData.getColumnType(col) == ColumnType.STRING)
-						buffer.append(resultsData.getValueString(row, col));
-					else	
-						buffer.append(resultsData.getValueDouble(row, col));	
-				}
-				buffer.append("\n");
-			}
-		}
-		return buffer.toString();
-	}
-	
-	public void saveTableData()
-	{
-		// submit the result to the file service
-//		manager.sendSaveRequest(dataTableToCSV(), SAVE_CSV_FILENAME);
-	}
+
 
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
-        // TODO Auto-generated method stub
+        // no action required
         
     }
 
     @Override
     public void onWizardContextLoad() {
-        // TODO Auto-generated method stub
+        // no action required
         
     }
 }
