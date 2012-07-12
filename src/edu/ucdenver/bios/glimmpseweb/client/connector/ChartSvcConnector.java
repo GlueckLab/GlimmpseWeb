@@ -24,6 +24,7 @@ package edu.ucdenver.bios.glimmpseweb.client.connector;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.NumberFormat;
 
@@ -135,12 +136,18 @@ public class ChartSvcConnector {
         if (dataSeriesList != null) {
             StringBuffer seriesLabels = new StringBuffer();
             seriesLabels.append("&chdl=");
+            /* Begin : Changes for line style */
+            StringBuffer lineStyles = new StringBuffer();
+            lineStyles.append("&ls=");
+            int numberOfGrapths = dataSeriesList.size();
+            /* End : Changes for line style */
             queryStr.append("&chd=t:");
+            GWT.log("Data Series List Size : "+dataSeriesList.size());
             for(PowerCurveDataSeries dataSeries: dataSeriesList) {
                 if (!firstSeries) {
-                    seriesLabels.append(SERIES_DELIM);
-                }
-                seriesLabels.append(dataSeries.getLabel());
+                    seriesLabels.append(SERIES_DELIM);                    
+                }                
+                seriesLabels.append(dataSeries.getLabel());                
                 StringBuffer lowerCI = new StringBuffer();
                 StringBuffer upperCI = new StringBuffer();
                 StringBuffer main = new StringBuffer();
@@ -186,22 +193,39 @@ public class ChartSvcConnector {
                     if (!firstSeries) {
                         queryStr.append(SERIES_DELIM);
                         seriesLabels.append(SERIES_DELIM);
+                        /* Begin : Changes for line style */
+                        lineStyles.append(SERIES_DELIM);
+                        /* End : Changes for line style */
                     }
+                    /* Begin : Changes for line style */                
+                    lineStyles.append(""+1.5*numberOfGrapths--+",1,1");                
+                    /* End : Changes for line style */
                     queryStr.append(xValues.toString() + SERIES_DELIM + main.toString());
                     if (lowerCI.length() > 0) {
                         queryStr.append(SERIES_DELIM + xValues.toString() + 
                                 SERIES_DELIM + lowerCI.toString());
+                        /* Begin : Changes for line style */                
+                        lineStyles.append(SERIES_DELIM+"1,1,3");                
+                        /* End : Changes for line style */
                     }
                     if (upperCI.length() > 0) {
                         queryStr.append(SERIES_DELIM + xValues.toString() + 
                                 SERIES_DELIM + upperCI.toString());
-                    }
+                        /* Begin : Changes for line style */                
+                        lineStyles.append(SERIES_DELIM+"1,1,3");                
+                        /* End : Changes for line style */
+                    }                    
                 }
                 firstSeries = false;
             }
+            /* Begin : Changes for line style */
+            // append the line styles 
+            queryStr.append(lineStyles);
+            /* End : Changes for line style */
             // append the series labels 
             queryStr.append(seriesLabels);
         }
+        GWT.log(queryStr.toString());
         return queryStr.toString();
     }
 
