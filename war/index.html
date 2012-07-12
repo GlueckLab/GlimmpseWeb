@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <!-- 
 GLIMMPSE (General Linear Multivariate Model Power and Sample size)
 Copyright (C) 2010 Regents of the University of Colorado.  
@@ -18,16 +18,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  -->
 <html>
-  <head>
+  <head>   
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="gwt:property" content="locale=default"> 
     <!--                                                               -->
     <!-- Consider inlining CSS to reduce the number of requested files -->
-    <!--                                                               -->
-    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse_common.css">
-    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse_start.css">
+    <!--                                                               
+    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse_shared.css">
+    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse_wizard.css"> -->
+    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse.css">
     <title>GLIMMPSE: General Linear Multivariate Model Power &amp; Sample Size</title>
-    <script type="text/javascript">
+        
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->                                         
+    <script type="text/javascript" src="glimmpseweb/glimmpseweb.nocache.js"></script>
+    <!--  <script type="text/javascript">
   		var _gaq = _gaq || [];
   		_gaq.push(['_setAccount', 'UA-21939703-1']);
   		_gaq.push(['_trackPageview']);
@@ -37,110 +44,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   	})();
-	</script>
-        
+	</script>-->
+    
   </head>
   <body>
   <center>
-	<table style="width:800px;margin-top:0px;margin-bottom:0px;" border="0" cellpadding="0" cellspacing="0">
-	<tr><td align="center">
-  
-  	<!-- Glimmpse logo and title text -->
-	<div id="header">
-		<div id="glimmpse-logo"><img src="images/glimmpse.png" alt="GLIMMPSE" /></div>
-		<div id="glimmpse-name">GLIMMPSE</div>
-		<div id="glimmpse-description">Power and Sample Size for the<br/>General Linear Multivariate Model</div>
-		<div id="glimmpse-owner"><a href="http://www.cudenver.edu/Academics/Colleges/PublicHealth">Colorado School of Public Health, Department of Biostatistics &amp; Informatics</a></div>
+  <div id="center">
+   <div id="header">
+	<div id="glimmpse-topbar">
+		<div id="glimmpse-logo">GLIMMPSE <sup><font color="red" >beta</font></sup></div>
+		<div id="top-navbar">
+		<div class="top-navbar-link no-border"><a href="http://samplesizeshop.com">SampleSizeShop.com</a></div>
+		<div class="top-navbar-link"><a href="http://samplesizeshop.com">Downloads</a></div>
+		<div class="top-navbar-link"><a href="http://samplesizeshop.com">Documentation</a></div>
+	  </div> 
 	</div>
-    </td></tr>
-    <tr><td>
-	<!-- top navigation bar  -->
-	<div id="horizontal-navbar">
-		<a href="index.html">Home</a>
-		<a href="about.html">About Us</a>
-		<a href="publications.html">Related Publications</a>
-		<a href="documentation.html">Documentation</a>
-		<a href="download.html">Download</a>
-	</div>
-   </td></tr>
+   </div>
+  <table id="content-table">
    <tr><td>
-	<div id="start-container">
-		<h3>Welcome to GLIMMPSE</h3>
-		<p>
-		This software allows researchers to find appropriate power and sample size for 
-		studies that will use the general linear multivariate model for data analysis.  Common examples of this model
-		include:
-		<ul>
-		<li>One sample t-test</li>
-		<li>Paired t-test</li>
-		<li>Two sample t-test</li>
-		<li>Analysis of variance (ANOVA)</li>
-		<li>Analysis of covariance (ANCOVA)</li>
-		<li>Repeated measures analysis of variance</li>
-		<li>Multivariate analysis of variance (MANOVA)</li>
-		<li>Multivariate analysis of covariance (MANCOVA)</li>
-		<li>Linear regression</li>
-		</ul> 
-		</p>
-		<p>
-		This project was developed by Dr. Sarah Kreidler at the University of Colorado, department 
-		of Biostatistics and Bioinformatics. 
-		</p>
-		<p>
-		The power calculations are based on	the work of Professor Keith Muller at the University of Florida.  
-		Appropriate citations for the supporting publications are available on the 
-		<a href="publications.html">related publications</a> page.
-		</p>
-		<p>
-		Development of GLIMMPSE 1.0.1 was funded by an American Recovery and Re-investment
-		Act supplement (3K07CA088811-06S) for NCI grant K07CA088811. Both the parent grant
-		and supplement were awarded to the University of Colorado Denver, (Deborah Glueck, PI).
-		Additional funding was provided by NIDCR 1 R01 DE020832-01A1 to the University of
-		Florida (Keith Muller, PI; Deborah Glueck, University of Colorado site PI). The funding
-		from NCI allowed the development of the GLIMMPSE software. The additional funding
-		from NIDCR permitted extensive architecture changes which will eventually support power
-		for the general linear mixed model, as well as supporting beta testing and final software release
-		activities.<br>
-		Additional support for Dr. Muller was provided in part by NIHNIDCR grants U54-DE019261,
-		NIHNCRR grant K30-RR022258, NIHNHLBI grant R01-HL091005 and NIHNIAAA grant
-		R01-AA013458-01.
-		</p>
-		<h4>Acknowledgments</h4>
-		<p>
-		This power software has evolved through multiple versions, with a major revision roughly
-		every decade, usually corresponding to a language change. GLIMMPSE extends an existing
-		program called POWERLIB. Bercedis Peterson and Keith Muller wrote POWERLIB for SAS
-		PROC MATRIX (Version 0) in 1983. In 1992, Lynette Keyes and Keith Muller converted
-		POWERLIB to SAS/IML (Version 1). Keyes also created a new manual, based on the PROC
-		MATRIX manual. Douglas Taylor created code for creating confidence limits for power values
-		based on random estimates in 2001, which Keith Muller then used to enhance POWERLIB. In
-		2003, Jacqueline Johnson and Keith Muller created Version 2 of POWERLIB (Johnson et al.
-		2009). Additionally, James Slaughter greatly improved the _PROBF module, and Matthew
-		Gurka conducted extensive tests. At the same time, the related manual was significantly
-		revised from the previous version.	
-		</p><p>
-		POWERLIB requires matrix format input, while GLIMMPSE provides a Graphic User Interface (point-and-click) format.  
-		 The new software also supports matrix input.  In addition, GLIMMPSE 1.0.1 extends POWERLIB to include the 
-		 work of Glueck and Muller (2003).
-		</p>
-		<p>
-		We are grateful to USEPA for support and applications underlying version 0.  Research support from NICHD similarly 
-		drove the development of version 1.  NCI and other NIH institutes research supported the development of versions 
-		2 and 3, both directly and indirectly.
-		</p>
-		<div class="start-button">
-		<a href="glimmpse.html">Start Glimmpse
-		<!--   <img src="images/start.png" onmouseover="this.src='images/startMouseOver.png';" 
-		onmouseout="this.src='images/start.png';" alt="Start Glimmpse"/>-->
-		</a>
-		</div>
-		<p>
-		To learn more, please see the <a href="documentation.html">documentation</a> or 
-		<a href="publications.html">related publications</a> page.  Otherwise, click the start button to begin.
-		</p>
-	</div>
+	<!-- main wizard -->
+	<div id="glimmpseApp"></div>
 	</td></tr>
 	</table>
-  </center>
+	</div>
+	<div id="footer">
+	Copyright 2012 University of Colorado Denver
+	<p>
+	GLIMMPSE is funded by NIDCR 1 R01 DE020832-01A1 to the University of Florida 
+	(Keith Muller, PI; Deborah Glueck, University of Colorado site PI)
+	</p><p>
+	Previous funding was received from an American Recovery 
+	and Re-investment Act supplement (3K07CA088811-06S) for NCI grant K07CA088811.
+	</p>
+	</div>
+	</center>
   </body>
 </html>
