@@ -28,7 +28,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
@@ -71,7 +70,7 @@ import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
  * 
  */
 public class OptionsDisplayPanel extends WizardStepPanel implements
-        ClickHandler, WizardContextListener {
+ClickHandler, WizardContextListener {
     private static final int TOTAL_N_INDEX = 0;
     private static final int BETA_SCALE_INDEX = 1;
     private static final int SIGMA_SCALE_INDEX = 2;
@@ -174,7 +173,7 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
         // initialize
         initWidget(panel);
@@ -226,7 +225,7 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
         xAxisListBox.addItem(GlimmpseWeb.constants
                 .curveOptionsSampleSizeLabel());
         xAxisListBox
-                .addItem(GlimmpseWeb.constants.curveOptionsBetaScaleLabel());
+        .addItem(GlimmpseWeb.constants.curveOptionsBetaScaleLabel());
         xAxisListBox.addItem(GlimmpseWeb.constants
                 .curveOptionsSigmaScaleLabel());
 
@@ -250,7 +249,7 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
         // xAxixDescription.addStyleDependentName("subText");
         xAxisPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
         xAxisListBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
 
         return xAxisPanel;
     }
@@ -282,11 +281,11 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
 
         Button addSeriesButton = new Button(GlimmpseWeb.constants.buttonAdd(),
                 new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        addSeries();
-                    }
-                });
+            @Override
+            public void onClick(ClickEvent event) {
+                addSeries();
+            }
+        });
         Button removeSeriesButton = new Button(
                 GlimmpseWeb.constants.buttonDelete(), new ClickHandler() {
                     @Override
@@ -312,26 +311,26 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
 
         // set style
         totalNListBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         betaScaleListBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         sigmaScaleListBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         testListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         alphaListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         powerMethodListBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         quantileListBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         dataSeriesLabelTextBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
         confidenceLimitsCheckBox
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_CHECK_BOX);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_CHECK_BOX);
 
         addSeriesButton
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
         removeSeriesButton
-                .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
         mainPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
         grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
         dataSeriesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
@@ -631,13 +630,13 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
             curveDescription = new PowerCurveDescription();
             if (xAxisListBox.getSelectedIndex() == TOTAL_N_INDEX) {
                 curveDescription
-                        .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
+                .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
             } else if (xAxisListBox.getSelectedIndex() == BETA_SCALE_INDEX) {
                 curveDescription
-                        .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
+                .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
             } else {
                 curveDescription
-                        .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
+                .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
             }
             curveDescription.setDataSeriesList(dataSeriesList);            
 
@@ -654,9 +653,9 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
                 && xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
         nominalPowerListBox.setVisible(!solvingForPower);
         betaScaleListBox
-                .setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        .setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
         sigmaScaleListBox
-                .setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        .setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
         testListBox.setVisible(true);
         alphaListBox.setVisible(true);
         powerMethodListBox.setVisible(hasCovariate);
@@ -669,9 +668,9 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
                 && xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
         nominalPowerHTML.setVisible(!solvingForPower);
         betaScaleHTML
-                .setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        .setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
         sigmaScaleHTML
-                .setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        .setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
         testHTML.setVisible(true);
         alphaHTML.setVisible(true);
         powerMethodHTML.setVisible(hasCovariate);
@@ -690,11 +689,11 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
             break;
         case COVARIATE:
             hasCovariate = studyDesignContext.getStudyDesign()
-                    .isGaussianCovariate();
+            .isGaussianCovariate();
             break;
         case PER_GROUP_N_LIST:
             List<SampleSize> sampleSizeList = studyDesignContext
-                    .getStudyDesign().getSampleSizeList();
+            .getStudyDesign().getSampleSizeList();
             totalNListBox.clear();
             if (sampleSizeList != null) {
                 for (SampleSize size : sampleSizeList) {
@@ -705,7 +704,7 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
             break;
         case BETA_SCALE_LIST:
             List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign()
-                    .getBetaScaleList();
+            .getBetaScaleList();
             betaScaleListBox.clear();
             if (betaScaleList != null) {
                 for (BetaScale scale : betaScaleList) {
@@ -716,42 +715,42 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
 
         case SIGMA_SCALE_LIST:
             List<SigmaScale> sigmaScaleList = studyDesignContext
-                    .getStudyDesign().getSigmaScaleList();
+            .getStudyDesign().getSigmaScaleList();
             sigmaScaleListBox.clear();
             if (sigmaScaleList != null) {
                 for (SigmaScale scale : sigmaScaleList) {
                     sigmaScaleListBox
-                            .addItem(Double.toString(scale.getValue()));
+                    .addItem(Double.toString(scale.getValue()));
                 }
             }
             break;
 
         case STATISTICAL_TEST_LIST:
             List<StatisticalTest> testList = studyDesignContext
-                    .getStudyDesign().getStatisticalTestList();
+            .getStudyDesign().getStatisticalTestList();
             testListBox.clear();
             if (testList != null) {
                 for (StatisticalTest test : testList) {
                     testListBox
-                            .addItem(statisticalTestToString(test.getType()));
+                    .addItem(statisticalTestToString(test.getType()));
                 }
             }
             break;
 
         case ALPHA_LIST:
             List<TypeIError> alphaList = studyDesignContext.getStudyDesign()
-                    .getAlphaList();
+            .getAlphaList();
             alphaListBox.clear();
             if (alphaList != null) {
                 for (TypeIError alpha : alphaList) {
                     alphaListBox
-                            .addItem(Double.toString(alpha.getAlphaValue()));
+                    .addItem(Double.toString(alpha.getAlphaValue()));
                 }
             }
             break;
         case POWER_METHOD_LIST:
             List<PowerMethod> powerMethodList = studyDesignContext
-                    .getStudyDesign().getPowerMethodList();
+            .getStudyDesign().getPowerMethodList();
             powerMethodListBox.clear();
             if (powerMethodList != null) {
                 for (PowerMethod powerMethod : powerMethodList) {
@@ -762,31 +761,130 @@ public class OptionsDisplayPanel extends WizardStepPanel implements
             break;
         case QUANTILE_LIST:
             List<Quantile> quantileList = studyDesignContext.getStudyDesign()
-                    .getQuantileList();
+            .getQuantileList();
             quantileListBox.clear();
             if (quantileList != null) {
                 for (Quantile quantile : quantileList) {
                     quantileListBox
-                            .addItem(Double.toString(quantile.getValue()));
+                    .addItem(Double.toString(quantile.getValue()));
                 }
             }
             break;
-        /* Begin : Added for Confidence Interval Check box */
         case CONFIDENCE_INTERVAL:
             hasConfidenceIntervalDescription = (studyDesignContext.getStudyDesign()
                     .getConfidenceIntervalDescriptions() != null);            
             break;
-        /* End : Added for Confidence Interval Check box */
         }
 
         updateDataSeriesOptions();
         checkComplete();
     }
 
+    /**
+     * load power curve information from the context
+     */
+    public void loadFromContext() {
+        reset();
+        solvingForPower = (studyDesignContext.getStudyDesign()
+                .getSolutionTypeEnum() == SolutionTypeEnum.POWER);
+        hasCovariate = studyDesignContext.getStudyDesign()
+                .isGaussianCovariate();
+        hasConfidenceIntervalDescription = (studyDesignContext.getStudyDesign()
+                .getConfidenceIntervalDescriptions() != null);     
+
+        // load the per group n list
+        List<SampleSize> sampleSizeList = studyDesignContext
+                .getStudyDesign().getSampleSizeList();
+        totalNListBox.clear();
+        if (sampleSizeList != null) {
+            for (SampleSize size : sampleSizeList) {
+                int totalN = size.getValue() * totalSampleSizeMultiplier;
+                totalNListBox.addItem(Integer.toString(totalN));
+            }
+        }
+        // load the beta scale list
+        List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign()
+                .getBetaScaleList();
+        betaScaleListBox.clear();
+        if (betaScaleList != null) {
+            for (BetaScale scale : betaScaleList) {
+                betaScaleListBox.addItem(Double.toString(scale.getValue()));
+            }
+        }
+        // load the sigma scale list
+        List<SigmaScale> sigmaScaleList = studyDesignContext
+                .getStudyDesign().getSigmaScaleList();
+        sigmaScaleListBox.clear();
+        if (sigmaScaleList != null) {
+            for (SigmaScale scale : sigmaScaleList) {
+                sigmaScaleListBox
+                .addItem(Double.toString(scale.getValue()));
+            }
+        }
+        // load the statistical test list
+        List<StatisticalTest> testList = studyDesignContext
+                .getStudyDesign().getStatisticalTestList();
+        testListBox.clear();
+        if (testList != null) {
+            for (StatisticalTest test : testList) {
+                testListBox
+                .addItem(statisticalTestToString(test.getType()));
+            }
+        }
+        // load the alpha list
+        List<TypeIError> alphaList = studyDesignContext.getStudyDesign()
+                .getAlphaList();
+        alphaListBox.clear();
+        if (alphaList != null) {
+            for (TypeIError alpha : alphaList) {
+                alphaListBox
+                .addItem(Double.toString(alpha.getAlphaValue()));
+            }
+        }
+        // load the power method list
+        List<PowerMethod> powerMethodList = studyDesignContext
+                .getStudyDesign().getPowerMethodList();
+        powerMethodListBox.clear();
+        if (powerMethodList != null) {
+            for (PowerMethod powerMethod : powerMethodList) {
+                powerMethodListBox.addItem(powerMethodToString(powerMethod
+                        .getPowerMethodEnum()));
+            }
+        }
+        // load the quantile list
+        List<Quantile> quantileList = studyDesignContext.getStudyDesign()
+                .getQuantileList();
+        quantileListBox.clear();
+        if (quantileList != null) {
+            for (Quantile quantile : quantileList) {
+                quantileListBox
+                .addItem(Double.toString(quantile.getValue()));
+            }
+        }
+        updateDataSeriesOptions();
+
+        // fill in the data series
+        PowerCurveDescription curveDescription = 
+                studyDesignContext.getStudyDesign().getPowerCurveDescriptions();
+        if (curveDescription != null) {
+            enableOptions(true);
+            List<PowerCurveDataSeries> seriesList = curveDescription.getDataSeriesList();
+            if (seriesList != null) {
+                for(PowerCurveDataSeries series: seriesList) {
+                    dataSeriesList.add(series);
+                    dataSeriesTable.addItem(dataSeriesAsString(series));
+                }
+            }
+        } 
+    }
+
+
+    /**
+     * Handler upload and cancel events when a new context is created
+     */
     @Override
     public void onWizardContextLoad() {
-        // TODO Auto-generated method stub
-
+        loadFromContext();
     }
 
 }

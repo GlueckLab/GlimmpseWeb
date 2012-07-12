@@ -33,14 +33,11 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
-import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -49,7 +46,6 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
 
-import edu.ucdenver.bios.glimmpseweb.client.ChartRequestBuilder;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.connector.ChartSvcConnector;
@@ -59,10 +55,10 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.ConfidenceInterval;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
-import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerResult;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
@@ -88,12 +84,8 @@ public class ResultsDisplayPanel extends WizardStepPanel
     private static final int COLUMN_ID_CI_LOWER = 9;
     private static final int COLUMN_ID_CI_UPPER = 10;
     
-    private static final String STYLE_RESULT_BUTTON = "resultsPanelButton";
     private static final String STYLE_SEPARATOR = "separator";
 
-    private static final String CHART_INPUT_NAME = "chart";
-    private static final String SAVE_INPUT_NAME = "save";
-    private static final String FILENAME_INPUT_NAME = "filename";
     private NumberFormat doubleFormatter = NumberFormat.getFormat("0.0000");
     
     // context object
@@ -131,24 +123,13 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	// and hey, it sure is nice for debugging
 	protected PopupPanel matrixPopup = new PopupPanel();
 	protected MatrixDisplayPanel matrixDisplayPanel = new MatrixDisplayPanel();
-	protected Button showMatrixPopupButton = new Button("View Matrices used for these results", 
+	protected Button showMatrixPopupButton = new Button(GlimmpseWeb.constants.resultsViewMatricesLabel(), 
 			new ClickHandler() {
 		public void onClick(ClickEvent event)
 		{
 			matrixPopup.center();
 		}
 	});
-
-	// blank target window - for saving images
-	protected FormPanel saveForm = new FormPanel("_blank");
-	protected Hidden saveEntityBodyHidden = new Hidden(CHART_INPUT_NAME);
-	protected Hidden saveFilenameHidden = new Hidden(FILENAME_INPUT_NAME);
-	protected Hidden saveHidden = new Hidden(SAVE_INPUT_NAME);
-	// options for display of data
-	protected boolean showCurve = false;
-	protected ChartRequestBuilder chartRequestBuilder = null;
-
-	protected boolean showCI = false;
 	
 	public ResultsDisplayPanel(WizardContext context)
 	{
@@ -169,6 +150,8 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		panel.add(errorPanel);
 		panel.add(resultsCurvePanel);
 		panel.add(resultsTablePanel);
+		// need the save form to actually appear in the panel
+		panel.add(fileSvcConnector);
 
 		// set style
 		panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -185,7 +168,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	
 	private void buildCurvePanel()
 	{
-    	HTML header = new HTML("Power Curve");
+    	HTML header = new HTML(GlimmpseWeb.constants.resultsPowerCurveLabel());
     	HTML description = new HTML("");
 
     	// add load callbacks
@@ -243,19 +226,20 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	
 	private void buildTablePanel()
 	{
-    	HTML header = new HTML("Power Results");
+    	HTML header = new HTML(GlimmpseWeb.constants.resultsPowerResultsLabel());
     	HTML description = new HTML("");
     	
 		// tools for saving the results as csv and viewing as a matrix
     	HorizontalPanel panel = new HorizontalPanel();
-    	Button saveButton = new Button("save to csv", new ClickHandler() {
+    	Button saveButton = new Button(GlimmpseWeb.constants.resultsSaveToCSVLabel(), 
+    	        new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event)
 			{
-				fileSvcConnector.saveDataTableAsCSV(resultsData, null);
+			    saveDataToCSV();
 			}
     	});
-    	DisclosurePanel viewMatricesPanel = new DisclosurePanel("View matrices for this study design");
+    	DisclosurePanel viewMatricesPanel = new DisclosurePanel(GlimmpseWeb.constants.resultsViewMatricesLabel());
     	viewMatricesPanel.add(matrixDisplayPanel);
     	panel.add(saveButton);
     	panel.add(viewMatricesPanel);
@@ -415,19 +399,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
 		return name.getType().toString(); // TODO
 	}
 
-	private String formatDouble(String valueStr)
-	{
-		try
-		{
-			double value = Double.parseDouble(valueStr);
-			return doubleFormatter.format(value);
-		}
-		catch (Exception e)
-		{
-			return valueStr;
-		}
-	}
-
 	private void sendPowerRequest()
 	{
 		showWorkingDialog();
@@ -495,12 +466,29 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 	}
 	
-
+	/**
+	 * Issue a call to the file service to save the results to a csv file
+	 */
+	private void saveDataToCSV() {
+        fileSvcConnector.saveDataTableAsCSV(resultsData, null);
+	}
 
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
-        // no action required
-        
+        StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
+        switch (changeEvent.getType())
+        {
+        case CONFIDENCE_INTERVAL:
+            if (studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions() != null) {
+
+            }
+            break;
+        case COVARIATE:
+            if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
+                
+            }
+            break;
+        }  
     }
 
     @Override

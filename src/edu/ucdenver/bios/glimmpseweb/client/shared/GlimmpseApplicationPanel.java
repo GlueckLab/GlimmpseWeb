@@ -168,15 +168,18 @@ implements ModeSelectionHandler, WizardActionListener
     }
 
     /**
-     * Reset the panels when the user selects "Clear", "All" from one of the wizard
+     * Reset the panels when the user selects "cancel" from one of the wizard
      * toolbar menus
      */
 	@Override
 	public void onCancel()
 	{
-		matrixWizardPanel.reset();
-		guidedWizardPanel.reset();
-		modeSelectionPanel.reset();
-		deckPanel.showWidget(START_INDEX);
+	    boolean cancel = Window.confirm(GlimmpseWeb.constants.confirmClearAll());
+	    if (cancel) {
+	        matrixWizardPanel.reset();
+	        guidedWizardPanel.reset();
+	        modeSelectionPanel.reset();
+	        deckPanel.showWidget(START_INDEX);
+	    }
 	}
 }

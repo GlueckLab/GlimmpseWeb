@@ -346,9 +346,11 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 
 	public void loadFromContext()
 	{	
+	    reset();
 	    ConfidenceIntervalDescription description = 
 	        studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions();
 	    if (description != null) {
+	        enableConfidenceIntervalOptions(true);
 	        if (description.isBetaFixed()) {
                 sigmaCIRadioButton.setValue(true);
 	        } else {

@@ -23,8 +23,6 @@ package edu.ucdenver.bios.glimmpseweb.client;
 
 import com.google.gwt.i18n.client.Constants;
 
-import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
-
 /**
  * Container class for constants used throughout the GLIMMPSE interface.
  * Also used by Google Web Toolkit for internationalization
@@ -566,39 +564,26 @@ public interface GlimmpseConstants extends Constants
      public String clusteringPanelAddSubgroupButton();
      public String clusteringPanelRemoveSubgroupButton();
      
-
-     
-     
      // subpanels for individual clustering nodes
      public String clusteringNodePanelNameLabel();
      public String clusteringNodePanelNumberOfGroupsLabel();
      public String clusteringNodePanelIntraclassCorrelationLabel();
      //cancel Dialog Box
      public String cancelDialogBoxQuery();
-     
 
-     
-
-     
-     //structured correlation panel
-     public String standardDeviationLabel();
-     public String standardDeviationExplinationHeader();
-     public String standardDeviationExplinationText();
-     
-     
-     public String strongestCorrelationLabel();
-     public String strongestCorrelationExplinationHeader();
-     public String strongestCorrelationExplinationText();
-     
-     public String rateOfDecayOfCorrelationLabel();
-     public String rateOfDecayOfCorrelationExplinationHeader();
-     public String rateOfDecayOfCorrelationExplinationText();
-     
      //structured correlation panel
      public String structuredCorrelationPanelHeader();
      public String structuredCorrelationPanelText();
-     
-     
+     public String standardDeviationLabel();
+     public String standardDeviationExplinationHeader();
+     public String standardDeviationExplinationText();
+     public String strongestCorrelationLabel();
+     public String strongestCorrelationExplinationHeader();
+     public String strongestCorrelationExplinationText();
+     public String rateOfDecayOfCorrelationLabel();
+     public String rateOfDecayOfCorrelationExplinationHeader();
+     public String rateOfDecayOfCorrelationExplinationText();
+
      //
      public String useCustomVariablity();
      public String useCustomCorrelation();
@@ -652,4 +637,10 @@ public interface GlimmpseConstants extends Constants
      public String randomCovariateCovarianceCorrelationValueError();
      public String randomCovariateCovarianceCovariateValueError();
      
+     
+     // results screen
+     public String resultsPowerResultsLabel();
+     public String resultsPowerCurveLabel();
+     public String resultsSaveToCSVLabel();
+     public String resultsViewMatricesLabel();
 }
