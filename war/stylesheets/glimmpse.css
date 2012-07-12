@@ -368,6 +368,14 @@ body {
   height: 20px;
 }
 
+.wizardActionNextButton-disabled {
+  background: url('/images/next-disabled.png') no-repeat;
+}
+
+.wizardActionNextButton-disabled:hover {
+  background: url('/images/next-disabled.png') no-repeat;
+}
+
 .wizardActionNextButton:hover {
   background: url('/images/next-highlight.png') no-repeat;
 }
@@ -385,7 +393,13 @@ body {
   background: url('/images/previous-highlight.png') no-repeat;
 }
 
+.wizardActionPreviousButton-disabled {
+  background: url('/images/previous-disabled.png') no-repeat;
+}
 
+.wizardActionPreviousButton-disabled:hover {
+	background: url('/images/previous-disabled.png') no-repeat;
+}
 
 /* finish button */
 .wizardFinishButton {
@@ -860,6 +874,22 @@ body {
 	color: green;
 	font-weight: bold;
 	background: #fff;
+}
+
+/* processing dialog */
+.waitDialog {
+	background: #fff url(../images/processing.gif) no-repeat 10px 12px;
+	padding: 10px;
+	border: 2px solid  #005C84;
+	width: 230px;
+	height: 40px;
+	position: relative;
+}
+
+.waitDialogText {
+	position: absolute;
+	left: 56px; top: 20px;
+	font-weight: bold;
 }
 
 
