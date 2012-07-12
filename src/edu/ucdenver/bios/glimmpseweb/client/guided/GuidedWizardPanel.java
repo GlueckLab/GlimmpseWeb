@@ -152,7 +152,7 @@ implements WizardActionListener
 	    betaScaleList.add(new BetaScale(1));
         sigmaScaleList.add(new SigmaScale(1));
         context.setSigmaScaleList(variabilityScalePanel, sigmaScaleList);
-        context.setSigmaScaleList(meanDifferencesScalePanel, sigmaScaleList);
+        context.setBetaScaleList(meanDifferencesScalePanel, betaScaleList);
 	}
 	
 	private ArrayList<WizardStepPanelGroup> buildPanelGroups()

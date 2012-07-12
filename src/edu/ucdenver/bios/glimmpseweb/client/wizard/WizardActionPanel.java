@@ -145,4 +145,32 @@ public class WizardActionPanel extends Composite {
         listeners.add(listener);
     }  
     
+    /**
+     * Enable/disable the next button
+     * 
+     * @param allow indicates if the next button should be enabled
+     */
+    public void allowNext(boolean allow)
+    {
+        nextButton.setEnabled(allow);
+        nextButton.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+        if (!allow) {
+            nextButton.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+        }
+    }
+    
+    /**
+     * Enable/disable the previous button
+     * 
+     * @param allow indicates if the previous button should be enabled
+     */
+    public void allowPrevious(boolean allow)
+    {
+        previousButton.setEnabled(allow);
+        previousButton.removeStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+        if (!allow) {
+            previousButton.addStyleDependentName(GlimmpseConstants.STYLE_DISABLED);
+        }
+    }
+    
 }

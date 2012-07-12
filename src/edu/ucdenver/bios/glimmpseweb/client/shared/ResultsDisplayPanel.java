@@ -379,7 +379,8 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 	private void showCurveResults(List<PowerResult> resultList)
 	{
-	    if (resultList != null && resultList.size() > 0) {
+	    if (resultList != null && resultList.size() > 0 &&
+	            studyDesignContext.getStudyDesign().getPowerCurveDescriptions() != null) {
 	        // submit the result to the chart service
 	        String queryStr = chartSvcConnector.buildQueryString(resultList, 
 	                studyDesignContext.getStudyDesign().getPowerCurveDescriptions());

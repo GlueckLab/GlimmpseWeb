@@ -67,8 +67,6 @@ WizardStepPanelStateChangeHandler, ClickHandler
     });
     // save, help, cancel
     protected WizardActionPanel actionPanel = new WizardActionPanel();
-    // toolbar panel
-    protected WizardToolBarPanel toolbarPanel = new WizardToolBarPanel();
     // currently visible panel
     protected WizardStepPanel currentStep = null;  
     // panel to display the results of the wizard
@@ -247,13 +245,12 @@ WizardStepPanelStateChangeHandler, ClickHandler
     private void enterStep(WizardStepPanel step) {
         currentStep = step;
         step.onEnter();
-        // set the next/prev buttons
-        toolbarPanel.allowNext((currentStep.state == WizardStepPanelState.COMPLETE 
-                && finishPanel != step) 
-                || (currentStep == wizardDeck.getWidget(wizardDeck.getWidgetCount()-1) 
-                        && finishPanel.state == WizardStepPanelState.NOT_ALLOWED));
+        // set the next/prev buttons - note: count-2 since last panel is finish panel
+        actionPanel.allowNext(!(finishPanel == step
+                || (currentStep == wizardDeck.getWidget(wizardDeck.getWidgetCount()-2) 
+                        && finishPanel.state == WizardStepPanelState.NOT_ALLOWED)));
         // disabled previous if 1st widget
-        toolbarPanel.allowPrevious(!(wizardDeck.getWidget(0) == step));
+        actionPanel.allowPrevious(wizardDeck.getWidget(0) != step);
         // lastly, show the panel
         wizardDeck.showWidget(wizardDeck.getWidgetIndex(step));    
     }
@@ -335,7 +332,6 @@ WizardStepPanelStateChangeHandler, ClickHandler
     public void onStateChange(WizardStepPanel source,
             WizardStepPanelState oldState, WizardStepPanelState newState) {
         if (source == currentStep) {
-            toolbarPanel.allowNext(currentStep.state == WizardStepPanelState.COMPLETE);
             // highlight the finish button if the study design is complete
             enableFinishButton(context.isComplete() 
                     && currentStep.state == WizardStepPanelState.COMPLETE);
@@ -345,7 +341,6 @@ WizardStepPanelStateChangeHandler, ClickHandler
 
     public void addWizardActionListener(WizardActionListener listener) {
         actionPanel.addActionListener(listener);
-        toolbarPanel.addActionListener(listener);
     }
 
 }
