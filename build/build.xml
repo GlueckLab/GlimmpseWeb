@@ -100,9 +100,10 @@
 		    	<exclude name="**/**/.svn" />
 		    </fileset>
 		  </copy>
-		  <copy todir="${explodedzip.dir}" file="${war.dir}/index.html">
+		  <copy todir="${explodedzip.dir}">
 			<fileset dir="${war.dir}">
-				<include name="*.html"/>
+				<include name="index.html"/>
+				<include name="favicon.ico"/>
 			</fileset>
 		  </copy>
 	</target>
