@@ -22,11 +22,8 @@
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import com.google.gwt.core.client.GWT;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
@@ -793,8 +790,7 @@ public class StudyDesignContext extends WizardContext
                 curveDescr.getDataSeriesList() != null &&
                 curveDescr.getDataSeriesList().size() > 0)) &&
                 (ciDescr == null ||
-                ((ciDescr.isBetaFixed() || ciDescr.isSigmaFixed()) &&
-                        ciDescr.getLowerTailProbability() >= 0 &&
+                (ciDescr.getLowerTailProbability() >= 0 &&
                         ciDescr.getUpperTailProbability() >= 0 &&
                         ciDescr.getSampleSize() > 1 &&
                         ciDescr.getRankOfDesignMatrix() > 0))
