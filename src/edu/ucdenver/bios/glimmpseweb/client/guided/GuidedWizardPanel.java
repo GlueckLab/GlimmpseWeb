@@ -114,7 +114,10 @@ implements WizardActionListener
 	    new GaussianCovariateCovariancePanel(context);
 	protected VariabilityScalePanel variabilityScalePanel = new VariabilityScalePanel(context);
 	// options
-	protected IntroPanel optionsIntroPanel = new IntroPanel(context, "options", "options", "options");
+	protected IntroPanel optionsIntroPanel = new IntroPanel(context, 
+	        GlimmpseWeb.constants.navItemIntro(), 
+	        GlimmpseWeb.constants.optionsIntroTitle(), 
+	        GlimmpseWeb.constants.optionsIntroDescription());
 	protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "guided");
 	protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
 		new OptionsPowerMethodsPanel(context, "guided");

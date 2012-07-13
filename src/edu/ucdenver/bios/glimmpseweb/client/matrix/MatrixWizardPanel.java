@@ -71,7 +71,9 @@ implements WizardActionListener
 
     // design panels
     protected IntroPanel designIntroPanel = new IntroPanel(context, 
-            "Design INtro", "", "");
+            GlimmpseWeb.constants.navItemIntro(), 
+            GlimmpseWeb.constants.designIntroTitle(), 
+            GlimmpseWeb.constants.designIntroDescription());
     protected DesignPanel designPanel = new DesignPanel(context);
     protected BaselineCovariatePanel covariatePanel = new BaselineCovariatePanel(context);
     protected PerGroupSampleSizePanel perGroupSampleSizePanel = 
@@ -79,7 +81,9 @@ implements WizardActionListener
 
     // contrast panels
     protected IntroPanel contrastIntroPanel = new IntroPanel(context, 
-            "Contrast INtro", "", "");
+            GlimmpseWeb.constants.navItemIntro(),
+            GlimmpseWeb.constants.contrastIntroTitle(), 
+            GlimmpseWeb.constants.contrastIntroDescription());
     protected BetweenSubjectContrastPanel betweenContrastPanel = 
         new BetweenSubjectContrastPanel(context);
     protected WithinSubjectContrastPanel withinContrastPanel = 
@@ -87,14 +91,18 @@ implements WizardActionListener
 
     // regression parameter panels
     protected IntroPanel parameterIntroPanel = new IntroPanel(context, 
-            "Parameter INtro", "", "");
+            GlimmpseWeb.constants.navItemIntro(), 
+            GlimmpseWeb.constants.parameterIntroTitle(), 
+            GlimmpseWeb.constants.parameterIntroDescription());
     protected BetaPanel betaPanel = new BetaPanel(context);
     protected BetaScalePanel betaScalePanel = new BetaScalePanel(context);
     protected ThetaNullPanel thetaPanel = new ThetaNullPanel(context);
 
     // variability panels
     protected IntroPanel variabilityIntroPanel = new IntroPanel(context, 
-            "Design INtro", "", "");
+            GlimmpseWeb.constants.navItemIntro(), 
+            GlimmpseWeb.constants.variabilityIntroTitle(), 
+            GlimmpseWeb.constants.variabilityIntroDescription());
     protected SigmaErrorMatrixPanel sigmaErrorPanel = new SigmaErrorMatrixPanel(context);
     protected SigmaOutcomesMatrixPanel sigmaOutcomesPanel = new SigmaOutcomesMatrixPanel(context);
     protected SigmaOutcomeCovariateMatrixPanel sigmaOutcomeCovariatePanel = 
@@ -103,7 +111,9 @@ implements WizardActionListener
     protected SigmaScalePanel sigmaScalePanel = new SigmaScalePanel(context);
     // options
     protected IntroPanel optionsIntroPanel = new IntroPanel(context, 
-            "Options Intro", "", "");
+            GlimmpseWeb.constants.navItemIntro(), 
+            GlimmpseWeb.constants.optionsIntroTitle(), 
+            GlimmpseWeb.constants.optionsIntroDescription());
     protected OptionsTestsPanel optionsTestsPanel = new OptionsTestsPanel(context, "matrix");
     protected OptionsPowerMethodsPanel optionsPowerMethodsPanel = 
         new OptionsPowerMethodsPanel(context, "matrix");

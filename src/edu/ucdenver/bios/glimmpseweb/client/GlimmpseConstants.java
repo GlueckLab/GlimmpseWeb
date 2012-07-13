@@ -406,6 +406,8 @@ public interface GlimmpseConstants extends Constants
     public String variabilityScaleAnswer();
     
     // options panel constants
+    public String optionsIntroTitle();
+    public String optionsIntroDescription();
     public String optionsTitle();
     public String optionsDescription();
     public String testTitle();
@@ -466,12 +468,16 @@ public interface GlimmpseConstants extends Constants
     public String matrixIntroTitle();
     public String matrixIntroDescription();
     // design matrix screen
+    public String designIntroTitle();
+    public String designIntroDescription();
     public String matrixDesignTitle();
     public String matrixDesignDescription();
     public String matrixCategoricalEffectsLabel();
     public String matrixCovariateEffectsLabel();
     
     // beta matrix screens
+    public String parameterIntroTitle();
+    public String parameterIntroDescription();
     public String betaTitle();
     public String betaDescription();
     public String betaScaleTitle();
@@ -486,6 +492,8 @@ public interface GlimmpseConstants extends Constants
     public String sigmaScaleTableColumn();
     
     // contrasts
+    public String contrastIntroTitle();
+    public String contrastIntroDescription();
     public String betweenSubjectContrastTitle();
     public String betweenSubjectContrastDescription();
     public String betweenSubjectContrastMatrixName();
