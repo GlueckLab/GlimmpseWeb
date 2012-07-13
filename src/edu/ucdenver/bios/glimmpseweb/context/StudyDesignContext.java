@@ -254,7 +254,7 @@ public class StudyDesignContext extends WizardContext
         if (designRandom != null) {
             studyDesign.setNamedMatrix(designRandom);
         } else {
-            removeMatrixByName(GlimmpseConstants.MATRIX_DESIGN);
+            removeMatrixByName(GlimmpseConstants.MATRIX_DESIGN_RANDOM);
         }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.DESIGN_ESSENCE_MATRIX));
