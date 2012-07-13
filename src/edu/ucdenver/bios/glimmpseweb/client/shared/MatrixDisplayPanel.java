@@ -27,6 +27,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
@@ -46,8 +47,10 @@ public class MatrixDisplayPanel extends Composite
 	public MatrixDisplayPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
-
-		panel.add(tableOfMatrices);
+		ScrollPanel scrollPanel = new ScrollPanel();
+        scrollPanel.setSize("600px", "500px");
+		scrollPanel.add(tableOfMatrices);
+		panel.add(scrollPanel);
 		
 		// style 
 		tableOfMatrices.setBorderWidth(1);
