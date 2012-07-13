@@ -106,7 +106,7 @@ implements ChangeHandler {
             new ClickHandler() {
         public void onClick(ClickEvent event) {
             reset();
-            toggleClustering();
+            changed = true;
         }
     });
     //  button for adding a subgroups
