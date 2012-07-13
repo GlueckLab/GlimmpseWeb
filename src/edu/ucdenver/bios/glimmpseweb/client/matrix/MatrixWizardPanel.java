@@ -196,6 +196,7 @@ implements WizardActionListener
         StudyDesign design = new StudyDesign();
         design.setViewTypeEnum(StudyDesignViewTypeEnum.MATRIX_MODE);
         context.loadStudyDesign(design);
+        wizardPanel.setVisiblePanel(introPanel);
     }
 
     /**
