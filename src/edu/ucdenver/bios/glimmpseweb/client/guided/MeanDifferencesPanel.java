@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
@@ -59,7 +58,7 @@ implements ChangeHandler
 
 
     // context object
-    protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+    protected StudyDesignContext studyDesignContext;
 
     // complete matrix data 
     protected double[][] betaFixedData = null;
@@ -110,7 +109,8 @@ implements ChangeHandler
     {
         super(context, GlimmpseWeb.constants.navItemMeans(),
                 WizardStepPanelState.NOT_ALLOWED);
-
+        studyDesignContext = (StudyDesignContext) context;
+        
         VerticalPanel panel = new VerticalPanel();
 
         HTML header = new HTML(GlimmpseWeb.constants.meanDifferenceTitle());
@@ -140,7 +140,9 @@ implements ChangeHandler
     public void reset()
     {
         meansTable.removeAllRows();
-        changeState(WizardStepPanelState.COMPLETE);
+        betaFixedData = null;
+        currentColumnOffset = 0;
+        changeState(WizardStepPanelState.NOT_ALLOWED);
     }
 
     /**

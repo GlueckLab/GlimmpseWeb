@@ -639,16 +639,16 @@ public interface GlimmpseConstants extends Constants
      //random Covariate Covariance Panel
      public String randomCovariateCovarianceHeader();
      public String randomCovariateCovarianceDescription();
-     public String randomCovariateCovarianceEnterStandardDeviationExpectedInstruction();
-     public String randomCovariateCovarianceEnterCorrelationYouExpectToObserveInstruction();
-     public String randomCovariateCovarianceCheckBoxLabel();
-     public String randomCovariateCovarianceCorrelationValueError();
-     public String randomCovariateCovarianceCovariateValueError();
-     
-     
+     public String randomCovariateCovarianceRepeatedMeasuresInstructions();
+     public String randomCovariateCovarianceStandardDeviationInstructions();
+     public String randomCovariateCovarianceCorrelationInstructions();
+     public String randomCovariateCovarianceSameCorrelationInstructions();
+     public String randomCovariateCovarianceOutcomesColumnLabel();
+     public String randomCovariateCovarianceCorrelationColumnLabel();
      // results screen
      public String resultsPowerResultsLabel();
      public String resultsPowerCurveLabel();
      public String resultsSaveToCSVLabel();
      public String resultsViewMatricesLabel();
+
 }
