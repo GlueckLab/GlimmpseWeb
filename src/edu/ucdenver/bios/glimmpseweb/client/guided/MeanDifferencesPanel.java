@@ -260,7 +260,7 @@ implements ChangeHandler
                     lb.addChangeHandler(new ChangeHandler() {
                         @Override
                         public void onChange(ChangeEvent event) {
-                            updateTextBoxes();
+                            updateMatrixView();
                         }                      
                     });
                     List<Spacing> spacingList = rmNode.getSpacingList();
@@ -288,35 +288,7 @@ implements ChangeHandler
         updateMatrixData();
         checkComplete();
     }
-    
-    /**
-     * Update the textbox view into the beta matrix
-     */
-    private void updateTextBoxes() {
-        // calculate the new column offset
-        currentColumnOffset = 0;
-//        String foo = "";
-        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
-            ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
-            String valueStr = lb.getValue(lb.getSelectedIndex());
-            int value = Integer.parseInt(valueStr);
-//            foo += ",offset[" + i +"]=" + value;
-            currentColumnOffset += value;
-        }
-//        Window.alert(foo);
-        // update the values in the textboxes
-        for(int row = 1; row < meansTable.getRowCount(); row++) {
-            meansTable.getRowFormatter().setStyleName(row, 
-                    GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
-            for(int dataCol = 0, col = totalBetweenFactors; col < totalResponseVariables+totalBetweenFactors; dataCol++, col++) {
-                RowColumnTextBox tb = new RowColumnTextBox(row-1, dataCol);
-                tb.setText(Double.toString(betaFixedData[row-1][dataCol+currentColumnOffset]));
-                tb.addChangeHandler(this);
-                meansTable.setWidget(row, col, tb);
-            }
-        }
-    }
-    
+        
     /**
      * Allocate a new beta matrix
      */
@@ -335,6 +307,10 @@ implements ChangeHandler
         }
     }
 
+    /**
+     * When both the repeated measures and response variables have been
+     * specified, this function creates the text box input widgets
+     */
     private void fillTextBoxes() {
         if (totalBetweenFactors > 0 && totalResponseVariables > 0) {
             for(int row = 1; row < meansTable.getRowCount(); row++) {
@@ -463,6 +439,37 @@ implements ChangeHandler
         studyDesignContext.setBeta(this, betaFixed, betaRandom);
     }
 
+    /**
+     * Update the correlation text boxes to display the sigma YG
+     * submatrix corresponding to the currently selected 
+     * repeated measures observation episode
+     */
+    private void updateMatrixView() {
+        updateColumnOffset();
+        // update the values in the textboxes
+        for(int row = 1; row < meansTable.getRowCount(); row++) {
+            for(int dataCol = 0, col = totalBetweenFactors; 
+            col < totalResponseVariables+totalBetweenFactors; dataCol++, col++) {
+                RowColumnTextBox tb = (RowColumnTextBox) meansTable.getWidget(row, col);
+                tb.setText(Double.toString(betaFixedData[row-1][dataCol+currentColumnOffset]));
+            }
+        }
+    }
+    
+    /**
+     * Calculate the new column offset for the selected
+     * repeated measures.
+     */
+    private void updateColumnOffset() {
+        // calculate the new column offset
+        currentColumnOffset = 0;
+        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
+            ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
+            String valueStr = lb.getValue(lb.getSelectedIndex());
+            int value = Integer.parseInt(valueStr);
+            currentColumnOffset += value;
+        }
+    }
 
     /**
      * Textbox input validation

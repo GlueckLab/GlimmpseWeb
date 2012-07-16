@@ -243,7 +243,7 @@ implements ChangeHandler
                     lb.addChangeHandler(new ChangeHandler() {
                         @Override
                         public void onChange(ChangeEvent event) {
-                            updateTextBoxes();
+                            updateMatrixView();
                         }                      
                     });
                     List<Spacing> spacingList = rmNode.getSpacingList();
@@ -271,8 +271,12 @@ implements ChangeHandler
         checkComplete();
 	}
 	
-	
-	private void updateTextBoxes() {
+	/**
+	 * Update the correlation text boxes to display the sigma YG
+	 * submatrix corresponding to the currently selected 
+	 * repeated measures observation episode
+	 */
+	private void updateMatrixView() {
 	    // calculate the new row offset
 	    currentRowOffset = 0;
 	    for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
@@ -341,57 +345,60 @@ implements ChangeHandler
             }
         }
     }
-
     
 	public void editCorrelationTextBoxes(boolean allowEdit)
 	{
-		if(allowEdit)
-		{
-			for(int i = 2; i <= flexTableRows; i++)
-			{
-				TextBox textBox = (TextBox)flexTable.getWidget(i, dataList.size());
-				textBox.setEnabled(false);
-			}
-			
-			TextBox tb = (TextBox)flexTable.getWidget(1, dataList.size());
-			tb.addChangeHandler(new ChangeHandler() 
-			{
-				@Override
-				public void onChange(ChangeEvent event)
-				{
-					try
-					{
-						TextBox t = (TextBox)event.getSource();
-						String value = t.getValue();
-						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
-						t.setValue(""+d);
-						TextValidation.displayOkay(errorHTMLUP, "");
-						TextValidation.displayOkay(errorHTMLDOWN, "");
-						for(int i = 2; i <= flexTableRows; i ++)
-						{
-							TextBox correlationTb = (TextBox)flexTable.getWidget(i, dataList.size());
-							correlationTb.setValue(""+d);
-						}
-					}
-					catch(Exception e)
-					{
-						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-					}
-					
-				}
-			});
-		}
-		else
-		{
-			for(int i = 2; i <= flexTableRows; i++)
-			{
-				TextBox textBox = (TextBox)flexTable.getWidget(i, dataList.size());
-				textBox.setEnabled(true);
-			}
-		}
+//		if(allowEdit)
+//		{
+//			for(int i = 2; i <= flexTableRows; i++)
+//			{
+//				TextBox textBox = (TextBox)flexTable.getWidget(i, dataList.size());
+//				textBox.setEnabled(false);
+//			}
+//			
+//			TextBox tb = (TextBox)flexTable.getWidget(1, dataList.size());
+//			tb.addChangeHandler(new ChangeHandler() 
+//			{
+//				@Override
+//				public void onChange(ChangeEvent event)
+//				{
+//					try
+//					{
+//						TextBox t = (TextBox)event.getSource();
+//						String value = t.getValue();
+//						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
+//						t.setValue(""+d);
+//						TextValidation.displayOkay(errorHTMLUP, "");
+//						TextValidation.displayOkay(errorHTMLDOWN, "");
+//						for(int i = 2; i <= flexTableRows; i ++)
+//						{
+//							TextBox correlationTb = (TextBox)flexTable.getWidget(i, dataList.size());
+//							correlationTb.setValue(""+d);
+//						}
+//					}
+//					catch(Exception e)
+//					{
+//						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+//						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
+//					}
+//					
+//				}
+//			});
+//		}
+//		else
+//		{
+//			for(int i = 2; i <= flexTableRows; i++)
+//			{
+//				TextBox textBox = (TextBox)flexTable.getWidget(i, dataList.size());
+//				textBox.setEnabled(true);
+//			}
+//		}
 	}
 	
+	/**
+	 * Store the sigma G and sigma YG covariance matrices
+	 * in the context.
+	 */
 	public  void onExit() 
 	{
 	    // store the 1x1 covariance for the Gaussian covariate
@@ -410,25 +417,46 @@ implements ChangeHandler
         studyDesignContext.setSigmaCovariate(this, sigmaCovariate);
         
         // store the px1 covariance for the Gaussian covariate with the outcomes
-        NamedMatrix sigmaYG = new NamedMatrix();
+        NamedMatrix sigmaYG = null;
         if (sigmaYGData != null) {
-            
+            sigmaYG = new NamedMatrix();
+            sigmaYG.setColumns(sigmaYGColumns);
+            sigmaYG.setRows(sigmaYGRows);
+            sigmaYG.setDataFromArray(sigmaYGData);
+            sigmaYG.setName(GlimmpseWeb.constants.MATRIX_SIGMA_OUTCOME_COVARIATE);
         }
-        double[][] sigmaYGMatrixData = new double[flexTableRows][1];
-        int column = repeatedMeasuresNodeList.size()+1;
-        for(int t = 0; t < flexTableRows; t++)
-        {
-            TextBox tb = (TextBox) flexTable.getWidget(flexTableRows+1, column);
-            sigmaYGMatrixData [flexTableRows][1] = Double.parseDouble(tb.getValue());
-        }
-        NamedMatrix sigmaYG = new NamedMatrix();
-        sigmaYG.setColumns(1);
-        sigmaYG.setRows(flexTableRows-1);
-        sigmaYG.setDataFromArray(sigmaYGMatrixData);
-        sigmaYG.setName(GlimmpseWeb.constants.MATRIX_SIGMA_OUTCOME_COVARIATE);
         studyDesignContext.setSigmaOutcomesCovariate(this, sigmaYG);
     }
 
+	private void loadMatricesFromContext() {
+	    // load the data for the sigma G matrix
+	    NamedMatrix sigmaGMatrix = 
+	        studyDesignContext.getStudyDesign().getNamedMatrix(
+	                GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+	    if (sigmaGMatrix != null && sigmaGMatrix.getData() != null) {
+	        double[][] data = sigmaGMatrix.getData().getData();
+	        if (data != null) {
+	            standardDeviationTextBox.setText(Double.toString(Math.sqrt(data[0][0])));
+	        }
+	    }
+	    
+	    // load the data for the sigma YG matrix
+	    NamedMatrix sigmaYGMatrix = 
+	        studyDesignContext.getStudyDesign().getNamedMatrix(
+	                GlimmpseConstants.MATRIX_SIGMA_OUTCOME);
+	    if (sigmaYGMatrix != null && 
+	            sigmaYGMatrix.getRows() > 0 &&
+	            sigmaYGMatrix.getColumns() > 0 &&
+	            sigmaYGMatrix.getData() != null) {
+	        sigmaYGData = sigmaYGMatrix.getData().getData();
+	        
+	    }
+	    updateMatrixView();
+	}
+	
+	/**
+	 * Handle changes in responses and repeated measures.
+	 */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
         switch(((StudyDesignChangeEvent) e).getType()) {
@@ -439,23 +467,44 @@ implements ChangeHandler
                 changeState(WizardStepPanelState.SKIPPED);
             }
             break;
+        case RESPONSES_LIST:
+            loadResponsesFromContext();
+            break;
+        case REPEATED_MEASURES:
+            loadRepeatedMeasuresFromContext();
+            break;
         }
     }
 
-    
+    /**
+     * Indicates if the screen is complete
+     */
     public void checkComplete() {
-        
+        if (!standardDeviationTextBox.getValue().isEmpty() &&
+                sigmaYGData != null &&
+                sigmaYGRows > 0 &&
+                sigmaYGColumns > 0) {
+            changeState(WizardStepPanelState.COMPLETE);
+        } else {
+            changeState(WizardStepPanelState.INCOMPLETE);
+        }
     }
     
-    
+    /**
+     * Load covariance data from the context
+     */
     @Override
     public void onWizardContextLoad() {
         loadResponsesFromContext();
         loadRepeatedMeasuresFromContext();
+        loadMatricesFromContext();
     }
 
+    /**
+     * Check for screen completion when new inputs are received
+     */
     @Override
     public void onChange(ChangeEvent event) {
-
+        checkComplete();
     }
 }
