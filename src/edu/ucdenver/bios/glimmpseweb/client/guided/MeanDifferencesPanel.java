@@ -150,8 +150,6 @@ implements ChangeHandler
      */
     private void loadBetweenParticipantFactorsFromContext() {
         // remove existing information related to between factors
-        totalBetweenFactors = 0;
-        totalBetweenFactorCombinations = 0;
         if (totalBetweenFactors > 0) {
             // remove all but the header row
             for(int row = meansTable.getRowCount()-1; row >= 1; row--) {
@@ -162,7 +160,8 @@ implements ChangeHandler
                 meansTable.removeCell(0, col);
             }
         }
-
+        totalBetweenFactors = 0;
+        totalBetweenFactorCombinations = 0;
         // load new between participant factor information
         FactorTable participantGroups = studyDesignContext.getParticipantGroups();
         if (participantGroups != null && participantGroups.getNumberOfRows() > 0) {
