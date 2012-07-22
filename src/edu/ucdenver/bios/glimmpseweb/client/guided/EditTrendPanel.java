@@ -165,7 +165,7 @@ public class EditTrendPanel extends Composite
 	    } else if (changeFromBaselineRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.CHANGE_FROM_BASELINE;
 	    } else if (allPolynomialTrendsRadioButton.getValue()) {
-	        return HypothesisTrendTypeEnum.ALL_POYNOMIAL;
+	        return HypothesisTrendTypeEnum.ALL_POLYNOMIAL;
 	    } else if (linearTrendOnlyRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.LINEAR;
 	    } else if (quadraticTrendOnlyRadioButton.getValue()) {
@@ -173,7 +173,39 @@ public class EditTrendPanel extends Composite
 	    } else if (cubicTrendOnlyRadioButton.getValue()) {
 	        return HypothesisTrendTypeEnum.CUBIC;
 	    } else {
-	        return HypothesisTrendTypeEnum.NONE;
+	        return null;
 	    }
 	}
+	
+	/**
+	 * Select the specified trend
+	 * @param trendType type of trend
+	 */
+	public void selectTrend(HypothesisTrendTypeEnum trendType) {
+	    if (trendType != null) {
+	        switch (trendType) {
+	        case NONE:
+	            noTrendTestRadioButton.setValue(true);
+	            break;
+	        case CHANGE_FROM_BASELINE:
+	            changeFromBaselineRadioButton.setValue(true);
+	            break;
+	        case ALL_POLYNOMIAL:
+	            allPolynomialTrendsRadioButton.setValue(true);
+	            break;
+	        case LINEAR:
+	            linearTrendOnlyRadioButton.setValue(true);
+	            break;
+	        case QUADRATIC:
+	            quadraticTrendOnlyRadioButton.setValue(true);
+	            break;
+	        case CUBIC:
+	            cubicTrendOnlyRadioButton.setValue(true);
+	            break;
+	        default:
+	            break;
+	        }
+	    }
+	}
+	
 }

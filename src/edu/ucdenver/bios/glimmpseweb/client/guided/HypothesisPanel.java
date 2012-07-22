@@ -23,6 +23,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -48,6 +49,7 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
+import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
@@ -304,6 +306,37 @@ implements ClickHandler, ChangeHandler {
         trendHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
         updateHypothesisOptions();       
         tabPanel.openTab(0);
+        
+        // now that the screen is setup, load the hypothesis
+        Set<Hypothesis> hypothesisSet = studyDesignContext.getStudyDesign().getHypothesis();
+        if (hypothesisSet != null && hypothesisSet.size() > 0) {
+            for(Hypothesis hypothesis: hypothesisSet) {
+                if (hypothesis.getType() != null) {
+                    switch(hypothesis.getType()) {
+                    case GRAND_MEAN:
+                        grandMeanHypothesisPanelInstance.loadHypothesis(
+                                studyDesignContext.getStudyDesign().getNamedMatrix(
+                                        GlimmpseConstants.MATRIX_THETA));
+                        tabPanel.openTab(0);
+                        break;
+                    case MAIN_EFFECT:
+                        mainEffectHypothesisPanelInstance.loadHypothesis(hypothesis);
+                        tabPanel.openTab(mainEffectSelectPanel);
+                        break;
+                    case TREND:
+                        interactionHypothesisPanelInstance.loadHypothesis(hypothesis);
+                        tabPanel.openTab(trendSelectPanel);
+                        break;
+                    case INTERACTION:
+                        trendHypothesisPanelInstance.loadHypothesis(hypothesis);
+                        tabPanel.openTab(interactionSelectPanel);
+                        break;
+                    }
+                }
+                break; // only one hypothesis for now
+            }
+        }
+        
     }
 
     /**

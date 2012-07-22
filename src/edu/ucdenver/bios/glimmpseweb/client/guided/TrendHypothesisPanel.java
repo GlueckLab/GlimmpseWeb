@@ -30,7 +30,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -50,10 +49,18 @@ implements HypothesisBuilder {
     // radio button group for this panel
     private static final String BUTTON_GROUP = "trendButtonGroup"; 
 
+    // table column containing the radio buttons
+    private static final int RADIO_BUTTON_COLUMN = 0;
+    
     // lists of variables available to test
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
     protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
-
+    // labels for the flex tables
+    protected HTML betweenParticipantFactors = 
+        new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+    protected HTML withinParticipantFactors = 
+        new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
+    
     // currently selected between participant effect
     protected BetweenParticipantFactor selectedBetweenParticipantFactor = null;
     // name of currently selected within participant effect
@@ -96,21 +103,17 @@ implements HypothesisBuilder {
         parent = handler;
         
         HTML text = new HTML(GlimmpseWeb.constants.trendHypothesisPanelText());
-        HTML betweenParticipantFactors = 
-                new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
-        HTML withinParticipantFactors = 
-                new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
-        final HTML selectTypeOfTrend = new HTML(
+        HTML selectTypeOfTrend = new HTML(
                 GlimmpseWeb.constants.hypothesisPanelSelectTypeOfTrend());
 
+        // listen for trend selection events
+        editTrendPanel.addClickHandler(parent);
+        
         //Style Sheets
         text.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        betweenParticipantFactors.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        withinParticipantFactors.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
         selectTypeOfTrend.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        selectTypeOfTrend.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
 
         // layout the panel
         verticalPanel.add(text);
@@ -148,6 +151,7 @@ implements HypothesisBuilder {
                             BetweenParticipantRadioButton button = 
                                     (BetweenParticipantRadioButton) event.getSource();
                             selectBetweenParticipantFactor(button.factor);
+                            parent.onClick(event);
                         }
                     });
                     betweenParticipantFactorsFlexTable.setWidget(
@@ -156,6 +160,9 @@ implements HypothesisBuilder {
                 row++;
             }
         }
+        // hide the label if no factors of this type
+        betweenParticipantFactors.setVisible(
+                betweenParticipantFactorsFlexTable.getRowCount() > 0);
     }
 
     /**
@@ -178,11 +185,71 @@ implements HypothesisBuilder {
                         RepeatedMeasuresRadioButton button = 
                             (RepeatedMeasuresRadioButton) event.getSource();
                         selectRepeatedMeasuresNode(button.factor);
+                        parent.onClick(event);
                     }
                 });
+                button.addClickHandler(parent);
                 withinParticipantFactorsFlexTable.setWidget(
                         row, 0, button);
                 row++;
+            }
+        }
+        // hide the label if no factors of this type
+        withinParticipantFactors.setVisible(
+                withinParticipantFactorsFlexTable.getRowCount() > 0);
+    }
+    
+    /**
+     * Load the hypothesis information.  Should be called after 
+     * loadBetweenParticipantFactors and loadRepeatedMeasures
+     */
+    public void loadHypothesis(Hypothesis hypothesis) {
+        if (hypothesis != null && 
+                HypothesisTypeEnum.TREND == hypothesis.getType()) {
+            List<HypothesisBetweenParticipantMapping> btwnFactorList = 
+                hypothesis.getBetweenParticipantFactorMapList();
+            if (btwnFactorList != null && btwnFactorList.size() > 0) {
+                // main effect on a between factor 
+                BetweenParticipantFactor factor = 
+                    btwnFactorList.get(0).getBetweenParticipantFactor();
+                if (factor != null) {
+                    String factorName = factor.getPredictorName();
+                    selectRadioButtonByFactor(factorName,
+                            betweenParticipantFactorsFlexTable);
+                }
+                editTrendPanel.selectTrend(btwnFactorList.get(0).getType());
+                
+            } else {
+                List<HypothesisRepeatedMeasuresMapping> withinFactorList = 
+                    hypothesis.getRepeatedMeasuresMapTree();
+                if (withinFactorList != null && withinFactorList.size() > 0) {
+                    // main effect on a within factor
+                    RepeatedMeasuresNode factor = 
+                        withinFactorList.get(0).getRepeatedMeasuresNode();
+                    if (factor != null) {
+                        String factorName = factor.getDimension();
+                        selectRadioButtonByFactor(factorName,
+                                betweenParticipantFactorsFlexTable);  
+                    }
+                    editTrendPanel.selectTrend(withinFactorList.get(0).getType());
+                }
+            }
+        }
+    }
+    
+    /**
+     * Find and select the radio button corresponding to the factor.  
+     * If no match, then no effect.
+     * @param factorName name of the factor
+     * @param table the between or within participant factor table
+     */
+    private void selectRadioButtonByFactor(String factorName, FlexTable table) {
+        for(int row = 0; row < table.getRowCount(); row++) {
+            RadioButton rb = 
+                (RadioButton) table.getWidget(row, RADIO_BUTTON_COLUMN);
+            if (rb.getText().equals(factorName)) {
+                rb.setValue(true);
+                break;
             }
         }
     }
@@ -241,8 +308,9 @@ implements HypothesisBuilder {
      */
     @Override
     public boolean checkComplete() {
-        return (this.selectedBetweenParticipantFactor != null || 
-                this.selectedRepeatedMeasuresNode != null);
+        return ((this.selectedBetweenParticipantFactor != null || 
+                this.selectedRepeatedMeasuresNode != null) &&
+                editTrendPanel.getSelectedTrend() != null);
     }
 
     @Override

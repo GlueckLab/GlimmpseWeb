@@ -26,7 +26,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -35,8 +34,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.connector.DomainObjectSerializer;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
@@ -58,13 +55,21 @@ implements HypothesisBuilder {
     // parent panel, change handler
     ClickHandler parent = null;
     
+    // table column containing the radio buttons
+    private static final int RADIO_BUTTON_COLUMN = 0;
+    
     // radio button group for this panel
     private static final String BUTTON_GROUP = "mainEffectButtonGroup"; 
 
     // table of variables to test
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
     protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
-
+    // labels for the flex tables
+    protected HTML betweenParticipantFactors = 
+        new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+    protected HTML withinParticipantFactors = 
+        new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
+    
     // currently selected between participant effect
     BetweenParticipantFactor selectedBetweenParticipantFactor = null;
     // name of currently selected within participant effect
@@ -98,23 +103,13 @@ implements HypothesisBuilder {
         this.parent = handler;
 
         VerticalPanel verticalPanel = new VerticalPanel();
-        HTML text = new HTML();
-        HTML betweenParticipantFactors = new HTML();
-        HTML withinParticipantFactors = new HTML();
-
-        text.setText(GlimmpseWeb.constants.mainEffectPanelText());
-        betweenParticipantFactors.setText(
-                GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
-        withinParticipantFactors.setText(
-                GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
+        HTML text = new HTML(GlimmpseWeb.constants.mainEffectPanelText());
 
         //Style Sheets
         text.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        betweenParticipantFactors.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        withinParticipantFactors.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
 
         //Add individual widgets to vertical panel
         verticalPanel.add(text);
@@ -122,7 +117,6 @@ implements HypothesisBuilder {
         verticalPanel.add(betweenParticipantFactorsFlexTable);
         verticalPanel.add(withinParticipantFactors);
         verticalPanel.add(withinParticipantFactorsFlexTable);
-        verticalPanel.setWidth("100%");
 
         initWidget(verticalPanel);
     }
@@ -155,11 +149,14 @@ implements HypothesisBuilder {
                         }
                     });
                     betweenParticipantFactorsFlexTable.setWidget(
-                            row, 0, button);
+                            row, RADIO_BUTTON_COLUMN, button);
                 }
                 row++;
             }
         }
+        // hide the label if no factors of this type
+        betweenParticipantFactors.setVisible(
+                betweenParticipantFactorsFlexTable.getRowCount() > 0);
     }
 
     /**
@@ -186,10 +183,13 @@ implements HypothesisBuilder {
                     }
                 });
                 withinParticipantFactorsFlexTable.setWidget(
-                        i, 0, button);
+                        i, RADIO_BUTTON_COLUMN, button);
                 i++;
             }
         }
+        // hide the label if no factors of this type
+        withinParticipantFactors.setVisible(
+                withinParticipantFactorsFlexTable.getRowCount() > 0);
     }
 
     /**
@@ -241,6 +241,51 @@ implements HypothesisBuilder {
     private void selectBetweenParticipantFactor(BetweenParticipantFactor factor) {
         selectedBetweenParticipantFactor = factor;
         selectedRepeatedMeasuresNode = null;
+    }
+    
+    /**
+     * Load the hypothesis information.  Should be called after 
+     * loadBetweenParticipantFactors and loadRepeatedMeasures
+     */
+    public void loadHypothesis(Hypothesis hypothesis) {
+        if (hypothesis != null && 
+                HypothesisTypeEnum.MAIN_EFFECT == hypothesis.getType()) {
+            List<BetweenParticipantFactor> btwnFactorList = 
+                hypothesis.getBetweenParticipantFactorList();
+            if (btwnFactorList != null && btwnFactorList.size() > 0) {
+                // main effect on a between factor 
+                String factorName = btwnFactorList.get(0).getPredictorName();
+                selectRadioButtonByFactor(factorName,
+                        betweenParticipantFactorsFlexTable);
+                
+            } else {
+                List<RepeatedMeasuresNode> withinFactorList = 
+                    hypothesis.getRepeatedMeasuresList();
+                if (withinFactorList != null && withinFactorList.size() > 0) {
+                    // main effect on a within factor
+                    String factorName = withinFactorList.get(0).getDimension();
+                    selectRadioButtonByFactor(factorName,
+                            betweenParticipantFactorsFlexTable);  
+                }
+            }
+        }
+    }
+    
+    /**
+     * Find and select the radio button corresponding to the factor.  
+     * If no match, then no effect.
+     * @param factorName name of the factor
+     * @param table the between or within participant factor table
+     */
+    private void selectRadioButtonByFactor(String factorName, FlexTable table) {
+        for(int row = 0; row < table.getRowCount(); row++) {
+            RadioButton rb = 
+                (RadioButton) table.getWidget(row, RADIO_BUTTON_COLUMN);
+            if (rb.getText().equals(factorName)) {
+                rb.setValue(true);
+                break;
+            }
+        }
     }
     
     /**

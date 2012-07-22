@@ -164,6 +164,14 @@ implements HypothesisBuilder, ClickHandler
         }
     }
 
+    /**
+     * Load the hypothesis information.  Should be called after 
+     * loadBetweenParticipantFactors and loadRepeatedMeasures
+     */
+    public void loadHypothesis(Hypothesis hypothesis) {
+
+    }
+    
     @Override
     public Hypothesis buildHypothesis() {
         Hypothesis hypothesis = new Hypothesis();

@@ -116,6 +116,27 @@ implements HypothesisBuilder {
     }
     
     /**
+     * Load the hypothesis information.  Should be called after loadResponseList.
+     */
+    public void loadHypothesis(NamedMatrix thetaNull) {
+        if (thetaNull != null) {
+            if (thetaNull.getColumns() == comparisonMeanTable.getRowCount() &&
+                    thetaNull.getRows() == 1 &&
+                    thetaNull.getData() != null) {
+                double[][] data =  thetaNull.getData().getData();
+                for(int col = 0; col < thetaNull.getColumns(); col++) {
+                    // the visual presentation of theta null here is transposed, 
+                    // hence the swapping of row/column indices
+                    TextBox tb = 
+                        (TextBox) comparisonMeanTable.getWidget(col, 
+                                TEXTBOX_COLUMN);
+                    tb.setText(Double.toString(data[0][col]));
+                }
+            }
+        }
+    }
+    
+    /**
      * Add an entry row to the flex table
      */
     private TextBox createTextBox() {
@@ -158,16 +179,16 @@ implements HypothesisBuilder {
     public NamedMatrix buildThetaNull() {
         NamedMatrix thetaNull = new NamedMatrix();
         thetaNull.setName(GlimmpseConstants.MATRIX_THETA);
-        thetaNull.setColumns(1);
+        thetaNull.setRows(1);
         thetaNull.setColumns(comparisonMeanTable.getRowCount());
-        double[][] data = new double[comparisonMeanTable.getRowCount()][1];
+        double[][] data = new double[1][comparisonMeanTable.getRowCount()];
         for(int row = 0; row < comparisonMeanTable.getRowCount(); row++) {
             TextBox tb = (TextBox) comparisonMeanTable.getWidget(row, TEXTBOX_COLUMN);
             String value = tb.getValue();
             if (value != null && !value.isEmpty()) {
-                data[row][0] = Double.parseDouble(value);
+                data[0][row] = Double.parseDouble(value);
             } else {
-                data[row][0] = Double.NaN;
+                data[0][row] = Double.NaN;
             }
         }
         thetaNull.setDataFromArray(data);
