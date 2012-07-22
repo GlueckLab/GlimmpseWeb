@@ -69,6 +69,7 @@ public class FileSvcConnector extends Composite {
             filenameHidden.setValue(saveFilename);
             saveForm.submit();
         }
+        saveForm.reset();
     }
     
     /**
@@ -89,6 +90,7 @@ public class FileSvcConnector extends Composite {
             filenameHidden.setValue(saveFilename);
             saveForm.submit();
         }
+        saveForm.reset();
     }
     
     /**
