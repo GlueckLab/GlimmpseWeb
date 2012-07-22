@@ -184,27 +184,6 @@ public class ClusteringPanelSubPanel extends Composite {
             return false;
     }
 
-    public String getGroupingName()
-    {
-        return groupingTextBox.getText();
-    }
-
-    public int getNumberOfGroups()
-    {
-        return Integer.parseInt(numberOfGroupsTextBox.getValue());
-    }
-
-    public void setGroupingName(String name)
-    {
-        groupingTextBox.setText(name);
-    }
-
-    public void setNumberOfGroups(int numGroups)
-    {
-        numberOfGroupsTextBox.setValue(Integer.toString(numGroups));
-    }
-
-
     /**
      * Convert the contents of  clustering node sub panel into a Cluster Node 
      * domain object
@@ -239,8 +218,18 @@ public class ClusteringPanelSubPanel extends Composite {
      */
     public void loadFromClusterNode(ClusterNode clusterNode)
     {
-        setGroupingName(clusterNode.getGroupName());
-        setNumberOfGroups(clusterNode.getGroupSize());
+        if (clusterNode != null) {
+            if (clusterNode.getGroupName() != null) {
+                groupingTextBox.setText(clusterNode.getGroupName());
+            }
+            if (clusterNode.getGroupSize() > 0) {
+                numberOfGroupsTextBox.setValue(Integer.toString(clusterNode.getGroupSize()));
+            }
+            if (clusterNode.getIntraClusterCorrelation() >= -1 &&
+                    clusterNode.getIntraClusterCorrelation() <= 1) {
+                iccTextBox.setValue(Double.toString(clusterNode.getIntraClusterCorrelation()));
+            }
+        }
     }
 
 
