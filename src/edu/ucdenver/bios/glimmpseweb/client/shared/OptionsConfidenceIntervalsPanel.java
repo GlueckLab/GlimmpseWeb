@@ -183,7 +183,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			{
 				try
 				{
-					TextValidation.parseDouble(alphaLowerTextBox.getText(), 0, 0.5, false);
+					TextValidation.parseDouble(alphaLowerTextBox.getText(), 0, 0.5, true);
 					TextValidation.displayOkay(alphaErrorHTML, "");
 				}
 				catch (NumberFormatException nfe)
@@ -200,7 +200,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			{
 				try
 				{
-					TextValidation.parseDouble(alphaUpperTextBox.getText(), 0, 0.5, false);
+					TextValidation.parseDouble(alphaUpperTextBox.getText(), 0, 0.5, true);
 					TextValidation.displayOkay(alphaErrorHTML, "");
 				}
 				catch (NumberFormatException nfe)

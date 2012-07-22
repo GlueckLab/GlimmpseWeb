@@ -60,6 +60,10 @@ public class ResizableMatrixPanel extends Composite
     // max rows/columns - allows calling application to control this value
     protected int maxRows = DEFAULT_MAX_ROWS;
     protected int maxCols = DEFAULT_MAX_COLS;
+    // min and max values for matrix cells
+    protected double minCellValue = Double.NaN;
+    protected double maxCellValue = Double.NaN;
+    
     // default value for off diagonal elements
     protected String defaultOffDiagonalValue = "0";
     protected String defaultDiagonalValue = "1";
@@ -85,12 +89,10 @@ public class ResizableMatrixPanel extends Composite
     protected TextBox rowTextBox = new TextBox();
     // text box for column dimension
     protected TextBox columnTextBox = new TextBox();
-    // change event handlers
-    protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
     
     // error html
-    HTML errorHTML = new HTML();
-
+    protected HTML errorHTML = new HTML();
+    protected String errorMsg = GlimmpseWeb.constants.errorInvalidNumber();
     /**
      * Text box which knows its row/column position in the matrix
      * Used to manage symmetric matrices
@@ -528,20 +530,28 @@ public class ResizableMatrixPanel extends Composite
                 try
                 {
                     String value = tb.getValue();
-                    TextValidation.parseDouble(value);
+                    if (!Double.isNaN(maxCellValue) && !Double.isNaN(maxCellValue) ) {
+                        TextValidation.parseDouble(value, minCellValue, maxCellValue, true);
+                    } else if (!Double.isNaN(maxCellValue)) {
+                        TextValidation.parseDouble(value, maxCellValue, false, true);      
+                    } else if (!Double.isNaN(minCellValue)) {
+                        TextValidation.parseDouble(value, minCellValue, true, true);       
+                    } else {
+                        TextValidation.parseDouble(value);
+                    }
                     TextValidation.displayOkay(errorHTML, "");
                     if (isSymmetric && tb.row != tb.column) setCellValue(tb.column, tb.row, value);
 
                 }
                 catch(Exception e)
                 {
-                    TextValidation.displayError(errorHTML, "The value should not contain special characters");
+                    TextValidation.displayError(errorHTML, errorMsg);
                     tb.reset();
                     if (isSymmetric && tb.row != tb.column)  setCellValue(tb.column, tb.row, tb.getValue());
                 }
             }
         });
-
+        
         cellTextBox.setEnabled(isCellEditAllowed(row-1, column-1));		
         cellTextBox.setValue((row == column) ? defaultDiagonalValue : defaultOffDiagonalValue);
 
@@ -551,7 +561,7 @@ public class ResizableMatrixPanel extends Composite
 
         return cellTextBox;
     }
-
+    
     /**
      * Determines whether a cell is editable.<p>
      *  A diagonal cell is editable if any of the following conditions hold
@@ -681,6 +691,29 @@ public class ResizableMatrixPanel extends Composite
             maxCols = columns;
             if (isSymmetric) maxRows = columns;
         }
+    }
+    
+    
+    /**
+     * Set maximum value for cells in the matrix
+     * @param rows max allowed rows
+     */
+    public void setMaxCellValue(double maxValue)
+    {
+        this.maxCellValue = maxValue;
+    }
+
+    /**
+     * Set minimum value for cells in the matrix
+     * @param columns max allowed columns
+     */
+    public void setMinCellValue(double minValue)
+    {
+        this.minCellValue = minValue;
+    }
+    
+    public void setCellErrorMessage(String msg) {
+        this.errorMsg = msg;
     }
 
     /**

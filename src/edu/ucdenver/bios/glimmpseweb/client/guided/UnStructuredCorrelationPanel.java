@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
@@ -91,6 +92,10 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         correlationMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
         correlationMatrix.setRowLabels(labelList);
         correlationMatrix.setColumnLabels(labelList);
+        correlationMatrix.setMaxCellValue(1.0);
+        correlationMatrix.setMinCellValue(-1.0);
+        correlationMatrix.setCellErrorMessage(GlimmpseWeb.constants.errorInvalidCorrelation());
+        correlationMatrix.setColumnLabels(labelList);
         // only show the correlation when the matrix is not 1x1
         correlationMatrix.setVisible(size != 1);
         
@@ -100,6 +105,9 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         verticalPanel.add(expectedCorrelationText);
         verticalPanel.add(correlationMatrix);
 
+        // add styles
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        
         //initilizing the vertical pane widgets which holds all the widgets of the class		
         initWidget(verticalPanel);
     }
