@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -58,6 +59,9 @@ implements HypothesisBuilder {
     // table of theta null inputs
     protected FlexTable comparisonMeanTable = new FlexTable();
     
+    //html widget to display the error message
+    protected HTML errorHTML = new HTML();
+    
     /**
      * Constructor
      * @param studyDesignContext
@@ -72,10 +76,12 @@ implements HypothesisBuilder {
         //Style Sheets
         text.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        
         //Add individual widgets to vertical panel
         panel.add(text);
         panel.add(comparisonMeanTable);
+        panel.add(errorHTML);
 
         initWidget(panel);
     }
@@ -114,6 +120,23 @@ implements HypothesisBuilder {
      */
     private TextBox createTextBox() {
         TextBox tb = new TextBox();
+        tb.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                // make sure the user entered a number
+                TextBox tb = (TextBox)event.getSource();
+                try
+                {
+                    Double.parseDouble(tb.getValue());
+                    TextValidation.displayOkay(errorHTML, "");
+                }
+                catch (Exception e)
+                {
+                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidMean());
+                    tb.setText("");
+                }
+            }
+        });
         tb.addChangeHandler(parent);
         return tb;
     }
