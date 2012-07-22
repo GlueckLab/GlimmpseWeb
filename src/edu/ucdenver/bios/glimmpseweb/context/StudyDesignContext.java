@@ -98,7 +98,7 @@ public class StudyDesignContext extends WizardContext
         } else {
             studyDesign = design;
         }
-        participantGroups = new FactorTable();
+        participantGroups.loadBetweenParticipantFactors(studyDesign.getBetweenParticipantFactorList());
         notifyWizardContextLoad();
     }
 
@@ -966,11 +966,13 @@ public class StudyDesignContext extends WizardContext
     private void removeMatrixByName(String name) {
         // TODO: move this to StudyDesign object in domain layer?
         Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
-        for(NamedMatrix matrix : matrixSet) {
-            if (matrix.getName() != null && 
-                    matrix.getName().equals(name)) {
-                matrixSet.remove(matrix);
-                break;
+        if (matrixSet != null) {
+            for(NamedMatrix matrix : matrixSet) {
+                if (matrix.getName() != null && 
+                        matrix.getName().equals(name)) {
+                    matrixSet.remove(matrix);
+                    break;
+                }
             }
         }
     }

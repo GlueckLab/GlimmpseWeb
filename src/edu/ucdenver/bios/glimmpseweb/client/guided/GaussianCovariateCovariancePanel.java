@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -137,6 +136,7 @@ implements ChangeHandler
                     TextValidation.displayError(errorHTML,
                             GlimmpseWeb.constants.errorInvalidStandardDeviation());
                 }
+                checkComplete();
             }
         });
         
@@ -150,7 +150,7 @@ implements ChangeHandler
 			public void onClick(ClickEvent event)
 			{
 				CheckBox cb = (CheckBox)event.getSource();
-				editCorrelationTextBoxes(cb.getValue());
+				setEqualCorrelationForRepeatedMeasures();
 			}
 		});
 
@@ -184,6 +184,13 @@ implements ChangeHandler
         sigmaYGData = null;
         currentRowOffset = 0;
         changeState(WizardStepPanelState.SKIPPED);
+	}
+	
+	private void setEqualCorrelationForRepeatedMeasures() {
+	    for(int row = 0; row < sigmaYGRows; row++) {
+
+	    }
+
 	}
 	
 	/**
@@ -345,56 +352,7 @@ implements ChangeHandler
             }
         }
     }
-    
-	public void editCorrelationTextBoxes(boolean allowEdit)
-	{
-//		if(allowEdit)
-//		{
-//			for(int i = 2; i <= flexTableRows; i++)
-//			{
-//				TextBox textBox = (TextBox)flexTable.getWidget(i, dataList.size());
-//				textBox.setEnabled(false);
-//			}
-//			
-//			TextBox tb = (TextBox)flexTable.getWidget(1, dataList.size());
-//			tb.addChangeHandler(new ChangeHandler() 
-//			{
-//				@Override
-//				public void onChange(ChangeEvent event)
-//				{
-//					try
-//					{
-//						TextBox t = (TextBox)event.getSource();
-//						String value = t.getValue();
-//						double d = TextValidation.parseDouble(value, -1.0, 1.0, true);
-//						t.setValue(""+d);
-//						TextValidation.displayOkay(errorHTMLUP, "");
-//						TextValidation.displayOkay(errorHTMLDOWN, "");
-//						for(int i = 2; i <= flexTableRows; i ++)
-//						{
-//							TextBox correlationTb = (TextBox)flexTable.getWidget(i, dataList.size());
-//							correlationTb.setValue(""+d);
-//						}
-//					}
-//					catch(Exception e)
-//					{
-//						TextValidation.displayError(errorHTMLUP, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-//						TextValidation.displayError(errorHTMLDOWN, GlimmpseWeb.constants.randomCovariateCovarianceCorrelationValueError());
-//					}
-//					
-//				}
-//			});
-//		}
-//		else
-//		{
-//			for(int i = 2; i <= flexTableRows; i++)
-//			{
-//				TextBox textBox = (TextBox)flexTable.getWidget(i, dataList.size());
-//				textBox.setEnabled(true);
-//			}
-//		}
-	}
-	
+    	
 	/**
 	 * Store the sigma G and sigma YG covariance matrices
 	 * in the context.
