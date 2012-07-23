@@ -150,6 +150,7 @@ implements WizardActionListener
 	}
 	
 	private void setStudyDesignDefaults() {
+	    context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.GUIDED_MODE);
 	    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
 	    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
 	    betaScaleList.add(new BetaScale(1));
