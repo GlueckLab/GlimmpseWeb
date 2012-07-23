@@ -324,11 +324,11 @@ implements ClickHandler, ChangeHandler {
                         tabPanel.openTab(mainEffectSelectPanel);
                         break;
                     case TREND:
-                        interactionHypothesisPanelInstance.loadHypothesis(hypothesis);
+                        trendHypothesisPanelInstance.loadHypothesis(hypothesis);
                         tabPanel.openTab(trendSelectPanel);
                         break;
                     case INTERACTION:
-                        trendHypothesisPanelInstance.loadHypothesis(hypothesis);
+                        interactionHypothesisPanelInstance.loadHypothesis(hypothesis);
                         tabPanel.openTab(interactionSelectPanel);
                         break;
                     }
