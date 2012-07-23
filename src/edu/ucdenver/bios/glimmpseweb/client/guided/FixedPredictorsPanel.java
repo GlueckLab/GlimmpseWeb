@@ -55,6 +55,7 @@ import edu.ucdenver.bios.webservice.common.domain.Category;
  */
 public class FixedPredictorsPanel extends WizardStepPanel
 {
+    private static final String ONE_SAMPLE_LABEL = "Sample";
     private static final String RADIO_GROUP = "fixedPredictorSampleGroup";
     private static final int MIN_CATEGORIES = 2;
 	// pointer to the study design context
@@ -393,16 +394,31 @@ public class FixedPredictorsPanel extends WizardStepPanel
         List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         if (factorList != null) {
+            boolean oneSample = true;
             for(BetweenParticipantFactor factor: factorList)
             {
                 String predictor = factor.getPredictorName();
+                if (!ONE_SAMPLE_LABEL.equals(predictor)) {
+                    oneSample = false;
+                }
                 addPredictor(predictor);
                 List<Category> categoryList = factor.getCategoryList();
                 ArrayList<String> categories = predictorCategoryMap.get(predictor);
                 for(Category category: categoryList)
                 {
                     categories.add(category.getCategory());
+                    if (!ONE_SAMPLE_LABEL.equals(category.getCategory())) {
+                        oneSample = false;
+                    }
                 }
+                oneSample = (oneSample && categoryList.size() > 1);
+            }
+            if (oneSample && factorList.size() == 1) {
+                oneSampleRadioButton.setValue(true);
+                multiSamplePanel.setVisible(false);
+            } else {
+                multiSampleRadioButton.setValue(true);
+                multiSamplePanel.setVisible(true);
             }
         }
         checkComplete();
