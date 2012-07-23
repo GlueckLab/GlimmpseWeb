@@ -481,6 +481,9 @@ public class StudyDesignContext extends WizardContext
     public void setHypothesis(WizardStepPanel panel, Hypothesis hypothesis)
     {
         if (hypothesis != null) { 
+            // clear any prior hypothesis
+            studyDesign.setHypothesis(null);
+            // now add the new one
             studyDesign.setHypothesisToSet(hypothesis);
         } else {
             studyDesign.setHypothesis(null);
