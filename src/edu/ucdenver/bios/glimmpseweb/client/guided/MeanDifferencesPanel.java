@@ -141,7 +141,20 @@ implements ChangeHandler
     {
         meansTable.removeAllRows();
         betaFixedData = null;
+        betaRows = 0;
+        betaColumns = 0;
         currentColumnOffset = 0;
+
+        hasCovariate = false;
+        totalBetweenFactors = 0;
+        totalBetweenFactorCombinations = 0;
+        totalRepeatedMeasures = 0;
+        totalRepeatedMeasuresCombinations = 0;
+        totalWithinFactorCombinations = 0;
+        totalResponseVariables = 0;
+        
+        
+        
         changeState(WizardStepPanelState.NOT_ALLOWED);
     }
 
@@ -519,6 +532,7 @@ implements ChangeHandler
     @Override
     public void onWizardContextLoad() 
     {
+        reset();
         loadBetweenParticipantFactorsFromContext();
         loadRepeatedMeasuresFromContext();
         loadResponsesFromContext();
