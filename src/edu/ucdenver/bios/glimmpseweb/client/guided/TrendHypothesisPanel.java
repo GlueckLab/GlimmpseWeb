@@ -229,7 +229,7 @@ implements HypothesisBuilder {
                     if (factor != null) {
                         String factorName = factor.getDimension();
                         selectRadioButtonByFactor(factorName,
-                                betweenParticipantFactorsFlexTable);  
+                                withinParticipantFactorsFlexTable);  
                     }
                     editTrendPanel.selectTrend(withinFactorList.get(0).getType());
                 }

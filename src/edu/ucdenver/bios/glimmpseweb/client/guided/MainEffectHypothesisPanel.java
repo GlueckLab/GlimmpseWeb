@@ -250,22 +250,29 @@ implements HypothesisBuilder {
     public void loadHypothesis(Hypothesis hypothesis) {
         if (hypothesis != null && 
                 HypothesisTypeEnum.MAIN_EFFECT == hypothesis.getType()) {
-            List<BetweenParticipantFactor> btwnFactorList = 
-                hypothesis.getBetweenParticipantFactorList();
+            List<HypothesisBetweenParticipantMapping> btwnFactorList = 
+                hypothesis.getBetweenParticipantFactorMapList();
             if (btwnFactorList != null && btwnFactorList.size() > 0) {
                 // main effect on a between factor 
-                String factorName = btwnFactorList.get(0).getPredictorName();
-                selectRadioButtonByFactor(factorName,
-                        betweenParticipantFactorsFlexTable);
-                
+                BetweenParticipantFactor factor = 
+                    btwnFactorList.get(0).getBetweenParticipantFactor();
+                if (factor != null) {
+                    String factorName = factor.getPredictorName();
+                    selectRadioButtonByFactor(factorName,
+                            betweenParticipantFactorsFlexTable);
+                }                
             } else {
-                List<RepeatedMeasuresNode> withinFactorList = 
-                    hypothesis.getRepeatedMeasuresList();
+                List<HypothesisRepeatedMeasuresMapping> withinFactorList = 
+                    hypothesis.getRepeatedMeasuresMapTree();
                 if (withinFactorList != null && withinFactorList.size() > 0) {
                     // main effect on a within factor
-                    String factorName = withinFactorList.get(0).getDimension();
-                    selectRadioButtonByFactor(factorName,
-                            betweenParticipantFactorsFlexTable);  
+                    RepeatedMeasuresNode factor = 
+                        withinFactorList.get(0).getRepeatedMeasuresNode();
+                    if (factor != null) {
+                        String factorName = factor.getDimension();
+                        selectRadioButtonByFactor(factorName,
+                                withinParticipantFactorsFlexTable);  
+                    }
                 }
             }
         }
