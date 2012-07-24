@@ -394,24 +394,24 @@ public class FixedPredictorsPanel extends WizardStepPanel
         List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         if (factorList != null) {
+            // first determine if this is a one sample or multi sample design
             boolean oneSample = true;
             for(BetweenParticipantFactor factor: factorList)
             {
                 String predictor = factor.getPredictorName();
                 if (!ONE_SAMPLE_LABEL.equals(predictor)) {
                     oneSample = false;
+                    break;
                 }
-                addPredictor(predictor);
-                List<Category> categoryList = factor.getCategoryList();
-                ArrayList<String> categories = predictorCategoryMap.get(predictor);
-                for(Category category: categoryList)
+                List<Category> factorCategoryList = factor.getCategoryList();
+                for(Category category: factorCategoryList)
                 {
-                    categories.add(category.getCategory());
                     if (!ONE_SAMPLE_LABEL.equals(category.getCategory())) {
                         oneSample = false;
+                        break;
                     }
                 }
-                oneSample = (oneSample && categoryList.size() > 1);
+                oneSample = (oneSample && factorCategoryList.size() == 1);
             }
             if (oneSample && factorList.size() == 1) {
                 oneSampleRadioButton.setValue(true);
@@ -419,6 +419,19 @@ public class FixedPredictorsPanel extends WizardStepPanel
             } else {
                 multiSampleRadioButton.setValue(true);
                 multiSamplePanel.setVisible(true);
+                
+                // load the lists of predictors
+                for(BetweenParticipantFactor factor: factorList)
+                {
+                    String predictor = factor.getPredictorName();
+                    addPredictor(predictor);
+                    List<Category> factorCategoryList = factor.getCategoryList();
+                    ArrayList<String> categories = predictorCategoryMap.get(predictor);
+                    for(Category category: factorCategoryList)
+                    {
+                        categories.add(category.getCategory());
+                    }
+                }
             }
         }
         checkComplete();
@@ -458,9 +471,9 @@ public class FixedPredictorsPanel extends WizardStepPanel
         } else {
             // build a single predictor
             BetweenParticipantFactor factor = new BetweenParticipantFactor();
-            factor.setPredictorName("Sample");
+            factor.setPredictorName(ONE_SAMPLE_LABEL);
             ArrayList<Category> categoryNameList = new ArrayList<Category>();
-            categoryNameList.add(new Category("Sample"));
+            categoryNameList.add(new Category(ONE_SAMPLE_LABEL));
             factor.setCategoryList(categoryNameList);
             factorList.add(factor);
         }
