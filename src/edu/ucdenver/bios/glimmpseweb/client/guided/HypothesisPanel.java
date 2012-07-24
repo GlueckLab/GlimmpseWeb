@@ -290,8 +290,9 @@ implements ClickHandler, ChangeHandler {
      */
     private void loadFromContext() {
         // load the responses
-        grandMeanHypothesisPanelInstance.loadResponseList(
-                studyDesignContext.getStudyDesign().getResponseList());
+        List<ResponseNode> responsesList = 
+            studyDesignContext.getStudyDesign().getResponseList();
+        grandMeanHypothesisPanelInstance.loadResponseList(responsesList);
         // load the between participant factors
         List<BetweenParticipantFactor> factorList = 
                 studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
@@ -335,6 +336,10 @@ implements ClickHandler, ChangeHandler {
                 }
                 break; // only one hypothesis for now
             }
+        } 
+        
+        if (state != WizardStepPanelState.NOT_ALLOWED) {
+            checkComplete();
         }
         
     }

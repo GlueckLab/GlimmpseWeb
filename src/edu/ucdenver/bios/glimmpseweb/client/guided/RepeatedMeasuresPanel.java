@@ -342,6 +342,8 @@ implements ChangeHandler
                 currentPanel.loadFromRepeatedMeasuresNode(repeatedMeasuresNode);
             }
         }
+        // need to reset this here since toggleRepeatedMeasures may set it to true.
+        changed = false;
         checkComplete();
     }
     

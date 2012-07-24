@@ -42,6 +42,7 @@ import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMa
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class TrendHypothesisPanel extends Composite
@@ -204,6 +205,9 @@ implements HypothesisBuilder {
      * loadBetweenParticipantFactors and loadRepeatedMeasures
      */
     public void loadHypothesis(Hypothesis hypothesis) {
+        // reset the trend panel
+        editTrendPanel.selectTrend(HypothesisTrendTypeEnum.NONE);
+        // load the hypothesis info
         if (hypothesis != null && 
                 HypothesisTypeEnum.TREND == hypothesis.getType()) {
             List<HypothesisBetweenParticipantMapping> btwnFactorList = 

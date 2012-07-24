@@ -35,10 +35,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextListener;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
@@ -46,6 +42,7 @@ import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMa
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class InteractionHypothesisPanel extends Composite
@@ -56,7 +53,7 @@ implements HypothesisBuilder, ClickHandler
 
     // counter of #variables selected
     int selectedCount = 0;
-    
+
     // variable lists
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
     protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
@@ -94,9 +91,9 @@ implements HypothesisBuilder, ClickHandler
 
         HTML text = new HTML(GlimmpseWeb.constants.interactionHypothesisPanelText());
         HTML betweenParticipantFactors = 
-                new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+            new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
         HTML withinParticipantFactors = 
-                new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
+            new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
 
         //Style Sheets
         text.setStyleName(
@@ -129,8 +126,8 @@ implements HypothesisBuilder, ClickHandler
                 List<Category> categoryList = factor.getCategoryList();
                 if (categoryList != null && categoryList.size() > 1) {
                     BetweenParticipantVariablePanel panel = 
-                            new BetweenParticipantVariablePanel(
-                                    factor.getPredictorName(), this, factor);
+                        new BetweenParticipantVariablePanel(
+                                factor.getPredictorName(), this, factor);
                     betweenParticipantFactorsFlexTable.setWidget(
                             row, 0, panel);
                 }
@@ -154,8 +151,8 @@ implements HypothesisBuilder, ClickHandler
                         rmNode.getNumberOfMeasurements() != null &&
                         rmNode.getNumberOfMeasurements() > 1) {
                     RepeatedMeasuresVariablePanel panel = 
-                            new RepeatedMeasuresVariablePanel(
-                                    rmNode.getDimension(), this, rmNode);
+                        new RepeatedMeasuresVariablePanel(
+                                rmNode.getDimension(), this, rmNode);
                     withinParticipantFactorsFlexTable.setWidget(
                             row, 0, panel);
                     row++;
@@ -169,9 +166,67 @@ implements HypothesisBuilder, ClickHandler
      * loadBetweenParticipantFactors and loadRepeatedMeasures
      */
     public void loadHypothesis(Hypothesis hypothesis) {
-
+        // load the hypothesis info
+        selectedCount = 0;
+        if (hypothesis != null && 
+                HypothesisTypeEnum.INTERACTION == hypothesis.getType()) {
+            // load between participant factors
+            List<HypothesisBetweenParticipantMapping> btwnFactorList = 
+                hypothesis.getBetweenParticipantFactorMapList();
+            if (btwnFactorList != null && btwnFactorList.size() > 0) {
+                for(HypothesisBetweenParticipantMapping factorMapping: btwnFactorList) {
+                    BetweenParticipantFactor factor = 
+                        btwnFactorList.get(0).getBetweenParticipantFactor();
+                    if (factor != null) {
+                        selectCheckBoxByFactor(factor.getPredictorName(), 
+                                factorMapping.getType(),
+                                betweenParticipantFactorsFlexTable);
+                    }
+                }
+            } 
+            // load within factor info
+            List<HypothesisRepeatedMeasuresMapping> withinFactorList = 
+                hypothesis.getRepeatedMeasuresMapTree();
+            if (withinFactorList != null && withinFactorList.size() > 0) {
+                for(HypothesisRepeatedMeasuresMapping factorMapping: withinFactorList) {
+                    RepeatedMeasuresNode factor = 
+                        withinFactorList.get(0).getRepeatedMeasuresNode();
+                    if (factor != null) {
+                        String factorName = factor.getDimension();
+                        selectCheckBoxByFactor(factorName,
+                                factorMapping.getType(),
+                                withinParticipantFactorsFlexTable);  
+                    }
+                }
+            }
+        }
     }
-    
+
+
+    /**
+     * Find and select the radio button corresponding to the factor.  
+     * If no match, then no effect.
+     * @param factorName name of the factor
+     * @param trendType trend associated with the factor
+     * @param table the between or within participant factor table
+     */
+    private void selectCheckBoxByFactor(String factorName, 
+            HypothesisTrendTypeEnum trendType, FlexTable table) {
+        for(int row = 0; row < table.getRowCount(); row++) {
+            InteractionVariablePanel ivPanel = 
+                (InteractionVariablePanel) table.getWidget(row, 0);
+            if (ivPanel.getLabel().equals(factorName)) {
+                ivPanel.setChecked(true);
+                ivPanel.setTrend(trendType);
+                selectedCount++;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Build a hypothesis object from the selected checkboxes.
+     */
     @Override
     public Hypothesis buildHypothesis() {
         Hypothesis hypothesis = new Hypothesis();
@@ -190,7 +245,7 @@ implements HypothesisBuilder, ClickHandler
                 HypothesisBetweenParticipantMapping map = 
                     new HypothesisBetweenParticipantMapping();
                 map.setBetweenParticipantFactor(panel.factor);
-                map.setType(panel.selectedTrend());
+                map.setType(panel.getSelectedTrend());
                 factorList.add(map);
             }
         }
@@ -211,7 +266,7 @@ implements HypothesisBuilder, ClickHandler
                 HypothesisRepeatedMeasuresMapping map =
                     new HypothesisRepeatedMeasuresMapping();
                 map.setRepeatedMeasuresNode(panel.factor);
-                map.setType(panel.selectedTrend());
+                map.setType(panel.getSelectedTrend());
                 nodeList.add(map);
             }
         }
@@ -221,7 +276,7 @@ implements HypothesisBuilder, ClickHandler
 
         return hypothesis;
     }
-    
+
     /**
      * Panel is complete provided two or more variables are selected
      */

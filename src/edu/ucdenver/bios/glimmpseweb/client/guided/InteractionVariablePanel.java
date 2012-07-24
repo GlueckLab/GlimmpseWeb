@@ -26,6 +26,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -48,6 +49,9 @@ public class InteractionVariablePanel extends Composite
     // parent panel which listens for click events in this subpanel
     protected ClickHandler handler = null;
     
+    // label information
+    protected String label = null;
+    
     // selection checkbox
     protected CheckBox checkBox;
     
@@ -56,7 +60,7 @@ public class InteractionVariablePanel extends Composite
 	        new Button(GlimmpseWeb.constants.editTrendLabel(), new ClickHandler() {
 		@Override
 		public void onClick(ClickEvent event) {
-			editTrend();
+			showTrendPanel();
 		}
 	});
 
@@ -80,12 +84,12 @@ public class InteractionVariablePanel extends Composite
 	public InteractionVariablePanel(String label, int numLevels, ClickHandler handler)
 	{
 	    this.handler = handler;
-		
+		this.label = label;
 	    // overall composite panel
 	    VerticalPanel panel = new VerticalPanel();
 	    
-	    // horizontal layout 
-		HorizontalPanel horizontalPanel = new HorizontalPanel();
+	    // main layout container
+		Grid grid = new Grid(1,2);
 
 		// create the selection box for this variable
 		checkBox = new CheckBox(label);
@@ -95,15 +99,13 @@ public class InteractionVariablePanel extends Composite
 			public void onClick(ClickEvent event) 
 			{
 				boolean checked = ((CheckBox) event.getSource()).getValue();
-                editTrendButton.setVisible(checked);
-                editTrendButton.setEnabled(checked);
-                trendPanel.setVisible(false);
-                selectedTrendHTML.setVisible(checked);
+				showTrendInformation(checked);
 			}
 		});
 		checkBox.addClickHandler(handler);
 		
 		// build the selected trend display panel
+		selectedTrendPanel.add(editTrendButton);
 		selectedTrendPanel.add(new HTML(GlimmpseWeb.constants.editTrendSelectedTrendPrefix()));
 		selectedTrendPanel.add(selectedTrendHTML);
 		
@@ -118,20 +120,17 @@ public class InteractionVariablePanel extends Composite
 					RadioButton radioButton = (RadioButton) event.getSource();
 					// update the selected trend information
 					selectedTrendHTML.setText(radioButton.getHTML());
-					selectedTrendPanel.setVisible(true);
 					trendPanel.setVisible(false);
-					editTrendButton.setVisible(true);
 			}
 		});
 		editTrendPanel.addClickHandler(handler);
 		
 		
 		// layout the top panel for the checkbox and trend display
-		horizontalPanel.add(checkBox);
-		horizontalPanel.add(editTrendButton);
-		horizontalPanel.add(selectedTrendPanel);
+		grid.setWidget(0, 0, checkBox);
+		grid.setWidget(0, 1, selectedTrendPanel);
 		// layout the overall panel
-		panel.add(horizontalPanel);
+		panel.add(grid);
 		panel.add(trendPanel);
 		
 		// add style
@@ -148,32 +147,66 @@ public class InteractionVariablePanel extends Composite
 	 */
 	public void reset() {
 	    checkBox.setValue(false);
-	    selectedTrendHTML.setVisible(false);
+	    selectedTrendPanel.setVisible(false);
 	    trendPanel.setVisible(false);
 	}
 	
 	/**
-	 * Show the edit trend panel
+	 * Show / hide the trend information.
+	 * @param show
 	 */
-	private void editTrend()
-	{
-		editTrendButton.setVisible(false);
-		trendPanel.setVisible(true);
+	private void showTrendInformation(boolean show) {
+        selectedTrendPanel.setVisible(show);
 	}
 	
-	public void hideTrend()
-	{
-	    editTrendButton.setVisible(true);
-		trendPanel.setVisible(false);
-	}
-	
-	public HypothesisTrendTypeEnum selectedTrend()
+	/**
+     * Show / hide the trend editing panel.
+     * @param show
+     */
+    private void showTrendPanel() {
+        trendPanel.setVisible(true);
+    }
+
+	/**
+	 * Get the selected trend.
+	 * @return trend type.
+	 */
+	public HypothesisTrendTypeEnum getSelectedTrend()
 	{
 	   return editTrendPanel.getSelectedTrend();
 	}
 	
+	/**
+	 * Get the checkbox value.
+	 * @return true if checked, false if not checked.
+	 */
 	public boolean isChecked()
 	{
 	    return checkBox.getValue();
 	}
+	
+	/**
+	 * Get the label for this panel
+	 */
+	public String getLabel() {
+	    return label;
+	}
+	
+	/**
+	 * Set the value of the checkbox.
+	 * @param checked indicates if the box should be checked or unchecked.
+	 */
+	public void setChecked(boolean checked) {
+	    checkBox.setValue(checked);
+	    showTrendInformation(checked);
+	}
+	
+	/**
+     * Set the selected trend.
+     * @param trendType the trend type
+     */
+    public void setTrend(HypothesisTrendTypeEnum trendType) {
+        editTrendPanel.selectTrend(trendType);
+        selectedTrendHTML.setText(editTrendPanel.getSelectedTrendText());
+    }
 }

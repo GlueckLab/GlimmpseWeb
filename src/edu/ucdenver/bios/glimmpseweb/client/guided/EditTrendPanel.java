@@ -177,6 +177,30 @@ public class EditTrendPanel extends Composite
 	    }
 	}
 	
+	
+	/**
+	 * Return the selected trend text label from the panel
+	 * @return text label for selected trend
+	 */
+    public String getSelectedTrendText()
+    {
+        if (noTrendTestRadioButton.getValue()) {
+            return noTrendTestRadioButton.getText();
+        } else if (changeFromBaselineRadioButton.getValue()) {
+            return changeFromBaselineRadioButton.getText();
+        } else if (allPolynomialTrendsRadioButton.getValue()) {
+            return allPolynomialTrendsRadioButton.getText();
+        } else if (linearTrendOnlyRadioButton.getValue()) {
+            return linearTrendOnlyRadioButton.getText();
+        } else if (quadraticTrendOnlyRadioButton.getValue()) {
+            return quadraticTrendOnlyRadioButton.getText();
+        } else if (cubicTrendOnlyRadioButton.getValue()) {
+            return cubicTrendOnlyRadioButton.getText();
+        } else {
+            return "";
+        }
+    }
+	
 	/**
 	 * Select the specified trend
 	 * @param trendType type of trend
