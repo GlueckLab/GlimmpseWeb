@@ -492,6 +492,22 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.HYPOTHESIS));
     }
 
+
+    /**
+     * Add covariance information in the study design.
+     * @param panel wizard panel initiating the change
+     * @param covariance covariance for a single dimension
+     */
+    public void clearCovariance(WizardStepPanel panel)
+    {
+        Set<Covariance> covarianceSet = studyDesign.getCovariance();
+        if (covarianceSet != null) {
+            covarianceSet.clear();
+        }
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.COVARIANCE));
+    }
+    
     /**
      * Add covariance information in the study design.
      * @param panel wizard panel initiating the change
