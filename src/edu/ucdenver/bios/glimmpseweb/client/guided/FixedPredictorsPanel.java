@@ -367,6 +367,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
         oneSampleRadioButton.setValue(false);
         multiSampleRadioButton.setValue(false);
         multiSamplePanel.setVisible(false);
+        changed = false;
     	checkComplete();
     }
 
@@ -386,6 +387,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     public void onWizardContextLoad()
     {
     	loadFromContext();
+        changed = false; // reset to false so we don't reset any hypothesis or mean info.
     }
 
     private void loadFromContext()
