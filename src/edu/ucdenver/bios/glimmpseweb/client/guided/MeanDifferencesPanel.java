@@ -162,6 +162,8 @@ implements ChangeHandler
      * Load between participant factors from the context
      */
     private void loadBetweenParticipantFactorsFromContext() {
+        // clear the data from the context
+        studyDesignContext.setBeta(this, null, null);
         // remove existing information related to between factors
         if (totalBetweenFactors > 0) {
             // remove all but the header row
@@ -170,7 +172,7 @@ implements ChangeHandler
             }
             // remove the header widgets for the between subject factors
             for(int col = 0; col < totalBetweenFactors; col++) {
-                meansTable.removeCell(0, col);
+                meansTable.removeCell(0, 0);
             }
         }
         totalBetweenFactors = 0;
@@ -220,6 +222,9 @@ implements ChangeHandler
      * Load within participant factors from the context
      */
     private void loadRepeatedMeasuresFromContext() {
+        // clear the data from the context
+        studyDesignContext.setBeta(this, null, null);
+        // now clear the panel
         repeatedMeasuresTable.removeAllRows();
         rmInstructions.setVisible(false);
         repeatedMeasuresTable.setVisible(false);
@@ -342,6 +347,8 @@ implements ChangeHandler
      * Load response variable information from the context
      */    
     private void loadResponsesFromContext() {
+        // clear the data from the context
+        studyDesignContext.setBeta(this, null, null);
         // remove existing information about response variables
         if (totalResponseVariables > 0) {
             // remove the columns associated with the responses
