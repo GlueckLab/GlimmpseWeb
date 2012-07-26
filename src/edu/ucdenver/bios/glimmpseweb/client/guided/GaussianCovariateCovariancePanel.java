@@ -30,7 +30,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -72,8 +71,8 @@ implements ChangeHandler
     protected double[][] sigmaYGData = null;
     protected int sigmaYGRows = 0;
     protected int sigmaYGColumns = 1;
-    protected int currentRowOffset = 0;
-
+    protected int currentRowOffset = 0;    
+    
     // standard deviation of Gaussian covariate
     protected TextBox standardDeviationTextBox = new TextBox();
     // flex table representing sigma YG
@@ -84,17 +83,40 @@ implements ChangeHandler
     protected HTML correlationHTML = 
             new HTML(GlimmpseWeb.constants.randomCovariateCovarianceCorrelationColumnLabel());
     // selection of repeated measures
+    protected VerticalPanel rmPanel = new VerticalPanel();
     protected HTML rmInstructions = 
         new HTML(GlimmpseWeb.constants.randomCovariateCovarianceRepeatedMeasuresInstructions());
     protected FlexTable repeatedMeasuresTable = new FlexTable();
-
+    // check box to allow users to enter one correlation value and share it across all
+    // repeated measures
+    CheckBox sameCorrelationCheckBox = new CheckBox(
+            GlimmpseWeb.constants.randomCovariateCovarianceSameCorrelationInstructions());
+    
+    // counts of responses, repeated measures
     protected boolean hasCovariate = false;
     protected int totalRepeatedMeasures = 0;
     protected int totalRepeatedMeasuresCombinations = 0;
     protected int totalWithinFactorCombinations = 0;
     protected int totalResponseVariables = 0;
+    // error message
+    protected HTML stdDevErrorHTML = new HTML();
+    protected HTML correlationErrorHTML = new HTML(); 
+    /**
+     * textbox with row and column information
+     */
+    private class RowColumnTextBox extends TextBox {
+        private int row = 0;
+        private int column = 0;
 
-    protected HTML errorHTML = new HTML();
+        public RowColumnTextBox(int row, int column) {
+            super();
+            this.row = row;
+            this.column = column;
+        }
+
+        public int getRow() { return row; }
+        public int getColumn() { return column; }
+    }
     
     /**
      * Constructor
@@ -112,13 +134,7 @@ implements ChangeHandler
 		        GlimmpseWeb.constants.randomCovariateCovarianceHeader());
 		HTML description = new HTML(
 		        GlimmpseWeb.constants.randomCovariateCovarianceDescription());
-		
-		// build panel for standard deviation of Gaussian covariate
-		HorizontalPanel stddevPanel = new HorizontalPanel();
-		stddevPanel.add( new HTML(
-                GlimmpseWeb.constants.randomCovariateCovarianceStandardDeviationInstructions()));
-		stddevPanel.add(standardDeviationTextBox);
-		
+				
 	      // add validation to standard deviation box
         standardDeviationTextBox.addChangeHandler(new ChangeHandler(){ 
             @Override
@@ -128,47 +144,61 @@ implements ChangeHandler
                 try
                 {
                     String value = tb.getValue();
-                    TextValidation.parseDouble(value);
-                    TextValidation.displayOkay(errorHTML, "");
+                    TextValidation.parseDouble(value, 0, true);
+                    TextValidation.displayOkay(stdDevErrorHTML, "");
                 }
                 catch (Exception e)
                 {
-                    TextValidation.displayError(errorHTML,
+                    TextValidation.displayError(stdDevErrorHTML,
                             GlimmpseWeb.constants.errorInvalidStandardDeviation());
+                    tb.setText("");
                 }
                 checkComplete();
             }
         });
         
-        // check box to allow users to enter one correlation value and share it across all
-        // repeated measures
-		CheckBox sameCorrelationCheckBox = new CheckBox(
-		        GlimmpseWeb.constants.randomCovariateCovarianceSameCorrelationInstructions());
+        // add change handler for using the same correlation for all repeated measures
 		sameCorrelationCheckBox.addClickHandler(new ClickHandler()
 		{
 			@Override
 			public void onClick(ClickEvent event)
 			{
 				CheckBox cb = (CheckBox)event.getSource();
-				setEqualCorrelationForRepeatedMeasures();
+				if (cb.getValue()) {
+				    setEqualCorrelationForRepeatedMeasures();
+				} else {
+				    enableUnequalCorrelationForRepeatedMeasures();
+				}
 			}
 		});
 
+		// layout the repeated measures panel
+		rmPanel.add(rmInstructions);
+		rmPanel.add(repeatedMeasuresTable);
+		rmPanel.add(sameCorrelationCheckBox);
+		rmPanel.setVisible(false);
+		
 		// layout the overall panel
 		verticalPanel.add(header);
 		verticalPanel.add(description);
-		verticalPanel.add(stddevPanel);
+		verticalPanel.add(new HTML(
+                GlimmpseWeb.constants.randomCovariateCovarianceStandardDeviationInstructions()));
+		verticalPanel.add(standardDeviationTextBox);
+		verticalPanel.add(stdDevErrorHTML);
 		verticalPanel.add( new HTML(
                 GlimmpseWeb.constants.randomCovariateCovarianceCorrelationInstructions()));
-		verticalPanel.add(sameCorrelationCheckBox);
 		verticalPanel.add(sigmaYGTable);
-		verticalPanel.add(errorHTML);
+		verticalPanel.add(correlationErrorHTML);
+		verticalPanel.add(rmPanel);
 		
 		// add style
-		header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-		description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+		verticalPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 		sameCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-
+        sigmaYGTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
+        stdDevErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        correlationErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 
 		initWidget(verticalPanel);
 
@@ -180,27 +210,66 @@ implements ChangeHandler
 	@Override
 	public void reset() 
 	{
+	    hasCovariate = false;
+	    totalRepeatedMeasures = 0;
+	    totalRepeatedMeasuresCombinations = 0;
+	    totalWithinFactorCombinations = 0;
+	    totalResponseVariables = 0;
+	    
+	    sigmaYGRows = 0;
+	    sigmaYGColumns = 1;
         sigmaYGTable.removeAllRows();
         sigmaYGData = null;
+        repeatedMeasuresTable.removeAllRows();
         currentRowOffset = 0;
         changeState(WizardStepPanelState.SKIPPED);
 	}
 	
-	private void setEqualCorrelationForRepeatedMeasures() {
-	    for(int row = 0; row < sigmaYGRows; row++) {
-
+	/**
+	 * Copy the currently displayed values across all repeated measurements
+	 */
+	private void setEqualCorrelationForRepeatedMeasures() {	   
+	    // populate the entire sigmaYG matrix with the appropriate values
+	    int totalResponses = sigmaYGTable.getRowCount();
+	    if (totalResponses > 0) { // safety check to avoid potential infinite loop
+	        for(int row = 0; row < sigmaYGRows; row += totalResponses) {
+	            if (row != currentRowOffset) {
+	                for(int responseIdx = 0; responseIdx < totalResponses; responseIdx++) {
+	                    sigmaYGData[row+responseIdx][0] = sigmaYGData[currentRowOffset+responseIdx][0];
+	                }
+	            }
+	        }
+	        // now reset the view to the first time point and disable the repeated measures drop down
+	        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
+	            ListBox lb = 
+	                    (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
+	            lb.setSelectedIndex(0);
+	            lb.setEnabled(false);
+	        }
+	        updateMatrixView();
 	    }
-
+	}
+	
+	/**
+	 * Enable the repeated measures dropdown lists
+	 */
+	private void enableUnequalCorrelationForRepeatedMeasures() {
+	    // reenable the repeated measures dropdowns
+        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
+            ListBox lb = 
+                    (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
+            lb.setEnabled(true);
+        }
 	}
 	
 	/**
 	 * Load the repeated measures information from the context
 	 */
 	private void loadRepeatedMeasuresFromContext() {
-        sigmaYGTable.removeAllRows();
+        // clear the data from the context
+        studyDesignContext.setSigmaOutcomesCovariate(this, null);
         repeatedMeasuresTable.removeAllRows();
-        rmInstructions.setVisible(false);
-        repeatedMeasuresTable.setVisible(false);
+        rmPanel.setVisible(false);
         totalRepeatedMeasures = 0;
         totalRepeatedMeasuresCombinations = 0;
         totalWithinFactorCombinations = totalResponseVariables;
@@ -209,7 +278,6 @@ implements ChangeHandler
 
         if (rmNodeList != null && rmNodeList.size() > 0) {
             // calculate the total repeated measures combinations
-            totalRepeatedMeasuresCombinations = 0;
             for(RepeatedMeasuresNode rmNode: rmNodeList) {
                 if (rmNode.getDimension() != null &&
                         !rmNode.getDimension().isEmpty() &&
@@ -271,11 +339,14 @@ implements ChangeHandler
                 }
 
             }
-            rmInstructions.setVisible(true);
-            repeatedMeasuresTable.setVisible(true);
-        }
+            rmPanel.setVisible(true);
+        } 
         updateMatrixData();
-        checkComplete();
+        if (hasCovariate) {
+            checkComplete();
+        } else {
+            changeState(WizardStepPanelState.SKIPPED);
+        }
 	}
 	
 	/**
@@ -305,13 +376,18 @@ implements ChangeHandler
 	 * Load the responses from the context
 	 */
 	private void loadResponsesFromContext() {
+        // clear the data from the context
+        studyDesignContext.setSigmaOutcomesCovariate(this, null);
         sigmaYGTable.removeAllRows();
         // add the header widgets
         sigmaYGTable.setWidget(0, 0, outcomesHTML);
-        sigmaYGTable.setWidget(0, 0, correlationHTML);
+        sigmaYGTable.setWidget(0, 1, correlationHTML);
+        sigmaYGTable.getRowFormatter().setStyleName(0, 
+                GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_HEADER);
         // add a row for each response variable
         totalWithinFactorCombinations = totalRepeatedMeasuresCombinations;
         totalResponseVariables = 0;
+        sigmaYGRows = 0;
         
         // now load the new responses
         List<ResponseNode> outcomeList = studyDesignContext.getStudyDesign().getResponseList();
@@ -328,14 +404,20 @@ implements ChangeHandler
             for(ResponseNode outcome: outcomeList) {
                 sigmaYGTable.getRowFormatter().setStyleName(row, 
                         GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
-                sigmaYGTable.setWidget(row, 1, new HTML(outcome.getName()));
-                TextBox tb = new TextBox();
+                sigmaYGTable.setWidget(row, 0, new HTML(outcome.getName()));
+                RowColumnTextBox tb = new RowColumnTextBox(row-1, 0);
                 tb.setText(Double.toString(sigmaYGData[row-1+currentRowOffset][0]));
                 tb.addChangeHandler(this);
                 sigmaYGTable.setWidget(row, 1, tb);
                 row++;
             }
+            sigmaYGRows = sigmaYGTable.getRowCount();
         }  
+        if (hasCovariate) {
+            checkComplete();
+        } else {
+            changeState(WizardStepPanelState.SKIPPED);
+        }
 	}
 		
     /**
@@ -381,11 +463,14 @@ implements ChangeHandler
             sigmaYG.setColumns(sigmaYGColumns);
             sigmaYG.setRows(sigmaYGRows);
             sigmaYG.setDataFromArray(sigmaYGData);
-            sigmaYG.setName(GlimmpseWeb.constants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+            sigmaYG.setName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
         }
         studyDesignContext.setSigmaOutcomesCovariate(this, sigmaYG);
     }
 
+	/**
+	 * Load the data from the context regarding the sigmaG and sigmaYG matrices
+	 */
 	private void loadMatricesFromContext() {
 	    // load the data for the sigma G matrix
 	    NamedMatrix sigmaGMatrix = 
@@ -407,7 +492,6 @@ implements ChangeHandler
 	            sigmaYGMatrix.getColumns() > 0 &&
 	            sigmaYGMatrix.getData() != null) {
 	        sigmaYGData = sigmaYGMatrix.getData().getData();
-	        
 	    }
 	    updateMatrixView();
 	}
@@ -419,7 +503,8 @@ implements ChangeHandler
     public void onWizardContextChange(WizardContextChangeEvent e) {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case COVARIATE:
-            if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
+            hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
+            if (hasCovariate) {
                 checkComplete();
             } else {
                 changeState(WizardStepPanelState.SKIPPED);
@@ -438,13 +523,17 @@ implements ChangeHandler
      * Indicates if the screen is complete
      */
     public void checkComplete() {
-        if (!standardDeviationTextBox.getValue().isEmpty() &&
-                sigmaYGData != null &&
-                sigmaYGRows > 0 &&
-                sigmaYGColumns > 0) {
-            changeState(WizardStepPanelState.COMPLETE);
+        if (totalWithinFactorCombinations > 0) {
+            if (!standardDeviationTextBox.getValue().isEmpty() &&
+                    sigmaYGData != null &&
+                    sigmaYGRows > 0 &&
+                    sigmaYGColumns > 0) {
+                changeState(WizardStepPanelState.COMPLETE);
+            } else {
+                changeState(WizardStepPanelState.INCOMPLETE);
+            }
         } else {
-            changeState(WizardStepPanelState.INCOMPLETE);
+            changeState(WizardStepPanelState.NOT_ALLOWED);
         }
     }
     
@@ -456,13 +545,28 @@ implements ChangeHandler
         loadResponsesFromContext();
         loadRepeatedMeasuresFromContext();
         loadMatricesFromContext();
+        
     }
-
+    
     /**
-     * Check for screen completion when new inputs are received
+     * Textbox input validation and check complete
      */
     @Override
-    public void onChange(ChangeEvent event) {
+    public void onChange(ChangeEvent event)
+    {
+        RowColumnTextBox tb = (RowColumnTextBox) event.getSource();
+        try
+        {
+            double value = TextValidation.parseDouble(tb.getText(),-1.0,1.0,true);
+            TextValidation.displayOkay(correlationErrorHTML, "");
+            sigmaYGData[tb.getRow() + currentRowOffset][0] = value;
+        }
+        catch (NumberFormatException nfe)
+        {
+            TextValidation.displayError(correlationErrorHTML, 
+                    GlimmpseWeb.constants.errorInvalidCorrelation());
+            tb.setText("0");
+        }
         checkComplete();
     }
 }
