@@ -47,7 +47,7 @@ public class BaselineCovariatePanel extends WizardStepPanel
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 	// covariate checkbox
-    protected CheckBox covariateCheckBox = new CheckBox();
+    protected CheckBox covariateCheckBox = new CheckBox(GlimmpseWeb.constants.covariateCheckBoxLabel());
     
     /**
      * Create the baseline covariate panel
@@ -67,7 +67,6 @@ public class BaselineCovariatePanel extends WizardStepPanel
         // build the checkbox / label to contorl for a covariate
         HorizontalPanel includeCovariatePanel = new HorizontalPanel();
         includeCovariatePanel.add(covariateCheckBox);
-        includeCovariatePanel.add(new HTML(GlimmpseWeb.constants.covariateCheckBoxLabel()));
         covariateCheckBox.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -83,7 +82,8 @@ public class BaselineCovariatePanel extends WizardStepPanel
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-  
+        covariateCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+  		
         initWidget(panel);
     }
 
