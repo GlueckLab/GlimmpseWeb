@@ -93,20 +93,23 @@ implements ClickHandler
 
 		// list of available tests
 		Grid grid = new Grid(7,2);
-		grid.setWidget(0, 0, unirepCheckBox);
-		grid.setWidget(0, 1, new HTML(GlimmpseWeb.constants.testUnirepLabel()));
-		grid.setWidget(1, 0, unirepGGCheckBox);
-		grid.setWidget(1, 1, new HTML(GlimmpseWeb.constants.testUnirepGeisserGreenhouseLabel()));
-		grid.setWidget(2, 0, unirepHFCheckBox);
-		grid.setWidget(2, 1, new HTML(GlimmpseWeb.constants.testUnirepHuynhFeldtLabel()));
-		grid.setWidget(3, 0, unirepBoxCheckBox);
-		grid.setWidget(3, 1, new HTML(GlimmpseWeb.constants.testUnirepBoxLabel()));
-		grid.setWidget(4, 0, hotellingLawleyCheckBox);
-		grid.setWidget(4, 1, new HTML(GlimmpseWeb.constants.testHotellingLawleyTraceLabel()));
-		grid.setWidget(5, 0, pillaiBartlettCheckBox);
-		grid.setWidget(5, 1, new HTML(GlimmpseWeb.constants.testPillaiBartlettTraceLabel()));
-		grid.setWidget(6, 0, wilksCheckBox);
-		grid.setWidget(6, 1, new HTML(GlimmpseWeb.constants.testWilksLambdaLabel()));
+		grid.setWidget(0, 0, hotellingLawleyCheckBox);
+		grid.setWidget(0, 1, new HTML(GlimmpseWeb.constants.testHotellingLawleyTraceLabel()));
+		grid.setWidget(1, 0, pillaiBartlettCheckBox);
+		grid.setWidget(1, 1, new HTML(GlimmpseWeb.constants.testPillaiBartlettTraceLabel()));
+		grid.setWidget(2, 0, wilksCheckBox);
+		grid.setWidget(2, 1, new HTML(GlimmpseWeb.constants.testWilksLambdaLabel()));
+        grid.setWidget(3, 0, unirepBoxCheckBox);
+        grid.setWidget(3, 1, new HTML(GlimmpseWeb.constants.testUnirepBoxLabel()));
+		grid.setWidget(4, 0, unirepGGCheckBox);
+		grid.setWidget(4, 1, new HTML(GlimmpseWeb.constants.testUnirepGeisserGreenhouseLabel()));
+		grid.setWidget(5, 0, unirepHFCheckBox);
+		grid.setWidget(5, 1, new HTML(GlimmpseWeb.constants.testUnirepHuynhFeldtLabel()));
+        grid.setWidget(6, 0, unirepCheckBox);
+        grid.setWidget(6, 1, new HTML(GlimmpseWeb.constants.testUnirepLabel()));
+
+
+
 		
 		// add callback to check if screen is complete
 		unirepCheckBox.addClickHandler(this);
