@@ -25,16 +25,12 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplanationPanel;
 import edu.ucdenver.bios.glimmpseweb.client.shared.DynamicTabPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
@@ -125,6 +121,8 @@ implements ChangeHandler
      */
     private void loadRepeatedMeasuresFromContext()
     {
+        // clear the context 
+        studyDesignContext.clearCovariance(this);
         // if the responses tab has been added, don't clear it
         Widget responseTabContents = tabPanel.getTabContents(responsesTabHeader);
         if (responseTabContents != null) {
@@ -147,11 +145,11 @@ implements ChangeHandler
                                 node.getNumberOfMeasurements() > 1) {
                     if (tabPanel.getTabCount() <= 0) {
                         tabPanel.insert(0, new HTML(node.getDimension()), 
-                                new CovarianceCorrelationDeckPanel(node, this));
+                                new CorrelationDeckPanel(node, this));
                     } else {
                         tabPanel.insert(tabPanel.getTabCount()-1,
                                 new HTML(node.getDimension()), 
-                                new CovarianceCorrelationDeckPanel(node, this));
+                                new CorrelationDeckPanel(node, this));
                     }
                 }
             }
@@ -163,6 +161,8 @@ implements ChangeHandler
      */
     private void loadResponsesFromContext()
     {
+        // clear the context
+        studyDesignContext.clearCovariance(this);
         // remove the tab for the responses if it is set
         tabPanel.remove(responsesTabHeader);
         // load the new responses
@@ -170,7 +170,7 @@ implements ChangeHandler
             studyDesignContext.getStudyDesign().getResponseList();
         if (responseNodeList != null && responseNodeList.size() > 0) {
             tabPanel.add(responsesTabHeader,
-                    new CovarianceCorrelationDeckPanel(responseNodeList, this));
+                    new CovarianceCorrelationDeckPanel(responseNodeList, this, true));
         }
         checkComplete();
     }
@@ -183,8 +183,8 @@ implements ChangeHandler
         if (tabPanel.getTabCount() > 0) {
             boolean complete = true;
             for(int i = 0; i < tabPanel.getTabCount(); i++) {
-                CovarianceCorrelationDeckPanel panel = 
-                    (CovarianceCorrelationDeckPanel) tabPanel.getTabContents(i);
+                CovarianceBuilder panel = 
+                    (CovarianceBuilder) tabPanel.getTabContents(i);
                 if (!panel.checkComplete()) {
                     complete = false;
                     break;
@@ -238,10 +238,11 @@ implements ChangeHandler
     @Override
     public void onExit()
     {
+        studyDesignContext.clearCovariance(this);
         for(int i = 0; i < tabPanel.getTabCount(); i++)
         {
-            CovarianceCorrelationDeckPanel panel = 
-                (CovarianceCorrelationDeckPanel) tabPanel.getTabContents(i);
+            CovarianceBuilder panel = 
+                (CovarianceBuilder) tabPanel.getTabContents(i);
             Covariance covariance = panel.getCovariance();
             studyDesignContext.setCovariance(this, covariance);
         }

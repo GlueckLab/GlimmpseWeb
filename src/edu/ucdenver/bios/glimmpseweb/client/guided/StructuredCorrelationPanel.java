@@ -57,11 +57,10 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     protected ChangeHandler parent = null;
     
     // input boxes for Lear parameters
-    protected TextBox standardDeviationTextBox = new TextBox();
     protected TextBox strongestCorrelationTextBox = new TextBox();
     protected TextBox rateOfDecayOfCorrelationTextBox = new TextBox();
     // values from the above list boxes
-    protected double standardDeviation = Double.NaN;
+    protected double standardDeviation = 1;
     protected double strongestCorrelation = Double.NaN;
     protected double rateOfDecay = Double.NaN;
     // error html
@@ -103,31 +102,8 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationHeader(), 
                 GlimmpseWeb.constants.rateOfDecayOfCorrelationExplinationText());
 
-        Grid grid = new Grid(3,2);
+        Grid grid = new Grid(2,2);
 
-        standardDeviationTextBox.addChangeHandler(new ChangeHandler()
-        {
-            @Override
-            public void onChange(ChangeEvent event) 
-            {
-                TextBox tb = (TextBox) event.getSource();
-                try
-                {
-                    Double value = TextValidation.parseDouble(tb.getText(),0,true,false);
-                    setStandardDeviation(value);
-                    populateMatrix();
-                    TextValidation.displayOkay(errorHTML, "");
-                }
-                catch(Exception e)
-                {
-                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidStandardDeviation());
-                    tb.setText("");
-                    setStandardDeviation(Double.NaN);
-                }
-            }
-
-        });
-        standardDeviationTextBox.addChangeHandler(parent);
         
         strongestCorrelationTextBox.addChangeHandler(new ChangeHandler()
         {
@@ -178,12 +154,10 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         });
         rateOfDecayOfCorrelationTextBox.addChangeHandler(parent);
         
-        grid.setWidget(0, 0, standardDeviation);
-        grid.setWidget(0, 1, standardDeviationTextBox);
-        grid.setWidget(1, 0, strongestCorrelation);
-        grid.setWidget(1, 1, strongestCorrelationTextBox);
-        grid.setWidget(2, 0, rateOfDecayOfCorrelation);
-        grid.setWidget(2, 1, rateOfDecayOfCorrelationTextBox);
+        grid.setWidget(0, 0, strongestCorrelation);
+        grid.setWidget(0, 1, strongestCorrelationTextBox);
+        grid.setWidget(1, 0, rateOfDecayOfCorrelation);
+        grid.setWidget(1, 1, rateOfDecayOfCorrelationTextBox);
 
 
         int size = spacingList.size();      
@@ -203,10 +177,6 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 
         initWidget(verticalPanel);
-    }
-
-    private void setStandardDeviation(double value) {
-        standardDeviation = value;
     }
 
     private void setStrongestCorrelation(double value) {

@@ -27,7 +27,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -55,38 +54,60 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
     protected String name;
     // parent panel
     protected ChangeHandler parent = null;
+    // indicates if this is a correlation only panel, or includes the ability
+    // to edit standard deviation values.  If non-editable, all std dev
+    // values are forced to 1.
+    protected boolean showStandardDeviation = true;
+    // panel containing vector of standard deviation values
+    protected VerticalPanel standardDeviationPanel = new VerticalPanel();
     //Grid to construct the Standard Deviation Entry Text boxes
     protected FlexTable standardDeviationFlexTable = new FlexTable();	
 
     // error display for standard deviation list
     protected HTML errorHTML = new HTML();
 
+    // panel containing correlation related widgets
+    protected VerticalPanel correlationPanel = new VerticalPanel();
     // matrix panel for correlation matrix
     protected ResizableMatrixPanel correlationMatrix;
 
     /**
      * Constructor for the unStructuredCorrelationPanel class
+     * @param covarianceName
      * @param stringList
      * @param integerList
+     * @param showStdDev
+     * @param handler
      */
     public UnStructuredCorrelationPanel(String covarianceName,
-            List<String> labelList, List<Integer> spacingList, ChangeHandler handler)
+            List<String> labelList, List<Integer> spacingList, 
+            boolean showStdDev, ChangeHandler handler)
     {
         // store the covariance name
         name = covarianceName;
         parent = handler;
+        showStandardDeviation = showStdDev;
         //Instance of vertical panel to hold all the widgets created in this class
         VerticalPanel verticalPanel = new VerticalPanel();
 
+        // build the standard deviation grid
         HTML expectedStandardDeviationText = 
-            new HTML(GlimmpseWeb.constants.unstructuredCorrelationEnterExpectedStandardDeviation());
-        HTML expectedCorrelationText = 
-            new HTML(GlimmpseWeb.constants.unstructuredCorrelationEnterExpectedCorrelation());
-
-        //calling a method to construct the Standard Deviation text boxes 
-        //based on the input obtained form RepeatedMeasuresNode object
+            new HTML(GlimmpseWeb.constants.unstructuredCorrelationExpectedStandardDeviation());
+        // construct the Standard Deviation text boxes using the specified labels
         constructStandardDeviationGrid(labelList);
-
+        // add to the standard deviation subpanel
+        standardDeviationPanel.add(expectedStandardDeviationText);
+        standardDeviationPanel.add(standardDeviationFlexTable);
+        standardDeviationPanel.add(errorHTML);
+        
+        // build the correlation sub-panel
+        HTML expectedCorrelationText = new HTML();
+        // TODO: add function to change text or add to constructor 
+        if (showStdDev) {
+            expectedCorrelationText.setText(GlimmpseWeb.constants.unstructuredCorrelationExpectedCorrelationMultivariate());
+        } else {
+            expectedCorrelationText.setText(GlimmpseWeb.constants.unstructuredCorrelationExpectedCorrelationRepeatedMeasures());
+        }
         //calling a method to construct a Correlation matrix based on the standard deviations entered
         int size = spacingList.size();
         correlationMatrix = new ResizableMatrixPanel(size, size, false, false, true, true);
@@ -96,17 +117,26 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         correlationMatrix.setMinCellValue(-1.0);
         correlationMatrix.setCellErrorMessage(GlimmpseWeb.constants.errorInvalidCorrelation());
         correlationMatrix.setColumnLabels(labelList);
-        // only show the correlation when the matrix is not 1x1
-        correlationMatrix.setVisible(size != 1);
+        // add to the correlation sub panel
+        correlationPanel.add(expectedCorrelationText);
+        correlationPanel.add(correlationMatrix);
         
-        verticalPanel.add(expectedStandardDeviationText);
-        verticalPanel.add(standardDeviationFlexTable);
-        verticalPanel.add(errorHTML);
-        verticalPanel.add(expectedCorrelationText);
-        verticalPanel.add(correlationMatrix);
+        // layout the overall panel
+        verticalPanel.add(standardDeviationPanel);
+        verticalPanel.add(correlationPanel);
 
+        // hide the standard deviation 
+        // TODO: the showStdDev=false should only be used when we are guaranteed
+        // a correlation matrix 2x2 or larger (i.e. repeated measures).  Otherwise the panel
+        // will end up empty!
+        standardDeviationPanel.setVisible(showStdDev);
+        // only show the correlation panel when the matrix is not 1x1
+        correlationPanel.setVisible(size != 1);
+        
         // add styles
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        expectedStandardDeviationText.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        expectedCorrelationText.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         
         //initilizing the vertical pane widgets which holds all the widgets of the class		
         initWidget(verticalPanel);
@@ -175,17 +205,26 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         covariance.setName(name);
         covariance.setType(CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
         List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
-        for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
-        {
-            TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
-            String value = tb.getValue();
-            StandardDeviation sd = new StandardDeviation();
-            if (value != null && !value.isEmpty()) {
-                sd.setValue(Double.parseDouble(tb.getValue()));
-            } else {
-                sd.setValue(Double.NaN);
+        if (showStandardDeviation) {
+            for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
+            {
+                TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
+                String value = tb.getValue();
+                StandardDeviation sd = new StandardDeviation();
+                if (value != null && !value.isEmpty()) {
+                    sd.setValue(Double.parseDouble(tb.getValue()));
+                } else {
+                    sd.setValue(Double.NaN);
+                }
+                sdList.add(sd);
             }
-            sdList.add(sd);
+        } else {
+            for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
+            {
+                StandardDeviation sd = new StandardDeviation();
+                sd.setValue(1);
+                sdList.add(sd);
+            }
         }
         covariance.setStandardDeviationList(sdList);
 

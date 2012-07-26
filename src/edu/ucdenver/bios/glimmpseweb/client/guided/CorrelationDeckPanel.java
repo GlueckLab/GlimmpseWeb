@@ -42,27 +42,26 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
 
 /**
- * Class which allows input of covariance matrices either as
+ * Class which allows input of correlation matrices either as
  * 1. Lear correlation
  * 2. Unstructured correlation
- * 3. Unstructured covariance
  * 
  * @author VIJAY AKULA
  * @author Sarah Kreidler
  *
  */
-public class CovarianceCorrelationDeckPanel extends Composite
+public class CorrelationDeckPanel extends Composite
 implements ChangeHandler, CovarianceBuilder
 {
     // deck panel indices for the correlation/covariance views
-    private static final int UNSTRUCT_CORRELATION_INDEX = 0;
-    private static final int UNSTRUCT_COVARIANCE_INDEX = 1;
+    private static final int STRUCT_CORRELATION_INDEX = 0;
+    private static final int UNSTRUCT_CORRELATION_INDEX = 1;
     
     // parent panel
     protected ChangeHandler parent = null;
     // name of the dimension
     protected String name = "";
-    // size of the covariance matrix
+    // row / column dimension of the correlation matrix
     protected int size = -1;
     
     // main deck panel containing covariance views
@@ -70,26 +69,25 @@ implements ChangeHandler, CovarianceBuilder
 	// 
 	protected VerticalPanel controlButtonPanel = new VerticalPanel();
 	
-	/* buttons to switch between covariance / correlation views */
-	// switch to unstructured covariance view 
-	protected ButtonWithExplanationPanel unstructuredCovarianceButton =
-	        new ButtonWithExplanationPanel(
-	                GlimmpseWeb.constants.useCustomVariablity(),
-			GlimmpseWeb.constants.useCustomVariablityAlertHeader(), 
-			GlimmpseWeb.constants.useCustomVariabilityAlertText());
-	
+	/* buttons to switch between structured and unstructured views */
 	protected ButtonWithExplanationPanel unstructuredCorrelationButton =
 	        new ButtonWithExplanationPanel(
 	                GlimmpseWeb.constants.useCustomCorrelation(),
 			GlimmpseWeb.constants.useCustomCorrelationAlertHeader(), 
 			GlimmpseWeb.constants.useCustomCorrelationAlertText());
 	
+	protected ButtonWithExplanationPanel structuredCorrelationButton =
+	        new ButtonWithExplanationPanel(
+	                GlimmpseWeb.constants.useStructuredVariability(),
+			GlimmpseWeb.constants.useStructuredVariabilityAlertHeader(), 
+			GlimmpseWeb.constants.useStructuredVariabilityAlertText());
+	
 	/**
 	 * Build a covariance deck for a repeated measures dimension
 	 * @param repeatedMeasuresNode
 	 */
-	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode,
-	        ChangeHandler handler, boolean showStdDev) {
+	public CorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode,
+	        ChangeHandler handler) {
 	    parent = handler;
 	    name = repeatedMeasuresNode.getDimension();
 	    // build a list of labels and spacing values
@@ -110,27 +108,7 @@ implements ChangeHandler, CovarianceBuilder
                 integerSpacingList.add(i);
             }
 		}
-		buildDeckPanel(labelList, integerSpacingList, showStdDev);
-	}
-	
-	/**
-	 * Create a covariance input panel for the specified response list
-	 * @param responseList response variable list
-	 */
-	public CovarianceCorrelationDeckPanel(List<ResponseNode> responseList,
-	        ChangeHandler handler, boolean showStdDev)
-	{
-	    parent = handler;
-	    name = GlimmpseConstants.RESPONSES_COVARIANCE_LABEL;
-	    ArrayList<String> labels = new ArrayList<String>(responseList.size());
-		List<Integer> spacingList = new ArrayList<Integer>(responseList.size());
-		int i = 1;
-		for(ResponseNode node: responseList) {
-			spacingList.add(i);
-			labels.add(node.getName());
-			i++;
-		}
-		buildDeckPanel(labels, spacingList, showStdDev);
+		buildDeckPanel(labelList, integerSpacingList);
 	}
 	
 	/**
@@ -140,33 +118,27 @@ implements ChangeHandler, CovarianceBuilder
 	 * @param labelList
 	 * @param spacingList
 	 */
-	private void buildDeckPanel(List<String> labelList, List<Integer>spacingList, 
-	        boolean showStdDev)
+	private void buildDeckPanel(List<String> labelList, List<Integer>spacingList)
 	{
 	    size = spacingList.size();
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
+		StructuredCorrelationPanel structuredCorrelationPanelInstance = 
+				new StructuredCorrelationPanel(name, labelList, spacingList, this);
 		UnStructuredCorrelationPanel unstructuredCorrelationPanelInstance = 
-		        new UnStructuredCorrelationPanel(name, labelList, spacingList, showStdDev, this);
-		UnStructuredCovariancePanel unstructuredCovariancePanelInstance = 
-		        new UnStructuredCovariancePanel(name, labelList, spacingList, this);
+              new UnStructuredCorrelationPanel(name, labelList, spacingList, false, this);
 		
+		deckPanel.add(structuredCorrelationPanelInstance);
 		deckPanel.add(unstructuredCorrelationPanelInstance);
-		deckPanel.add(unstructuredCovariancePanelInstance);
 		
 		// show the first widget
-		showWidget(UNSTRUCT_CORRELATION_INDEX);
+		if (spacingList.size() <= 2) {
+		    showWidget(UNSTRUCT_CORRELATION_INDEX);
+		} else {
+		    showWidget(STRUCT_CORRELATION_INDEX);
+		}
 		
-		// add button handlers to switch views
-		unstructuredCovarianceButton.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event) 
-			{
-				showWidget(UNSTRUCT_COVARIANCE_INDEX);
-			}
-		});
-			
+		// add button handlers to switch views			
 		unstructuredCorrelationButton.addClickHandler(new ClickHandler()
 		{
 			@Override
@@ -175,9 +147,17 @@ implements ChangeHandler, CovarianceBuilder
                 showWidget(UNSTRUCT_CORRELATION_INDEX);	
 			}
 		});
+		structuredCorrelationButton.addClickHandler(new ClickHandler()
+		{
+		    @Override
+		    public void onClick(ClickEvent event) 
+		    {
+		        showWidget(STRUCT_CORRELATION_INDEX); 
+		    }
+		});	
 		
-		controlButtonPanel.add(unstructuredCovarianceButton);
 		controlButtonPanel.add(unstructuredCorrelationButton);
+		controlButtonPanel.add(structuredCorrelationButton);		
 				
 		verticalPanel.add(deckPanel);
 		verticalPanel.add(controlButtonPanel);
@@ -188,9 +168,9 @@ implements ChangeHandler, CovarianceBuilder
 	
 	private void showWidget(int index) {
 	    deckPanel.showWidget(index);
-	    unstructuredCovarianceButton.setVisible(index != UNSTRUCT_COVARIANCE_INDEX &&
-	            size > 1);
 	    unstructuredCorrelationButton.setVisible(index != UNSTRUCT_CORRELATION_INDEX);
+	    structuredCorrelationButton.setVisible(index != STRUCT_CORRELATION_INDEX &&
+	            size > 2);
 	}
 	
 	/**

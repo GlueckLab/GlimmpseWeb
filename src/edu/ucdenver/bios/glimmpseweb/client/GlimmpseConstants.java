@@ -620,9 +620,9 @@ public interface GlimmpseConstants extends Constants
      
      public String unstructuredCorrelationTitle();
      public String unstructuredCorrelationDescription();
-     public String unstructuredCorrelationEnterExpectedStandardDeviation();
-     public String unstructuredCorrelationEnterExpectedCorrelation();
-     public String unstructuredCorrelationStandardDeviationError();
+     public String unstructuredCorrelationExpectedStandardDeviation();
+     public String unstructuredCorrelationExpectedCorrelationMultivariate();
+     public String unstructuredCorrelationExpectedCorrelationRepeatedMeasures();
      
      //unstructured covariance panel
      public String unstructuredCovarianceInstructions();

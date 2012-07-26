@@ -230,6 +230,7 @@ implements ClickHandler
         {
             quantileList.add(new Quantile(Double.parseDouble(value)));
         }
+        studyDesignContext.setQuantileList(this, quantileList);
     }
 
 
