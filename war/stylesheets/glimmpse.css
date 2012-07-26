@@ -842,29 +842,6 @@ body {
 	border: none;
 }
 
-.tabHeader {
-	border: 1px solid #333;
-	background-color: #e4eaef;
-	color: black;	
-	height: 24px;
-}
-
-.tabHeader-selected {
-	background-color: white;
-}
-
-.tabHeaderPanel {
-	background: #e4eaef;
-	width: 720px;
-	height: 24px;
-}
-
-.tabContentPanel {
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;	
-  	width: 750px;
-}
-
 /* error message styles */
 .message-error {
 	color: maroon;
