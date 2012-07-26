@@ -230,11 +230,10 @@ implements ChangeHandler
 	 */
 	private void setEqualCorrelationForRepeatedMeasures() {	   
 	    // populate the entire sigmaYG matrix with the appropriate values
-	    int totalResponses = sigmaYGTable.getRowCount();
-	    if (totalResponses > 0) { // safety check to avoid potential infinite loop
-	        for(int row = 0; row < sigmaYGRows; row += totalResponses) {
+	    if (totalResponseVariables > 0) { // safety check to avoid potential infinite loop
+	        for(int row = 0; row < sigmaYGRows; row += totalResponseVariables) {
 	            if (row != currentRowOffset) {
-	                for(int responseIdx = 0; responseIdx < totalResponses; responseIdx++) {
+	                for(int responseIdx = 0; responseIdx < totalResponseVariables; responseIdx++) {
 	                    sigmaYGData[row+responseIdx][0] = sigmaYGData[currentRowOffset+responseIdx][0];
 	                }
 	            }
@@ -410,8 +409,8 @@ implements ChangeHandler
                 tb.addChangeHandler(this);
                 sigmaYGTable.setWidget(row, 1, tb);
                 row++;
+                sigmaYGRows++;
             }
-            sigmaYGRows = sigmaYGTable.getRowCount();
         }  
         if (hasCovariate) {
             checkComplete();
