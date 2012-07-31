@@ -105,6 +105,10 @@ implements HypothesisBuilder {
         VerticalPanel verticalPanel = new VerticalPanel();
         HTML text = new HTML(GlimmpseWeb.constants.mainEffectPanelText());
 
+        // hide the flex table labels until we have some rows in the tables
+        betweenParticipantFactors.setVisible(false);
+        withinParticipantFactors.setVisible(false);
+        
         //Style Sheets
         text.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);

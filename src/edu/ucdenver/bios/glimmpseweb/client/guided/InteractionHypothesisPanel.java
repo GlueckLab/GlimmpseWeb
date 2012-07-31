@@ -57,7 +57,13 @@ implements HypothesisBuilder, ClickHandler
     // variable lists
     protected FlexTable betweenParticipantFactorsFlexTable = new FlexTable();
     protected FlexTable withinParticipantFactorsFlexTable = new FlexTable();
-
+    // labels for variable lists
+    HTML betweenParticipantFactors = 
+        new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
+    HTML withinParticipantFactors = 
+        new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
+    
+    
     // panel which contains a between participant effect
     private class BetweenParticipantVariablePanel 
     extends InteractionVariablePanel {
@@ -90,18 +96,18 @@ implements HypothesisBuilder, ClickHandler
         VerticalPanel verticalPanel = new VerticalPanel();
 
         HTML text = new HTML(GlimmpseWeb.constants.interactionHypothesisPanelText());
-        HTML betweenParticipantFactors = 
-            new HTML(GlimmpseWeb.constants.hypothesisPanelBetweenParticipantFactorsLabel());
-        HTML withinParticipantFactors = 
-            new HTML(GlimmpseWeb.constants.hypothesisPanelWithinParticipantFactorsLabel());
 
+        // hide the flex table labels until we have some rows in the tables
+        betweenParticipantFactors.setVisible(false);
+        withinParticipantFactors.setVisible(false);
+        
         //Style Sheets
         text.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         betweenParticipantFactors.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+                GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         withinParticipantFactors.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+                GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
 
         verticalPanel.add(text);
         verticalPanel.add(betweenParticipantFactors);
@@ -134,6 +140,9 @@ implements HypothesisBuilder, ClickHandler
                 row++;
             }
         }
+        // hide the label if no factors of this type
+        betweenParticipantFactors.setVisible(
+                betweenParticipantFactorsFlexTable.getRowCount() > 0);
     }
 
     /**
@@ -159,6 +168,9 @@ implements HypothesisBuilder, ClickHandler
                 }
             }
         }
+        // hide the label if no factors of this type
+        withinParticipantFactors.setVisible(
+                withinParticipantFactorsFlexTable.getRowCount() > 0);
     }
 
     /**

@@ -107,6 +107,10 @@ implements HypothesisBuilder {
         HTML selectTypeOfTrend = new HTML(
                 GlimmpseWeb.constants.hypothesisPanelSelectTypeOfTrend());
 
+        // hide the flex table labels until we have some rows in the tables
+        betweenParticipantFactors.setVisible(false);
+        withinParticipantFactors.setVisible(false);
+        
         // listen for trend selection events
         editTrendPanel.addClickHandler(parent);
         
