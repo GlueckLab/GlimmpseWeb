@@ -41,6 +41,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.FactorTable;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.Blob2DArray;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
@@ -162,8 +163,6 @@ implements ChangeHandler
      * Load between participant factors from the context
      */
     private void loadBetweenParticipantFactorsFromContext() {
-        // clear the data from the context
-        studyDesignContext.setBeta(this, null, null);
         // remove existing information related to between factors
         if (totalBetweenFactors > 0) {
             // remove all but the header row
@@ -214,6 +213,7 @@ implements ChangeHandler
             // lastly, fill in the text boxes
             fillTextBoxes();
             updateMatrixData();
+            updateMatrixView();
         }
         checkComplete();
     }
@@ -222,8 +222,6 @@ implements ChangeHandler
      * Load within participant factors from the context
      */
     private void loadRepeatedMeasuresFromContext() {
-        // clear the data from the context
-        studyDesignContext.setBeta(this, null, null);
         // now clear the panel
         repeatedMeasuresTable.removeAllRows();
         rmInstructions.setVisible(false);
@@ -303,6 +301,7 @@ implements ChangeHandler
             repeatedMeasuresTable.setVisible(true);
         }
         updateMatrixData();
+        updateMatrixView();
         checkComplete();
     }
         
@@ -342,13 +341,34 @@ implements ChangeHandler
             }
         }
     }
+    
+    /**
+     * Load the beta matrix information from the context
+     */
+    private void loadMatrixDataFromContext() {
+        NamedMatrix betaMatrix = 
+            studyDesignContext.getStudyDesign().getNamedMatrix(
+                    GlimmpseConstants.MATRIX_BETA);
+        if (betaMatrix != null && betaMatrix.getColumns() == totalWithinFactorCombinations &&
+                betaMatrix.getRows() == totalBetweenFactorCombinations) {
+            Blob2DArray blob = betaMatrix.getData();
+            if (blob != null && blob.getData() != null) {
+                double[][] betaData = blob.getData();
+                for(int row = 0; row < totalBetweenFactorCombinations; row++) {
+                    for(int col = 0; col < totalWithinFactorCombinations; col++) {
+                        betaFixedData[row][col] = betaData[row][col];
+                    }
+                }
+            }
+        }
+        updateMatrixView();
+        checkComplete();
+    }
 
     /**
      * Load response variable information from the context
      */    
     private void loadResponsesFromContext() {
-        // clear the data from the context
-        studyDesignContext.setBeta(this, null, null);
         // remove existing information about response variables
         if (totalResponseVariables > 0) {
             // remove the columns associated with the responses
@@ -400,6 +420,7 @@ implements ChangeHandler
         // create text boxes to hold the means
         fillTextBoxes();
         updateMatrixData();
+        updateMatrixView();
         checkComplete();
     }
 
@@ -520,12 +541,18 @@ implements ChangeHandler
     {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case BETWEEN_PARTICIPANT_FACTORS:
+            // clear the data from the context
+            studyDesignContext.setBeta(this, null, null);
             loadBetweenParticipantFactorsFromContext();
             break;
         case REPEATED_MEASURES:
+            // clear the data from the context
+            studyDesignContext.setBeta(this, null, null);
             loadRepeatedMeasuresFromContext();
             break;
         case RESPONSES_LIST:
+            // clear the data from the context
+            studyDesignContext.setBeta(this, null, null);
             loadResponsesFromContext();
             break;
         case COVARIATE:
@@ -544,6 +571,7 @@ implements ChangeHandler
         loadBetweenParticipantFactorsFromContext();
         loadRepeatedMeasuresFromContext();
         loadResponsesFromContext();
+        loadMatrixDataFromContext();
     }
 
 }
