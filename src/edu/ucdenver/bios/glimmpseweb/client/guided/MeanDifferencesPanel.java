@@ -352,7 +352,8 @@ implements ChangeHandler
         // remove existing information about response variables
         if (totalResponseVariables > 0) {
             // remove the columns associated with the responses
-            for(int col = totalBetweenFactors; col < totalResponseVariables; col++) {
+            for(int col = totalBetweenFactors + totalResponseVariables-1; 
+                col > totalBetweenFactors; col--) {
                 for(int row = meansTable.getRowCount()-1; row >= 0; row--) {
                     meansTable.removeCell(row, col);
                 }
