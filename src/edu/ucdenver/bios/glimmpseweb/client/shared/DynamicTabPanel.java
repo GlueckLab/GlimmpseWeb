@@ -297,15 +297,22 @@ public class DynamicTabPanel extends Composite {
     }
 
     /**
-     * Get the 
-     * @param i
-     * @return
+     * Get the content widget that is currently visible
+     * @return content widget of visible tab
      */
     public Widget getVisibleWidget() {
         if (tabDeck.getVisibleWidget() >= 0) {
             return tabDeck.getWidget(tabDeck.getVisibleWidget());
         }
         return null;
+    }
+    
+    /**
+     * Get the index of the visible widget
+     * @return index of visible tab
+     */
+    public int getVisibleIndex() {
+        return tabDeck.getVisibleWidget();
     }
 
     /**

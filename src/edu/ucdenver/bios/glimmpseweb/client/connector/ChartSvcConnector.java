@@ -41,6 +41,19 @@ import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
  *
  */
 public class ChartSvcConnector {
+    private static final String CI_LINE_STYLE = "1,1,3";
+    private static final String[] BUILT_IN_LINE_STYLES = {
+        "1,1,1",
+        "1,2,2",
+        "1,4,2",
+        "1,6,2",
+        "1,8,2",
+        "1,10,2",
+        "1,12,2",
+        "1,14,2",
+        "1,16,2",
+        "1,18,2",
+    };
     private static final String SERIES_DELIM = "|";
     private static final String CURVE_URL = GlimmpseWeb.constants.chartSvcHostScatter();
     private static final String LEGEND_URL = GlimmpseWeb.constants.chartSvcHostLegend();
@@ -133,16 +146,15 @@ public class ChartSvcConnector {
         // add data series
         List<PowerCurveDataSeries> dataSeriesList = curveDescription.getDataSeriesList();
         boolean firstSeries = true;
+        int lineStyleIndex = 0;
         if (dataSeriesList != null) {
             StringBuffer seriesLabels = new StringBuffer();
             seriesLabels.append("&chdl=");
             /* Begin : Changes for line style */
             StringBuffer lineStyles = new StringBuffer();
             lineStyles.append("&ls=");
-            int numberOfGrapths = dataSeriesList.size();
             /* End : Changes for line style */
             queryStr.append("&chd=t:");
-            GWT.log("Data Series List Size : "+dataSeriesList.size());
             for(PowerCurveDataSeries dataSeries: dataSeriesList) {
                 if (!firstSeries) {
                     seriesLabels.append(SERIES_DELIM);                    
@@ -198,21 +210,25 @@ public class ChartSvcConnector {
                         /* End : Changes for line style */
                     }
                     /* Begin : Changes for line style */                
-                    lineStyles.append(""+1.5*numberOfGrapths--+",1,1");                
+                    lineStyles.append(BUILT_IN_LINE_STYLES[lineStyleIndex]);
+                    lineStyleIndex++;
+                    if (lineStyleIndex >= BUILT_IN_LINE_STYLES.length) {
+                        lineStyleIndex = 0;
+                    }
                     /* End : Changes for line style */
                     queryStr.append(xValues.toString() + SERIES_DELIM + main.toString());
                     if (lowerCI.length() > 0) {
                         queryStr.append(SERIES_DELIM + xValues.toString() + 
                                 SERIES_DELIM + lowerCI.toString());
                         /* Begin : Changes for line style */                
-                        lineStyles.append(SERIES_DELIM+"1,1,3");                
+                        lineStyles.append(SERIES_DELIM+CI_LINE_STYLE);                
                         /* End : Changes for line style */
                     }
                     if (upperCI.length() > 0) {
                         queryStr.append(SERIES_DELIM + xValues.toString() + 
                                 SERIES_DELIM + upperCI.toString());
                         /* Begin : Changes for line style */                
-                        lineStyles.append(SERIES_DELIM+"1,1,3");                
+                        lineStyles.append(SERIES_DELIM+CI_LINE_STYLE);                
                         /* End : Changes for line style */
                     }                    
                 }

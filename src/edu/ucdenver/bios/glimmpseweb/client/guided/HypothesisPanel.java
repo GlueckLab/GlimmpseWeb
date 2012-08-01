@@ -185,15 +185,12 @@ implements ClickHandler, ChangeHandler {
     public void onWizardContextChange(WizardContextChangeEvent e) {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case RESPONSES_LIST:
-            studyDesignContext.getStudyDesign().setHypothesis(null);
             grandMeanHypothesisPanelInstance.loadResponseList(
                     studyDesignContext.getStudyDesign().getResponseList());
             updateHypothesisOptions();
-            tabPanel.openTab(0);
+            buildAndSaveHypothesis();
             break;
         case BETWEEN_PARTICIPANT_FACTORS:
-            // clear the current hypothesis from the context
-            studyDesignContext.getStudyDesign().setHypothesis(null);
             // now update the panel
             List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
@@ -201,20 +198,19 @@ implements ClickHandler, ChangeHandler {
             interactionHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
             trendHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
             updateHypothesisOptions();
-            tabPanel.openTab(0);
+            buildAndSaveHypothesis();
             break;
         case REPEATED_MEASURES:
-            // clear the current hypothesis from the context
-            studyDesignContext.getStudyDesign().setHypothesis(null);
             List<RepeatedMeasuresNode> rmNodeList = 
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
             mainEffectHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
             interactionHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
             trendHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
             updateHypothesisOptions();
-            tabPanel.openTab(0);
+            buildAndSaveHypothesis();
             break;
         }
+        
     };
 
     /**
@@ -222,6 +218,8 @@ implements ClickHandler, ChangeHandler {
      * number of factors, etc.
      */
     private void updateHypothesisOptions() {
+        int currentVisible = tabPanel.getVisibleIndex();
+        
         List<BetweenParticipantFactor> factorList = 
                 studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         List<RepeatedMeasuresNode> rmNodeList = 
@@ -270,7 +268,11 @@ implements ClickHandler, ChangeHandler {
         if (totalMultiCategoryFactors > 1) {
             tabPanel.add(interactionSelectPanel, (Widget) interactionHypothesisPanelInstance);
         }
-        tabPanel.openTab(0);
+        if (currentVisible < tabPanel.getTabCount()) {
+            tabPanel.openTab(currentVisible);
+        } else {
+            tabPanel.openTab(0);
+        }
 
         // if no factors or one-sample with no responses, set state to not-allowed.  
         // Otherwise check if the panel is complete
@@ -365,23 +367,29 @@ implements ClickHandler, ChangeHandler {
             changeState(WizardStepPanelState.INCOMPLETE);
         }
     }
+    
+    /**
+     * Save the hypothesis to the context
+     */
+    private void buildAndSaveHypothesis() {
+        // get the currently visible widget
+        HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
+        if (builder != null) {
+            studyDesignContext.setHypothesis(this, builder.buildHypothesis());
+            NamedMatrix thetaNull = builder.buildThetaNull();
+            studyDesignContext.setThetaNull(this, thetaNull);
+        } else {
+            studyDesignContext.setHypothesis(this, null);
+            studyDesignContext.setThetaNull(this, null);
+        }
+    }
 
     /**
      * Build the hypothesis object and store in the context
      */
     public void onExit()
     {
-        // get the currently visible widget
-        HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
-        if (builder != null) {
-            studyDesignContext.setHypothesis(this, builder.buildHypothesis());
-            NamedMatrix thetaNull = builder.buildThetaNull();
-            if (thetaNull != null) {
-                studyDesignContext.setThetaNull(this, thetaNull);
-            }
-        } else {
-            studyDesignContext.setHypothesis(this, null);
-        }
+        buildAndSaveHypothesis();
     }
 
     @Override
