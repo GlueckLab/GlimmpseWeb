@@ -33,6 +33,7 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
+import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
 import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
@@ -96,5 +97,21 @@ implements CovarianceBuilder
      */
     public boolean checkComplete() {
         return true;
+    }
+    
+    /**
+     * Load the panel from the specified covariance object
+     * @param covariance covariance object
+     */
+    @Override
+    public void loadCovariance(Covariance covariance) {
+        if (covariance != null && 
+                CovarianceTypeEnum.UNSTRUCTURED_COVARIANCE == covariance.getType()) {
+            // load the data
+            if (covariance.getBlob() != null) {
+                covarianceMatrix.loadMatrixData(covariance.getRows(), 
+                        covariance.getColumns(), covariance.getBlob().getData());
+            }
+        }
     }
 }

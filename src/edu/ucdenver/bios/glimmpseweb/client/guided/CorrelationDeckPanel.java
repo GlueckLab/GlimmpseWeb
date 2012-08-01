@@ -196,9 +196,38 @@ implements ChangeHandler, CovarianceBuilder
         return covarianceBuilder.checkComplete();
 	}
 
+	/**
+	 * Call the change handler for the parent panel
+	 */
     @Override
     public void onChange(ChangeEvent event) {
         parent.onChange(event);
+    }
+
+    /**
+     * Load information from the specified covariance object into the panel
+     * @param covariance the covariance object
+     */
+    public void loadCovariance(Covariance covariance) {
+        if (covariance != null) {
+            int index = -1;
+            switch (covariance.getType()) {
+            case UNSTRUCTURED_CORRELATION:
+                index = UNSTRUCT_CORRELATION_INDEX;
+                break;
+            case LEAR_CORRELATION:
+                index = STRUCT_CORRELATION_INDEX;
+                break;
+            }
+            if (index > -1) {
+                CovarianceBuilder covarianceBuilder = 
+                    (CovarianceBuilder) deckPanel.getWidget(index);
+                showWidget(index);
+                if (covarianceBuilder != null) {
+                    covarianceBuilder.loadCovariance(covariance);
+                }
+            }
+        }
     }
 }
 

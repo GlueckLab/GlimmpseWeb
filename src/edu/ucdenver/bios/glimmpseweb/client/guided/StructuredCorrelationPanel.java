@@ -58,7 +58,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     
     // input boxes for Lear parameters
     protected TextBox strongestCorrelationTextBox = new TextBox();
-    protected TextBox rateOfDecayOfCorrelationTextBox = new TextBox();
+    protected TextBox rateOfDecayTextBox = new TextBox();
     // values from the above list boxes
     protected double standardDeviation = 1;
     protected double strongestCorrelation = Double.NaN;
@@ -129,7 +129,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         });
         strongestCorrelationTextBox.addChangeHandler(parent);
         
-        rateOfDecayOfCorrelationTextBox.addChangeHandler(new ChangeHandler()
+        rateOfDecayTextBox.addChangeHandler(new ChangeHandler()
         {
             @Override
             public void onChange(ChangeEvent event) 
@@ -152,12 +152,12 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 }
             }
         });
-        rateOfDecayOfCorrelationTextBox.addChangeHandler(parent);
+        rateOfDecayTextBox.addChangeHandler(parent);
         
         grid.setWidget(0, 0, strongestCorrelation);
         grid.setWidget(0, 1, strongestCorrelationTextBox);
         grid.setWidget(1, 0, rateOfDecayOfCorrelation);
-        grid.setWidget(1, 1, rateOfDecayOfCorrelationTextBox);
+        grid.setWidget(1, 1, rateOfDecayTextBox);
 
 
         int size = spacingList.size();      
@@ -254,6 +254,26 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
             covariance.setRho(strongestCorrelation);
         }
         return covariance;
+    }
+
+    /**
+     * Load the panel from the specified covariance object
+     * @param covariance covariance object
+     */
+    @Override
+    public void loadCovariance(Covariance covariance) {
+        if (covariance != null && 
+                CovarianceTypeEnum.LEAR_CORRELATION == covariance.getType()) {
+            if (covariance.getDelta() >= 0) {
+                rateOfDecay = covariance.getDelta();
+                rateOfDecayTextBox.setText(Double.toString(rateOfDecay));
+            }
+            if (covariance.getRho() >= 0) {
+                strongestCorrelation = covariance.getRho();
+                strongestCorrelationTextBox.setText(Double.toString(strongestCorrelation));
+            }
+            populateMatrix();
+        }
     }
 
 }

@@ -743,6 +743,31 @@ public class ResizableMatrixPanel extends Composite
             columnTextBox.setValue(Integer.toString(columns));
         }
     }
+    
+    /**
+     * Load a submatrix of data into the panel
+     * @param dataRows number of rows in the data
+     * @param dataColumns number of columns in the data
+     * @param data the data
+     */
+    public void loadMatrixData(int dataRows, int dataColumns, double[][] data) {
+        if (dataRows <= rows &&
+                dataColumns <= columns &&
+                data != null) {
+            for(int row = 0; row < dataRows; row++)
+            {
+                for(int column = 0; column < dataColumns; column++)
+                {
+                    double value = data[row][column];
+                    if (value != Double.NaN) {
+                        setCellValue(row, column, Double.toString(value));
+                    } else {
+                        setCellValue(row, column, "");
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Get row dimension of the matrix

@@ -30,6 +30,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Grid;
@@ -67,6 +68,9 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
     protected FormPanel formPanel = new FormPanel();
     protected FileUpload uploader = new FileUpload();
     
+    // wait dialog
+    protected DialogBox waitDialog;
+    
     // listeners for start events
     protected ArrayList<ModeSelectionHandler> modeSelectionHandlers = 
     	new ArrayList<ModeSelectionHandler>();
@@ -79,6 +83,9 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
         VerticalPanel panel = new VerticalPanel();
     	HorizontalPanel selectPanel = new HorizontalPanel();
         
+    	// build the working dialog
+    	buildWaitDialog();
+    	
         // layout the widgets        
         // add introductory text
         HTML header = new HTML(GlimmpseWeb.constants.modeSelectionTitle());
@@ -138,6 +145,7 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
                 }
                 else
                 {
+                    showWorkingDialog();
                     formPanel.submit();
                 }
             }
@@ -202,6 +210,7 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
      */
     public void onSubmitComplete(SubmitCompleteEvent event) 
     {
+        hideWorkingDialog();
         String results = event.getResults();
         for(ModeSelectionHandler listener: modeSelectionHandlers) listener.onStudyUpload(results);
     }
@@ -224,4 +233,24 @@ public class ModeSelectionPanel extends Composite implements SubmitCompleteHandl
     {
     	modeSelectionHandlers.add(listener);
     }  
+    
+    private void buildWaitDialog()
+    {
+        waitDialog = new DialogBox();
+        waitDialog.setGlassEnabled(true);
+        HTML text = new HTML("Processing, Please Wait...");
+        text.setStyleName("waitDialogText");
+        waitDialog.setStyleName("waitDialog");
+        waitDialog.setWidget(text);
+    }
+
+    private void showWorkingDialog()
+    {
+        waitDialog.center();
+    }
+
+    private void hideWorkingDialog()
+    {
+        waitDialog.hide();
+    }
 }

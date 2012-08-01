@@ -44,4 +44,9 @@ public interface CovarianceBuilder
      * to build a valid covariance object.
      */
     public boolean checkComplete();
+    
+    /**
+     * Load data from the specified covariance object
+     */
+    public void loadCovariance(Covariance covariance);
 }

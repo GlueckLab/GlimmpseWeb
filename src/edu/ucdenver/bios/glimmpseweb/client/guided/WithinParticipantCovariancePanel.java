@@ -22,6 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -121,8 +122,6 @@ implements ChangeHandler
      */
     private void loadRepeatedMeasuresFromContext()
     {
-        // clear the context 
-        studyDesignContext.clearCovariance(this);
         // if the responses tab has been added, don't clear it
         Widget responseTabContents = tabPanel.getTabContents(responsesTabHeader);
         if (responseTabContents != null) {
@@ -143,13 +142,15 @@ implements ChangeHandler
                         !node.getDimension().isEmpty() &&
                         node.getNumberOfMeasurements() != null &&
                                 node.getNumberOfMeasurements() > 1) {
+                    
+                    CorrelationDeckPanel panel = new CorrelationDeckPanel(node, this);
+                    panel.loadCovariance(
+                            studyDesignContext.getStudyDesign().getCovarianceFromSet(node.getDimension()));
                     if (tabPanel.getTabCount() <= 0) {
-                        tabPanel.insert(0, new HTML(node.getDimension()), 
-                                new CorrelationDeckPanel(node, this));
+                        tabPanel.insert(0, new HTML(node.getDimension()), panel);
                     } else {
                         tabPanel.insert(tabPanel.getTabCount()-1,
-                                new HTML(node.getDimension()), 
-                                new CorrelationDeckPanel(node, this));
+                                new HTML(node.getDimension()), panel);
                     }
                 }
             }
@@ -161,18 +162,19 @@ implements ChangeHandler
      */
     private void loadResponsesFromContext()
     {
-        // clear the context
-        studyDesignContext.clearCovariance(this);
         // remove the tab for the responses if it is set
         tabPanel.remove(responsesTabHeader);
         // load the new responses
         List<ResponseNode> responseNodeList = 
             studyDesignContext.getStudyDesign().getResponseList();
         if (responseNodeList != null && responseNodeList.size() > 0) {
-            tabPanel.add(responsesTabHeader,
-                    new CovarianceCorrelationDeckPanel(responseNodeList, this, true));
+            CovarianceCorrelationDeckPanel panel =
+                new CovarianceCorrelationDeckPanel(responseNodeList, this, true);
+            panel.loadCovariance(
+                    studyDesignContext.getStudyDesign().getCovarianceFromSet(
+                            GlimmpseConstants.RESPONSES_COVARIANCE_LABEL));
+            tabPanel.add(responsesTabHeader, panel);
         }
-        checkComplete();
     }
 
     /**
@@ -211,14 +213,18 @@ implements ChangeHandler
     {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case REPEATED_MEASURES:
+            // clear the context 
+            studyDesignContext.clearCovariance(this);
             loadRepeatedMeasuresFromContext();
-            tabPanel.openTab(0);
             break;
         case RESPONSES_LIST:
+            // clear the context 
+            studyDesignContext.clearCovariance(this);
             loadResponsesFromContext();
-            tabPanel.openTab(0);
             break;
         }
+        tabPanel.openTab(0);
+        checkComplete();
     };
 
     /**
@@ -229,6 +235,8 @@ implements ChangeHandler
     {
         loadRepeatedMeasuresFromContext();
         loadResponsesFromContext();
+        tabPanel.openTab(0);
+        checkComplete();
     }
 
 

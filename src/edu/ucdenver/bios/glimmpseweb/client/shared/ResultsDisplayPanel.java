@@ -118,7 +118,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	// didn't have enough control over line types, etc.  Thus, I rolled my own
 	// restlet on top of JFreeChart.  Images are retrieved via GET
 	protected Image powerCurveImage = new Image();
-	protected Image legendImage = new Image();
+//	protected Image legendImage = new Image();
 	// matrix popup panel - allows users to view the actual matrices produced for the calculations
 	// and hey, it sure is nice for debugging
 	protected PopupPanel matrixPopup = new PopupPanel();
@@ -187,26 +187,26 @@ public class ResultsDisplayPanel extends WizardStepPanel
 				hideWorkingDialog();
 			}
     	});
-    	// legend images
-    	legendImage.addLoadHandler(new LoadHandler() {
-			@Override
-			public void onLoad(LoadEvent event)
-			{
-				hideWorkingDialog();
-			}
-    	});
-    	legendImage.addErrorHandler(new ErrorHandler() {
-
-			@Override
-			public void onError(ErrorEvent event)
-			{
-				hideWorkingDialog();
-			}
-    	});
+//    	// legend images
+//    	legendImage.addLoadHandler(new LoadHandler() {
+//			@Override
+//			public void onLoad(LoadEvent event)
+//			{
+//				hideWorkingDialog();
+//			}
+//    	});
+//    	legendImage.addErrorHandler(new ErrorHandler() {
+//
+//			@Override
+//			public void onError(ErrorEvent event)
+//			{
+//				hideWorkingDialog();
+//			}
+//    	});
 		// layout the image / legend
 		Grid grid = new Grid(1,2);
 		grid.setWidget(0,0,powerCurveImage);
-		grid.setWidget(0,1,legendImage);
+//		grid.setWidget(0,1,legendImage);
 				
     	// layout the sub panel
     	resultsCurvePanel.add(header);
@@ -385,7 +385,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 	        String queryStr = chartSvcConnector.buildQueryString(resultList, 
 	                studyDesignContext.getStudyDesign().getPowerCurveDescriptions());
 	        powerCurveImage.setUrl(chartSvcConnector.buildScatterURL(queryStr));
-	        legendImage.setUrl(chartSvcConnector.buildLegendURL(queryStr));
+//	        legendImage.setUrl(chartSvcConnector.buildLegendURL(queryStr));
 	        resultsCurvePanel.setVisible(true);
 	    }
 	}

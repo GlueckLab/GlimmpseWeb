@@ -183,13 +183,15 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
      */
     public boolean checkComplete() {
         boolean complete = true;
-        for(int row = 0; row < standardDeviationFlexTable.getRowCount(); row++)
-        {
-            TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(row, 1);
-            String value = tb.getText();
-            if (value == null || value.isEmpty()) {
-                complete = false;
-                break;
+        if (showStandardDeviation) {
+            for(int row = 0; row < standardDeviationFlexTable.getRowCount(); row++)
+            {
+                TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(row, 1);
+                String value = tb.getText();
+                if (value == null || value.isEmpty()) {
+                    complete = false;
+                    break;
+                }
             }
         }
         return complete;
@@ -234,4 +236,33 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         covariance.setBlob(matrix.getData());
         return covariance;
     }
+    
+    /**
+     * Load the panel from the specified covariance object
+     * @param covariance covariance object
+     */
+    @Override
+    public void loadCovariance(Covariance covariance) {
+        if (covariance != null && 
+                CovarianceTypeEnum.UNSTRUCTURED_CORRELATION == covariance.getType()) {
+            List<StandardDeviation> stdDevList = covariance.getStandardDeviationList();
+            if (stdDevList != null) {
+                int row = 0;
+                for(StandardDeviation stdDev : stdDevList) {
+                    if (row >= standardDeviationFlexTable.getRowCount()) {
+                        break;
+                    }
+                    TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(row, 1);
+                    tb.setText(Double.toString(stdDev.getValue()));
+                    row++;
+                }
+            }
+            // load the data
+            if (covariance.getBlob() != null) {
+                correlationMatrix.loadMatrixData(covariance.getRows(), 
+                        covariance.getColumns(), covariance.getBlob().getData());
+            }
+        }
+    }
+    
 }
