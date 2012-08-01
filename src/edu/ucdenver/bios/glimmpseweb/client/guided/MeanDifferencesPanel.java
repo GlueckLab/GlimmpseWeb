@@ -288,7 +288,7 @@ implements ChangeHandler
                         }
                     } else {
                         for(int i = 1; i <= rmNode.getNumberOfMeasurements(); i++) {
-                            lb.addItem(Integer.toString(i), Integer.toString(i*offset));
+                            lb.addItem(Integer.toString(i), Integer.toString((i-1)*offset));
                         }
                     }
                     repeatedMeasuresTable.setWidget(row, LISTBOX_COLUMN, 
