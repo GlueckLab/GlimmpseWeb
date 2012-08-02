@@ -357,7 +357,7 @@ body {
   text-decoration: none;
   background: url('/images/help.png') no-repeat;
   width: 75px;
-  margin-left: 375px;
+  margin-left: 365px;
 }
 
 .wizardActionNextButton {
@@ -366,6 +366,7 @@ body {
   cursor: pointer;
   width: 20px;
   height: 20px;
+  margin-left: 10px;
 }
 
 .wizardActionNextButton-disabled {
@@ -386,7 +387,6 @@ body {
   cursor: pointer;
   width: 20px;
   height: 20px;
-  padding-left: 20px;
 }
 
 .wizardActionPreviousButton:hover {
