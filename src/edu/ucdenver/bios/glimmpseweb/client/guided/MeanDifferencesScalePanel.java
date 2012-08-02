@@ -56,7 +56,7 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
     
 	public MeanDifferencesScalePanel(WizardContext context)
 	{
-		super(context, GlimmpseWeb.constants.navItemBetaScale(),
+		super(context, GlimmpseWeb.constants.navItemMeansScaleFactors(),
 		        WizardStepPanelState.COMPLETE);
 		VerticalPanel panel = new VerticalPanel();
 		
