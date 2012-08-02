@@ -214,13 +214,13 @@ implements ChangeHandler
         switch(((StudyDesignChangeEvent) e).getType()) {
         case REPEATED_MEASURES:
             // clear the context 
-            studyDesignContext.clearCovariance(this);
             loadRepeatedMeasuresFromContext();
+            buildAndSaveCovariance();
             break;
         case RESPONSES_LIST:
             // clear the context 
-            studyDesignContext.clearCovariance(this);
             loadResponsesFromContext();
+            buildAndSaveCovariance();
             break;
         }
         tabPanel.openTab(0);
@@ -239,13 +239,10 @@ implements ChangeHandler
         checkComplete();
     }
 
-
     /**
-     * Build the covariance objects as we exit the screen
+     * Build the covariance objects and store them in the context
      */
-    @Override
-    public void onExit()
-    {
+    private void buildAndSaveCovariance() {
         studyDesignContext.clearCovariance(this);
         for(int i = 0; i < tabPanel.getTabCount(); i++)
         {
@@ -254,6 +251,15 @@ implements ChangeHandler
             Covariance covariance = panel.getCovariance();
             studyDesignContext.setCovariance(this, covariance);
         }
+    }
+
+    /**
+     * Build the covariance objects as we exit the screen
+     */
+    @Override
+    public void onExit()
+    {
+        buildAndSaveCovariance();
     }
 
 

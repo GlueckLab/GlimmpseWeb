@@ -453,10 +453,9 @@ implements ChangeHandler
     }
 
     /**
-     * Exit the panel and set the beta matrix to the context
+     * Update the beta matrix in the context
      */
-    public void onExit()
-    {
+    private void buildAndSaveBetaMatrix() {
         // random portion of beta matrix
         NamedMatrix betaRandom = null;
 
@@ -478,6 +477,14 @@ implements ChangeHandler
         }
 
         studyDesignContext.setBeta(this, betaFixed, betaRandom);
+    }
+    
+    /**
+     * Exit the panel and set the beta matrix to the context
+     */
+    public void onExit()
+    {
+        buildAndSaveBetaMatrix();
     }
 
     /**
@@ -542,21 +549,22 @@ implements ChangeHandler
         switch(((StudyDesignChangeEvent) e).getType()) {
         case BETWEEN_PARTICIPANT_FACTORS:
             // clear the data from the context
-            studyDesignContext.setBeta(this, null, null);
             loadBetweenParticipantFactorsFromContext();
+            buildAndSaveBetaMatrix();
             break;
         case REPEATED_MEASURES:
             // clear the data from the context
-            studyDesignContext.setBeta(this, null, null);
             loadRepeatedMeasuresFromContext();
+            buildAndSaveBetaMatrix();
             break;
         case RESPONSES_LIST:
             // clear the data from the context
-            studyDesignContext.setBeta(this, null, null);
             loadResponsesFromContext();
+            buildAndSaveBetaMatrix();
             break;
         case COVARIATE:
             this.hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
+            buildAndSaveBetaMatrix();
             break;
         }
     };

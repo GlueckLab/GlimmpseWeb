@@ -80,6 +80,7 @@ ClickHandler, WizardContextListener {
 
     protected boolean hasCovariate;
     protected boolean solvingForPower;
+    
     // Begin Change : Added a flag for Confidence Interval Description
     protected boolean hasConfidenceIntervalDescription;
     // End Change : Added a flag for Confidence Interval Description
@@ -361,7 +362,6 @@ ClickHandler, WizardContextListener {
         // reset the flags
         hasCovariate = false;
         solvingForPower = true;
-
         updateDataSeriesOptions();
 
         // set defaults
@@ -610,10 +610,23 @@ ClickHandler, WizardContextListener {
         if (disableCheckbox.getValue()) {
             changeState(WizardStepPanelState.COMPLETE);
         } else {
-            if (dataSeriesList.size() > 0) {
-                changeState(WizardStepPanelState.COMPLETE);
+            if ((totalNListBox.isVisible() && totalNListBox.getItemCount() <= 0) ||
+                    (nominalPowerListBox.isVisible() && nominalPowerListBox.getItemCount() <= 0) ||
+                    (betaScaleListBox.isVisible() && betaScaleListBox.getItemCount() <= 0) ||
+                    (sigmaScaleListBox.isVisible() && sigmaScaleListBox.getItemCount() <= 0) ||
+                    (testListBox.isVisible() && testListBox.getItemCount() <= 0) ||
+                    (alphaListBox.isVisible() && alphaListBox.getItemCount() <= 0) ||
+                    (powerMethodListBox.isVisible() && powerMethodListBox.getItemCount() <= 0) ||
+                    (quantileListBox.isVisible() && quantileListBox.getItemCount() <= 0)) {
+                // if any visible dropdown lists are not filled, then the user
+                // can't enter this screen
+                changeState(WizardStepPanelState.NOT_ALLOWED);
             } else {
-                changeState(WizardStepPanelState.INCOMPLETE);
+                if (dataSeriesList.size() > 0) {
+                    changeState(WizardStepPanelState.COMPLETE);
+                } else {
+                    changeState(WizardStepPanelState.INCOMPLETE);
+                }
             }
         }
     }
@@ -649,13 +662,13 @@ ClickHandler, WizardContextListener {
     private void updateDataSeriesOptions() {
 
         // select boxes for items that must be fixed for the curve
-        totalNListBox.setVisible(solvingForPower
-                && xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        totalNListBox.setVisible(solvingForPower &&
+                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
         nominalPowerListBox.setVisible(!solvingForPower);
-        betaScaleListBox
-        .setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
-        sigmaScaleListBox
-        .setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        betaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != 
+            BETA_SCALE_INDEX);
+        sigmaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() !=
+            SIGMA_SCALE_INDEX);
         testListBox.setVisible(true);
         alphaListBox.setVisible(true);
         powerMethodListBox.setVisible(hasCovariate);
@@ -664,13 +677,13 @@ ClickHandler, WizardContextListener {
         confidenceLimitsCheckBox.setVisible(hasConfidenceIntervalDescription);
 
         // labels for each listbox
-        totalNHTML.setVisible(solvingForPower
-                && xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        totalNHTML.setVisible(solvingForPower &&
+                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
         nominalPowerHTML.setVisible(!solvingForPower);
-        betaScaleHTML
-        .setVisible(xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
-        sigmaScaleHTML
-        .setVisible(xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
+        betaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != 
+            BETA_SCALE_INDEX);
+        sigmaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != 
+            SIGMA_SCALE_INDEX);
         testHTML.setVisible(true);
         alphaHTML.setVisible(true);
         powerMethodHTML.setVisible(hasCovariate);
@@ -679,21 +692,25 @@ ClickHandler, WizardContextListener {
         confidenceLimitsLabelHTML.setVisible(hasConfidenceIntervalDescription);
     }
 
+    /**
+     * Update the screen when the context changes
+     */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
         StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
         switch (changeEvent.getType()) {
         case SOLVING_FOR:
-            solvingForPower = (studyDesignContext.getStudyDesign()
-                    .getSolutionTypeEnum() == SolutionTypeEnum.POWER);
+            solvingForPower = 
+                (studyDesignContext.getStudyDesign().getSolutionTypeEnum() == 
+                    SolutionTypeEnum.POWER);
             break;
         case COVARIATE:
-            hasCovariate = studyDesignContext.getStudyDesign()
-            .isGaussianCovariate();
+            hasCovariate = 
+                studyDesignContext.getStudyDesign().isGaussianCovariate();
             break;
         case PER_GROUP_N_LIST:
-            List<SampleSize> sampleSizeList = studyDesignContext
-            .getStudyDesign().getSampleSizeList();
+            List<SampleSize> sampleSizeList = 
+                studyDesignContext.getStudyDesign().getSampleSizeList();
             totalNListBox.clear();
             if (sampleSizeList != null) {
                 for (SampleSize size : sampleSizeList) {
@@ -703,76 +720,79 @@ ClickHandler, WizardContextListener {
             }
             break;
         case BETA_SCALE_LIST:
-            List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign()
-            .getBetaScaleList();
+            List<BetaScale> betaScaleList = 
+                studyDesignContext.getStudyDesign().getBetaScaleList();
             betaScaleListBox.clear();
             if (betaScaleList != null) {
                 for (BetaScale scale : betaScaleList) {
-                    betaScaleListBox.addItem(Double.toString(scale.getValue()));
+                    betaScaleListBox.addItem(
+                            Double.toString(scale.getValue()));
                 }
             }
             break;
 
         case SIGMA_SCALE_LIST:
-            List<SigmaScale> sigmaScaleList = studyDesignContext
-            .getStudyDesign().getSigmaScaleList();
+            List<SigmaScale> sigmaScaleList = 
+                studyDesignContext.getStudyDesign().getSigmaScaleList();
             sigmaScaleListBox.clear();
             if (sigmaScaleList != null) {
                 for (SigmaScale scale : sigmaScaleList) {
-                    sigmaScaleListBox
-                    .addItem(Double.toString(scale.getValue()));
+                    sigmaScaleListBox.addItem(
+                            Double.toString(scale.getValue()));
                 }
             }
             break;
 
         case STATISTICAL_TEST_LIST:
-            List<StatisticalTest> testList = studyDesignContext
-            .getStudyDesign().getStatisticalTestList();
+            List<StatisticalTest> testList = 
+                studyDesignContext.getStudyDesign().getStatisticalTestList();
             testListBox.clear();
             if (testList != null) {
                 for (StatisticalTest test : testList) {
-                    testListBox
-                    .addItem(statisticalTestToString(test.getType()));
+                    testListBox.addItem(
+                            statisticalTestToString(test.getType()));
                 }
             }
             break;
 
         case ALPHA_LIST:
-            List<TypeIError> alphaList = studyDesignContext.getStudyDesign()
-            .getAlphaList();
+            List<TypeIError> alphaList = 
+                studyDesignContext.getStudyDesign().getAlphaList();
             alphaListBox.clear();
             if (alphaList != null) {
                 for (TypeIError alpha : alphaList) {
-                    alphaListBox
-                    .addItem(Double.toString(alpha.getAlphaValue()));
+                    alphaListBox.addItem(
+                            Double.toString(alpha.getAlphaValue()));
                 }
             }
             break;
         case POWER_METHOD_LIST:
-            List<PowerMethod> powerMethodList = studyDesignContext
-            .getStudyDesign().getPowerMethodList();
+            List<PowerMethod> powerMethodList = 
+                studyDesignContext.getStudyDesign().getPowerMethodList();
             powerMethodListBox.clear();
             if (powerMethodList != null) {
                 for (PowerMethod powerMethod : powerMethodList) {
-                    powerMethodListBox.addItem(powerMethodToString(powerMethod
-                            .getPowerMethodEnum()));
+                    powerMethodListBox.addItem(
+                            powerMethodToString(
+                                    powerMethod.getPowerMethodEnum()));
                 }
             }
             break;
         case QUANTILE_LIST:
-            List<Quantile> quantileList = studyDesignContext.getStudyDesign()
-            .getQuantileList();
+            List<Quantile> quantileList = 
+                studyDesignContext.getStudyDesign().getQuantileList();
             quantileListBox.clear();
             if (quantileList != null) {
                 for (Quantile quantile : quantileList) {
-                    quantileListBox
-                    .addItem(Double.toString(quantile.getValue()));
+                    quantileListBox.addItem(
+                            Double.toString(quantile.getValue()));
                 }
             }
             break;
         case CONFIDENCE_INTERVAL:
-            hasConfidenceIntervalDescription = (studyDesignContext.getStudyDesign()
-                    .getConfidenceIntervalDescriptions() != null);            
+            hasConfidenceIntervalDescription = 
+                (studyDesignContext.getStudyDesign()
+                        .getConfidenceIntervalDescriptions() != null);            
             break;
         }
 
@@ -788,13 +808,13 @@ ClickHandler, WizardContextListener {
         solvingForPower = (studyDesignContext.getStudyDesign()
                 .getSolutionTypeEnum() == SolutionTypeEnum.POWER);
         hasCovariate = studyDesignContext.getStudyDesign()
-                .isGaussianCovariate();
+        .isGaussianCovariate();
         hasConfidenceIntervalDescription = (studyDesignContext.getStudyDesign()
                 .getConfidenceIntervalDescriptions() != null);     
 
         // load the per group n list
         List<SampleSize> sampleSizeList = studyDesignContext
-                .getStudyDesign().getSampleSizeList();
+        .getStudyDesign().getSampleSizeList();
         totalNListBox.clear();
         if (sampleSizeList != null) {
             for (SampleSize size : sampleSizeList) {
@@ -804,7 +824,7 @@ ClickHandler, WizardContextListener {
         }
         // load the beta scale list
         List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign()
-                .getBetaScaleList();
+        .getBetaScaleList();
         betaScaleListBox.clear();
         if (betaScaleList != null) {
             for (BetaScale scale : betaScaleList) {
@@ -813,7 +833,7 @@ ClickHandler, WizardContextListener {
         }
         // load the sigma scale list
         List<SigmaScale> sigmaScaleList = studyDesignContext
-                .getStudyDesign().getSigmaScaleList();
+        .getStudyDesign().getSigmaScaleList();
         sigmaScaleListBox.clear();
         if (sigmaScaleList != null) {
             for (SigmaScale scale : sigmaScaleList) {
@@ -823,7 +843,7 @@ ClickHandler, WizardContextListener {
         }
         // load the statistical test list
         List<StatisticalTest> testList = studyDesignContext
-                .getStudyDesign().getStatisticalTestList();
+        .getStudyDesign().getStatisticalTestList();
         testListBox.clear();
         if (testList != null) {
             for (StatisticalTest test : testList) {
@@ -833,7 +853,7 @@ ClickHandler, WizardContextListener {
         }
         // load the alpha list
         List<TypeIError> alphaList = studyDesignContext.getStudyDesign()
-                .getAlphaList();
+        .getAlphaList();
         alphaListBox.clear();
         if (alphaList != null) {
             for (TypeIError alpha : alphaList) {
@@ -843,7 +863,7 @@ ClickHandler, WizardContextListener {
         }
         // load the power method list
         List<PowerMethod> powerMethodList = studyDesignContext
-                .getStudyDesign().getPowerMethodList();
+        .getStudyDesign().getPowerMethodList();
         powerMethodListBox.clear();
         if (powerMethodList != null) {
             for (PowerMethod powerMethod : powerMethodList) {
@@ -853,7 +873,7 @@ ClickHandler, WizardContextListener {
         }
         // load the quantile list
         List<Quantile> quantileList = studyDesignContext.getStudyDesign()
-                .getQuantileList();
+        .getQuantileList();
         quantileListBox.clear();
         if (quantileList != null) {
             for (Quantile quantile : quantileList) {
@@ -865,8 +885,9 @@ ClickHandler, WizardContextListener {
 
         // fill in the data series
         PowerCurveDescription curveDescription = 
-                studyDesignContext.getStudyDesign().getPowerCurveDescriptions();
+            studyDesignContext.getStudyDesign().getPowerCurveDescriptions();
         if (curveDescription != null) {
+            disableCheckbox.setValue(false);
             enableOptions(true);
             List<PowerCurveDataSeries> seriesList = curveDescription.getDataSeriesList();
             if (seriesList != null) {
@@ -875,7 +896,11 @@ ClickHandler, WizardContextListener {
                     dataSeriesTable.addItem(dataSeriesAsString(series));
                 }
             }
-        } 
+        } else {
+            disableCheckbox.setValue(true);
+            enableOptions(false);
+        }
+        checkComplete();
     }
 
 

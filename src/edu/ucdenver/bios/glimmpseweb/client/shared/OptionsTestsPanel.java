@@ -83,7 +83,9 @@ implements ClickHandler
      */
     public OptionsTestsPanel(WizardContext context, String mode)
 	{
-		super(context, "Statistical Test", WizardStepPanelState.INCOMPLETE);
+		super(context, 
+		        GlimmpseWeb.constants.navItemStatisticalTest(), 
+		        WizardStepPanelState.INCOMPLETE);
 		studyDesignContext = (StudyDesignContext) context;
 		VerticalPanel panel = new VerticalPanel();
 

@@ -112,6 +112,11 @@ implements ModeSelectionHandler, WizardActionListener
 	    {
 	        try
 	        {
+//	            // REMOVE
+//	            uploadedStudy = uploadedStudy.substring(59,uploadedStudy.length()-6);
+//	            // END REMOVE
+//	            
+	            
 	            StudyDesign design = 
 	                DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
 	            // TODO: clear

@@ -216,7 +216,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
                 if (value != null && !value.isEmpty()) {
                     sd.setValue(Double.parseDouble(tb.getValue()));
                 } else {
-                    sd.setValue(Double.NaN);
+                    sd.setValue(-1);
                 }
                 sdList.add(sd);
             }
