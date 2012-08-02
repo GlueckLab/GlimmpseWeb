@@ -886,6 +886,8 @@ ClickHandler, WizardContextListener {
         // fill in the data series
         PowerCurveDescription curveDescription = 
             studyDesignContext.getStudyDesign().getPowerCurveDescriptions();
+        dataSeriesList.clear();
+        dataSeriesTable.clear();
         if (curveDescription != null) {
             disableCheckbox.setValue(false);
             enableOptions(true);
