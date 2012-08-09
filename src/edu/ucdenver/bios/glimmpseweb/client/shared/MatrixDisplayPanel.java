@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.webservice.common.domain.Blob2DArray;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 
 
@@ -42,47 +43,105 @@ import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
  */
 public class MatrixDisplayPanel extends Composite
 {
-	protected FlexTable tableOfMatrices = new FlexTable();
-	
+    protected final static String TABLE_OPEN = "<table border='1'>";
+    protected final static String TABLE_CLOSE = "</table>";
+    protected final static String TR_OPEN = "<tr>";
+    protected final static String TR_CLOSE = "</tr>";
+    protected final static String TD_OPEN = "<td>";
+    protected final static String TD_CLOSE = "</td>";
+    
+//	protected FlexTable tableOfMatrices = new FlexTable();
+	protected HTML matrixDisplayHTML = new HTML();
+    
 	public MatrixDisplayPanel()
 	{
 		VerticalPanel panel = new VerticalPanel();
 		ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.setSize("600px", "500px");
-		scrollPanel.add(tableOfMatrices);
+		scrollPanel.add(matrixDisplayHTML);
 		panel.add(scrollPanel);
 		
 		// style 
-		tableOfMatrices.setBorderWidth(1);
+//		tableOfMatrices.setBorderWidth(1);
 		
 		// initialize
 		initWidget(panel);
 	}
 	
+	/**
+	 * Display an error 
+	 * @param error
+	 */
 	public void showError(String error) {
-	    tableOfMatrices.removeAllRows();
-	    tableOfMatrices.setWidget(0, 0, new HTML(error));
+	    matrixDisplayHTML.setText(error);
 	}
 	
+	   /**
+     * Display the specified HTML in the panel
+     * @param matrixList list of matrices
+     */
+    public void loadFromMatrixHTML(String matrixHTML)
+    {
+        matrixDisplayHTML.setHTML(matrixHTML);
+    }
+	
+	/**
+	 * Display the list of matrices in the panel.
+	 * @param matrixList list of matrices
+	 */
 	public void loadFromMatrixList(List<NamedMatrix> matrixList)
 	{
-	    tableOfMatrices.removeAllRows();
+	    StringBuffer buffer = new StringBuffer();
 	    if (matrixList != null) {
-	        int row = 0;
+	        buffer.append(TABLE_OPEN);
 	        for(NamedMatrix matrix: matrixList) {
-	            tableOfMatrices.setWidget(row, 0, new HTML(prettyMatrixName(matrix.getName())));
-	            ResizableMatrixPanel panel = new ResizableMatrixPanel(matrix.getRows(), matrix.getColumns(), true, false, false, false);
-	            panel.setEnabledColumnDimension(false);
-	            panel.setEnabledRowDimension(false);
-	            panel.loadFromNamedMatrix(matrix);
-	            tableOfMatrices.setWidget(row, 1, panel);
-	            row++;
+	            buffer.append(TR_OPEN);
+	            buffer.append(TD_OPEN);
+	            buffer.append(prettyMatrixName(matrix.getName()) + 
+	                    "<br/>(" + matrix.getRows() + " x " +  matrix.getColumns() + ")");
+	            buffer.append(TD_CLOSE);
+	            buffer.append(TD_OPEN);
+	            appendMatrix(buffer, matrix);
+	            buffer.append(TD_CLOSE);
+	            buffer.append(TR_CLOSE);
 	        }
+	        buffer.append(TABLE_CLOSE);
+	        matrixDisplayHTML.setHTML(buffer.toString());
 	    } else {
 	        showError("Matrix information unavailable");
 	    }
 	}
 	
+	/**
+	 * Append the matrix to the specified buffer as an HTML table
+	 * @param name name of the matrix
+	 * @return display name of the matrix
+	 */
+	private void appendMatrix(StringBuffer buffer, NamedMatrix matrix) {
+	    int rows = matrix.getRows();
+	    int columns = matrix.getColumns();
+	    Blob2DArray blob = matrix.getData();
+	    if (blob != null) {
+	        double[][] data = blob.getData();
+	        buffer.append(TABLE_OPEN);
+	        for(int row = 0; row < rows; row++) {
+	            buffer.append(TR_OPEN);
+	            for(int col = 0; col < columns; col++) {
+	                buffer.append(TD_OPEN);
+	                buffer.append(Double.toString(data[row][col]));
+	                buffer.append(TD_CLOSE);
+	            }
+	            buffer.append(TR_CLOSE);
+	        }
+	        buffer.append(TABLE_CLOSE);
+	    }
+	}
+	
+	/**
+	 * Return the display name of the matrix
+	 * @param name name of the matrix
+	 * @return display name of the matrix
+	 */
 	private String prettyMatrixName(String name)
 	{
 		if (GlimmpseConstants.MATRIX_DESIGN.equalsIgnoreCase(name))
@@ -107,9 +166,12 @@ public class MatrixDisplayPanel extends Composite
 			return "";
 	}
 	
+	/**
+	 * Clear the screen
+	 */
 	public void reset()
 	{
-		tableOfMatrices.removeAllRows();
+		matrixDisplayHTML.setText("");
 	}
 	
 

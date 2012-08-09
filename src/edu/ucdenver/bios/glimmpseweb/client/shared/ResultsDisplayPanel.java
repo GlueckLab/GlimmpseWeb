@@ -445,7 +445,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
 		// send a second request to get the matrices associated with the study design
         try {
-            powerSvcConnector.getMatrices(studyDesign, new RequestCallback() {
+            powerSvcConnector.getMatricesAsHTML(studyDesign, new RequestCallback() {
 
                 @Override
                 public void onResponseReceived(Request request, Response response) {

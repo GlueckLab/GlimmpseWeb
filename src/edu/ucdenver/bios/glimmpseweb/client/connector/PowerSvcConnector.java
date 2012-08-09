@@ -97,6 +97,23 @@ public class PowerSvcConnector {
     }  
     
     /**
+     * Send a request to the power service to calculate power
+     * @param studyDesign The study design object
+     * @param callback handler for AJAX request to power service
+     */
+    public void getMatricesAsHTML(StudyDesign studyDesign, RequestCallback callback) 
+    throws RequestException {
+
+        String entity = serializer.toJSON(studyDesign);   
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, 
+                GlimmpseWeb.constants.powerSvcHostMatricesAsHTML());
+
+        builder.setHeader("Content-Type", MEDIA_TYPE);
+        builder.setHeader("Accept", MEDIA_TYPE);
+        builder.sendRequest(entity, callback);
+    } 
+    
+    /**
      * Parse an entity body into a power result list
      * @param entity JSON encoded entity body
      * @return list of PowerResult objects
