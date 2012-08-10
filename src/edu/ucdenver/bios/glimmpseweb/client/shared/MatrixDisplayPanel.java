@@ -43,6 +43,7 @@ import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
  */
 public class MatrixDisplayPanel extends Composite
 {
+    protected final static String MATH_AREA_ID = "matrixMathML";
     protected final static String TABLE_OPEN = "<table border='1'>";
     protected final static String TABLE_CLOSE = "</table>";
     protected final static String TR_OPEN = "<tr>";
@@ -83,6 +84,7 @@ public class MatrixDisplayPanel extends Composite
     public void loadFromMatrixHTML(String matrixHTML)
     {
         matrixDisplayHTML.setHTML(matrixHTML);
+        typesetMathJax();
     }
 	
 	/**
@@ -173,7 +175,12 @@ public class MatrixDisplayPanel extends Composite
 	{
 		matrixDisplayHTML.setText("");
 	}
-	
 
-	
+    /**
+     * Native javascript call to run the MathJax typesetter
+     */
+    public native void typesetMathJax() /*-{
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }-*/;
+    
 }

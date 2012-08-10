@@ -35,12 +35,10 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
@@ -119,18 +117,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
     protected Image powerCurveImage = new Image();
     //	protected Image legendImage = new Image();
 
-    // button to display matrices
-    protected PopupPanel matrixPopup = new PopupPanel();
-    protected MatrixDisplayPanel matrixDisplayPanel = new MatrixDisplayPanel();
-    protected Button viewMatricesButton = 
-        new Button(GlimmpseWeb.constants.resultsViewMatricesLabel(), 
-                new ClickHandler() {
-            public void onClick(ClickEvent event)
-            {
-                matrixPopup.center();
-            }
-        });
-
     /**
      * Constructor.
      * @param context the study design context
@@ -156,7 +142,8 @@ public class ResultsDisplayPanel extends WizardStepPanel
         panel.add(resultsTablePanel);
         // need the save form to actually appear in the panel
         panel.add(fileSvcConnector);
-
+        panel.add(powerSvcConnector);
+        
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 
@@ -237,20 +224,18 @@ public class ResultsDisplayPanel extends WizardStepPanel
                 saveDataToCSV();
             }
         });
-
-        VerticalPanel popupContents = new VerticalPanel();
-        Button closeButton = new Button(GlimmpseWeb.constants.buttonClose(),
+        // view matrices button
+        Button viewMatricesButton = new Button(GlimmpseWeb.constants.resultsViewMatricesLabel(), 
                 new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        matrixPopup.hide();
-                    }     
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                viewMatrices();
+            }
         });
-        popupContents.add(matrixDisplayPanel);
-        popupContents.add(closeButton);
-        matrixPopup.setWidget(popupContents);
         buttonPanel.add(saveButton);
         buttonPanel.add(viewMatricesButton);
+
         // layout the sub panel
         resultsTablePanel.add(header);
         resultsTablePanel.add(description);
@@ -260,7 +245,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
         saveButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
         saveButton.addStyleDependentName(STYLE_SEPARATOR);
         viewMatricesButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
-        closeButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
         //		viewMatrixButton.setStyleName(STYLE_RESULT_BUTTON);
         resultsTablePanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         resultsTablePanel.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
@@ -273,7 +257,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
     @Override
     public void reset()
     {
-        matrixDisplayPanel.reset();
         resultsData.removeRows(0, resultsData.getNumberOfRows());
         resultsTablePanel.setVisible(false);
         resultsCurvePanel.setVisible(false);
@@ -452,27 +435,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
         }
 
-        // send a second request to get the matrices associated with the study design
-        try {
-            powerSvcConnector.getMatricesAsHTML(studyDesign, new RequestCallback() {
-
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    if (response.getStatusCode() == Response.SC_OK) {
-                        matrixDisplayPanel.loadFromMatrixHTML(response.getText());
-                    } else {
-                        matrixDisplayPanel.showError(response.getText());
-                    }
-                }
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    matrixDisplayPanel.showError(exception.getMessage());
-                }
-            });
-        } catch (Exception e) {
-        }
-
     }
 
     /**
@@ -480,6 +442,13 @@ public class ResultsDisplayPanel extends WizardStepPanel
      */
     private void saveDataToCSV() {
         fileSvcConnector.saveDataTableAsCSV(resultsData, null);
+    }
+    
+    /**
+     * Submit a form to display matrices in a separate window
+     */
+    private void viewMatrices() {
+        powerSvcConnector.getMatricesAsHTML(studyDesignContext.getStudyDesign());
     }
 
     @Override
