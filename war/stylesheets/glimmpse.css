@@ -869,4 +869,46 @@ body {
 	font-weight: bold;
 }
 
+/* feedback panel */
+.feedbackHeader {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin: 5px 5px;
+	font-weight: bold;
+	font-size: 14pt;
+}
 
+.feedbackDescription {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin: 5px 5px;
+	font-size: 12pt;
+	width: 100%;
+	border-bottom: 1px solid #ddd
+}
+
+.feedbackQuestion {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin-top: 10px;
+	margin-left: 10px;
+	font-size: 12pt;
+	width: 100%;
+}
+
+.feedbackResponse {
+	margin-left: 10px;
+}
+
+.feedbackSubmit {
+	margin-left: 10px;
+	margin-top: 10px;
+}
+
+.feedbackMessage {
+	margin-left: 10px;
+	width: 500px;
+	height: 200px;
+}
+
+
+
+
+	
