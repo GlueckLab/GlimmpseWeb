@@ -17,11 +17,18 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  -->
-<project name="Glimmpse Web Interface" default="build-distributions" >
+<project name="Glimmpse Web Interface" default="distributions" >
 	<!-- when releasing software, this is the only place the version information
 			should be specified. Appropriate changes to the manifest and source
 			code will be performed by the build -->
-	<property name="version" value="dev" />
+	<property name="version" value="2.0.0_beta" />
+	<!-- optional suffix if we have multiple versions of the 
+		web services running on the same tomcat -->
+	<condition property="warfile.suffix" value="">
+	   <not>  
+	      <isset property=""/>
+	   </not>
+	</condition>
 	<property name="svc.name" value="glimmpse-web" />
 	<property name="owner" value="University of Colorado Denver, 
 		Department of Biostatistics and Informatics" />
@@ -93,6 +100,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	<!-- build the app -->
   	<target name="compile.gwt" depends="prepare"
     	description="compiles Java source files to JavaScript">
+  		<!-- replace the URI's for web services with appropriate
+  			suffix -->
+  		<replace file="${source.dir}/edu/ucdenver/bios/glimmpseweb/client/GlimmpseConstants.properties" 
+  			token="_WARFILE_SUFFIX_" value="${warfile.suffix}"/>
     	<java classname="com.google.gwt.dev.Compiler" fork="true">
             <arg value="-war" />
             <arg value="${target.dir}" />
@@ -177,7 +188,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </target>
 	
 	<!-- Create the binary distribution -->
-	<target name="binary-distribution" depends="compile.gwt,copy,javadoc"
+	<target name="distribution.binary" depends="compile.gwt,copy,javadoc"
 	  description="builds the zip file">
 	  <delete file="${artifacts.dir}/${zip.file}"/>
 		<zip destfile="${artifacts.dir}/${zip.file}"  >
@@ -188,7 +199,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	</target>
 	
 	<!-- Create the javadoc distribution  -->	
-	<target name="javadoc-distribution" >
+	<target name="distribution.javadoc" >
 		<zip destfile="${artifacts.dir}/${svc.name}-${version}-javadoc.zip" basedir="${javadoc.dir}/.." >
 			<zipfileset dir="${javadoc.dir}" />
 			<zipfileset file="${basedir}/../LICENSE-gpl2.0.txt"/>
@@ -197,7 +208,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	</target>
 	
 	<!-- Create the source distribution -->
-	<target name="source-distribution">
+	<target name="distribution.source">
 		<zip destfile="${artifacts.dir}/${svc.name}-${version}-source.zip"  >
 			<zipfileset dir="${basedir}/../.."  			
 				includes="GlimmpseWeb/*,
@@ -210,9 +221,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	</target>
 	
 	<!-- build all distributions -->
-	<target name="build-distributions" depends="binary-distribution,javadoc-distribution,source-distribution"/>
+	<target name="distributions" 
+		depends="distribution.binary,
+		distribution.javadoc,
+		distribution.source"/>
 
 	<!-- full build then deploy to apache server -->
-	<target name="buildDeploy" depends="build-distributions, deploy"/>
+	<target name="buildDeploy" depends="distributions, deploy"/>
 	
 </project>

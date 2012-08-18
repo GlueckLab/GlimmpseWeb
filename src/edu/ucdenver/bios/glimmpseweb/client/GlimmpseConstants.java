@@ -74,6 +74,13 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
     public static final String STYLE_MATRIX_CELL= "matrixCell";  
+    // styles for feedback page
+    public static final String STYLE_FEEDBACK_HEADER = "feedbackHeader";
+    public static final String STYLE_FEEDBACK_DESCRIPTION = "feedbackDescription";
+    public static final String STYLE_FEEDBACK_QUESTION = "feedbackQuestion";
+    public static final String STYLE_FEEDBACK_RESPONSE = "feedbackResponse";
+    public static final String STYLE_FEEDBACK_SUBMIT = "feedbackSubmit";
+    public static final String STYLE_FEEDBACK_MESSAGE = "feedbackMessage";
     
     
     public static final String STYLE_MESSAGE = "message";
@@ -97,6 +104,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_RIGHT = "right";
     public static final String STYLE_RIGHT_ACTIVE = "rightActive";
     public static final String STYLE_SINGLE = "single";
+    public static final String STYLE_INDENT = "indent";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
@@ -230,6 +238,11 @@ public interface GlimmpseConstants extends Constants
     
     // miscellaneous words
     public String and();
+    public String yes();
+    public String no();
+    public String other();
+    public String notSure();
+    public String submit();
     
     // mode selection panel constants
     public String modeSelectionTitle();
@@ -651,5 +664,26 @@ public interface GlimmpseConstants extends Constants
      public String resultsPowerCurveLabel();
      public String resultsSaveToCSVLabel();
      public String resultsViewMatricesLabel();
-
+     
+     // feedback screen
+     public String feedbackHeader();
+     public String feedbackDescription();
+     public String feedbackTypeLabel();
+     public String feedbackTypeGeneral();
+     public String feedbackTypeFeature();
+     public String feedbackTypeBug();
+     public String feedbackNameLabel();
+     public String feedbackEmailLabel();
+     public String feedbackMayWeContactLabel();
+     public String feedbackBrowserLabel();
+     public String feedbackOtherLabel();
+     public String feedbackVersionLabel();
+     public String feedbackContentsLabel();
+     
+     // browser labels
+     public String browserIELabel();
+     public String browserFirefoxLabel();
+     public String browserChromeLabel();
+     public String browserSafariLabel();
+     public String browserOperaLabel();
 }
