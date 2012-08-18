@@ -82,7 +82,6 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_FEEDBACK_SUBMIT = "feedbackSubmit";
     public static final String STYLE_FEEDBACK_MESSAGE = "feedbackMessage";
     
-    
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
