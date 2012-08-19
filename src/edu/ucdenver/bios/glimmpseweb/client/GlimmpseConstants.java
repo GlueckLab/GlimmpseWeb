@@ -552,12 +552,14 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidClusterSize();
     public String errorInvalidCorrelation();
     public String errorInvalidNumRepeatedMeasures();
+    public String errorInvalidEmail();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();
     
     // web services urls
     public String helpManualURI();
+    public String formmailURI();
     public String chartSvcHostScatter();
     public String chartSvcHostLegend();
     public String powerSvcHostPower();
@@ -568,7 +570,7 @@ public interface GlimmpseConstants extends Constants
     public String matrixSvcHostMatrices();
     public String fileSvcHostUpload();
     public String fileSvcHostSaveAs();
-    
+
     //response panel constants
      public String responsesPanelTitle();
      public String responsesPanelDescription();

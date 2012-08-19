@@ -21,6 +21,8 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
+import java.text.ParseException;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -31,6 +33,7 @@ import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
@@ -39,6 +42,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 
 /**
  * Comment and Bug reporting form for GLIMMPSE.
@@ -48,22 +52,25 @@ import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
  */
 public class GlimmpseFeedbackPanel  extends Composite {
 
-    private static final String FORMMAIL_URI = "/formmail.php";
+    private static final String FORMMAIL_URI = 
+        GlimmpseWeb.constants.formmailURI();
     
     // form for sending feedback via formmail.php
-    protected FormPanel feedbackForm = new FormPanel();
+    protected FormPanel feedbackForm = new FormPanel("_self");
     protected Hidden envReportHidden = new Hidden("env_report");
     protected Hidden goodUrlHidden = new Hidden("good_url");
     protected Hidden badUrlHidden = new Hidden("bad_url");
     protected Hidden recipientsHidden = new Hidden("recipients");
-    protected Hidden subjectHidden = new Hidden("subject");
-    
+    protected Hidden mailOptionsHidden = new Hidden("mail_options");
+    protected Hidden contactHidden = new Hidden("contact");
+    // input fields
     protected TextBox nameTextBox = new TextBox();
     protected TextBox emailAddressTextBox = new TextBox();
+    protected HTML emailErrorHTML = new HTML();
     protected ListBox subjectListBox = new ListBox();
-    protected RadioButton contactYesRadioButton = new RadioButton("contact",
+    protected RadioButton contactYesRadioButton = new RadioButton("contactGroup",
             GlimmpseWeb.constants.yes());
-    protected RadioButton contactNoRadioButton = new RadioButton("contact",
+    protected RadioButton contactNoRadioButton = new RadioButton("contactGroup",
             GlimmpseWeb.constants.no());
     protected ListBox browserListBox = new ListBox();
     protected TextBox browserOtherTextBox = new TextBox();
@@ -86,7 +93,7 @@ public class GlimmpseFeedbackPanel  extends Composite {
         goodUrlHidden.setValue("/feedbackSuccess.html");
         badUrlHidden.setValue("/feedbackError.html");
         recipientsHidden.setValue("feedback@glimmpse.samplesizeshop.com");
-        
+        mailOptionsHidden.setValue("Exclude=email;realname");
         
         VerticalPanel panel = new VerticalPanel();
 
@@ -95,10 +102,18 @@ public class GlimmpseFeedbackPanel  extends Composite {
         HTML description = 
             new HTML(GlimmpseWeb.constants.feedbackDescription());
         
+        // assign names to form widgets
+        nameTextBox.setName("FullName");
+        emailAddressTextBox.setName("EmailAddr");
+        browserOtherTextBox.setName("browserOther");
+        versionListBox.setName("version");
+        messageTextArea.setName("message");
+        
         // build subject listbox
         subjectListBox.addItem(GlimmpseWeb.constants.feedbackTypeGeneral());
         subjectListBox.addItem(GlimmpseWeb.constants.feedbackTypeFeature());
         subjectListBox.addItem(GlimmpseWeb.constants.feedbackTypeBug());
+        subjectListBox.setName("subject");
         
         // build browser listbox
         browserListBox.addItem(GlimmpseWeb.constants.browserChromeLabel());
@@ -106,14 +121,68 @@ public class GlimmpseFeedbackPanel  extends Composite {
         browserListBox.addItem(GlimmpseWeb.constants.browserFirefoxLabel());
         browserListBox.addItem(GlimmpseWeb.constants.browserOperaLabel());
         browserListBox.addItem(GlimmpseWeb.constants.browserSafariLabel());
-
+        browserListBox.addItem(GlimmpseWeb.constants.other());
+        browserListBox.setName("browser");
         // build version listbox
+        versionListBox.addItem("2.0.0 beta");
         versionListBox.addItem("1.1.0");
-        versionListBox.addItem("2.0.0");
+        versionListBox.addItem(GlimmpseWeb.constants.notSure());
+        // callbacks on radio buttons
+        contactYesRadioButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                setContact("Yes");
+            }
+        });
+        contactNoRadioButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                setContact("No");
+            }
+        });
+        // validation callbacks on required fields
+        nameTextBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                checkComplete();
+            }
+        });
+        emailAddressTextBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                TextBox tb = (TextBox) event.getSource();
+                try
+                {
+                    TextValidation.parseEmail(tb.getText());
+                    TextValidation.displayOkay(emailErrorHTML, "");
+                }
+                catch (ParseException pe)
+                {
+                    TextValidation.displayError(emailErrorHTML, 
+                            GlimmpseWeb.constants.errorInvalidEmail());
+                    tb.setText("");
+                }
+                checkComplete();
+            }
+        });
+        messageTextArea.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                checkComplete();
+            }
+        });
         
         // build the form
         feedbackForm.setAction(FORMMAIL_URI);
+        feedbackForm.setMethod(FormPanel.METHOD_POST);
         VerticalPanel formContainer = new VerticalPanel();
+        // add hidden fields
+        formContainer.add(envReportHidden);
+        formContainer.add(goodUrlHidden);
+        formContainer.add(badUrlHidden);
+        formContainer.add(recipientsHidden);
+        formContainer.add(mailOptionsHidden);
+        formContainer.add(contactHidden);
         // select feature, bug, or comment
         formContainer.add(buildInputQuestion(
                 GlimmpseWeb.constants.feedbackTypeLabel()));
@@ -125,7 +194,10 @@ public class GlimmpseFeedbackPanel  extends Composite {
         // enter email
         formContainer.add(buildInputQuestion(
                 GlimmpseWeb.constants.feedbackEmailLabel()));
-        formContainer.add(emailAddressTextBox);
+        HorizontalPanel emailPanel = new HorizontalPanel();
+        emailPanel.add(emailAddressTextBox);
+        emailPanel.add(emailErrorHTML);
+        formContainer.add(emailPanel);
         // enter if contact is okay
         formContainer.add(buildInputQuestion(
                 GlimmpseWeb.constants.feedbackMayWeContactLabel()));
@@ -170,7 +242,9 @@ public class GlimmpseFeedbackPanel  extends Composite {
         versionListBox.setStyleName(GlimmpseConstants.STYLE_FEEDBACK_RESPONSE);
         messageTextArea.setStyleName(GlimmpseConstants.STYLE_FEEDBACK_MESSAGE);
         submitButton.setStyleName(GlimmpseConstants.STYLE_FEEDBACK_SUBMIT);
+        emailErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         
+        checkComplete();
         initWidget(panel);
     }
     
@@ -185,6 +259,12 @@ public class GlimmpseFeedbackPanel  extends Composite {
         return valueHTML;
     }
     
+    /**
+     * Set the contact value to yes or no.
+     */
+    private void setContact(String value) {
+        contactHidden.setValue(value);
+    }
     
     /**
      * submit the form to the formmail script
@@ -193,4 +273,21 @@ public class GlimmpseFeedbackPanel  extends Composite {
         feedbackForm.submit();
         feedbackForm.reset();
     }
+    
+    /**
+     * Verify that all required information has been specified
+     */
+    private void checkComplete() {
+        boolean complete = (
+                nameTextBox.getValue() != null &&
+                !nameTextBox.getValue().isEmpty() &&
+                emailAddressTextBox.getValue() != null &&
+                !emailAddressTextBox.getValue().isEmpty() &&
+                messageTextArea.getValue() != null &&
+                !messageTextArea.getValue().isEmpty()
+        );
+        
+        submitButton.setEnabled(complete);
+    }
+    
 }

@@ -56,6 +56,24 @@ public class TextValidation
         return str;
 
     }
+    
+    /**
+     * Parse a string as an email address and throw an exception
+     * if not in the form email@domain.com.
+     * @param str email string
+     */
+    public static String parseEmail(String str) 
+    throws ParseException {
+        if (str == null || str.isEmpty()) throw new ParseException("empty string", 0);
+        
+        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(?:[a-zA-Z]{2,6})$";
+        
+        boolean valid = str.matches(emailPattern);
+        if (!valid) {
+            throw new ParseException("not a correctly formatted email", 0);
+        }
+        return str;
+    }
 
     /**
      * Parse an integer between the specified bounds
