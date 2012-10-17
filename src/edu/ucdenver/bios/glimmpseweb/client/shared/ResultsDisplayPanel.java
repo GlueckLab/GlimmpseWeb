@@ -515,20 +515,20 @@ public class ResultsDisplayPanel extends WizardStepPanel
         {
         case CONFIDENCE_INTERVAL:
             if (studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions() != null) {
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
-            } else {
                 resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
                 resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
+            } else {
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
             }
             break;
         case COVARIATE:
             if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
-            } else {
                 resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
                 resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
+            } else {
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
             }
             break;
         }  
