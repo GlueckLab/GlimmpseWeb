@@ -112,13 +112,21 @@ implements ModeSelectionHandler, WizardActionListener
 	    {
 	        try
 	        {
-//	            // REMOVE
-//	            uploadedStudy = uploadedStudy.substring(59,uploadedStudy.length()-6);
-//	            // END REMOVE
-//	            
+	            // REMOVE
+	            uploadedStudy = uploadedStudy.substring(5,uploadedStudy.length()-6);
+	            // END REMOVE
+	            boolean studyFormatWarn = false;
 	            
 	            StudyDesign design = 
 	                DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
+	            if (design == null) {
+	                // the domain layer changed between GLIMMPSE Web 2.0.0beta and 
+	                // GLIMMPSE 2.0.0 official.  We try to correct for the previous format
+	                uploadedStudy = uploadedStudy.replace("\"id\"", "\"idx\"");
+	                design = 
+	                        DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
+	                studyFormatWarn = true;
+	            }
 	            // TODO: clear
 	            if (design != null && design.getViewTypeEnum() != null) {
 	                switch (design.getViewTypeEnum()) {
@@ -130,6 +138,11 @@ implements ModeSelectionHandler, WizardActionListener
 	                    guidedWizardPanel.loadStudyDesign(design);
 	                    deckPanel.showWidget(GUIDED_INDEX);
 	                    break;
+	                }
+	                if (studyFormatWarn) {
+	                    Window.alert("The format for GLIMMPSE study designs had been updated.  " +
+	                    		"Please save a new copy of your study design to update to the latest format, and then" +
+	                    		"discard the original file.");
 	                }
 	            } else {
 	                Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile());

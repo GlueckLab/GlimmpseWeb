@@ -34,14 +34,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  <inherits name="name.pehl.piriti.json.JSON" />
  <!-- required for JSON code generation -->
  <inherits name="com.google.gwt.inject.Inject"/> 
- 
+ <!-- Smart GWT widget set -->
+ <inherits name="com.smartgwt.SmartGwt"/>
  <!-- visualization api -->
  <inherits name="com.google.gwt.visualization.Visualization"/>
  <!-- UC Denver Web Service Common api -->
  <inherits name="edu.ucdenver.bios.webservice.common.common"/>
   <!-- Specify the app entry point class.                         -->
   <entry-point class='edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb'/>
-
+  
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='context'/>
