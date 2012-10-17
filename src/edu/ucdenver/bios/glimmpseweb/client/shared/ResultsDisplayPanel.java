@@ -33,6 +33,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
@@ -43,6 +44,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.Table;
+import com.smartgwt.client.types.AutoFitWidthApproach;
+import com.smartgwt.client.types.Autofit;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
@@ -133,22 +136,22 @@ public class ResultsDisplayPanel extends WizardStepPanel
                     result.getTotalSampleSize());  
             setAttribute(GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER, 
                     doubleFormatter.format(result.getNominalPower().getValue()));  
-//            setAttribute(GlimmpseConstants.COLUMN_NAME_TEST, 
-//                    formatTestName(result.getTest()));  
-//            setAttribute(GlimmpseConstants.COLUMN_NAME_BETA_SCALE, 
-//                    doubleFormatter.format(result.getBetaScale().getValue()));  
-//            setAttribute(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE, 
-//                    doubleFormatter.format(result.getActualPower()));  
-//            
-//            // covariate related data
-//            setAttribute(GlimmpseConstants.COLUMN_NAME_POWER_METHOD, 
-//                    formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()));  
-//            Quantile quantile = result.getQuantile();
-//            if (quantile != null) {
-//                setAttribute(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
-//                        result.getQuantile());  
-//            }
-//                        
+            setAttribute(GlimmpseConstants.COLUMN_NAME_TEST, 
+                    formatTestName(result.getTest()));  
+            setAttribute(GlimmpseConstants.COLUMN_NAME_BETA_SCALE, 
+                    result.getBetaScale().getValue());  
+            setAttribute(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE, 
+                    result.getSigmaScale().getValue());  
+            
+            // covariate related data
+            setAttribute(GlimmpseConstants.COLUMN_NAME_POWER_METHOD, 
+                    formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()));  
+            Quantile quantile = result.getQuantile();
+            if (quantile != null) {
+                setAttribute(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
+                        result.getQuantile());  
+            }
+                        
             // set confidence intervals if applicable
             ConfidenceInterval ci = result.getConfidenceInterval();
             if (ci != null) {
@@ -319,33 +322,67 @@ public class ResultsDisplayPanel extends WizardStepPanel
     private void buildDataTable()
     {
         // set up the columns in the data table
-        resultsGrid.setWidth(640);  
+        resultsGrid.setWidth(660);  
         resultsGrid.setHeight(400);
         resultsGrid.setUseAllDataSourceFields(true);  
-        ListGridField powerField = new ListGridField(GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER, 
-                "Power");
-        ListGridField powerUpperField = new ListGridField(GlimmpseConstants.COLUMN_NAME_CI_UPPER, 
-                "CI Upper");
-        ListGridField powerLowerField = new ListGridField(GlimmpseConstants.COLUMN_NAME_CI_LOWER, 
-                "CI Lower");
-        ListGridField totalNField = new ListGridField(GlimmpseConstants.COLUMN_NAME_SAMPLE_SIZE, 
-                "Total Sample Size");
-        ListGridField nominalPowerField = new ListGridField(GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER, "Target Power");
-        ListGridField testField = new ListGridField(GlimmpseConstants.COLUMN_NAME_TEST, "Test");
-        ListGridField alphaField = new ListGridField(GlimmpseConstants.COLUMN_NAME_ALPHA, "Type I Error Rate");
-        ListGridField betaScaleField = new ListGridField(GlimmpseConstants.COLUMN_NAME_BETA_SCALE, 
-                "Means Scale Factor");
-        ListGridField sigmaScaleField = new ListGridField(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE, 
-                "Variability Scale Factor");
-        ListGridField powerMethodField = new ListGridField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD, 
-                "Calculation Method");
-        ListGridField quantileField = new ListGridField(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
-                "Quantile");
+        resultsGrid.setAutoFitFieldWidths(true);
+        resultsGrid.setAutoFitWidthApproach(AutoFitWidthApproach.BOTH);
+        // power
+        ListGridField powerField = 
+            createListGridField(GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER, 
+                "Power",50);
+        // confidence interval upper
+        ListGridField powerUpperField = 
+            createListGridField(GlimmpseConstants.COLUMN_NAME_CI_UPPER, 
+                "CI Upper",50);
+        // confidence interval lower
+        ListGridField powerLowerField = 
+            createListGridField(GlimmpseConstants.COLUMN_NAME_CI_LOWER, 
+                "CI Lower",50);
+        // sample size
+        ListGridField totalNField = 
+            createListGridField(GlimmpseConstants.COLUMN_NAME_SAMPLE_SIZE, 
+                "Total Sample Size",50);
+        // nominal power
+        ListGridField nominalPowerField = 
+            createListGridField(GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER, 
+                "Target Power",50);
+        // test
+        ListGridField testField = createListGridField(GlimmpseConstants.COLUMN_NAME_TEST, "Test",50);
+        // type I error
+        ListGridField alphaField = createListGridField(GlimmpseConstants.COLUMN_NAME_ALPHA, "Type I Error Rate",50);
+        // beta scale
+        ListGridField betaScaleField = createListGridField(GlimmpseConstants.COLUMN_NAME_BETA_SCALE, 
+                "Means Scale Factor",50);
+        // sigma scale
+        ListGridField sigmaScaleField = createListGridField(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE, 
+                "Variability Scale Factor",50);
+        // power method
+        ListGridField powerMethodField = createListGridField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD, 
+                "Calculation Method",50);
+        ListGridField quantileField = createListGridField(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
+                "Quantile",50);
+        
         resultsGrid.setFields(powerField, powerUpperField, powerLowerField,
                 totalNField,nominalPowerField,testField,alphaField,betaScaleField,
                 sigmaScaleField,powerMethodField,quantileField); 
+        
+        // default, these fields are hidden
+        resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+        resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
+        resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+        resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
     }
 
+    private ListGridField createListGridField(String name, String label,
+            int width) {
+        ListGridField field = new ListGridField(name, label);
+        field.setCanDragResize(false);
+        field.setCanFreeze(false);
+        field.setCanGroupBy(false);
+        return field;
+    }
+    
     private void buildWaitDialog()
     {
         waitDialog = new DialogBox();
@@ -379,40 +416,6 @@ public class ResultsDisplayPanel extends WizardStepPanel
             for(PowerResult result: results) {
                 
                 resultsGrid.addData(new PowerRecord(result));
-//                // add a blank row to the data table
-//                int row = resultsData.addRow();
-//                // fill in the columns from the power result
-//                resultsData.setCell(row, COLUMN_ID_TEST, result.getTest().getType().toString(), 
-//                        formatTestName(result.getTest()), null);
-//                resultsData.setCell(row, COLUMN_ID_ACTUAL_POWER, 
-//                        result.getActualPower(), doubleFormatter.format(result.getActualPower()), null);
-//                resultsData.setCell(row, COLUMN_ID_TOTAL_SAMPLE_SIZE, 
-//                        result.getTotalSampleSize(), Integer.toString(result.getTotalSampleSize()), null);
-//                resultsData.setCell(row, COLUMN_ID_BETA_SCALE, 
-//                        result.getBetaScale().getValue(), doubleFormatter.format(result.getBetaScale().getValue()), null);
-//                resultsData.setCell(row, COLUMN_ID_SIGMA_SCALE, 
-//                        result.getSigmaScale().getValue(), doubleFormatter.format(result.getSigmaScale().getValue()), null);
-//                resultsData.setCell(row, COLUMN_ID_ALPHA, 
-//                        result.getAlpha().getAlphaValue(), doubleFormatter.format(result.getAlpha().getAlphaValue()), null);
-//                resultsData.setCell(row, COLUMN_ID_NOMINAL_POWER, 
-//                        result.getNominalPower().getValue(), 
-//                        doubleFormatter.format(result.getNominalPower().getValue()), null);
-//                resultsData.setCell(row, COLUMN_ID_POWER_METHOD, 
-//                        result.getPowerMethod().getPowerMethodEnum().toString(), 
-//                        formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()), null);
-//                if (result.getQuantile() != null) {
-//                    resultsData.setCell(row, COLUMN_ID_QUANTILE, 
-//                            result.getQuantile().getValue(), doubleFormatter.format(result.getQuantile().getValue()), null);
-//                }
-//                if (result.getConfidenceInterval() != null) {
-//                    ConfidenceInterval ci = result.getConfidenceInterval();
-//                    resultsData.setCell(row, COLUMN_ID_CI_LOWER, 
-//                            ci.getLowerLimit(), 
-//                            doubleFormatter.format(ci.getLowerLimit()), null);
-//                    resultsData.setCell(row, COLUMN_ID_CI_UPPER, 
-//                            ci.getUpperLimit(), 
-//                            doubleFormatter.format(ci.getUpperLimit()), null);
-//                }
             }
 
 //            resultsTable.draw(resultsData);
@@ -512,12 +515,20 @@ public class ResultsDisplayPanel extends WizardStepPanel
         {
         case CONFIDENCE_INTERVAL:
             if (studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions() != null) {
-
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
+            } else {
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
             }
             break;
         case COVARIATE:
             if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
-
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
+            } else {
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
             }
             break;
         }  
