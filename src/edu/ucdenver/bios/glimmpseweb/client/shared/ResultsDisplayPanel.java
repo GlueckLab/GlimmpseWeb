@@ -33,7 +33,6 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
@@ -41,11 +40,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
-import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.visualizations.Table;
 import com.smartgwt.client.types.AutoFitWidthApproach;
-import com.smartgwt.client.types.Autofit;
+import com.smartgwt.client.types.SelectionStyle;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
@@ -328,6 +324,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
         resultsGrid.setUseAllDataSourceFields(true);  
         resultsGrid.setAutoFitFieldWidths(true);
         resultsGrid.setAutoFitWidthApproach(AutoFitWidthApproach.BOTH);
+        resultsGrid.setSelectionType(SelectionStyle.SINGLE);
         // power
         ListGridField powerField = 
             createListGridField(GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER, 
