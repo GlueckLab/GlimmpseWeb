@@ -29,6 +29,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	      <isset property=""/>
 	   </not>
 	</condition>
+	<!-- allows user to override default version of web service 
+	     common library -->
+	<condition property="webservicecommon.version" value="dev">
+	   <not>  
+	      <isset property=""/>
+	   </not>
+	</condition>
 	<property name="app.name" value="glimmpse-web" />
 	<property name="owner" value="University of Colorado Denver, 
 		Department of Biostatistics and Informatics" />
@@ -52,7 +59,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	<property name="war.dir" value="${basedir}/../war"/>
 	<property name="checkstyle.dir" value="${thirdparty.dir}/checkstyle/5.3"/>
 	<property name="webservicecommon.lib" 
-		value="${basedir}/../../WebServiceCommon/build/artifacts/edu.ucdenver.bios.webservice.common-gwt-1.0.0.jar" />
+		value="${basedir}/../../WebServiceCommon/build/artifacts/edu.ucdenver.bios.webservice.common-gwt-${webservicecommon.version}.jar" />
 	
 	<!-- class path -->
   	<path id="compile.path">
@@ -75,6 +82,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 			<include name="piriti/0.8/lib/javax.inject-1.jar"/>
 			<include name="piriti/0.8/lib/totoe-0.4.jar"/>
 			<include name="piriti/0.8/lib/velocity-1.7.jar"/>
+			<include name="smartgwt/3.0p/smartgwt.jar"/>
   		</fileset>
   	</path>
 	
