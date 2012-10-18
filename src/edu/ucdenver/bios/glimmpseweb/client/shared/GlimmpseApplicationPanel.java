@@ -42,118 +42,119 @@ import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 public class GlimmpseApplicationPanel extends Composite
 implements ModeSelectionHandler, WizardActionListener
 {
-	private static final int START_INDEX = 0;
-	private static final int GUIDED_INDEX = 1;
-	private static final int MATRIX_INDEX = 2;
-	
-	protected DeckPanel deckPanel = new DeckPanel();
-	protected ModeSelectionPanel modeSelectionPanel = new ModeSelectionPanel();
-	protected MatrixWizardPanel matrixWizardPanel = new MatrixWizardPanel();
-	protected GuidedWizardPanel guidedWizardPanel = new GuidedWizardPanel();
-	
-	/**
-	 * Constructor.  The main panel has a deck with three entries:
-	 * <ul>
-	 * <li>Start panel - main entry screen for user to select either guided/matrix mode</li>
-	 * <li>Guided panel - wizard panel for guided mode</li>
-	 * <li>Matrix panel - wizard panel for matrix mode</li>
-	 * </ul>
-	 */
-	public GlimmpseApplicationPanel()
-	{
-	    // listen for events on the wizard panels
-	    guidedWizardPanel.addWizardActionListener(this);
-	    matrixWizardPanel.addWizardActionListener(this);
-		// add the start panel and wizard panels to the deck
-		deckPanel.add(modeSelectionPanel);
-		deckPanel.add(guidedWizardPanel);
-		deckPanel.add(matrixWizardPanel);
-		// show start screen first
-		deckPanel.showWidget(START_INDEX);
-		// add style
-		deckPanel.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
-		
-		// set up listener relationships
-		modeSelectionPanel.addModeSelectionHandler(this);
+    private static final int START_INDEX = 0;
+    private static final int GUIDED_INDEX = 1;
+    private static final int MATRIX_INDEX = 2;
 
-		// initialize
-		initWidget(deckPanel);
-		
-	}
-	
-	/**
-	 * Display the guided mode wizard
-	 * @see ModeSelectionHandler
-	 */
-	@Override
-	public void onGuidedMode()
-	{
-		deckPanel.showWidget(GUIDED_INDEX);
-	}
-	
-	/**
-	 * Display the matrix mode wizard
-	 * @see ModeSelectionHandler
-	 */
-	@Override
-	public void onMatrixMode()
-	{
-		deckPanel.showWidget(MATRIX_INDEX);
-	}
-	
-	/**
-	 * Parse the uploaded file to determine whether the user was
-	 * using matrix or guided mode, then load the appropriate 
-	 * wizard from the XML document
-	 */
-	public void onStudyUpload(String uploadedStudy)
-	{
-	    if (uploadedStudy != null)
-	    {
-	        try
-	        {
-	            // REMOVE
-	            uploadedStudy = uploadedStudy.substring(5,uploadedStudy.length()-6);
-	            // END REMOVE
-	            boolean studyFormatWarn = false;
-	            
-	            StudyDesign design = 
-	                DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
-	            if (design == null) {
-	                // the domain layer changed between GLIMMPSE Web 2.0.0beta and 
-	                // GLIMMPSE 2.0.0 official.  We try to correct for the previous format
-	                uploadedStudy = uploadedStudy.replace("\"id\"", "\"idx\"");
-	                design = 
-	                        DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
-	                studyFormatWarn = true;
-	            }
-	            // TODO: clear
-	            if (design != null && design.getViewTypeEnum() != null) {
-	                switch (design.getViewTypeEnum()) {
-	                case MATRIX_MODE:
-	                    matrixWizardPanel.loadStudyDesign(design);
-	                    deckPanel.showWidget(MATRIX_INDEX);
-	                    break;
-	                case GUIDED_MODE:
-	                    guidedWizardPanel.loadStudyDesign(design);
-	                    deckPanel.showWidget(GUIDED_INDEX);
-	                    break;
-	                }
-	                if (studyFormatWarn) {
-	                    Window.alert("The format for GLIMMPSE study designs had been updated.  " +
-	                    		"Please save a new copy of your study design to update to the latest format, and then" +
-	                    		"discard the original file.");
-	                }
-	            } else {
-	                Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile());
-	            }
-	        } catch (Exception e) {
-	            Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile() + e.getMessage());
-	        }
-	    } else {
-	        Window.alert(GlimmpseWeb.constants.errorUploadFailed());
-	    }
-	}
+    protected DeckPanel deckPanel = new DeckPanel();
+    protected ModeSelectionPanel modeSelectionPanel = new ModeSelectionPanel();
+    protected MatrixWizardPanel matrixWizardPanel = new MatrixWizardPanel();
+    protected GuidedWizardPanel guidedWizardPanel = new GuidedWizardPanel();
+
+    /**
+     * Constructor.  The main panel has a deck with three entries:
+     * <ul>
+     * <li>Start panel - main entry screen for user to select either guided/matrix mode</li>
+     * <li>Guided panel - wizard panel for guided mode</li>
+     * <li>Matrix panel - wizard panel for matrix mode</li>
+     * </ul>
+     */
+    public GlimmpseApplicationPanel()
+    {
+        // listen for events on the wizard panels
+        guidedWizardPanel.addWizardActionListener(this);
+        matrixWizardPanel.addWizardActionListener(this);
+        // add the start panel and wizard panels to the deck
+        deckPanel.add(modeSelectionPanel);
+        deckPanel.add(guidedWizardPanel);
+        deckPanel.add(matrixWizardPanel);
+        // show start screen first
+        deckPanel.showWidget(START_INDEX);
+        // add style
+        deckPanel.setStyleName(GlimmpseConstants.STYLE_GLIMMPSE_PANEL);
+
+        // set up listener relationships
+        modeSelectionPanel.addModeSelectionHandler(this);
+
+        // initialize
+        initWidget(deckPanel);
+
+    }
+
+    /**
+     * Display the guided mode wizard
+     * @see ModeSelectionHandler
+     */
+    @Override
+    public void onGuidedMode()
+    {
+        deckPanel.showWidget(GUIDED_INDEX);
+    }
+
+    /**
+     * Display the matrix mode wizard
+     * @see ModeSelectionHandler
+     */
+    @Override
+    public void onMatrixMode()
+    {
+        deckPanel.showWidget(MATRIX_INDEX);
+    }
+
+    /**
+     * Parse the uploaded file to determine whether the user was
+     * using matrix or guided mode, then load the appropriate 
+     * wizard from the XML document
+     */
+    public void onStudyUpload(String uploadedStudy)
+    {
+        if (uploadedStudy != null)
+        {
+            try
+            {
+                // REMOVE
+//                uploadedStudy = uploadedStudy.substring(5,uploadedStudy.length()-6);
+                // END REMOVE
+                boolean studyFormatWarn = false;
+
+                StudyDesign design = 
+                    DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
+                if (design == null) {
+                    // the domain layer changed between GLIMMPSE Web 2.0.0beta and 
+                    // GLIMMPSE 2.0.0 official.  We try to correct for the previous format
+                    uploadedStudy = uploadedStudy.replace("\"id\"", "\"idx\"");
+                    design = 
+                        DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
+                    studyFormatWarn = true;
+                }
+                // TODO: clear
+                if (design != null && design.getViewTypeEnum() != null) {
+                    if (studyFormatWarn) {
+                        Window.alert("The format for GLIMMPSE study designs had been updated.  " +
+                                "Please save a new copy of your study design to update to the latest format, and then" +
+                        "discard the original file.");
+                    }
+                    switch (design.getViewTypeEnum()) {
+                    case MATRIX_MODE:
+                        matrixWizardPanel.loadStudyDesign(design);
+                        deckPanel.showWidget(MATRIX_INDEX);
+                        break;
+                    case GUIDED_MODE:
+                        guidedWizardPanel.loadStudyDesign(design);
+                        deckPanel.showWidget(GUIDED_INDEX);
+                        break;
+                    }
+
+                } else {
+                    Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile());
+                }
+            } catch (Exception e) {
+                Window.alert(GlimmpseWeb.constants.errorUploadInvalidStudyFile() + e.getMessage());
+            }
+        } else {
+            Window.alert(GlimmpseWeb.constants.errorUploadFailed());
+        }
+    }
 
     @Override
     public void onNext() {
@@ -189,15 +190,15 @@ implements ModeSelectionHandler, WizardActionListener
      * Reset the panels when the user selects "cancel" from one of the wizard
      * toolbar menus
      */
-	@Override
-	public void onCancel()
-	{
-	    boolean cancel = Window.confirm(GlimmpseWeb.constants.confirmClearAll());
-	    if (cancel) {
-	        matrixWizardPanel.reset();
-	        guidedWizardPanel.reset();
-	        modeSelectionPanel.reset();
-	        deckPanel.showWidget(START_INDEX);
-	    }
-	}
+    @Override
+    public void onCancel()
+    {
+        boolean cancel = Window.confirm(GlimmpseWeb.constants.confirmClearAll());
+        if (cancel) {
+            matrixWizardPanel.reset();
+            guidedWizardPanel.reset();
+            modeSelectionPanel.reset();
+            deckPanel.showWidget(START_INDEX);
+        }
+    }
 }

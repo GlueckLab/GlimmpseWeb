@@ -67,6 +67,7 @@ import edu.ucdenver.bios.webservice.common.domain.Quantile;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
+import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
  * Final results display panel
@@ -75,21 +76,9 @@ import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
  */
 public class ResultsDisplayPanel extends WizardStepPanel
 {	
-    // columns associated with each quantity in the data table
-    private static final int COLUMN_ID_TEST = 0;
-    private static final int COLUMN_ID_ACTUAL_POWER = 1;
-    private static final int COLUMN_ID_TOTAL_SAMPLE_SIZE = 2;
-    private static final int COLUMN_ID_BETA_SCALE = 3;
-    private static final int COLUMN_ID_SIGMA_SCALE = 4;
-    private static final int COLUMN_ID_ALPHA = 5;
-    private static final int COLUMN_ID_NOMINAL_POWER = 6;
-    private static final int COLUMN_ID_POWER_METHOD = 7;
-    private static final int COLUMN_ID_QUANTILE = 8;
-    private static final int COLUMN_ID_CI_LOWER = 9;
-    private static final int COLUMN_ID_CI_UPPER = 10;
-
+    // separator style
     private static final String STYLE_SEPARATOR = "separator";
-
+    // format for power values
     private NumberFormat doubleFormatter = NumberFormat.getFormat("0.000");
 
     // context object
@@ -105,14 +94,11 @@ public class ResultsDisplayPanel extends WizardStepPanel
     // wait dialog
     protected DialogBox waitDialog;
 
-    // google visualization api data table to hold results
-//    protected DataTable resultsData = null; 
     // Smart GWT grid to hold the results
     protected ListGrid resultsGrid = new ListGrid();
 
     // tabular display of results
     protected VerticalPanel resultsTablePanel = new VerticalPanel();
-//    protected Table resultsTable = new Table(resultsData, null);
 
     // curve display
     protected VerticalPanel resultsCurvePanel = new VerticalPanel();
@@ -124,8 +110,15 @@ public class ResultsDisplayPanel extends WizardStepPanel
     // didn't have enough control over line types, etc.  Thus, I rolled my own
     // restlet on top of JFreeChart.  Images are retrieved via GET
     protected Image powerCurveImage = new Image();
-    //	protected Image legendImage = new Image();
 
+    // if true, we display the confidence intervals 
+    protected boolean hasCI = false;
+    // if true, we display the calculation method and quantiles
+    protected boolean hasCovariate = false;
+    // if true, we show the nominal power value
+    protected boolean showNominalPower = false;
+
+    // Column model for the results table display
     private class PowerRecord extends ListGridRecord {
         public PowerRecord(PowerResult result) {
             setAttribute(GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER, 
@@ -142,7 +135,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
                     result.getBetaScale().getValue());  
             setAttribute(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE, 
                     result.getSigmaScale().getValue());  
-            
+
             // covariate related data
             setAttribute(GlimmpseConstants.COLUMN_NAME_POWER_METHOD, 
                     formatPowerMethodName(result.getPowerMethod().getPowerMethodEnum()));  
@@ -151,19 +144,19 @@ public class ResultsDisplayPanel extends WizardStepPanel
                 setAttribute(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
                         result.getQuantile());  
             }
-                        
+
             // set confidence intervals if applicable
             ConfidenceInterval ci = result.getConfidenceInterval();
             if (ci != null) {
                 setAttribute(GlimmpseConstants.COLUMN_NAME_CI_LOWER, 
-                        ci.getLowerLimit());  
+                        doubleFormatter.format(ci.getLowerLimit()));  
                 setAttribute(GlimmpseConstants.COLUMN_NAME_CI_UPPER, 
-                        ci.getUpperLimit());  
+                        doubleFormatter.format(ci.getUpperLimit()));  
             }
         }
     }
-    
-    
+
+
     /**
      * Constructor.
      * @param context the study design context
@@ -176,7 +169,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
 
         // build the wait dialog
         buildWaitDialog();
-        // build the data table 
+        // build the data table - must be called prior to buildTablePanel
         buildDataTable();
         // build the display panels
         buildErrorPanel();
@@ -190,7 +183,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
         // need the save form to actually appear in the panel
         panel.add(fileSvcConnector);
         panel.add(powerSvcConnector);
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 
@@ -301,17 +294,22 @@ public class ResultsDisplayPanel extends WizardStepPanel
         description.addStyleDependentName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBPANEL);
     }
 
+    /**
+     * Clear any previous results
+     */
     @Override
     public void reset()
     {
         resultsGrid.selectAllRecords();
         resultsGrid.removeSelectedData();
-//        resultsData.removeRows(0, resultsData.getNumberOfRows());
         resultsTablePanel.setVisible(false);
         resultsCurvePanel.setVisible(false);
         errorPanel.setVisible(false);
     }
 
+    /**
+     * Send a request to the power service as the user enters the screen
+     */
     @Override
     public void onEnter()
     {
@@ -319,6 +317,9 @@ public class ResultsDisplayPanel extends WizardStepPanel
         sendPowerRequest();
     }
 
+    /**
+     * Set up the columns of the display table for the power results
+     */
     private void buildDataTable()
     {
         // set up the columns in the data table
@@ -330,43 +331,43 @@ public class ResultsDisplayPanel extends WizardStepPanel
         // power
         ListGridField powerField = 
             createListGridField(GlimmpseConstants.COLUMN_NAME_ACTUAL_POWER, 
-                "Power",50);
+            "Power");
         // confidence interval upper
         ListGridField powerUpperField = 
             createListGridField(GlimmpseConstants.COLUMN_NAME_CI_UPPER, 
-                "CI Upper",50);
+            "CI Upper");
         // confidence interval lower
         ListGridField powerLowerField = 
             createListGridField(GlimmpseConstants.COLUMN_NAME_CI_LOWER, 
-                "CI Lower",50);
+            "CI Lower");
         // sample size
         ListGridField totalNField = 
             createListGridField(GlimmpseConstants.COLUMN_NAME_SAMPLE_SIZE, 
-                "Total Sample Size",50);
+            "Total Sample Size");
         // nominal power
         ListGridField nominalPowerField = 
             createListGridField(GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER, 
-                "Target Power",50);
+            "Target Power");
         // test
-        ListGridField testField = createListGridField(GlimmpseConstants.COLUMN_NAME_TEST, "Test",50);
+        ListGridField testField = createListGridField(GlimmpseConstants.COLUMN_NAME_TEST, "Test");
         // type I error
-        ListGridField alphaField = createListGridField(GlimmpseConstants.COLUMN_NAME_ALPHA, "Type I Error Rate",50);
+        ListGridField alphaField = createListGridField(GlimmpseConstants.COLUMN_NAME_ALPHA, "Type I Error Rate");
         // beta scale
         ListGridField betaScaleField = createListGridField(GlimmpseConstants.COLUMN_NAME_BETA_SCALE, 
-                "Means Scale Factor",50);
+        "Means Scale Factor");
         // sigma scale
         ListGridField sigmaScaleField = createListGridField(GlimmpseConstants.COLUMN_NAME_SIGMA_SCALE, 
-                "Variability Scale Factor",50);
+        "Variability Scale Factor");
         // power method
         ListGridField powerMethodField = createListGridField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD, 
-                "Calculation Method",50);
+        "Calculation Method");
         ListGridField quantileField = createListGridField(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
-                "Quantile",50);
-        
-        resultsGrid.setFields(powerField, powerUpperField, powerLowerField,
-                totalNField,nominalPowerField,testField,alphaField,betaScaleField,
-                sigmaScaleField,powerMethodField,quantileField); 
-        
+        "Quantile");
+
+        resultsGrid.setFields(powerField, powerLowerField, powerUpperField, 
+                totalNField, nominalPowerField, testField, alphaField, betaScaleField,
+                sigmaScaleField, powerMethodField, quantileField); 
+
         // default, these fields are hidden
         resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
         resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
@@ -374,15 +375,23 @@ public class ResultsDisplayPanel extends WizardStepPanel
         resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
     }
 
-    private ListGridField createListGridField(String name, String label,
-            int width) {
+    /**
+     * Create a column in the power results display table
+     * @param name name of the column
+     * @param label display label for the column
+     * @return ListGridField object representing a column
+     */
+    private ListGridField createListGridField(String name, String label) {
         ListGridField field = new ListGridField(name, label);
         field.setCanDragResize(false);
         field.setCanFreeze(false);
         field.setCanGroupBy(false);
         return field;
     }
-    
+
+    /**
+     * Build a processing dialog
+     */
     private void buildWaitDialog()
     {
         waitDialog = new DialogBox();
@@ -393,16 +402,26 @@ public class ResultsDisplayPanel extends WizardStepPanel
         waitDialog.setWidget(text);
     }
 
+    /**
+     * Show the processing dialog
+     */
     private void showWorkingDialog()
     {
         waitDialog.center();
     }
 
+    /**
+     * Hide the processing dialog
+     */
     private void hideWorkingDialog()
     {
         waitDialog.hide();
     }
 
+    /**
+     * Display an error if the power request failed
+     * @param message
+     */
     private void showError(String message)
     {
         errorHTML.setHTML(message);
@@ -410,19 +429,43 @@ public class ResultsDisplayPanel extends WizardStepPanel
         hideWorkingDialog();
     }
 
+    /**
+     * Display the power results
+     * @param results
+     */
     private void showResults(List<PowerResult> results)
     {
         if (results != null) {
             for(PowerResult result: results) {
-                
                 resultsGrid.addData(new PowerRecord(result));
             }
-
-//            resultsTable.draw(resultsData);
             resultsTablePanel.setVisible(true);     
+            if (hasCI) {
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
+            } else {
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
+            }
+            if (hasCovariate) {
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
+            } else {
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
+            }
+            if (showNominalPower) {
+                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER);
+            } else {
+                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_NOMINAL_POWER);
+            }
         }
     }
 
+    /**
+     * Create a URI for the chart service to generate a power curve
+     * @param resultList
+     */
     private void showCurveResults(List<PowerResult> resultList)
     {
         if (resultList != null && resultList.size() > 0 &&
@@ -436,16 +479,30 @@ public class ResultsDisplayPanel extends WizardStepPanel
         }
     }
 
+    /**
+     * Pretty formatting for the power method
+     * @param name
+     * @return
+     */
     private String formatPowerMethodName(PowerMethodEnum name)
     {
         return name.toString(); // TODO
     }
 
+    /**
+     * Pretty formatting for the test name
+     * @param name
+     * @return
+     */
     private String formatTestName(StatisticalTest name)
     {
         return name.getType().toString(); // TODO
     }
 
+    /**
+     * Send a request to the power web service to 
+     * calculate the results
+     */
     private void sendPowerRequest()
     {
         showWorkingDialog();
@@ -459,9 +516,9 @@ public class ResultsDisplayPanel extends WizardStepPanel
                 public void onResponseReceived(Request request, Response response) {
                     hideWorkingDialog();
                     if (response.getStatusCode() == Response.SC_OK) {
-                        
+
                         String resultsJSON = response.getText();
-                        
+
                         List<PowerResult> results = powerSvcConnector.parsePowerResultList(resultsJSON);
                         if (results != null && results.size() > 0) {
                             showResults(results);
@@ -495,12 +552,47 @@ public class ResultsDisplayPanel extends WizardStepPanel
     }
 
     /**
-     * Issue a call to the file service to save the results to a csv file
+     * Convert the ListGrid data to a CSV and 
+     * issue a call to the file service to save the results.
+     * 
+     * Note that only visible columns are saved to the file
      */
     private void saveDataToCSV() {
-//        fileSvcConnector.saveDataTableAsCSV(resultsData, null);
+
+        StringBuffer buffer = new StringBuffer();
+        boolean first = true;
+        // build the header row
+        for(ListGridField field : resultsGrid.getFields()) {
+            if (!first) {
+                buffer.append(",");
+            } else {
+                first = false;
+            }
+            buffer.append(field.getName());
+        }
+        buffer.append("\n");
+
+        // build the data rows
+        for(ListGridRecord record : resultsGrid.getRecords()) {
+            first = true;
+            for(ListGridField field : resultsGrid.getFields()) {
+                if (!first) {
+                    buffer.append(",");
+                } else {
+                    first = false;
+                }
+                String value = record.getAttribute(field.getName());
+                if (value != null) {
+                    buffer.append(value);
+                }
+            }
+            buffer.append("\n");
+        }
+
+        // save via the file service
+        fileSvcConnector.saveStringToFile(buffer.toString(), null);
     }
-    
+
     /**
      * Submit a form to display matrices in a separate window
      */
@@ -508,35 +600,37 @@ public class ResultsDisplayPanel extends WizardStepPanel
         powerSvcConnector.getMatricesAsHTML(studyDesignContext.getStudyDesign());
     }
 
+    /**
+     * Update the visible columns depending on the structure of 
+     * the study design
+     */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
         StudyDesignChangeEvent changeEvent = (StudyDesignChangeEvent) e;
         switch (changeEvent.getType())
         {
         case CONFIDENCE_INTERVAL:
-            if (studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions() != null) {
-                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
-                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
-            } else {
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_LOWER);
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_CI_UPPER);
-            }
+            hasCI = (studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions() != null);
             break;
         case COVARIATE:
-            if (studyDesignContext.getStudyDesign().isGaussianCovariate()) {
-                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
-                resultsGrid.showField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
-            } else {
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_POWER_METHOD);
-                resultsGrid.hideField(GlimmpseConstants.COLUMN_NAME_QUANTILE);
-            }
+            hasCovariate = (studyDesignContext.getStudyDesign().isGaussianCovariate());
             break;
+        case SOLVING_FOR:
+            showNominalPower = 
+                (studyDesignContext.getStudyDesign().getSolutionTypeEnum() != 
+                    SolutionTypeEnum.POWER);
         }  
     }
 
+    /**
+     * Initialize the screen when a new context is loaded
+     */
     @Override
     public void onWizardContextLoad() {
-        // no action required
-
+        hasCI = (studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions() != null);
+        hasCovariate = (studyDesignContext.getStudyDesign().isGaussianCovariate());
+        showNominalPower = 
+            (studyDesignContext.getStudyDesign().getSolutionTypeEnum() != 
+                SolutionTypeEnum.POWER);
     }
 }
