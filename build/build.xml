@@ -68,9 +68,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   			<include name="gwt-user.jar"/>
   			<include name="gwt-dev.jar"/>
   		</fileset>
-  		<fileset dir="${gwt.visualization.dir}">
-  			<include name="gwt-visualization.jar"/>
-  		</fileset>
   		<fileset file="${webservicecommon.lib}" />
   		<fileset dir="${thirdparty.dir}">
 			<include name="piriti/0.8/lib/piriti-dev-0.8.jar"/>
@@ -199,6 +196,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             <header><![CDATA[<p><b>Glimmpse Web</b></p>]]></header>
             <bottom><![CDATA[<font size=1>${owner}</font>]]></bottom>
             <link href="http://java.sun.com/javase/6/docs/api"/>
+            <classpath>
+                <path refid="compile.path" />
+            </classpath>
         </javadoc>
     </target>
 	
