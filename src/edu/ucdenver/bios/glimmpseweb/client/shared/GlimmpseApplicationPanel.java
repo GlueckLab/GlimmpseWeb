@@ -115,24 +115,20 @@ implements ModeSelectionHandler, WizardActionListener
                 // REMOVE
 //                uploadedStudy = uploadedStudy.substring(5,uploadedStudy.length()-6);
                 // END REMOVE
-                boolean studyFormatWarn = false;
+                // the domain layer changed between GLIMMPSE Web 2.0.0beta and 
+                // GLIMMPSE 2.0.0 official.  We try to correct for the previous format
+                boolean studyFormatWarn = uploadedStudy.contains("\"id\":");
+                if (studyFormatWarn) {
+                    uploadedStudy = uploadedStudy.replace("\"id\":", "\"idx\":");
+                }
 
                 StudyDesign design = 
                     DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
-                if (design == null) {
-                    // the domain layer changed between GLIMMPSE Web 2.0.0beta and 
-                    // GLIMMPSE 2.0.0 official.  We try to correct for the previous format
-                    uploadedStudy = uploadedStudy.replace("\"id\"", "\"idx\"");
-                    design = 
-                        DomainObjectSerializer.getInstance().studyDesignFromJSON(uploadedStudy);
-                    studyFormatWarn = true;
-                }
                 // TODO: clear
                 if (design != null && design.getViewTypeEnum() != null) {
                     if (studyFormatWarn) {
                         Window.alert("The format for GLIMMPSE study designs had been updated.  " +
-                                "Please save a new copy of your study design to update to the latest format, and then" +
-                        "discard the original file.");
+                                "To update to the latest format, please save a new copy of your study design.");
                     }
                     switch (design.getViewTypeEnum()) {
                     case MATRIX_MODE:
