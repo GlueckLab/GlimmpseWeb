@@ -79,7 +79,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 			<include name="piriti/0.8/lib/javax.inject-1.jar"/>
 			<include name="piriti/0.8/lib/totoe-0.4.jar"/>
 			<include name="piriti/0.8/lib/velocity-1.7.jar"/>
-			<include name="smartgwt/3.0p/smartgwt.jar"/>
+			<include name="smartgwt/3.0p/lib/smartgwt.jar"/>
   		</fileset>
   	</path>
 	
