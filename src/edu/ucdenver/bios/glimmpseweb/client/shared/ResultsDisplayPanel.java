@@ -41,6 +41,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.smartgwt.client.types.AutoFitWidthApproach;
+import com.smartgwt.client.types.Autofit;
 import com.smartgwt.client.types.SelectionStyle;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
@@ -320,9 +321,11 @@ public class ResultsDisplayPanel extends WizardStepPanel
     {
         // set up the columns in the data table
         resultsGrid.setWidth(660);  
-        resultsGrid.setHeight(400);
+//        resultsGrid.setHeight(400);
         resultsGrid.setUseAllDataSourceFields(true);  
         resultsGrid.setAutoFitFieldWidths(true);
+        resultsGrid.setAutoFitData(Autofit.VERTICAL);
+        resultsGrid.setAutoFitMaxRecords(14);
         resultsGrid.setAutoFitWidthApproach(AutoFitWidthApproach.BOTH);
         resultsGrid.setSelectionType(SelectionStyle.SINGLE);
         // power
