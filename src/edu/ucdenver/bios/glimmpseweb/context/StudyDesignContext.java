@@ -114,93 +114,245 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
-     * Store the list of Type I error values in the StudyDesign object.
-     * @param panel wizard panel initiating the change
-     * @param alphaList list of Type I error values
+     * Add a Type I error rate to the study design
+     * @param panel panel initiating the change
+     * @param alpha the Type I error rate
      */
-    public void setAlphaList(WizardStepPanel panel, ArrayList<TypeIError> alphaList)
-    {
-        studyDesign.setAlphaList(alphaList);
+    public void addTypeIErrorRate(WizardStepPanel panel, double alpha) {
+        List<TypeIError> alphaList = studyDesign.getAlphaList();
+        if (alphaList == null) {
+            alphaList = new ArrayList<TypeIError>();
+            studyDesign.setAlphaList(alphaList);
+        }
+        alphaList.add(new TypeIError(alpha));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.ALPHA_LIST));
     }
+    
+    /**
+     * Delete the specified type I error rate
+     * @param panel panel initiating the change
+     * @param alpha the Type I error rate
+     * @param the index in the list
+     */
+    public void deleteTypeIErrorRate(WizardStepPanel panel, 
+            double alpha, int index) {
+        List<TypeIError> alphaList = studyDesign.getAlphaList();
+        if (alphaList != null) {
+            if (index >=0 && index < alphaList.size()-1 &&
+                    alphaList.get(index).getAlphaValue() == alpha) {
+                alphaList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.ALPHA_LIST));
+            }
+        }
+    }
 
     /**
-     * Store the list of beta scale values in the StudyDesign object.
-     * @param panel wizard panel initiating the change
-     * @param betaScaleList list of beta scale values
+     * Add a beta scale value to the study design
+     * @param panel the panel initiating the change
+     * @param betaScale the beta scale value
      */
-    public void setBetaScaleList(WizardStepPanel panel, List<BetaScale> betaScaleList)
-    {
-        studyDesign.setBetaScaleList(betaScaleList);
+    public void addBetaScale(WizardStepPanel panel, double betaScale) {
+        List<BetaScale> betaScaleList = studyDesign.getBetaScaleList();
+        if (betaScaleList == null) {
+            betaScaleList = new ArrayList<BetaScale>();
+            studyDesign.setBetaScaleList(betaScaleList);
+        }
+        betaScaleList.add(new BetaScale(betaScale));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETA_SCALE_LIST));
     }
+    
+    /**
+     * Delete the specified beta scale value
+     * @param panel the panel initiating the change
+     * @param betaScale the beta scale value
+     * @param index the index of the value in the list
+     */
+    public void deleteBetaScale(WizardStepPanel panel, double betaScale, int index) {
+        List<BetaScale> betaScaleList = studyDesign.getBetaScaleList();
+        if (betaScaleList != null) {
+            if (index >=0 && index < betaScaleList.size()-1 &&
+                    betaScaleList.get(index).getValue() == betaScale) {
+                betaScaleList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.BETA_SCALE_LIST));
+            }
+        }
+    }
 
     /**
-     * Store the list of sigma scale values in the StudyDesign object.
-     * @param panel wizard panel initiating the change
-     * @param sigmaScaleList list of sigma scale values
+     * Add a sigma scale value to the study design
+     * @param panel the panel initiating the change
+     * @param sigmaScale the sigma scale value
      */
-    public void setSigmaScaleList(WizardStepPanel panel, List<SigmaScale> sigmaScaleList)
-    {
-        studyDesign.setSigmaScaleList(sigmaScaleList);
+    public void addSigmaScale(WizardStepPanel panel, double sigmaScale) {
+        List<SigmaScale> sigmaScaleList = studyDesign.getSigmaScaleList();
+        if (sigmaScaleList == null) {
+            sigmaScaleList = new ArrayList<SigmaScale>();
+            studyDesign.setSigmaScaleList(sigmaScaleList);
+        }
+        sigmaScaleList.add(new SigmaScale(sigmaScale));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.SIGMA_SCALE_LIST));
     }
-
+    
     /**
-     * Store the list of nominal power values in the StudyDesign object. Specified
-     * when solving for sample size.
-     * @param panel wizard panel initiating the change
-     * @param powerList list of nominal power values
+     * Delete the specified sigma scale value
+     * @param panel the panel initiating the change
+     * @param sigmaScale the sigma scale value
+     * @param index the index of the value in the list
      */
-    public void setNominalPowerList(WizardStepPanel panel, ArrayList<NominalPower> powerList)
-    {
-        studyDesign.setNominalPowerList(powerList);
+    public void deleteSigmaScale(WizardStepPanel panel, double sigmaScale, int index) {
+        List<SigmaScale> sigmaScaleList = studyDesign.getSigmaScaleList();
+        if (sigmaScaleList != null) {
+            if (index >=0 && index < sigmaScaleList.size()-1 &&
+                    sigmaScaleList.get(index).getValue() == sigmaScale) {
+                sigmaScaleList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.SIGMA_SCALE_LIST));
+            }
+        }
+    }  
+    
+    /**
+     * Add a nominal power value to the study design
+     * @param panel the panel initiating the change
+     * @param power the nominal power value
+     */
+    public void addNominalPower(WizardStepPanel panel, double power) {
+        List<NominalPower> powerList = studyDesign.getNominalPowerList();
+        if (powerList == null) {
+            powerList = new ArrayList<NominalPower>();
+            studyDesign.setNominalPowerList(powerList);
+        }
+        powerList.add(new NominalPower(power));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.POWER_LIST));
     }
-
+    
     /**
-     * Store the list of power methods in the StudyDesign object. 
-     * @param panel wizard panel initiating the change
-     * @param powerMethodList list of power methods
+     * Delete the specified nominal power value
+     * @param panel the panel initiating the change
+     * @param power the nominal power value
+     * @param index the index of the value in the list
      */
-    public void setPowerMethodList(WizardStepPanel panel, ArrayList<PowerMethod> powerMethodList)
-    {
-        studyDesign.setPowerMethodList(powerMethodList);
+    public void deleteNominalPower(WizardStepPanel panel, double power, int index) {
+        List<NominalPower> nominalPowerList = studyDesign.getNominalPowerList();
+        if (nominalPowerList != null) {
+            if (index >=0 && index < nominalPowerList.size()-1 &&
+                    nominalPowerList.get(index).getValue() == power) {
+                nominalPowerList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.POWER_LIST));
+            }
+        }
+    }
+    
+    /**
+     * Add a power method to the study design
+     * @param panel the panel initiating the change
+     * @param powerMethod the nominal power value
+     */
+    public void addNominalPower(WizardStepPanel panel, PowerMethodEnum powerMethod) {
+        List<PowerMethod> powerMethodList = studyDesign.getPowerMethodList();
+        if (powerMethodList == null) {
+            powerMethodList = new ArrayList<PowerMethod>();
+            studyDesign.setPowerMethodList(powerMethodList);
+        }
+        powerMethodList.add(new PowerMethod(powerMethod));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.POWER_METHOD_LIST));
     }
+    
+    /**
+     * Delete the specified power method from the study design
+     * @param panel the panel initiating the change
+     * @param powerMethod the power method
+     * @param index the index of the value in the list
+     */
+    public void deleteNominalPower(WizardStepPanel panel, 
+            PowerMethodEnum powerMethod, int index) {
+        List<PowerMethod> powerMethodList = studyDesign.getPowerMethodList();
+        if (powerMethodList != null) {
+            if (index >=0 && index < powerMethodList.size()-1 &&
+                    powerMethodList.get(index).getPowerMethodEnum() == powerMethod) {
+                powerMethodList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.POWER_METHOD_LIST));
+            }
+        }
+    }
 
     /**
-     * Store the list of quantiles in the StudyDesign object. Specified when using 
-     * the quantile power method
-     * @param panel wizard panel initiating the change
-     * @param quantileList list of quantiles
+     * Add a quantile value to the study design
+     * @param panel the panel initiating the change
+     * @param quantile the quantile value
      */
-    public void setQuantileList(WizardStepPanel panel, ArrayList<Quantile> quantileList)
-    {
-        studyDesign.setQuantileList(quantileList);
+    public void addQuantile(WizardStepPanel panel, double quantile) {
+        List<Quantile> quantileList = studyDesign.getQuantileList();
+        if (quantileList == null) {
+            quantileList = new ArrayList<Quantile>();
+            studyDesign.setQuantileList(quantileList);
+        }
+        quantileList.add(new Quantile(quantile));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.QUANTILE_LIST));
     }
+    
+    /**
+     * Delete the specified quantile from the study design
+     * @param panel the panel initiating the change
+     * @param quantile the quantile value
+     * @param index the index of the value in the list
+     */
+    public void deleteQuantile(WizardStepPanel panel, double quantile, int index) {
+        List<Quantile> quantileList = studyDesign.getQuantileList();
+        if (quantileList != null) {
+            if (index >=0 && index < quantileList.size()-1 &&
+                    quantileList.get(index).getValue() == quantile) {
+                quantileList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.QUANTILE_LIST));
+            }
+        }
+    }
 
     /**
-     * Store the list of sample size values in the StudyDesign object. Specified when 
-     * solving for power.
-     * @param panel wizard panel initiating the change
-     * @param sampleSizeList list of sample sizes
+     * Add a per group sample size value to the study design
+     * @param panel the panel initiating the change
+     * @param perGroupSampleSize the quantile value
      */
-    public void setPerGroupSampleSizeList(WizardStepPanel panel, 
-            ArrayList<SampleSize> sampleSizeList)
-    {
-        studyDesign.setSampleSizeList(sampleSizeList);
+    public void addPerGroupSampleSize(WizardStepPanel panel, int sampleSize) {
+        List<SampleSize> sampleSizeList = studyDesign.getSampleSizeList();
+        if (sampleSizeList == null) {
+            sampleSizeList = new ArrayList<SampleSize>();
+            studyDesign.setSampleSizeList(sampleSizeList);
+        }
+        sampleSizeList.add(new SampleSize(sampleSize));
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.PER_GROUP_N_LIST));
     }
-
+    
+    /**
+     * Delete the specified quantile from the study design
+     * @param panel the panel initiating the change
+     * @param quantile the quantile value
+     * @param index the index of the value in the list
+     */
+    public void deletePerGroupSampleSize(WizardStepPanel panel, int sampleSize, int index) {
+        List<SampleSize> sampleSizeList = studyDesign.getSampleSizeList();
+        if (sampleSizeList != null) {
+            if (index >=0 && index < sampleSizeList.size()-1 &&
+                    sampleSizeList.get(index).getValue() == sampleSize) {
+                sampleSizeList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.PER_GROUP_N_LIST));
+            }
+        }
+    }
+    
     /**
      * Store the list of statistical tests in the StudyDesign object. 
      * @param panel wizard panel initiating the change
@@ -451,7 +603,9 @@ public class StudyDesignContext extends WizardContext
         // add the factor to the study design
         factorList.add(factor);
         // add to the table of combinations of factors
-        participantGroups.addFactor(factor);
+        participantGroups.loadBetweenParticipantFactors(factorList);
+        // update the relative group sizes
+        updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
         // notify the other screens of the change
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -470,10 +624,12 @@ public class StudyDesignContext extends WizardContext
         if (factorList != null) {
             for(BetweenParticipantFactor factor: factorList) {
                 if (predictorName.equals(factor.getPredictorName())) {
-                    // remove from the table of combinations of factors
-                    participantGroups.deleteFactor(factor);
                     // remove from the study design
                     factorList.remove(factor);
+                    // update the table of combinations of factors
+                    participantGroups.loadBetweenParticipantFactors(factorList);
+                    // update the relative group sizes
+                    updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
                     // notify other screens of the change
                     notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                             StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -519,7 +675,9 @@ public class StudyDesignContext extends WizardContext
             // add to the study design
             categoryList.add(new Category(categoryName));
             // add to the table of combinations of factors
-            participantGroups.addFactorCategory(factor, categoryName);
+            participantGroups.loadBetweenParticipantFactors(studyDesign.getBetweenParticipantFactorList());       
+            // update the relative group sizes
+            updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
             // notify other screens of the change
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                     StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -541,16 +699,43 @@ public class StudyDesignContext extends WizardContext
             if (categoryList != null) {
                 for(Category category: categoryList) {
                     if (categoryName.equals(category.getCategory())) {
-                        // remove from the table of combinations of factors
-                        participantGroups.deleteFactor(factor);
                         // remove from the study design
                         categoryList.remove(category);
+                        // update the table of combinations of factors
+                        participantGroups.loadBetweenParticipantFactors(studyDesign.getBetweenParticipantFactorList());
+                        // update the relative group sizes
+                        updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
                         // notify other screens
                         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
                         break;
                     }
                 }
+            }
+        }
+    }
+    
+    /**
+     * Add or remove values from the relative size list when 
+     * the predictor list changes
+     * 
+     * @param size
+     */
+    private void updateRelativeGroupSizeList(int size) {
+        List<RelativeGroupSize> relativeSizeList = studyDesign.getRelativeGroupSizeList();
+        if (relativeSizeList == null) {
+            relativeSizeList = new ArrayList<RelativeGroupSize>();
+            studyDesign.setRelativeGroupSizeList(relativeSizeList);
+        }
+        if (size < relativeSizeList.size()) {
+            // shrink the list
+            for(int i = relativeSizeList.size()-1; i >= size; i--) {
+                relativeSizeList.remove(i);
+            }
+        } else if (size > relativeSizeList.size()) {
+            // expand the list
+            for(int i = relativeSizeList.size(); i < size; i++) {
+                relativeSizeList.add(new RelativeGroupSize(1));
             }
         }
     }

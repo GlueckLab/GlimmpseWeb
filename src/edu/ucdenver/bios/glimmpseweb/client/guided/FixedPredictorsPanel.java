@@ -234,24 +234,6 @@ public class FixedPredictorsPanel extends WizardStepPanel
         multiSamplePanel.add(panel);
     }
     
-    private void showMultiSamplePanel(boolean show) {
-        multiSamplePanel.setVisible(show);
-        changed = true;
-    }
-    
-
-        
-    
-    private Category getCategory(List<Category> categoryList,
-            String categoryName) {
-        for(Category category: categoryList) {
-            if (categoryName.equals(category.getCategory())) {
-                return category;
-            }
-        }
-        return null;
-    }
-    
     private void showCategories(String predictor)
     {
         BetweenParticipantFactor factor = 

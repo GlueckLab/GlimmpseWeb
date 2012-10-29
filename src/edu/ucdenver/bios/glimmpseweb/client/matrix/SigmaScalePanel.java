@@ -54,9 +54,6 @@ implements ListValidator
     // list of sigma scale factors
     protected ListEntryPanel sigmaScaleListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.sigmaScaleTableColumn(), this);
-
-    // caches the entered values as doubles
-    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
     
 	public SigmaScalePanel(WizardContext context)
 	{
@@ -81,41 +78,6 @@ implements ListValidator
 	public void reset()
 	{
 		sigmaScaleListPanel.reset();
-		onValidRowCount(sigmaScaleListPanel.getValidRowCount());
-	}
-
-	@Override
-	public void validate(String value) throws IllegalArgumentException
-	{
-    	try
-    	{
-    		TextValidation.parseDouble(value, 0.0, Double.POSITIVE_INFINITY, false);
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidNumber());
-    	}
-	}
-	
-	@Override
-	public void onValidRowCount(int validRowCount)
-	{
-		if (validRowCount > 0)
-			changeState(WizardStepPanelState.COMPLETE);
-		else
-			changeState(WizardStepPanelState.INCOMPLETE);
-	}
-
-	@Override
-	public void onExit()
-	{
-    	List<String> stringValues = sigmaScaleListPanel.getValues();
-    	sigmaScaleList.clear();
-    	for(String value: stringValues)
-    	{
-    		sigmaScaleList.add(new SigmaScale(Double.parseDouble(value)));
-    	}
-    	studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
 	}
 
     /**
@@ -139,13 +101,53 @@ implements ListValidator
      */
     public void loadFromContext()
     {
-        List<Double> contextBetaScaleList = 
-            studyDesignContext.getStudyDesign().getBetaScaleListValues();
+        List<SigmaScale> contextSigmaScaleList = 
+            studyDesignContext.getStudyDesign().getSigmaScaleList();
         sigmaScaleListPanel.reset();
-        if (contextBetaScaleList != null) {
-            sigmaScaleListPanel.loadFromDoubleList(contextBetaScaleList, true);
+        if (contextSigmaScaleList != null) {
+            for(SigmaScale sigmaScale: contextSigmaScaleList) {
+                sigmaScaleListPanel.add(Double.toString(sigmaScale.getValue()));
+            }
         }
-        onValidRowCount(sigmaScaleListPanel.getValidRowCount());
+        checkComplete();
     }
 	
+    /**
+     * Add a beta scale to the study design
+     */
+    @Override
+    public void onAdd(String value) throws IllegalArgumentException {
+        try
+        {
+            double sigmaScale = TextValidation.parseDouble(value, 0.0, 
+                    Double.POSITIVE_INFINITY, false);
+            studyDesignContext.addSigmaScale(this, sigmaScale);
+            changeState(WizardStepPanelState.COMPLETE);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidNonNegativeNumber());
+        }
+    }
+
+    /**
+     * Delete a sigma scale from the study design
+     */
+    @Override
+    public void onDelete(String value, int index) {
+        double sigmaScale = TextValidation.parseDouble(value, 
+                Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
+        studyDesignContext.deleteSigmaScale(this, sigmaScale, index);
+        checkComplete();
+    }
+
+    /**
+     * Check if the panel is complete
+     */
+    private void checkComplete() {
+        if (sigmaScaleListPanel.getValidRowCount() > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
+    }
 }

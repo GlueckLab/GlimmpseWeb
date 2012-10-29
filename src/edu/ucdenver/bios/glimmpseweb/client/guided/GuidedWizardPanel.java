@@ -151,12 +151,8 @@ implements WizardActionListener
 	
 	private void setStudyDesignDefaults() {
 	    context.getStudyDesign().setViewTypeEnum(StudyDesignViewTypeEnum.GUIDED_MODE);
-	    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
-	    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
-	    betaScaleList.add(new BetaScale(1));
-        sigmaScaleList.add(new SigmaScale(1));
-        context.setSigmaScaleList(variabilityScalePanel, sigmaScaleList);
-        context.setBetaScaleList(meanDifferencesScalePanel, betaScaleList);
+        context.addSigmaScale(variabilityScalePanel, 1);
+        context.addBetaScale(meanDifferencesScalePanel, 1);
 	}
 	
 	private ArrayList<WizardStepPanelGroup> buildPanelGroups()

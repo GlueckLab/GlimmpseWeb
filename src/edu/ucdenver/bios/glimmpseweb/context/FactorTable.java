@@ -81,6 +81,7 @@ public class FactorTable {
                     }
                     numRepetitions *= categoryList.size();
                 }
+                columns.add(column);
             }
         }
     }

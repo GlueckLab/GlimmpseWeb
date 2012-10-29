@@ -21,9 +21,10 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -36,8 +37,8 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
-import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent.StudyDesignChangeType;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 
 /**
@@ -51,8 +52,6 @@ public class VariabilityScalePanel extends WizardStepPanel
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     
     protected CheckBox scaleCheckBox = new CheckBox();
-    
-    ArrayList<SigmaScale> sigmaScaleList = new ArrayList<SigmaScale>();
     
 	public VariabilityScalePanel(WizardContext context)
 	{
@@ -68,7 +67,13 @@ public class VariabilityScalePanel extends WizardStepPanel
         HorizontalPanel checkBoxContainer = new HorizontalPanel();
         checkBoxContainer.add(scaleCheckBox);
         checkBoxContainer.add(new HTML(GlimmpseWeb.constants.variabilityScaleAnswer()));
-
+        // add callback on checkbox
+        scaleCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                setSigmaScaleList();
+            }
+        });
         // layout the overall panel
         panel.add(header);
         panel.add(description);
@@ -84,6 +89,22 @@ public class VariabilityScalePanel extends WizardStepPanel
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Store the appropriate beta scale values to the context
+	 */
+	private void setSigmaScaleList() {
+	    List<SigmaScale> contentSigmaScaleList = 
+	            studyDesignContext.getStudyDesign().getSigmaScaleList();
+	    if (contentSigmaScaleList != null) {
+	        contentSigmaScaleList.clear();
+	    }
+        studyDesignContext.addSigmaScale(this, 1);
+	    if (scaleCheckBox.getValue()) {
+	        studyDesignContext.addSigmaScale(this, 0.5);
+	        studyDesignContext.addSigmaScale(this, 2);
+	    } 
+	}
+	
 	@Override
 	public void reset()
 	{
@@ -127,19 +148,5 @@ public class VariabilityScalePanel extends WizardStepPanel
     {
         loadFromContext();
     }
-
-	
-	@Override
-	public void onExit()
-	{
-	    sigmaScaleList.clear();
-	    sigmaScaleList.add(new SigmaScale(1.0));
-		if (scaleCheckBox.getValue())
-		{
-		    sigmaScaleList.add(new SigmaScale(0.5));
-		    sigmaScaleList.add(new SigmaScale(2));
-		}
-		studyDesignContext.setSigmaScaleList(this, sigmaScaleList);
-	}
 
 }

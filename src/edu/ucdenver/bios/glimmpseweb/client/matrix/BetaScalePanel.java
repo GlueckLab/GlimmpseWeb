@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.matrix;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -54,9 +53,6 @@ implements ListValidator
    	// list of per group sample sizes
     protected ListEntryPanel betaScaleListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.betaScaleTableColumn(), this);
-
-    // caches the entered values as doubles
-    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
     
 	public BetaScalePanel(WizardContext context)
 	{
@@ -80,45 +76,7 @@ implements ListValidator
 	public void reset()
 	{
 		betaScaleListPanel.reset();
-		onValidRowCount(betaScaleListPanel.getValidRowCount());
 	}
-
-	@Override
-	public void validate(String value) throws IllegalArgumentException
-	{
-    	try
-    	{
-    		TextValidation.parseDouble(value, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidAlpha());
-    	}
-	}
-	
-	@Override
-	public void onValidRowCount(int validRowCount)
-	{
-		if (validRowCount > 0)
-			changeState(WizardStepPanelState.COMPLETE);
-		else
-			changeState(WizardStepPanelState.INCOMPLETE);
-	}
-	
-    /**
-     * Notify context of new beta scale list as we leave the panel
-     */
-    @Override
-    public void onExit()
-    {
-    	List<String> stringValues = betaScaleListPanel.getValues();
-    	betaScaleList.clear();
-    	for(String value: stringValues)
-    	{
-    		betaScaleList.add(new BetaScale(Double.parseDouble(value)));
-    	}
-    	studyDesignContext.setBetaScaleList(this, betaScaleList);
-    }
 
     /**
      * Skip this panel if the user is solving for detectable difference
@@ -137,7 +95,7 @@ implements ListValidator
     		}
     		else
     		{
-    			onValidRowCount(betaScaleListPanel.getValidRowCount());
+    		    checkComplete();
     		}
     		break;
     	case BETA_SCALE_LIST:
@@ -148,7 +106,7 @@ implements ListValidator
     		break;
     	}
 	}
-
+	
 	/**
 	 * Load the beta scale list from the context
 	 */
@@ -171,6 +129,51 @@ implements ListValidator
 	            betaScaleListPanel.add(Double.toString(scale.getValue()));
 	        }
 	    }
-	    onValidRowCount(betaScaleListPanel.getValidRowCount());
+	    if (SolutionTypeEnum.DETECTABLE_DIFFERENCE == 
+	            studyDesignContext.getStudyDesign().getSolutionTypeEnum()) {
+	        changeState(WizardStepPanelState.SKIPPED);
+	    } else {
+	        checkComplete();
+	    }
 	}
+
+	/**
+	 * Add a beta scale to the study design
+	 */
+    @Override
+    public void onAdd(String value) throws IllegalArgumentException {
+        try
+        {
+            double betaScale = TextValidation.parseDouble(value, 
+                    Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
+            studyDesignContext.addBetaScale(this, betaScale);
+            changeState(WizardStepPanelState.COMPLETE);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidNumber());
+        }
+    }
+
+    /**
+     * Delete a beta scale from the study design
+     */
+    @Override
+    public void onDelete(String value, int index) {
+        double betaScale = TextValidation.parseDouble(value, 
+                Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
+        studyDesignContext.deleteBetaScale(this, betaScale, index);
+        checkComplete();
+    }
+
+    /**
+     * Check if the panel is complete
+     */
+    private void checkComplete() {
+        if (betaScaleListPanel.getValidRowCount() > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
+    }
+    
 }

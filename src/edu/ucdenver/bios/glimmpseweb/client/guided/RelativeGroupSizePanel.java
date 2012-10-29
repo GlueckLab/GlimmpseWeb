@@ -57,7 +57,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
     protected FlexTable groupSizesTable = new FlexTable();
     // list of relative sizes
     ArrayList<RelativeGroupSize> relativeSizeList = new ArrayList<RelativeGroupSize>();
-    
+
     /**
      * Constructor.
      * @param context wizard context
@@ -104,7 +104,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
         groupSizesTable.removeAllRows();
         FactorTable groups = studyDesignContext.getParticipantGroups();
         List<RelativeGroupSize> contextRelativeSizeList = 
-            studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
+                studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
         // build the labels for the groups
         if (groups != null) {
             List<String> columnLabels = groups.getColumnLabels();
@@ -120,30 +120,32 @@ public class RelativeGroupSizePanel extends WizardStepPanel
                     col++;
                 }
             }
-            
+
             // now fill the columns
-            for(int col = 1; col <= groups.getNumberOfColumns(); col++) {
-                List<String> column = groups.getColumn(col-1);
-                if (column != null) {
-                    int row = 1;
-                    for(String value: column) {
-                        if (col == 1) {
-                          ListBox lb = createGroupSizeListBox();
-                          if (contextRelativeSizeList != null) {
-                              RelativeGroupSize relativeGroupSize = contextRelativeSizeList.get(row-1);
-                              if (relativeGroupSize != null) {
-                                  int selectionIndex = relativeGroupSize.getValue()-1;
-                                  if (selectionIndex > 0 && selectionIndex <= MAX_RELATIVE_SIZE) {
-                                      lb.setSelectedIndex(relativeGroupSize.getValue()+1);
-                                  }
-                              }
-                          }
-                          groupSizesTable.getRowFormatter().setStyleName(row, 
-                                  GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
-                          groupSizesTable.setWidget(row, 0, lb);
+            if (contextRelativeSizeList != null) {
+                for(int col = 1; col <= groups.getNumberOfColumns(); col++) {
+                    List<String> column = groups.getColumn(col-1);
+                    if (column != null) {
+                        int row = 1;
+                        for(String value: column) {
+                            if (col == 1) {
+                                ListBox lb = createGroupSizeListBox();
+                                if (contextRelativeSizeList != null) {
+                                    RelativeGroupSize relativeGroupSize = contextRelativeSizeList.get(row-1);
+                                    if (relativeGroupSize != null) {
+                                        int selectionIndex = relativeGroupSize.getValue()-1;
+                                        if (selectionIndex > 0 && selectionIndex <= MAX_RELATIVE_SIZE) {
+                                            lb.setSelectedIndex(relativeGroupSize.getValue()+1);
+                                        }
+                                    }
+                                }
+                                groupSizesTable.getRowFormatter().setStyleName(row, 
+                                        GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
+                                groupSizesTable.setWidget(row, 0, lb);
+                            }
+                            groupSizesTable.setWidget(row, col, new HTML(value));
+                            row++;
                         }
-                        groupSizesTable.setWidget(row, col, new HTML(value));
-                        row++;
                     }
                 }
             }

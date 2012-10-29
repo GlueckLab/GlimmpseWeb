@@ -81,6 +81,18 @@ public class ResponsesPanel extends WizardStepPanel {
 					else
 						changeState(WizardStepPanelState.INCOMPLETE);
 				}
+
+                @Override
+                public void onAdd(String value) throws IllegalArgumentException {
+                    // TODO Auto-generated method stub
+                    
+                }
+
+                @Override
+                public void onDelete(String value, int index) {
+                    // TODO Auto-generated method stub
+                    
+                }
 			});
 		textbox.addChangeHandler(new ChangeHandler() 
 		{    
