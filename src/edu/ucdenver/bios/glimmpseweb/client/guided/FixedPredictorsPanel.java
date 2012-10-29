@@ -55,17 +55,9 @@ import edu.ucdenver.bios.webservice.common.domain.Category;
  */
 public class FixedPredictorsPanel extends WizardStepPanel
 {
-    private static final String ONE_SAMPLE_LABEL = "Sample";
-    private static final String RADIO_GROUP = "fixedPredictorSampleGroup";
     private static final int MIN_CATEGORIES = 2;
 	// pointer to the study design context
 	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-	
-	// radio buttons indicating whether this is a single sample or multi sample design
-	protected RadioButton oneSampleRadioButton = new RadioButton(RADIO_GROUP,
-	            GlimmpseWeb.constants.predictorsOneSampleButton());
-	protected RadioButton multiSampleRadioButton = new RadioButton(RADIO_GROUP,
-	        GlimmpseWeb.constants.predictorsMultiSampleButton());
 	
 	// subpanel for mult-sample designs
 	protected VerticalPanel multiSamplePanel = new VerticalPanel();
@@ -82,51 +74,25 @@ public class FixedPredictorsPanel extends WizardStepPanel
     protected Button predictorDeleteButton = new Button(GlimmpseWeb.constants.buttonDelete());
     protected Button categoryDeleteButton = new Button(GlimmpseWeb.constants.buttonDelete());
     
-    protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
-    	new HashMap<String,ArrayList<String>>();
-    
     public FixedPredictorsPanel(WizardContext context)
     {
     	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
     	        WizardStepPanelState.INCOMPLETE);
         VerticalPanel panel = new VerticalPanel();
-        
+
         // create header/instruction text
         HTML header = new HTML(GlimmpseWeb.constants.predictorsTitle());
         HTML description = new HTML(GlimmpseWeb.constants.predictorsDescription());        
-
 
         // disable category text box and delete buttons
         categoryTextBox.setEnabled(false);
         categoryDeleteButton.setEnabled(false);
         predictorDeleteButton.setEnabled(false);
-
-        // add handlers
-        oneSampleRadioButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                showMultiSamplePanel(false);
-                checkComplete();
-            }
-        });
-        // add handlers
-        multiSampleRadioButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                showMultiSamplePanel(true);
-                checkComplete();
-            }
-        });
-        // hide multi-sample panel by default
-        oneSampleRadioButton.setValue(false);
-        multiSamplePanel.setVisible(false);
         
         // layout the overall panel
         buildCascadingList();
         panel.add(header);
         panel.add(description);
-        panel.add(oneSampleRadioButton);
-        panel.add(multiSampleRadioButton);
         panel.add(multiSamplePanel);
         
         // set style
@@ -273,27 +239,47 @@ public class FixedPredictorsPanel extends WizardStepPanel
         changed = true;
     }
     
+
+        
+    
+    private Category getCategory(List<Category> categoryList,
+            String categoryName) {
+        for(Category category: categoryList) {
+            if (categoryName.equals(category.getCategory())) {
+                return category;
+            }
+        }
+        return null;
+    }
     
     private void showCategories(String predictor)
     {
-    	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-		categoryList.clear();
-    	for(String category: categories)
-    	{
-    		categoryList.addItem(category);
-    	}
-    	// disable the delete categories button
-    	categoryDeleteButton.setEnabled(false);
+        BetweenParticipantFactor factor = 
+            studyDesignContext.getBetweenParticipantFactor(predictor);
+        if (factor != null) {
+            List<Category> factorCategoryList = factor.getCategoryList();
+            categoryList.clear();
+            if (factorCategoryList != null) {
+                for(Category category: factorCategoryList)
+                {
+                    categoryList.addItem(category.getCategory());
+                }
+            }
+            // disable the delete categories button
+            categoryDeleteButton.setEnabled(false);
+        }
     }
     
     private void addPredictor(String name)
     {
-    	if (!predictorCategoryMap.containsKey(name))
-    	{
-    		predictorList.addItem(name);
-    		predictorCategoryMap.put(name, new ArrayList<String>());
-    	}
-        changed = true;
+        BetweenParticipantFactor factor = 
+            studyDesignContext.getBetweenParticipantFactor(name);
+        if (factor != null) {
+            // TODO: show error - must be unique!!!
+        } else {
+            predictorList.addItem(name);
+            studyDesignContext.addBetweenParticipantFactor(this, name);
+        }
     }
     
     private void selectPredictor(int selectedIndex)
@@ -309,49 +295,41 @@ public class FixedPredictorsPanel extends WizardStepPanel
     
     private void deletePredictor(String name)
     {
-    	predictorCategoryMap.remove(name);
+        studyDesignContext.deleteBetweenParticipantFactor(this, name);
         changed = true;
+        checkComplete();
     }
     
     private void addCategory(String predictor, String category)
     {
-    	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-    	if (categories != null) 
-    	{
-    		categories.add(category);
-			categoryList.addItem(category);
-    	}
-        changed = true;
-		checkComplete();
+        categoryList.addItem(category);
+        studyDesignContext.addBetweenParticipantFactorCategory(this, predictor, category);
+        checkComplete();
     }
     
     private void deleteCategory(String predictor, String category)
     {
-    	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-    	if (categories != null)  
-    	{
-    		categories.remove(category);
-    	}
-        changed = true;
-		checkComplete();
+        studyDesignContext.deleteBetweenParticipantFactorCategory(this, predictor, category);
+        checkComplete();
     }
     
     public void checkComplete()
     {
-    	boolean isComplete = false;
-    	if (multiSampleRadioButton.getValue()) {
-    	    isComplete = !predictorCategoryMap.isEmpty();
-    	    for(ArrayList<String> categories: predictorCategoryMap.values())
-    	    {
-    	        if (categories.size() < MIN_CATEGORIES) 
-    	        {
+    	boolean isComplete = true;
+        List<BetweenParticipantFactor> factorList = 
+            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+        if (factorList == null) {
+            // one sample
+            isComplete = true;
+        } else {
+            // multi-sample - each factor must have at least two categories
+    	    for(BetweenParticipantFactor factor: factorList) {
+    	        List<Category> factorCategoryList = factor.getCategoryList();
+    	        if (factorCategoryList == null || factorCategoryList.size() < 2) {
     	            isComplete = false;
     	            break;
     	        }
     	    }
-    	} else if (oneSampleRadioButton.getValue()) {
-    	    // one sample
-    	    isComplete = true;
     	}
     	if (isComplete)
     		changeState(WizardStepPanelState.COMPLETE);
@@ -363,11 +341,6 @@ public class FixedPredictorsPanel extends WizardStepPanel
     {
     	predictorList.clear();
     	categoryList.clear();
-    	predictorCategoryMap.clear();
-        oneSampleRadioButton.setValue(false);
-        multiSampleRadioButton.setValue(false);
-        multiSamplePanel.setVisible(false);
-        changed = false;
     	checkComplete();
     }
 
@@ -395,91 +368,19 @@ public class FixedPredictorsPanel extends WizardStepPanel
         reset();
         List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
-        if (factorList != null) {
-            // first determine if this is a one sample or multi sample design
-            boolean oneSample = true;
+        if (factorList != null) {                
+            // load the lists of predictors
             for(BetweenParticipantFactor factor: factorList)
             {
-                String predictor = factor.getPredictorName();
-                if (!ONE_SAMPLE_LABEL.equals(predictor)) {
-                    oneSample = false;
-                    break;
-                }
-                List<Category> factorCategoryList = factor.getCategoryList();
-                for(Category category: factorCategoryList)
-                {
-                    if (!ONE_SAMPLE_LABEL.equals(category.getCategory())) {
-                        oneSample = false;
-                        break;
-                    }
-                }
-                oneSample = (oneSample && factorCategoryList.size() == 1);
+                predictorList.addItem(factor.getPredictorName());
             }
-            if (oneSample && factorList.size() == 1) {
-                oneSampleRadioButton.setValue(true);
-                multiSamplePanel.setVisible(false);
-            } else {
-                multiSampleRadioButton.setValue(true);
-                multiSamplePanel.setVisible(true);
-                
-                // load the lists of predictors
-                for(BetweenParticipantFactor factor: factorList)
-                {
-                    String predictor = factor.getPredictorName();
-                    addPredictor(predictor);
-                    List<Category> factorCategoryList = factor.getCategoryList();
-                    ArrayList<String> categories = predictorCategoryMap.get(predictor);
-                    for(Category category: factorCategoryList)
-                    {
-                        categories.add(category.getCategory());
-                    }
-                }
+            // select the first predictor
+            if (predictorList.getItemCount() > 0) {
+                predictorList.setSelectedIndex(0);
+                selectPredictor(0);
             }
         }
         checkComplete();
-    }
-
-    /**
-     * Update the between participant factors in the context
-     */
-    @Override
-    public void onExit()
-    {
-        if (changed) {
-            studyDesignContext.setBetweenParticipantFactorList(this, 
-                    buildBetweenParticipantFactorList());
-            changed = false;
-        }
-    }
-    
-    /**
-     * Convert the screen information into a between participant factor list
-     * @return list of between participant factors
-     */
-    private List<BetweenParticipantFactor> buildBetweenParticipantFactorList()
-    {
-        ArrayList<BetweenParticipantFactor> factorList = new ArrayList<BetweenParticipantFactor>();
-        if (!oneSampleRadioButton.getValue()) {
-            for(String predictor: predictorCategoryMap.keySet())
-            {
-                BetweenParticipantFactor factor = new BetweenParticipantFactor();
-                factor.setPredictorName(predictor);
-                List<String> categoryNameList = predictorCategoryMap.get(predictor);
-                ArrayList<Category> categoryList = new ArrayList<Category>();
-                for(String category: categoryNameList) categoryList.add(new Category(category));
-                factor.setCategoryList(categoryList);
-                factorList.add(factor);
-            }
-        } else {
-            // build a single predictor
-            BetweenParticipantFactor factor = new BetweenParticipantFactor();
-            factor.setPredictorName(ONE_SAMPLE_LABEL);
-            ArrayList<Category> categoryNameList = new ArrayList<Category>();
-            categoryNameList.add(new Category(ONE_SAMPLE_LABEL));
-            factor.setCategoryList(categoryNameList);
-            factorList.add(factor);
-        }
-        return factorList;
     }
 	
 }

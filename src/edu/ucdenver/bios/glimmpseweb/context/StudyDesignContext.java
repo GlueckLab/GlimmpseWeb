@@ -432,21 +432,129 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
-     * Store the between participant factor information to the StudyDesign.
+     * Add a between participant factor to the StudyDesign
      * @param panel wizard panel initiating the change
-     * @param factorList list of between participant factors
+     * @param predictorName the name of the new predictor
      */
-    public void setBetweenParticipantFactorList(WizardStepPanel panel, 
-            List<BetweenParticipantFactor> factorList)
+    public void addBetweenParticipantFactor(WizardStepPanel panel, 
+            String predictorName)
     {
-        this.participantGroups.loadBetweenParticipantFactors(factorList);
-        studyDesign.setBetweenParticipantFactorList(factorList);
-        // clear the relative group sizes
-        studyDesign.setRelativeGroupSizeList(null);
+        List<BetweenParticipantFactor> factorList = 
+            studyDesign.getBetweenParticipantFactorList();
+        if (factorList == null) {
+            factorList = new ArrayList<BetweenParticipantFactor>();
+            studyDesign.setBetweenParticipantFactorList(factorList);
+        }
+        BetweenParticipantFactor factor = new BetweenParticipantFactor();
+        factor.setPredictorName(predictorName);
+        factor.setCategoryList(new ArrayList<Category>());
+        // add the factor to the study design
+        factorList.add(factor);
+        // add to the table of combinations of factors
+        participantGroups.addFactor(factor);
+        // notify the other screens of the change
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
-
+    
+    /**
+     * Delete a between participant factor to the StudyDesign
+     * @param panel wizard panel initiating the change
+     * @param predictorName the name of the predictor
+     */
+    public void deleteBetweenParticipantFactor(WizardStepPanel panel, 
+            String predictorName)
+    {
+        List<BetweenParticipantFactor> factorList = 
+            studyDesign.getBetweenParticipantFactorList();
+        if (factorList != null) {
+            for(BetweenParticipantFactor factor: factorList) {
+                if (predictorName.equals(factor.getPredictorName())) {
+                    // remove from the table of combinations of factors
+                    participantGroups.deleteFactor(factor);
+                    // remove from the study design
+                    factorList.remove(factor);
+                    // notify other screens of the change
+                    notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                            StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
+                }
+            }            
+        }
+    }
+    
+    /**
+     * Get the specified between participant factor by name
+     * @param factorName name of the factor
+     * @return the between participant factor object
+     */
+    public BetweenParticipantFactor getBetweenParticipantFactor(String factorName) {
+        List<BetweenParticipantFactor> factorList = 
+            studyDesign.getBetweenParticipantFactorList();
+        if (factorList != null) {
+            for(BetweenParticipantFactor factor: factorList) {
+                if (factorName.equals(factor.getPredictorName())) {
+                    return factor;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Add a category to a between participant factor in the StudyDesign
+     * @param panel wizard panel initiating the change
+     * @param predictorName the name of the predictor
+     * @param categoryName the name of the new category
+     */
+    public void addBetweenParticipantFactorCategory(WizardStepPanel panel, 
+            String predictorName, String categoryName)
+    {
+        BetweenParticipantFactor factor = getBetweenParticipantFactor(predictorName);
+        if (factor != null) {
+            List<Category> categoryList = factor.getCategoryList();
+            if (categoryList == null) {
+                categoryList = new ArrayList<Category>();
+                factor.setCategoryList(categoryList);
+            }
+            // add to the study design
+            categoryList.add(new Category(categoryName));
+            // add to the table of combinations of factors
+            participantGroups.addFactorCategory(factor, categoryName);
+            // notify other screens of the change
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
+        }
+    }
+    
+    /**
+     * Remove a category from a between participant factor in the StudyDesign
+     * @param panel wizard panel initiating the change
+     * @param predictorName the name of the predictor
+     * @param categoryName the name of the new category
+     */    
+    public void deleteBetweenParticipantFactorCategory(WizardStepPanel panel, 
+            String predictorName, String categoryName)
+    {
+        BetweenParticipantFactor factor = getBetweenParticipantFactor(predictorName);
+        if (factor != null) {
+            List<Category> categoryList = factor.getCategoryList();
+            if (categoryList != null) {
+                for(Category category: categoryList) {
+                    if (categoryName.equals(category.getCategory())) {
+                        // remove from the table of combinations of factors
+                        participantGroups.deleteFactor(factor);
+                        // remove from the study design
+                        categoryList.remove(category);
+                        // notify other screens
+                        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                                StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
     /**
      * Store the relative group size information to the StudyDesign.
      * @param panel wizard panel initiating the change
