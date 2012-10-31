@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -55,9 +54,28 @@ public class RelativeGroupSizePanel extends WizardStepPanel
     protected static final int MAX_RELATIVE_SIZE = 10;
     // data table to display possible groups
     protected FlexTable groupSizesTable = new FlexTable();
-    // list of relative sizes
-    ArrayList<RelativeGroupSize> relativeSizeList = new ArrayList<RelativeGroupSize>();
 
+    private class RelativeSizeListBox extends ListBox {
+        private int index;
+        // constructor
+        public RelativeSizeListBox(int index) {
+            this.index = index;
+            for(int i = 1; i <= MAX_RELATIVE_SIZE; i++) 
+                this.addItem(Integer.toString(i));
+            this.addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {
+                    RelativeSizeListBox listBox = (RelativeSizeListBox) event.getSource();
+                    updateRelativeSize(listBox.getSelectedIndex()+1, listBox.getIndex());
+                }    
+            });
+        }
+        // get the row associated with this list box
+        public int getIndex() {
+            return index;
+        }
+    }
+    
     /**
      * Constructor.
      * @param context wizard context
@@ -104,7 +122,7 @@ public class RelativeGroupSizePanel extends WizardStepPanel
         groupSizesTable.removeAllRows();
         FactorTable groups = studyDesignContext.getParticipantGroups();
         List<RelativeGroupSize> contextRelativeSizeList = 
-                studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
+            studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
         // build the labels for the groups
         if (groups != null) {
             List<String> columnLabels = groups.getColumnLabels();
@@ -129,14 +147,12 @@ public class RelativeGroupSizePanel extends WizardStepPanel
                         int row = 1;
                         for(String value: column) {
                             if (col == 1) {
-                                ListBox lb = createGroupSizeListBox();
-                                if (contextRelativeSizeList != null) {
-                                    RelativeGroupSize relativeGroupSize = contextRelativeSizeList.get(row-1);
-                                    if (relativeGroupSize != null) {
-                                        int selectionIndex = relativeGroupSize.getValue()-1;
-                                        if (selectionIndex > 0 && selectionIndex <= MAX_RELATIVE_SIZE) {
-                                            lb.setSelectedIndex(relativeGroupSize.getValue()+1);
-                                        }
+                                RelativeSizeListBox lb = new RelativeSizeListBox(row-1);
+                                RelativeGroupSize relativeGroupSize = contextRelativeSizeList.get(row-1);
+                                if (relativeGroupSize != null) {
+                                    int selectionIndex = relativeGroupSize.getValue()-1;
+                                    if (selectionIndex > 0 && selectionIndex <= MAX_RELATIVE_SIZE) {
+                                        lb.setSelectedIndex(selectionIndex);
                                     }
                                 }
                                 groupSizesTable.getRowFormatter().setStyleName(row, 
@@ -158,23 +174,14 @@ public class RelativeGroupSizePanel extends WizardStepPanel
     }
 
     /**
-     * Create a listbox with relative group size values up to 10.
-     * @return listbox
+     * Save the new relative size to the context
+     * @param relativeSize
+     * @param index
      */
-    private ListBox createGroupSizeListBox()
-    {
-        ListBox lb = new ListBox();
-        lb.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                // TODO Auto-generated method stub
-                changed = true;
-            }    
-        });
-        for(int i = 1; i <= MAX_RELATIVE_SIZE; i++) lb.addItem(Integer.toString(i));
-        return lb;
+    private void updateRelativeSize(int relativeSize, int index) {
+        studyDesignContext.setRelativeGroupSizeValue(this, relativeSize, index);
     }
-
+    
     /**
      * Respond to context changes.
      */
@@ -205,24 +212,6 @@ public class RelativeGroupSizePanel extends WizardStepPanel
     public void onWizardContextLoad()
     {
         loadFromContext();
-    }
-
-    /**
-     * Update the context with the relative group sizes
-     */
-    @Override
-    public void onExit()
-    {
-        if (changed) {
-            relativeSizeList.clear();
-            for(int i = 1; i < groupSizesTable.getRowCount(); i++)
-            {
-                ListBox lb = (ListBox) groupSizesTable.getWidget(i, 0);
-                relativeSizeList.add(new RelativeGroupSize(lb.getSelectedIndex()+1));
-            }
-            studyDesignContext.setRelativeGroupSizeList(this, relativeSizeList);
-            changed = false;
-        }
     }
 
 }

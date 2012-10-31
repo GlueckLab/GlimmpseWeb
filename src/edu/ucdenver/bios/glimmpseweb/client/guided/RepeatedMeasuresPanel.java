@@ -46,15 +46,16 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
+import edu.ucdenver.bios.webservice.common.domain.Spacing;
+import edu.ucdenver.bios.webservice.common.enums.RepeatedMeasuresDimensionType;
 
 /**
  * Panel for entering information about repeated measures.
  * @author Vijay Akula
+ * @author Sarah Kreidler
  *
  */
-public class RepeatedMeasuresPanel extends WizardStepPanel
-implements ChangeHandler
-{
+public class RepeatedMeasuresPanel extends WizardStepPanel {
     // context object
     protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     // indicates whether the user had added repeated measures or not
@@ -68,10 +69,6 @@ implements ChangeHandler
     // used to verify completeness
     protected boolean complete = false;
     
-    // list of repeated measures node domain objects
-    protected ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
-        new ArrayList<RepeatedMeasuresNode>();
-    
     // actions performed when iterating over the tree of clustering nodes
     // action to determine if the screen is complete
     TreeItemAction checkCompleteAction = new TreeItemAction() {
@@ -79,17 +76,6 @@ implements ChangeHandler
         public void execute(TreeItem item, int visitCount, int parentVisitCount)
         {
             updateComplete((RepeatedMeasuresPanelSubPanel) item.getWidget());
-        }
-    };
-    // action to build the clustering domain object
-    TreeItemAction buildClusteringObjectAction = new TreeItemAction() {
-        @Override
-        public void execute(TreeItem item, int visitCount, int parentVisitCount)
-        {
-            if (item != null) {
-                buildRepeatedMeasuresNode((RepeatedMeasuresPanelSubPanel) item.getWidget(), 
-                        visitCount, parentVisitCount);
-            }
         }
     };
     
@@ -179,8 +165,8 @@ implements ChangeHandler
      */
     private void addSubDimension() 
     {        
-        RepeatedMeasuresPanelSubPanel subpanel = new RepeatedMeasuresPanelSubPanel(null);   
-        subpanel.addChangeHandler(this);
+        RepeatedMeasuresPanelSubPanel subpanel = new RepeatedMeasuresPanelSubPanel(null,
+                itemCount, this);   
         TreeItem newLeaf = new TreeItem(subpanel);
         if (currentLeaf == null)
         {
@@ -197,6 +183,7 @@ implements ChangeHandler
             }           
         }
         itemCount++;
+        studyDesignContext.addRepeatedMeasuresNode(this, new RepeatedMeasuresNode());
         changed = true;
         currentLeaf = newLeaf;
         checkComplete();
@@ -212,6 +199,7 @@ implements ChangeHandler
         {
             TreeItem parent = currentLeaf.getParentItem();
             currentLeaf.remove();
+            studyDesignContext.deleteRepeatedMeasuresNode(this, itemCount-1);
             itemCount--;
             currentLeaf = parent;
             if (itemCount <= 0)
@@ -227,18 +215,6 @@ implements ChangeHandler
         checkComplete();
     };
 
-    
-    /**
-     * Called when any of the subpanels change.  Allows us to check
-     * if the panel is complete and the user can/cannot proceed 
-     * forward
-     */
-    public void onChange(ChangeEvent e) 
-    {
-        changed = true;
-        checkComplete();
-    }
-    
 
     /**
      * toggle the repeated measures on/off
@@ -250,7 +226,6 @@ implements ChangeHandler
         removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
         addSubDimensionButton.setVisible(hasRepeatedMeasures);
         removeSubDimensionButton.setVisible(hasRepeatedMeasures);
-        changed = true;
         checkComplete();
     }
     
@@ -278,7 +253,6 @@ implements ChangeHandler
     public void reset()
     {
         repeatedMeasuresTree.removeItems();
-        repeatedMeasuresNodeList.clear();
         currentLeaf = null;
         itemCount = 0;
         hasRepeatedMeasures = false;
@@ -291,19 +265,21 @@ implements ChangeHandler
     }
 
     /**
-     * Update the repeated measures information in the context
+     * Update the repeated measures information
+     * @param subpanel
+     * @param nodeId
      */
-    @Override
-    public void onExit()
+    public void updateRepeatedMeasuresNode(RepeatedMeasuresPanelSubPanel subpanel)
     {
-        if (changed) {
-            repeatedMeasuresNodeList.clear();
-            TreeItemIterator.traverseDepthFirst(repeatedMeasuresTree, buildClusteringObjectAction);
-            studyDesignContext.setRepeatedMeasures(this, repeatedMeasuresNodeList);
-            changed = false;
+        if (subpanel != null) {
+            studyDesignContext.updateRepeatedMeasuresNode(this, 
+                    subpanel.getDepth(), subpanel.getDimensionName(), 
+                    subpanel.getType(), subpanel.getNumberOfMeausrements(), 
+                    subpanel.getSpacingList());
+            checkComplete();
         }
     }
-
+    
     /**
      * This function is called when a study design is uploaded
      */
@@ -312,6 +288,19 @@ implements ChangeHandler
         loadFromContext();
     }
 
+    /**
+     * Determine the overall status of the screen completion by checking
+     * each subpanel.  If all subpanels are complete, then the screen is complete,
+     * but if any subpanel is incomplete, then the screen is incomplete 
+     * 
+     * @param subpanel subpanel associated with current tree node
+     */
+    private void updateComplete(RepeatedMeasuresPanelSubPanel subpanel)
+    {
+        boolean subpanelComplete = subpanel.checkComplete();
+        complete = complete && subpanelComplete;
+    }
+    
     /**
      * This populates the screens based on the data in the study design uploaded.
      */
@@ -345,34 +334,7 @@ implements ChangeHandler
         // need to reset this here since toggleRepeatedMeasures may set it to true.
         changed = false;
         checkComplete();
-    }
-    
-    /**
-     * Determine the overall status of the screen completion by checking
-     * each subpanel.  If all subpanels are complete, then the screen is complete,
-     * but if any subpanel is incomplete, then the screen is incomplete 
-     * 
-     * @param subpanel subpanel associated with current tree node
-     */
-    private void updateComplete(RepeatedMeasuresPanelSubPanel subpanel)
-    {
-        boolean subpanelComplete = subpanel.checkComplete();
-        complete = complete && subpanelComplete;
-    }
-
-    /**
-     * Create a repeated measures node based on the information filled into
-     * the current subpanel.
-     * @param subpanel subpanel associated with current tree node
-     * @param nodeId node visit number in the depth first traversal
-     * @param parentId parent's visit number
-     */
-    private void buildRepeatedMeasuresNode(
-            RepeatedMeasuresPanelSubPanel subpanel, int nodeId, int parentId) {
-        if (subpanel != null) {
-            repeatedMeasuresNodeList.add(subpanel.toRepeatedMeasuresNode(nodeId, parentId));
-        }
-    }
+    }    
 
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {

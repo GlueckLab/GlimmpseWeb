@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -64,6 +63,8 @@ public class ListEntryPanel extends Composite
     protected ListValidator validator;
     // optional maximum number of entries for list
     protected int maxRows = -1;
+    // optional flag indicating that the list only allows unique values
+    protected boolean uniqueOnly = true;
     
     /**
      * Construct a new list entry panel
@@ -148,8 +149,12 @@ public class ListEntryPanel extends Composite
 		{
 			try
 			{
+			    value = value.trim();
 				if (maxRows > 0 && listBox.getItemCount() >= maxRows)
 					throw new IllegalArgumentException(GlimmpseWeb.constants.errorMaxRows());
+				if (uniqueOnly && isValueInList(value)) {
+				    throw new IllegalArgumentException(GlimmpseWeb.constants.errorNonUniqueValue());
+				}
 				validator.onAdd(value);
 				listBox.addItem(value);
 				TextValidation.displayOkay(errorHTML, "");
@@ -166,6 +171,20 @@ public class ListEntryPanel extends Composite
 	}
 	
 	/**
+	 * Return true if the value is currently in the list
+	 * @param value
+	 * @return
+	 */
+	private boolean isValueInList(String value) {
+	    for(int i = 0; i < listBox.getItemCount(); i++) {
+	        if (value.equals(listBox.getItemText(i))) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	
+	/**
 	 * Clear selected items from the listbox
 	 */
 	private void removeSelectedListItems()
@@ -173,9 +192,9 @@ public class ListEntryPanel extends Composite
 		for(int i = listBox.getItemCount()-1; i >= 0; i--)
 		{
 			if (listBox.isItemSelected(i)) {
-	             listBox.removeItem(i);
-			    validator.onDelete(listBox.getItemText(i), i);
-
+			    String value = listBox.getItemText(i);
+			    listBox.removeItem(i);
+			    validator.onDelete(value, i);
 			}
 		}
 	}
@@ -234,9 +253,21 @@ public class ListEntryPanel extends Composite
     	TextValidation.displayOkay(errorHTML, "");
     }
     
+    /**
+     * Set the maximum rows the user may enter in the list
+     * @param maxRows
+     */
     public void setMaxRows(int maxRows)
     {
     	this.maxRows = maxRows;
+    }
+    
+    /**
+     * If true, the list will enforce unique values
+     * @param uniqueOnly
+     */
+    public void setUniqueOnly(boolean uniqueOnly) {
+        this.uniqueOnly = uniqueOnly;
     }
     
     /**

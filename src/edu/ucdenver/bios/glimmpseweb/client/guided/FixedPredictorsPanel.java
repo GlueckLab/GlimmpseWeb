@@ -21,8 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -35,7 +33,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -77,7 +74,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     public FixedPredictorsPanel(WizardContext context)
     {
     	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
-    	        WizardStepPanelState.INCOMPLETE);
+    	        WizardStepPanelState.COMPLETE);
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text
@@ -104,9 +101,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
     }    
         
     private void buildCascadingList()
-    {
-        HTML description = new HTML(GlimmpseWeb.constants.predictorsMultiSampleDescription());       
-        
+    {    
         VerticalPanel panel = new VerticalPanel();
         
     	predictorList.setVisibleItemCount(5);
@@ -225,12 +220,10 @@ public class FixedPredictorsPanel extends WizardStepPanel
     	predictorDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
     	categoryAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
     	categoryDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
     	//grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
         grid.getRowFormatter().setStylePrimaryName(0, 
         		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
-    	
-        multiSamplePanel.add(description);
+
         multiSamplePanel.add(panel);
     }
     
@@ -261,6 +254,7 @@ public class FixedPredictorsPanel extends WizardStepPanel
         } else {
             predictorList.addItem(name);
             studyDesignContext.addBetweenParticipantFactor(this, name);
+            checkComplete();
         }
     }
     
@@ -278,7 +272,6 @@ public class FixedPredictorsPanel extends WizardStepPanel
     private void deletePredictor(String name)
     {
         studyDesignContext.deleteBetweenParticipantFactor(this, name);
-        changed = true;
         checkComplete();
     }
     
@@ -300,14 +293,11 @@ public class FixedPredictorsPanel extends WizardStepPanel
     	boolean isComplete = true;
         List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
-        if (factorList == null) {
-            // one sample
-            isComplete = true;
-        } else {
+        if (factorList != null) {
             // multi-sample - each factor must have at least two categories
     	    for(BetweenParticipantFactor factor: factorList) {
     	        List<Category> factorCategoryList = factor.getCategoryList();
-    	        if (factorCategoryList == null || factorCategoryList.size() < 2) {
+    	        if (factorCategoryList == null || factorCategoryList.size() < MIN_CATEGORIES) {
     	            isComplete = false;
     	            break;
     	        }

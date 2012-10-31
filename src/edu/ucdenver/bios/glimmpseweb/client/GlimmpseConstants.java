@@ -285,7 +285,6 @@ public interface GlimmpseConstants extends Constants
     // categorical predictors panel constants
     public String predictorsTitle();
     public String predictorsDescription();
-    public String predictorsMultiSampleDescription();
     public String predictorsOneSampleButton();
     public String predictorsMultiSampleButton();
     public String predictorsTableColumn();
@@ -553,6 +552,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidCorrelation();
     public String errorInvalidNumRepeatedMeasures();
     public String errorInvalidEmail();
+    public String errorNonUniqueValue();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();

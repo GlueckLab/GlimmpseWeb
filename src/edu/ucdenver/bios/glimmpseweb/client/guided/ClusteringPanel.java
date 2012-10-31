@@ -21,14 +21,10 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -52,10 +48,9 @@ import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
  * in the study design
  * 
  * @author VIJAY AKULA
- *
+ * @author Sarah Kreidler
  */
-public class ClusteringPanel extends WizardStepPanel 
-implements ChangeHandler {
+public class ClusteringPanel extends WizardStepPanel {
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     // indicates whether the user had added clustering or not
@@ -76,17 +71,6 @@ implements ChangeHandler {
         public void execute(TreeItem item, int visitCount, int parentVisitCount)
         {
             updateComplete((ClusteringPanelSubPanel) item.getWidget());
-        }
-    };
-    // action to build the clustering domain object
-    TreeItemAction buildClusteringObjectAction = new TreeItemAction() {
-        @Override
-        public void execute(TreeItem item, int visitCount, int parentVisitCount)
-        {
-            if (item != null) {
-                buildClusteringNode((ClusteringPanelSubPanel) item.getWidget(), 
-                        visitCount, parentVisitCount);
-            }
         }
     };
     
@@ -125,14 +109,8 @@ implements ChangeHandler {
             removeSubgroup();
         }
     });
-    // list of clustering node domain objects
-    protected ArrayList<ClusterNode> clusteringNodeList = new ArrayList<ClusterNode>();
     // panel containing the add subgroup panel
     protected HorizontalPanel buttonPanel = new HorizontalPanel();
-
-    // style for buttons
-    private static final String BUTTON_STYLE =
-        GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON;
 
     /**
      * Constructor for the Clustering Panel Class
@@ -183,8 +161,9 @@ implements ChangeHandler {
         if (itemCount % 2 == 0) {
             dependentStyleName = GlimmpseConstants.STYLE_EVEN;
         }
-        ClusteringPanelSubPanel subpanel = new ClusteringPanelSubPanel(dependentStyleName);	
-        subpanel.addChangeHandler(this);
+        ClusteringPanelSubPanel subpanel = 
+            new ClusteringPanelSubPanel(dependentStyleName,
+                    itemCount, this);	
         TreeItem newLeaf = new TreeItem(subpanel);
         if (currentLeaf == null)
         {
@@ -201,6 +180,7 @@ implements ChangeHandler {
             }			
         }
         itemCount++;
+        studyDesignContext.addClusteringNode(this, new ClusterNode());
         changed = true;
         currentLeaf = newLeaf;
         checkComplete();
@@ -215,6 +195,7 @@ implements ChangeHandler {
         {
             TreeItem parent = currentLeaf.getParentItem();
             currentLeaf.remove();
+            studyDesignContext.deleteClusteringNode(this, itemCount-1);
             itemCount--;
             currentLeaf = parent;
             if (itemCount <= 0)
@@ -225,7 +206,6 @@ implements ChangeHandler {
             {
                 addSubgroupButton.setVisible(true);
             }
-            changed = true;
         }
         checkComplete();
     };
@@ -261,25 +241,6 @@ implements ChangeHandler {
     }
 
     /**
-     * Called when any of the subpanels change.  Allows us to check
-     * if the panel is complete and the user can/cannot proceed 
-     * forward
-     */
-    public void onChange(ChangeEvent e) 
-    {
-        changed = true;
-        checkComplete();
-    }
-
-    /**
-     * Called when a user clicks in one of the subpanels.  No response required
-     */
-    public void onClick() 
-    {
-        // no action here
-    }
-
-    /**
      * Determine the overall status of the screen completion by checking
      * each subpanel.  If all subpanels are complete, then the screen is complete,
      * but if any subpanel is incomplete, then the screen is incomplete 
@@ -293,16 +254,19 @@ implements ChangeHandler {
     }
 
     /**
-     * Determine the overall status of the screen completion by checking
-     * each subpanel.  If all subpanels are complete, then the screen is complete,
-     * but if any subpanel is incomplete, then the screen is incomplete 
-     * 
+     * Update the clustering tree in the study design when anything
+     * changes
+     *  
      * @param subpanel
      */
-    private void buildClusteringNode(ClusteringPanelSubPanel subpanel, int nodeId, int parentId)
+    public void updateClusteringNode(ClusteringPanelSubPanel subpanel)
     {
         if (subpanel != null) {
-            clusteringNodeList.add(subpanel.toClusterNode(nodeId, parentId));
+            studyDesignContext.updateClusteringNode(this, 
+                    subpanel.getDepth(), subpanel.getClusterName(), 
+                    subpanel.getClusterSize(), 
+                    subpanel.getIntraClusterCorrelation());
+            checkComplete();
         }
     }
     
@@ -313,7 +277,6 @@ implements ChangeHandler {
     public void reset() 
     {
         clusteringTree.removeItems();
-        clusteringNodeList.clear();
         hasClustering = false;
         addClusteringButton.setVisible(!hasClustering);
         removeClusteringButton.setVisible(hasClustering);
@@ -322,24 +285,6 @@ implements ChangeHandler {
         currentLeaf = null;
         itemCount = 0;
         changed = false;
-    }
-    
-    /**
-     * Traverse the tree of cluster sub panels to build the clustering
-     * domain object, and set the clustering object to the context
-     */
-    public void onExit()
-    {
-        if (changed) {
-            clusteringNodeList.clear();
-            TreeItemIterator.traverseDepthFirst(clusteringTree, buildClusteringObjectAction);
-            if (clusteringNodeList.size() > 0) {
-                studyDesignContext.setClustering(this, clusteringNodeList);
-            } else {
-                studyDesignContext.setClustering(this, null);
-            }
-            changed = false;
-        }
     }
 
     /**

@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -48,7 +47,6 @@ import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
  *
  */
 public class OptionsTestsPanel extends WizardStepPanel
-implements ClickHandler
 {
 	// study design context
 	StudyDesignContext studyDesignContext;
@@ -70,9 +68,6 @@ implements ClickHandler
 	protected StatisticalTest unirepBoxTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPBOX);
 	protected StatisticalTest unirepGGTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPGG);
 	protected StatisticalTest unirepHFTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPHF);
-	
-	// test list
-	ArrayList<StatisticalTest> testList = new ArrayList<StatisticalTest>();
 
 	// only a subset of tests is available for covariate designs
 	protected boolean hasCovariate = false;
@@ -110,17 +105,84 @@ implements ClickHandler
         grid.setWidget(6, 0, unirepCheckBox);
         grid.setWidget(6, 1, new HTML(GlimmpseWeb.constants.testUnirepLabel()));
 
-
-
-		
 		// add callback to check if screen is complete
-		unirepCheckBox.addClickHandler(this);
-		unirepGGCheckBox.addClickHandler(this);
-		unirepHFCheckBox.addClickHandler(this);
-		unirepBoxCheckBox.addClickHandler(this);
-		hotellingLawleyCheckBox.addClickHandler(this);
-		pillaiBartlettCheckBox.addClickHandler(this);
-		wilksCheckBox.addClickHandler(this);
+		unirepCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.UNIREP);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.UNIREP);
+                }
+            }
+		});
+		unirepGGCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.UNIREPGG);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.UNIREPGG);
+                }
+            }
+        });
+		unirepHFCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.UNIREPHF);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.UNIREPHF);
+                }
+            }
+        });
+		unirepBoxCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.UNIREPBOX);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.UNIREPBOX);
+                }
+            }
+        });
+		hotellingLawleyCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.HLT);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.HLT);
+                }
+            }
+        });
+		pillaiBartlettCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.PBT);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.PBT);
+                }
+            }
+        });
+		wilksCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addTest(StatisticalTestTypeEnum.WL);
+                } else {
+                    deleteTest(StatisticalTestTypeEnum.WL);
+                }
+            }
+        });
 		// set defaults
 		reset();
 		
@@ -137,6 +199,24 @@ implements ClickHandler
 		initWidget(panel);
 	}
 
+    /**
+     * Save the test to the study design
+     * @param test
+     */
+    private void addTest(StatisticalTestTypeEnum test) {
+        studyDesignContext.addStatisticalTest(this, test);
+        checkComplete();
+    }
+    
+    /**
+     * Save the test to the study design
+     * @param test
+     */
+    private void deleteTest(StatisticalTestTypeEnum test) {
+        studyDesignContext.deleteStatisticalTest(this, test);
+        checkComplete();
+    }
+    
 	/**
 	 * Clear the options panel
 	 */
@@ -150,20 +230,8 @@ implements ClickHandler
 		unirepGGCheckBox.setValue(false);
 		unirepHFCheckBox.setValue(false);
 		unirepBoxCheckBox.setValue(false);
-		testList.clear();
 		
 		checkComplete();
-	}
-	
-	/**
-	 * Click handler for all checkboxes on the Options screen.
-	 * Determines if the current selections represent a complete
-	 * set of options.
-	 */
-	@Override
-	public void onClick(ClickEvent event)
-	{
-		checkComplete();			
 	}
 	
 	/**
@@ -185,44 +253,6 @@ implements ClickHandler
 		{
 			changeState(WizardStepPanelState.INCOMPLETE);
 		}
-	}
-
-	/**
-	 * Notify listeners of the currently selected tests
-	 */
-	@Override
-	public void onExit()
-	{
-		testList.clear();
-		if (hotellingLawleyCheckBox.getValue())
-		{
-			testList.add(hotellingLawleyTraceTest);
-		}
-		if (pillaiBartlettCheckBox.getValue())
-		{
-			testList.add(pillaiBartlettTraceTest);
-		}
-		if (wilksCheckBox.getValue())
-		{
-			testList.add(wilksLambdaTest);
-		}
-		if (unirepCheckBox.getValue())
-		{
-			testList.add(unirepTest);
-		}
-		if (unirepGGCheckBox.getValue())
-		{
-			testList.add(unirepGGTest);
-		}
-		if (unirepHFCheckBox.getValue())
-		{
-			testList.add(unirepHFTest);
-		}
-		if (unirepBoxCheckBox.getValue())
-		{
-			testList.add(unirepBoxTest);
-		}
-		studyDesignContext.setStatisticalTestList(this, testList);
 	}
 
 	/**

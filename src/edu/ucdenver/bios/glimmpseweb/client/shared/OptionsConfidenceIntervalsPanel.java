@@ -68,10 +68,9 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	protected HTML alphaErrorHTML = new HTML();
 	protected HTML estimatesErrorHTML = new HTML();
 
-	private VerticalPanel estimatesPanel = null;
-	private VerticalPanel tailProbabilityPanel = null;
-	private VerticalPanel typePanel = null;
-	
+	protected VerticalPanel estimatesPanel = null;
+	protected VerticalPanel tailProbabilityPanel = null;
+	protected VerticalPanel typePanel = null;
 	
 	public OptionsConfidenceIntervalsPanel(WizardContext context, String mode)
 	{
@@ -136,6 +135,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			@Override
 			public void onClick(ClickEvent event)
 			{
+			    updateConfidenceIntervalDescription();
 				checkComplete();
 			}	
 		});
@@ -145,6 +145,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			@Override
 			public void onClick(ClickEvent event)
 			{
+	             updateConfidenceIntervalDescription();
 				checkComplete();
 			}	
 		});
@@ -183,7 +184,8 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 			{
 				try
 				{
-					TextValidation.parseDouble(alphaLowerTextBox.getText(), 0, 0.5, true);
+					double alphaLower = 
+					    TextValidation.parseDouble(alphaLowerTextBox.getText(), 0, 0.5, true);
 					TextValidation.displayOkay(alphaErrorHTML, "");
 				}
 				catch (NumberFormatException nfe)
@@ -191,6 +193,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 					TextValidation.displayError(alphaErrorHTML, GlimmpseWeb.constants.errorInvalidTailProbability());
 					alphaLowerTextBox.setText("");
 				}
+                updateConfidenceIntervalDescription();
 				checkComplete();
 			}
 		});
@@ -208,6 +211,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 					TextValidation.displayError(alphaErrorHTML, GlimmpseWeb.constants.errorInvalidTailProbability());
 					alphaUpperTextBox.setText("");
 				}
+                updateConfidenceIntervalDescription();
 				checkComplete();
 			}
 		});
@@ -263,6 +267,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 					TextValidation.displayError(estimatesErrorHTML, GlimmpseWeb.constants.errorInvalidSampleSize());
 					sampleSizeTextBox.setText("");
 				}
+                updateConfidenceIntervalDescription();
 				checkComplete();
 			}
 		});
@@ -298,6 +303,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 					TextValidation.displayError(estimatesErrorHTML, GlimmpseWeb.constants.errorInvalidPositiveNumber());
 					rankTextBox.setText("");
 				}
+                updateConfidenceIntervalDescription();
 				checkComplete();
 			}
 		});
@@ -325,6 +331,14 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 //		alphaUpperTextBox.setEnabled(enabled);
 //		sampleSizeTextBox.setEnabled(enabled);
 //		rankTextBox.setEnabled(enabled);
+		
+		// update the context
+		if (enabled) {
+		    studyDesignContext.addConfidenceIntervalOptions(this);
+		} else {
+		    studyDesignContext.deleteConfidenceIntervalOptions(this);
+		}
+		
 		TextValidation.displayOkay(alphaErrorHTML, "");
 		TextValidation.displayOkay(estimatesErrorHTML, "");
 	}
@@ -358,8 +372,8 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	        }
 	        
 	        // fill in the tail probabilities
-	        alphaUpperTextBox.setValue(Float.toString(description.getUpperTailProbability()));
-	        alphaLowerTextBox.setValue(Float.toString(description.getLowerTailProbability()));
+	        alphaUpperTextBox.setValue(Double.toString(description.getUpperTailProbability()));
+	        alphaLowerTextBox.setValue(Double.toString(description.getLowerTailProbability()));
 	        
 	        // fill in the rank and sample size for the pilot data
 	        sampleSizeTextBox.setValue(Integer.toString(description.getSampleSize()));
@@ -414,28 +428,39 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	}
 	
 	/**
-	 * Send the confidence interval to the context
+	 * Universal handler for any text box changes
 	 */
-	@Override
-	public void onExit()
-	{
-	    ConfidenceIntervalDescription ciDescr = null;	    
-	    if (!noCICheckbox.getValue() ) {
-	        ciDescr =  new ConfidenceIntervalDescription();
-	        if(!alphaLowerTextBox.getValue().isEmpty())
-	            ciDescr.setLowerTailProbability(Float.parseFloat(alphaLowerTextBox.getValue()));
-	        if(!alphaUpperTextBox.getValue().isEmpty())
-	            ciDescr.setUpperTailProbability(Float.parseFloat(alphaUpperTextBox.getValue()));
-	        if(!rankTextBox.getValue().isEmpty())
-	            ciDescr.setRankOfDesignMatrix(Integer.parseInt(rankTextBox.getValue()));
-	        if(!sampleSizeTextBox.getValue().isEmpty())
-	            ciDescr.setSampleSize(Integer.parseInt(sampleSizeTextBox.getValue()));
-	    } 
-	    else {
-	        // clear the confidence interval description object
+	private void updateConfidenceIntervalDescription() {
+	    double lowerTailProbability = Double.NaN;
+	    double upperTailProbability = Double.NaN;
+	    int rank = -1;
+	    int sampleSize = -1;
+	    boolean betaFixed = false;
+	    boolean sigmaFixed = false;
+
+	    if(!alphaLowerTextBox.getValue().isEmpty()) {
+	        lowerTailProbability = Double.parseDouble(alphaLowerTextBox.getValue());
 	    }
-        studyDesignContext.setConfidenceIntervalOptions(this, ciDescr);
-	    
+	    if(!alphaUpperTextBox.getValue().isEmpty()) {
+	        upperTailProbability = Double.parseDouble(alphaUpperTextBox.getValue());
+	    }
+	    if(!rankTextBox.getValue().isEmpty()) {
+	        rank = Integer.parseInt(rankTextBox.getValue());
+	    }
+	    if(!sampleSizeTextBox.getValue().isEmpty()) {
+	        sampleSize = Integer.parseInt(sampleSizeTextBox.getValue());
+	    }
+	    if (sigmaCIRadioButton.getValue()) {
+	        betaFixed = true;
+	        sigmaFixed = false;
+	    } else {
+	        betaFixed = false;
+	        sigmaFixed = false;
+	    }
+	    studyDesignContext.updateConfidenceIntervalOptions(this, 
+	            betaFixed, sigmaFixed, lowerTailProbability, upperTailProbability,
+	            sampleSize, rank);
+
 	}
 
 }

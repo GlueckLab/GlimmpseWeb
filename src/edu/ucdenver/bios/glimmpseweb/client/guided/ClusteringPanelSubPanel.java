@@ -54,18 +54,22 @@ public class ClusteringPanelSubPanel extends Composite {
     // text box for entering the intraclass correlation
     protected TextBox iccTextBox = new TextBox(); 
 
-
     //html widget to display the error message
     protected HTML errorHTML = new HTML();
 
-    // Parent panels, etc which listen for changes within the subpanel
-    protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+    // pointer to the parent panel to manage changes
+    protected ClusteringPanel parent = null;
+    // current depth in the clustering tree
+    protected int depth = -1;
 
     /**
      * Constructor
      */
-    public ClusteringPanelSubPanel(String dependentStyleName) 
+    public ClusteringPanelSubPanel(String dependentStyleName, 
+            int depth, ClusteringPanel parent) 
     {
+        this.parent = parent;
+        this.depth = depth;
         // vertical panel to hold all the widgets within
         VerticalPanel verticalPanel = new VerticalPanel();
 
@@ -91,7 +95,7 @@ public class ClusteringPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
         // handler to validate integer inputs in the number of groups box
@@ -112,7 +116,7 @@ public class ClusteringPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterSize());
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
         // handler to validate integer inputs in the number of groups box
@@ -133,7 +137,7 @@ public class ClusteringPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidCorrelation());
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -159,15 +163,6 @@ public class ClusteringPanelSubPanel extends Composite {
     }
 
     /**
-     * A Change Handler method to add changes to the handler
-     * @param handler
-     */
-    public void addChangeHandler(ChangeHandler handler)
-    {
-        handlerList.add(handler);
-    }
-
-    /**
      * A method that check the validation of the fields in the Clustering Panel Sub Panel 
      * @return It will return a boolean value, returns true if the sub panel is complete filled else returns false
      */
@@ -182,34 +177,6 @@ public class ClusteringPanelSubPanel extends Composite {
             return true;
         else 
             return false;
-    }
-
-    /**
-     * Convert the contents of  clustering node sub panel into a Cluster Node 
-     * domain object
-     * 
-     * @param nodeId node identifier
-     * @param parentId node identifier for the node's parent
-     * @return A clustering node instance
-     */
-    public ClusterNode toClusterNode(int nodeId, int parentId)
-    {
-        ClusterNode clusterNode = new ClusterNode();
-        String groupName = groupingTextBox.getValue();
-        if (groupName != null && !groupName.isEmpty()) {
-            clusterNode.setGroupName(groupName);
-        }
-        String numGroups = numberOfGroupsTextBox.getValue();
-        if (numGroups != null && !numGroups.isEmpty()) {
-            clusterNode.setGroupSize(Integer.parseInt(numGroups));
-        }
-        String icc = iccTextBox.getText();
-        if (icc != null && !icc.isEmpty()) {
-            clusterNode.setIntraClusterCorrelation(Double.parseDouble(icc));
-        }
-        clusterNode.setNode(nodeId);
-        clusterNode.setParent(parentId);
-        return clusterNode;
     }
 
     /**
@@ -232,5 +199,49 @@ public class ClusteringPanelSubPanel extends Composite {
         }
     }
 
-
+    /**
+     * Get the cluster name
+     */
+    public String getClusterName() {
+        return groupingTextBox.getValue();
+    }
+    
+    /**
+     * Get the cluster size
+     * @return
+     */
+    public int getClusterSize() {
+        String numGroups = numberOfGroupsTextBox.getValue();
+        if (numGroups != null && !numGroups.isEmpty()) {
+           return Integer.parseInt(numGroups);
+        } else {
+            return -1;
+        }
+    }
+    
+    /**
+     * Get the intra-cluster correlation
+     */
+    public double getIntraClusterCorrelation() {
+        String icc = iccTextBox.getText();
+        if (icc != null && !icc.isEmpty()) {
+            return Double.parseDouble(icc);
+        } else {
+            return Double.NaN;
+        }
+    }
+    
+    /**
+     * Return the tree depth of this node
+     */
+    public int getDepth() {
+        return depth;
+    }
+    
+    /**
+     * Notify the parent panel that a change has occurred
+     */
+    private void notifyParent() {
+        parent.updateClusteringNode(this);
+    }
 }

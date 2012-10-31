@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -76,7 +75,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     // resets the spacing to even spacing
     protected Button spacingResetButton = new Button(
             GlimmpseWeb.constants.repeatedMeasuresNodePanelEqualSpacingButton(), 
-            new ClickHandler(){
+            new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) 
         {
@@ -86,17 +85,65 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     
     //html widget to display the error message
     protected HTML errorHTML = new HTML();
-    
-    // Parent panels, etc which listen for changes within the subpanel
-    protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
 
+    // pointer to the parent panel to manage changes
+    protected RepeatedMeasuresPanel parent = null;
+    // current depth in the clustering tree
+    protected int depth = -1;
+    
+    // cache the spacing list
+    ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
+    
+    /**
+     * Helper class for spacing text boxes
+     * @author Sarah
+     *
+     */
+    private class SpacingTextBox extends TextBox {
+        int index = -1;
+        public SpacingTextBox(String text, int index) {
+            this.index = index;
+            setText(text);
+            addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {                
+                    SpacingTextBox tb = (SpacingTextBox)event.getSource();
+                    int spacingValue = tb.getIndex()+1;
+                    String value = tb.getValue();
+                    try
+                    {
+                        spacingValue = TextValidation.parseInteger(value, 1, true);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                    catch (Exception e)
+                    {
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidPositiveNumber());
+                        tb.setText(Double.toString(spacingValue));
+                    }
+                    updateSpacingList(tb.getIndex(), spacingValue);
+                    notifyParent();   
+                }
+            });
+            // add style
+            setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TEXTBOX);
+            addStyleDependentName(GlimmpseConstants.STYLE_SHORT);
+        }
+        
+        public int getIndex() {
+            return index;
+        }
+    }
+    
     /**
      * Constructor.
      * @param dependentStyleName optional parameter to allow different
      * styles for subpanels depending on depth
      */
-    public RepeatedMeasuresPanelSubPanel(String dependentStyleName)
+    public RepeatedMeasuresPanelSubPanel(String dependentStyleName,
+            int depth, RepeatedMeasuresPanel parent)
     {
+        this.depth = depth;
+        this.parent = parent;
         VerticalPanel panel = new VerticalPanel();
 
         Grid grid = new Grid(3,2);
@@ -120,7 +167,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -146,7 +193,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 {
                     onDeselectNumericItem();					
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -171,7 +218,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidNumRepeatedMeasures());
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -198,6 +245,17 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     }
     
     /**
+     * Synchronize the array list with the text boxes
+     * @param index
+     * @param spacingValue
+     */
+    public void updateSpacingList(int index, int spacingValue) {
+        if (index >= 0 && index < spacingList.size()) {
+            spacingList.get(index).setValue(spacingValue);
+        }
+    }
+    
+    /**
      * Reset the spacing list to equal spacing
      */
     public void setEqualSpacing()
@@ -205,7 +263,9 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
             TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
             tb.setText(Integer.toString(c+1));
+            spacingList.get(c).setValue(c+1);
         }
+        notifyParent();
     }
  
     /**
@@ -224,38 +284,6 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         showSpacingBar(false);
     }
 
-    /**
-     * Create a spacing bar widget with the specified text
-     * @param text default text
-     * @return text box
-     */
-    public TextBox createSpacingTextBox(String text)
-    {
-        TextBox spacingTextBox = new TextBox();
-        spacingTextBox.setText(text);
-        spacingTextBox.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {                
-                TextBox tb = (TextBox)event.getSource();
-                String value = tb.getValue();
-                try
-                {
-                    TextValidation.parseDouble(value, 1, true);
-                    TextValidation.displayOkay(errorHTML, "");
-                }
-                catch (Exception e)
-                {
-                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidPositiveNumber());
-                    tb.setText("");
-                }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);                
-            }
-        });
-        // add style
-        spacingTextBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TEXTBOX);
-        spacingTextBox.addStyleDependentName(GlimmpseConstants.STYLE_SHORT);
-        return spacingTextBox;
-    }
 
     /** 
      * Clear the panel
@@ -271,16 +299,18 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
      * Reset the size of the spacing bar
      * @param numMeasurements
      */
-    private void updateSpacingBar(int numMeasurements, List<Spacing> spacingList)
+    private void updateSpacingBar(int numMeasurements, List<Spacing> inputSpacingList)
     {
         spacingFlexTable.removeAllRows();
-        if (spacingList == null || spacingList.size() != numMeasurements) {
+        spacingList.clear();
+        if (inputSpacingList == null || inputSpacingList.size() != numMeasurements) {
             for(int i = 0; i < numMeasurements; i++) {
-                spacingFlexTable.setWidget(0, i ,createSpacingTextBox(Integer.toString(i+1)));
+                spacingList.add(new Spacing(i+1));
+                spacingFlexTable.setWidget(0, i , new SpacingTextBox(Integer.toString(i+1), i));
             }
         } else {
             int col = 0;
-            for(Spacing spacingValue: spacingList) {
+            for(Spacing spacingValue: inputSpacingList) {
                 String spacingStr = "";
                 // the user can save incomplete information - this will be saved as MIN_VALUE
                 // if the text box was empty at time of save.
@@ -288,7 +318,8 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                     spacingStr = Integer.toString(spacingValue.getValue());
                 }
                 spacingFlexTable.setWidget(0, col ,
-                        createSpacingTextBox(spacingStr));
+                        new SpacingTextBox(spacingStr, col));
+                spacingList.add(new Spacing(spacingValue.getValue()));
                 col++;
             }
         }
@@ -411,12 +442,64 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
         }
     }
+     
+    /**
+     * get the dimension label
+     * @return
+     */
+    public String getDimensionName() {
+        return dimensionTextBox.getText();
+    }
     
     /**
-     * A Change Handler method to add changes to the handler
-     * @param handler
+     * Get the spacing list
+     * @return
      */
-    public void addChangeHandler(ChangeHandler handler) {
-        handlerList.add(handler);
+    public List<Spacing> getSpacingList() {
+        return spacingList;
+    }
+    
+    /**
+     * get the repeated measures type
+     * @return
+     */
+    public RepeatedMeasuresDimensionType getType() {
+        switch (typeListBox.getSelectedIndex()) {
+        case NUMERIC_INDEX:
+            return RepeatedMeasuresDimensionType.NUMERICAL;
+        case ORDINAL_INDEX:
+            return RepeatedMeasuresDimensionType.ORDINAL;
+        case NOMINAL_INDEX:
+            return RepeatedMeasuresDimensionType.CATEGORICAL;
+        default:
+            return null;
+        }
+    }
+    
+    /**
+     * get the number of measurements
+     * @return
+     */
+    public int getNumberOfMeausrements() {
+        String numMeasurements = noOfMeasurementsTextBox.getText();
+        if (numMeasurements != null && !numMeasurements.isEmpty()) {
+            return Integer.parseInt(numMeasurements);
+        } else {
+            return -1;
+        }
+    }
+    
+    /**
+     * Return the tree depth of this node
+     */
+    public int getDepth() {
+        return depth;
+    }
+    
+    /**
+     * Notify the parent panel that a change has occurred
+     */
+    private void notifyParent() {
+        parent.updateRepeatedMeasuresNode(this);
     }
 }

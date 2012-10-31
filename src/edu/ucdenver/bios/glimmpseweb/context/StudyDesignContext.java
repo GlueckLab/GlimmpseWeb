@@ -46,13 +46,16 @@ import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
+import edu.ucdenver.bios.webservice.common.domain.Spacing;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
 import edu.ucdenver.bios.webservice.common.enums.RepeatedMeasuresDimensionType;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
+import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 
 /**
@@ -114,6 +117,125 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
+     * Determine if we need to clear the hypothesis information when
+     * predictors or repeated measures change
+     * @param changeType
+     */
+    private void updateHypothesis(StudyDesignChangeType changeType) {
+        Set<Hypothesis> hypothesisSet = studyDesign.getHypothesis();
+        if (hypothesisSet != null) {
+            Hypothesis primaryHypothesis = hypothesisSet.iterator().next();
+            if (primaryHypothesis != null) {
+                switch (changeType) {
+                case BETWEEN_PARTICIPANT_FACTORS:
+                    if (primaryHypothesis.getBetweenParticipantFactorMapList() != null &&
+                            primaryHypothesis.getBetweenParticipantFactorMapList().size() > 0) {
+                        // the hypothesis involves between participant effects, so we need to
+                        // clear it to avoid corruption in the study design
+                        hypothesisSet.clear();
+                    }
+                    break;
+                case RESPONSES_LIST:
+                    if (primaryHypothesis.getType() == HypothesisTypeEnum.GRAND_MEAN) {
+                        // the dimension of grand mean hypotheses will change with the response list
+                        // so we clear it to avoid corruption in the study design
+                        hypothesisSet.clear();
+                        removeMatrixByName(GlimmpseConstants.MATRIX_THETA);
+                    }
+                    break;
+                case REPEATED_MEASURES:
+                    if (primaryHypothesis.getRepeatedMeasuresMapTree() != null &&
+                            primaryHypothesis.getRepeatedMeasuresMapTree().size() > 0) {
+                        // the hypothesis involves between participant effects, so we need to
+                        // clear it to avoid corruption in the study design
+                        hypothesisSet.clear();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Determine if we need to clear the beta matrix information when
+     * predictors or repeated measures change
+     * @param changeType
+     */
+    private void updateMeans(StudyDesignChangeType changeType) {
+        NamedMatrix beta = getMatrixByName(GlimmpseConstants.MATRIX_BETA);
+        NamedMatrix betaRandom = null;
+        if (studyDesign.isGaussianCovariate()) {
+            getMatrixByName(GlimmpseConstants.MATRIX_BETA);
+        }
+
+        // get new dimensions
+        int newRows = participantGroups.getNumberOfRows();
+        int newCols = 1;
+        List<RepeatedMeasuresNode> rmList = studyDesign.getRepeatedMeasuresTree();
+        if (rmList != null) {
+            for(RepeatedMeasuresNode rmNode: rmList) {
+                if (rmNode.getNumberOfMeasurements() > 1) {
+                    newCols *= rmNode.getNumberOfMeasurements();
+                }
+            }
+        }
+        List<ResponseNode> responsesList = studyDesign.getResponseList();
+        if (responsesList != null) {
+            newCols *= responsesList.size();
+        }
+        
+        boolean allocateNewBetaMatrix = false;
+        if (beta != null) {
+            
+        } 
+
+        switch (changeType) {
+        case BETWEEN_PARTICIPANT_FACTORS:
+            if (beta != null && beta.getRows() != newRows) {
+                allocateNewBetaMatrix = true;
+            }
+            break;
+        case RESPONSES_LIST:
+            
+            break;
+        case REPEATED_MEASURES:
+            break;
+        case COVARIATE:
+            break;
+        }
+    }
+
+    /**
+     * Determine if we need to clear the covariance information when
+     * response variables or repeated measures change
+     * @param changeType
+     */
+    private void updateCovariance(StudyDesignChangeType changeType) {
+        switch (changeType) {
+        case RESPONSES_LIST:
+            Set<Covariance> covarianceList = studyDesign.getCovariance();
+            for(Covariance covariance: covarianceList) {
+                if (covariance.getName().equals(
+                        GlimmpseConstants.RESPONSES_COVARIANCE_LABEL)) {
+                    
+                }
+            }
+            
+            break;
+        case REPEATED_MEASURES:
+            
+            break;
+        case COVARIATE:
+            if (!studyDesign.isGaussianCovariate()) {
+                // clear the sigmaYG and sigmaG matrices
+                removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+                removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+            }
+            break;
+        }
+    }
+    
+    /**
      * Add a Type I error rate to the study design
      * @param panel panel initiating the change
      * @param alpha the Type I error rate
@@ -128,7 +250,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.ALPHA_LIST));
     }
-    
+
     /**
      * Delete the specified type I error rate
      * @param panel panel initiating the change
@@ -163,7 +285,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETA_SCALE_LIST));
     }
-    
+
     /**
      * Delete the specified beta scale value
      * @param panel the panel initiating the change
@@ -197,7 +319,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.SIGMA_SCALE_LIST));
     }
-    
+
     /**
      * Delete the specified sigma scale value
      * @param panel the panel initiating the change
@@ -215,7 +337,7 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }  
-    
+
     /**
      * Add a nominal power value to the study design
      * @param panel the panel initiating the change
@@ -231,7 +353,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.POWER_LIST));
     }
-    
+
     /**
      * Delete the specified nominal power value
      * @param panel the panel initiating the change
@@ -249,7 +371,7 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }
-    
+
     /**
      * Add a power method to the study design
      * @param panel the panel initiating the change
@@ -265,7 +387,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.POWER_METHOD_LIST));
     }
-    
+
     /**
      * Delete the specified power method from the study design
      * @param panel the panel initiating the change
@@ -300,7 +422,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.QUANTILE_LIST));
     }
-    
+
     /**
      * Delete the specified quantile from the study design
      * @param panel the panel initiating the change
@@ -334,7 +456,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.PER_GROUP_N_LIST));
     }
-    
+
     /**
      * Delete the specified quantile from the study design
      * @param panel the panel initiating the change
@@ -352,7 +474,43 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }
-    
+
+    /**
+     * Add the statistical test to the study design
+     * @param panel the panel initiating the change
+     * @param test the statistical test
+     */
+    public void addStatisticalTest(WizardStepPanel panel, StatisticalTestTypeEnum test) {
+        List<StatisticalTest> testList = studyDesign.getStatisticalTestList();
+        if (testList == null) {
+            testList = new ArrayList<StatisticalTest>();
+            studyDesign.setStatisticalTestList(testList);
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.STATISTICAL_TEST_LIST));
+        }
+        testList.add(new StatisticalTest(test));
+    }
+
+    /**
+     * Remove the statistical test from the study design
+     * @param panel the panel initiating the change
+     * @param test the statistical test
+     */
+    public void deleteStatisticalTest(WizardStepPanel panel, StatisticalTestTypeEnum test) {
+        List<StatisticalTest> testList = studyDesign.getStatisticalTestList();
+        if (testList != null) {
+            for(int i = 0; i < testList.size(); i++) {
+                StatisticalTest currentTest = testList.get(i);
+                if (currentTest.getType() == test) {
+                    testList.remove(i);
+                    notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                            StudyDesignChangeType.STATISTICAL_TEST_LIST));
+                    break;
+                }
+            }
+        }
+    }
+
     /**
      * Store the list of statistical tests in the StudyDesign object. 
      * @param panel wizard panel initiating the change
@@ -385,8 +543,21 @@ public class StudyDesignContext extends WizardContext
     public void setCovariate(WizardStepPanel panel, boolean hasCovariate)
     {
         studyDesign.setGaussianCovariate(hasCovariate);
+        // remove the Wilk's lambda and Pillai Bartlett for covariate designs
+        if (hasCovariate) {
+            deleteStatisticalTest(panel, StatisticalTestTypeEnum.PBT);
+            deleteStatisticalTest(panel, StatisticalTestTypeEnum.WL);
+        }
+        // update the variability
+        updateCovariance(StudyDesignChangeType.COVARIATE);
+        // update the random portion of the beta matrix
+        updateMeans(StudyDesignChangeType.COVARIATE);
+
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.COVARIATE));
+
+
+
     }
 
     /**
@@ -559,29 +730,129 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
-     * Store the clustering information to the StudyDesign.
-     * @param panel wizard panel initiating the change
-     * @param clusteringNodeList tree of clustering information
+     * Add a clustering node
+     * @param panel
+     * @param clusteringNode
      */
-    public void setClustering(WizardStepPanel panel, ArrayList<ClusterNode> clusteringNodeList)
-    {
-        studyDesign.setClusteringTree(clusteringNodeList);
+    public void addClusteringNode(WizardStepPanel panel, ClusterNode clusteringNode) {
+        List<ClusterNode> clusteringTree = studyDesign.getClusteringTree();
+        if (clusteringTree == null) {
+            clusteringTree = new ArrayList<ClusterNode>();
+            studyDesign.setClusteringTree(clusteringTree);
+        }
+        clusteringTree.add(clusteringNode);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.CLUSTERING));
     }
 
     /**
-     * Store the repeated measures information to the StudyDesign.
-     * @param panel wizard panel initiating the change
-     * @param repeatedMeasuresNodeList tree of repeated measures information
+     * Delete a clustering node
+     * @param panel
+     * @param index
      */
-    public void setRepeatedMeasures(WizardStepPanel panel, 
-            ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList)
-    {
-        studyDesign.setRepeatedMeasuresTree(repeatedMeasuresNodeList);
+    public void deleteClusteringNode(WizardStepPanel panel, int index) {
+        List<ClusterNode> clusteringTree = studyDesign.getClusteringTree();
+        if (clusteringTree != null) {
+            if (index >=0 && index < clusteringTree.size()) {
+                clusteringTree.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.CLUSTERING));
+            }
+        }
+    }
+
+    /**
+     * Update the value of a clustering node
+     * @param panel
+     * @param index
+     * @param clusterName
+     * @param clusterSize
+     * @param icc
+     */
+    public void updateClusteringNode(WizardStepPanel panel, int index,
+            String clusterName, int clusterSize, double icc) {
+        List<ClusterNode> clusteringTree = studyDesign.getClusteringTree();
+        if (clusteringTree != null) {
+            if (index >=0 && index < clusteringTree.size()) {
+                ClusterNode clusterNode = clusteringTree.get(index);
+                clusterNode.setGroupName(clusterName);
+                clusterNode.setGroupSize(clusterSize);
+                clusterNode.setIntraClusterCorrelation(icc);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.CLUSTERING));
+            }
+        }
+    }
+
+    /**
+     * Add a repeated measures node
+     * @param panel the panel initiating the change
+     * @param rmNode the repeated measures node
+     */
+    public void addRepeatedMeasuresNode(WizardStepPanel panel, 
+            RepeatedMeasuresNode rmNode) {
+        List<RepeatedMeasuresNode> rmTree = studyDesign.getRepeatedMeasuresTree();
+        if (rmTree == null) {
+            rmTree = new ArrayList<RepeatedMeasuresNode>();
+            studyDesign.setRepeatedMeasuresTree(rmTree);
+        }
+        rmTree.add(rmNode);
+        // update the beta matrix
+        updateMeans(StudyDesignChangeType.REPEATED_MEASURES);
+        // update the variability
+        updateCovariance(StudyDesignChangeType.REPEATED_MEASURES);
+
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.REPEATED_MEASURES));
     }
+
+    /**
+     * Delete a repeated measures node
+     * @param panel the panel initiating the change
+     * @param index the repeated measures depth
+     */
+    public void deleteRepeatedMeasuresNode(WizardStepPanel panel, int index) {
+        List<RepeatedMeasuresNode> rmTree = studyDesign.getRepeatedMeasuresTree();
+        if (rmTree != null) {
+            if (index >=0 && index < rmTree.size()) {
+                rmTree.remove(index);
+                // update the hypothesis
+                updateHypothesis(StudyDesignChangeType.REPEATED_MEASURES);
+                // update the beta matrix
+                updateMeans(StudyDesignChangeType.REPEATED_MEASURES);
+                // update the variability
+                updateCovariance(StudyDesignChangeType.REPEATED_MEASURES);
+
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.REPEATED_MEASURES));
+            }
+        }
+    }
+
+    /**
+     * Update the value of a repeated measures node
+     * @param panel
+     * @param index
+     * @param clusterName
+     * @param clusterSize
+     * @param icc
+     */
+    public void updateRepeatedMeasuresNode(WizardStepPanel panel, int index,
+            String dimension, RepeatedMeasuresDimensionType rmDimensionType,
+            int numberOfMeasurements, List<Spacing> spacingList) {
+        List<RepeatedMeasuresNode> rmTree = studyDesign.getRepeatedMeasuresTree();
+        if (rmTree != null) {
+            if (index >=0 && index < rmTree.size()) {
+                RepeatedMeasuresNode rmNode = rmTree.get(index);
+                rmNode.setDimension(dimension);
+                rmNode.setRepeatedMeasuresDimensionType(rmDimensionType);
+                rmNode.setNumberOfMeasurements(numberOfMeasurements);
+                rmNode.setSpacingList(spacingList);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.CLUSTERING));
+            }
+        }
+    }    
 
     /**
      * Add a between participant factor to the StudyDesign
@@ -606,11 +877,13 @@ public class StudyDesignContext extends WizardContext
         participantGroups.loadBetweenParticipantFactors(factorList);
         // update the relative group sizes
         updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
+        // update means
+        updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
         // notify the other screens of the change
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
     }
-    
+
     /**
      * Delete a between participant factor to the StudyDesign
      * @param panel wizard panel initiating the change
@@ -622,14 +895,19 @@ public class StudyDesignContext extends WizardContext
         List<BetweenParticipantFactor> factorList = 
             studyDesign.getBetweenParticipantFactorList();
         if (factorList != null) {
-            for(BetweenParticipantFactor factor: factorList) {
+            for(int i = 0; i < factorList.size(); i++) {
+                BetweenParticipantFactor factor = factorList.get(i);
                 if (predictorName.equals(factor.getPredictorName())) {
                     // remove from the study design
-                    factorList.remove(factor);
+                    factorList.remove(i);
                     // update the table of combinations of factors
                     participantGroups.loadBetweenParticipantFactors(factorList);
                     // update the relative group sizes
                     updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
+                    // update hypothesis
+                    updateHypothesis(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
+                    // update means
+                    updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
                     // notify other screens of the change
                     notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                             StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -637,7 +915,7 @@ public class StudyDesignContext extends WizardContext
             }            
         }
     }
-    
+
     /**
      * Get the specified between participant factor by name
      * @param factorName name of the factor
@@ -655,7 +933,7 @@ public class StudyDesignContext extends WizardContext
         }
         return null;
     }
-    
+
     /**
      * Add a category to a between participant factor in the StudyDesign
      * @param panel wizard panel initiating the change
@@ -678,12 +956,14 @@ public class StudyDesignContext extends WizardContext
             participantGroups.loadBetweenParticipantFactors(studyDesign.getBetweenParticipantFactorList());       
             // update the relative group sizes
             updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
+            // update the means
+            updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
             // notify other screens of the change
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                     StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
         }
     }
-    
+
     /**
      * Remove a category from a between participant factor in the StudyDesign
      * @param panel wizard panel initiating the change
@@ -697,14 +977,17 @@ public class StudyDesignContext extends WizardContext
         if (factor != null) {
             List<Category> categoryList = factor.getCategoryList();
             if (categoryList != null) {
-                for(Category category: categoryList) {
+                for(int i = 0; i < categoryList.size(); i++) {
+                    Category category = categoryList.get(i);
                     if (categoryName.equals(category.getCategory())) {
                         // remove from the study design
-                        categoryList.remove(category);
+                        categoryList.remove(i);
                         // update the table of combinations of factors
                         participantGroups.loadBetweenParticipantFactors(studyDesign.getBetweenParticipantFactorList());
                         // update the relative group sizes
                         updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
+                        // update the means
+                        updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
                         // notify other screens
                         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -714,7 +997,9 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }
-    
+
+
+
     /**
      * Add or remove values from the relative size list when 
      * the predictor list changes
@@ -739,32 +1024,72 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }
-    
+
     /**
      * Store the relative group size information to the StudyDesign.
      * @param panel wizard panel initiating the change
      * @param relativeGroupSizeList list of relative group sizes
      */
-    public void setRelativeGroupSizeList(WizardStepPanel panel, 
-            List<RelativeGroupSize> relativeGroupSizeList)
+    public void setRelativeGroupSizeValue(WizardStepPanel panel, 
+            int value, int index)
     {
-        studyDesign.setRelativeGroupSizeList(relativeGroupSizeList);
-        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-                StudyDesignChangeType.RELATIVE_GROUP_SIZE_LIST));
+        List<RelativeGroupSize> relativeGroupSizeList = 
+            studyDesign.getRelativeGroupSizeList();
+        if (relativeGroupSizeList != null && 
+                index >= 0 && index < relativeGroupSizeList.size()-1) {
+            RelativeGroupSize relativeGroupSize = relativeGroupSizeList.get(index);
+            relativeGroupSize.setValue(value);
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.RELATIVE_GROUP_SIZE_LIST));
+        }
     }
 
     /**
-     * Store the response variable information to the StudyDesign.
-     * @param panel wizard panel initiating the change
-     * @param responseList list of response variables
+     * Add a response variable to the study design
+     * @param panel the panel initiating the change
+     * @param variable the response variable
      */
-    public void setResponseList(WizardStepPanel panel, String label,
-            List<ResponseNode> responseList)
-    {
-        studyDesign.setResponseList(responseList);
-        studyDesign.setParticipantLabel(label);
+    public void addResponseVariable(WizardStepPanel panel, String variable) {
+        List<ResponseNode> responseList = studyDesign.getResponseList();
+        if (responseList == null) {
+            responseList = new ArrayList<ResponseNode>();
+            studyDesign.setResponseList(responseList);
+        }
+        responseList.add(new ResponseNode(variable));
+        // update the hypothesis
+        updateHypothesis(StudyDesignChangeType.RESPONSES_LIST);
+        // update the means
+        updateMeans(StudyDesignChangeType.RESPONSES_LIST);
+        // update the variability
+        updateCovariance(StudyDesignChangeType.RESPONSES_LIST);
+        
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.RESPONSES_LIST));
+    }
+
+    /**
+     * Delete the specified response variable from the study design
+     * @param panel the panel initiating the change
+     * @param variable the response variable
+     * @param index the index of the value in the list
+     */
+    public void deleteResponseVariable(WizardStepPanel panel, String variable, int index) {
+        List<ResponseNode> responseList = studyDesign.getResponseList();
+        if (responseList != null) {
+            if (index >=0 && index < responseList.size()-1 &&
+                    responseList.get(index).getName().equals(variable)) {
+                responseList.remove(index);
+                // update the hypothesis
+                updateHypothesis(StudyDesignChangeType.RESPONSES_LIST);
+                // update the means
+                updateMeans(StudyDesignChangeType.RESPONSES_LIST);
+                // update the variability
+                updateCovariance(StudyDesignChangeType.RESPONSES_LIST);
+
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.RESPONSES_LIST));
+            }
+        }
     }
 
     /**
@@ -815,15 +1140,51 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
+     * Add an empty power confidence interval description to the context
+     * @param panel wizard panel initiating the change
+     * @param confidenceIntervalDescription confidence interval description
+     */
+    public void addConfidenceIntervalOptions(WizardStepPanel panel)
+    {
+        studyDesign.setConfidenceIntervalDescriptions(new ConfidenceIntervalDescription());
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.CONFIDENCE_INTERVAL));
+    }
+
+    /**
      * Store the power confidence interval description to the context
      * @param panel wizard panel initiating the change
      * @param confidenceIntervalDescription confidence interval description
      */
-    public void setConfidenceIntervalOptions(WizardStepPanel panel, ConfidenceIntervalDescription confidenceIntervalDescription)
+    public void deleteConfidenceIntervalOptions(WizardStepPanel panel)
     {
-        studyDesign.setConfidenceIntervalDescriptions(confidenceIntervalDescription);
+        studyDesign.setConfidenceIntervalDescriptions(null);
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.CONFIDENCE_INTERVAL));
+    }
+
+    /**
+     * Store the power confidence interval description to the context
+     * @param panel wizard panel initiating the change
+     * @param confidenceIntervalDescription confidence interval description
+     */
+    public void updateConfidenceIntervalOptions(WizardStepPanel panel, 
+            boolean betaFixed, boolean sigmaFixed, 
+            double lowerTailProbability, double upperTailProbability,
+            int sampleSize, int rankOfDesignMatrix)
+    {
+        ConfidenceIntervalDescription ciDescr = studyDesign.getConfidenceIntervalDescriptions();
+        if (ciDescr != null) {
+            ciDescr.setBetaFixed(betaFixed);
+            ciDescr.setSigmaFixed(sigmaFixed);
+            ciDescr.setLowerTailProbability(lowerTailProbability);
+            ciDescr.setUpperTailProbability(upperTailProbability);
+            ciDescr.setSampleSize(sampleSize);
+            ciDescr.setRankOfDesignMatrix(rankOfDesignMatrix);
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.CONFIDENCE_INTERVAL));
+        }
+
     }
 
     /**
@@ -904,7 +1265,7 @@ public class StudyDesignContext extends WizardContext
                     validClustering() &&
                     validLists() && validOptions() &&
                     (hasBeta && hasBetaRandom && hasSigmaYG && hasSigmaG)
-                    );
+            );
         }
     }
 
@@ -1221,40 +1582,40 @@ public class StudyDesignContext extends WizardContext
         } else {
             if (covariance.getRows() != covariance.getColumns() ||
                     covariance.getRows() != desiredDimension)
-            switch (covariance.getType()) {
-            case LEAR_CORRELATION:
-                if (covariance.getDelta() <= 0 || 
-                        covariance.getRho() < -1 || covariance.getRho() > 1 ||
-                        covariance.getStandardDeviationList() == null || 
-                        covariance.getStandardDeviationList().size() != 1 ||
-                        covariance.getStandardDeviationList().get(0).getValue() <= 0) {
-                    return false;
-                }
-                break;
-            case UNSTRUCTURED_CORRELATION:
-                if (covariance.getBlob() == null ||
-                        covariance.getBlob().getData() == null ||
-                        covariance.getStandardDeviationList() == null ||
-                        covariance.getStandardDeviationList().size() != covariance.getRows()) {
-                    return false;
-                } else {
-                    // make sure the std dev list is valid
-                    for(StandardDeviation stddev: covariance.getStandardDeviationList()) {
-                        if (stddev.getValue() <= 0) {
-                            return false;
+                switch (covariance.getType()) {
+                case LEAR_CORRELATION:
+                    if (covariance.getDelta() <= 0 || 
+                            covariance.getRho() < -1 || covariance.getRho() > 1 ||
+                            covariance.getStandardDeviationList() == null || 
+                            covariance.getStandardDeviationList().size() != 1 ||
+                            covariance.getStandardDeviationList().get(0).getValue() <= 0) {
+                        return false;
+                    }
+                    break;
+                case UNSTRUCTURED_CORRELATION:
+                    if (covariance.getBlob() == null ||
+                            covariance.getBlob().getData() == null ||
+                            covariance.getStandardDeviationList() == null ||
+                            covariance.getStandardDeviationList().size() != covariance.getRows()) {
+                        return false;
+                    } else {
+                        // make sure the std dev list is valid
+                        for(StandardDeviation stddev: covariance.getStandardDeviationList()) {
+                            if (stddev.getValue() <= 0) {
+                                return false;
+                            }
                         }
                     }
-                }
-                break;
-            case UNSTRUCTURED_COVARIANCE:
-                if (covariance.getBlob() == null ||
-                        covariance.getBlob().getData() == null) {
+                    break;
+                case UNSTRUCTURED_COVARIANCE:
+                    if (covariance.getBlob() == null ||
+                            covariance.getBlob().getData() == null) {
+                        return false;
+                    }
+                    break;
+                default:
                     return false;
                 }
-                break;
-            default:
-                return false;
-            }
         }
         return true;
     }
@@ -1281,6 +1642,24 @@ public class StudyDesignContext extends WizardContext
             }
             return true;
         }
+    }
+
+    /**
+     * Convenience routine to get a matrix from the study design.
+     * 
+     * @param name name of matrix to get.
+     */
+    private NamedMatrix getMatrixByName(String name) {
+        Set<NamedMatrix> matrixSet = studyDesign.getMatrixSet();
+        if (matrixSet != null) {
+            for(NamedMatrix matrix : matrixSet) {
+                if (matrix.getName() != null && 
+                        matrix.getName().equals(name)) {
+                    return matrix;
+                }
+            }
+        }
+        return null;
     }
 
     /**
