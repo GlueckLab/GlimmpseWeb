@@ -163,10 +163,6 @@ public class StudyDesignContext extends WizardContext
      */
     private void updateMeans(StudyDesignChangeType changeType) {
         NamedMatrix beta = getMatrixByName(GlimmpseConstants.MATRIX_BETA);
-        NamedMatrix betaRandom = null;
-        if (studyDesign.isGaussianCovariate()) {
-            getMatrixByName(GlimmpseConstants.MATRIX_BETA);
-        }
 
         // get new dimensions
         int newRows = participantGroups.getNumberOfRows();
@@ -184,24 +180,45 @@ public class StudyDesignContext extends WizardContext
             newCols *= responsesList.size();
         }
         
-        boolean allocateNewBetaMatrix = false;
-        if (beta != null) {
-            
-        } 
-
+        boolean allocateNewBetaMatrix = true;
         switch (changeType) {
         case BETWEEN_PARTICIPANT_FACTORS:
-            if (beta != null && beta.getRows() != newRows) {
-                allocateNewBetaMatrix = true;
+            if (beta != null && beta.getRows() == newRows) {
+                allocateNewBetaMatrix = false;
             }
             break;
         case RESPONSES_LIST:
-            
-            break;
         case REPEATED_MEASURES:
+            if (beta != null && beta.getColumns() == newCols) {
+                allocateNewBetaMatrix = false;
+            }
             break;
         case COVARIATE:
+            allocateNewBetaMatrix = false;
+            if (!studyDesign.isGaussianCovariate()) {
+                removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
+            } else {
+                NamedMatrix betaRandom = new NamedMatrix();
+                double[][] betaRandomData = new double[1][newCols];
+                betaRandom.setRows(1);
+                betaRandom.setColumns(newCols);
+                betaRandom.setDataFromArray(betaRandomData);
+                betaRandom.setName(GlimmpseConstants.MATRIX_BETA_RANDOM);
+            }
             break;
+        }
+        
+        // create a new beta matrix with appropriate dimensions
+        if (allocateNewBetaMatrix) {
+            if (beta == null) {
+                beta = new NamedMatrix();
+                beta.setName(GlimmpseConstants.MATRIX_BETA);
+                studyDesign.setNamedMatrix(beta);
+            }
+            double[][] betaData = new double[newRows][newCols];
+            beta.setRows(newRows);
+            beta.setColumns(newCols);
+            beta.setDataFromArray(betaData);
         }
     }
 
