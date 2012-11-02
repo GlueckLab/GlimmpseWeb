@@ -908,7 +908,13 @@ body {
 	height: 200px;
 }
 
+.blockWithBorder {
+	border: 1px solid #ddd;
+}
 
+.blockWithSpacing {
+	margin: 10px;
+}
 
 
 	
