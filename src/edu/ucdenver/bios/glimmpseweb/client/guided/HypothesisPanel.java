@@ -25,21 +25,17 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
-import edu.ucdenver.bios.glimmpseweb.client.shared.DynamicTabPanel;
-import edu.ucdenver.bios.glimmpseweb.client.shared.HtmlTextWithExplanationPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ExplanationButton;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -49,9 +45,9 @@ import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
-import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 /**
  * Hypothesis selection panel
@@ -59,53 +55,55 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
  * @author Sarah Kreidler
  *
  */
-public class HypothesisPanel extends WizardStepPanel 
-implements ClickHandler, ChangeHandler {
-
-    // clickable panel
-    private class ClickableHorizontalPanel extends HorizontalPanel 
-    implements HasClickHandlers {
-        @Override
-        public HandlerRegistration addClickHandler(ClickHandler handler) {
-            return addDomHandler(handler, ClickEvent.getType());
-        }
-    }
+public class HypothesisPanel extends WizardStepPanel
+implements ClickHandler {
+    // radio group for hypothesis type selection
+    private static final String HYPOTHESIS_RADIO_GROUP = "hypothesisRadioGroup";
+    // indices in the deck panel for hypothesis subpanels
+    private static final int GRAND_MEAN_INDEX = 0;
+    private static final int MAIN_EFFECT_INDEX = 1;
+    private static final int TREND_INDEX = 2;
+    private static final int INTERACTION_INDEX = 3;
 
     // context object
     protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
 
     // subpanels for each type of hypothesis
-    protected GrandMeanHypothesisPanel grandMeanHypothesisPanelInstance =
-            new GrandMeanHypothesisPanel(this);
-    protected MainEffectHypothesisPanel mainEffectHypothesisPanelInstance =
-            new MainEffectHypothesisPanel(this);
-    protected InteractionHypothesisPanel interactionHypothesisPanelInstance =
-            new InteractionHypothesisPanel(this);
-    protected TrendHypothesisPanel trendHypothesisPanelInstance =
-            new TrendHypothesisPanel(this);
+    protected GrandMeanHypothesisPanel grandMeanHypothesisPanel =
+            new GrandMeanHypothesisPanel(studyDesignContext, this);
+    protected MainEffectHypothesisPanel mainEffectHypothesisPanel =
+            new MainEffectHypothesisPanel(studyDesignContext, this);
+    protected InteractionHypothesisPanel interactionHypothesisPanel =
+            new InteractionHypothesisPanel(studyDesignContext, this);
+    protected TrendHypothesisPanel trendHypothesisPanel =
+            new TrendHypothesisPanel(studyDesignContext, this);
 
     /* hypothesis type buttons */
-    protected HTML grandMeanHTML = new HTML(
-            GlimmpseWeb.constants.hypothesisPanelGrandMean()); 
-    protected HTML mainEffectHTML = new HTML(
-            GlimmpseWeb.constants.hypothesisPanelMainEffect()); 
-    protected HTML interactionHTML = new HTML(
-            GlimmpseWeb.constants.hypothesisPanelInteraction()); 
-    protected HTML trendHTML = new HTML(
-            GlimmpseWeb.constants.hypothesisPanelTrend());
+    protected RadioButton grandMeanRadioButton = 
+            new RadioButton(HYPOTHESIS_RADIO_GROUP,
+                    GlimmpseWeb.constants.hypothesisPanelGrandMean());
+    protected RadioButton mainEffectRadioButton = 
+            new RadioButton(HYPOTHESIS_RADIO_GROUP,
+                    GlimmpseWeb.constants.hypothesisPanelMainEffect());
+    protected RadioButton trendRadioButton = 
+            new RadioButton(HYPOTHESIS_RADIO_GROUP,
+                    GlimmpseWeb.constants.hypothesisPanelTrend());
+    protected RadioButton interactionRadioButton = 
+            new RadioButton(HYPOTHESIS_RADIO_GROUP,
+                    GlimmpseWeb.constants.hypothesisPanelInteraction());
 
-    // hypothesis type containers
-    protected  ClickableHorizontalPanel grandMeanSelectPanel = 
-            new ClickableHorizontalPanel();
-    protected  ClickableHorizontalPanel mainEffectSelectPanel = 
-            new ClickableHorizontalPanel();
-    protected  ClickableHorizontalPanel interactionSelectPanel = 
-            new ClickableHorizontalPanel();
-    protected  ClickableHorizontalPanel trendSelectPanel = 
-            new ClickableHorizontalPanel();
-
-    // tab panel to organize the hypothesis sub screens
-    DynamicTabPanel tabPanel = new DynamicTabPanel();
+    // containers for the radio button and explanation button
+    protected HorizontalPanel grandMeanSelectContainer = 
+            new HorizontalPanel();
+    protected HorizontalPanel mainEffectSelectContainer = 
+            new HorizontalPanel();
+    protected HorizontalPanel trendSelectContainer = 
+            new HorizontalPanel();
+    protected HorizontalPanel interactionSelectContainer = 
+            new HorizontalPanel();
+    
+    // Deck panel to organize the hypothesis sub screens
+    protected DeckPanel deckPanel = new DeckPanel();
 
     /**
      * Constructor
@@ -125,38 +123,63 @@ implements ClickHandler, ChangeHandler {
                 GlimmpseWeb.constants.hypothesisDescription());
 
         // hypothesis type selection panel
-        // one sample 
-        grandMeanSelectPanel.add(grandMeanHTML);
-        grandMeanSelectPanel.add(new HtmlTextWithExplanationPanel("",
-                GlimmpseWeb.constants.hypothesisPanelGrandMean(),
+        HorizontalPanel typeContainer = new HorizontalPanel();
+        // grand mean selection
+        grandMeanSelectContainer.add(grandMeanRadioButton);
+        grandMeanSelectContainer.add(new ExplanationButton("",
                 GlimmpseWeb.constants.hypothesisPanelGrandMeanExplanation()));
-
-        // main effects
-        mainEffectSelectPanel.add(mainEffectHTML);
-        mainEffectSelectPanel.add(new HtmlTextWithExplanationPanel("",
-                GlimmpseWeb.constants.hypothesisPanelMainEffect(),
+        typeContainer.add(grandMeanSelectContainer);
+        grandMeanRadioButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                updateHypothesisType(HypothesisTypeEnum.GRAND_MEAN);
+            }   
+        });
+        // main effect selection
+        mainEffectSelectContainer.add(mainEffectRadioButton);
+        mainEffectSelectContainer.add(new ExplanationButton("",
                 GlimmpseWeb.constants.hypothesisPanelMainEffectExplanation()));
-
-        // interaction
-        interactionSelectPanel.add(interactionHTML);
-        interactionSelectPanel.add(new HtmlTextWithExplanationPanel("",
-                GlimmpseWeb.constants.hypothesisPanelInteraction(),
-                GlimmpseWeb.constants.hypothesisPanelInteractionExplanation()));
-
-        // trend
-        trendSelectPanel.add(trendHTML);
-        trendSelectPanel.add(new HtmlTextWithExplanationPanel("",
-                GlimmpseWeb.constants.hypothesisPanelTrend(),
+        typeContainer.add(mainEffectSelectContainer);
+        mainEffectRadioButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                updateHypothesisType(HypothesisTypeEnum.MAIN_EFFECT);
+            }   
+        });
+        // trend selection
+        trendSelectContainer.add(trendRadioButton);
+        trendSelectContainer.add(new ExplanationButton("",
                 GlimmpseWeb.constants.hypothesisPanelTrendExplanation()));
-
-        // add tabs to the tab panel
-        tabPanel.add(grandMeanSelectPanel, (Widget) grandMeanHypothesisPanelInstance);
-        tabPanel.addClickHandler(this);
+        typeContainer.add(trendSelectContainer);
+        trendRadioButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                updateHypothesisType(HypothesisTypeEnum.TREND);
+            }   
+        });
+        // interaction
+        interactionSelectContainer.add(interactionRadioButton);
+        interactionSelectContainer.add(new ExplanationButton("",
+                GlimmpseWeb.constants.hypothesisPanelInteractionExplanation()));
+        typeContainer.add(interactionSelectContainer);
+        interactionRadioButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                updateHypothesisType(HypothesisTypeEnum.INTERACTION);
+            }   
+        });
+        
+        // fill the deck panel with widgets for each type of hypothesis
+        deckPanel.add(grandMeanHypothesisPanel);
+        deckPanel.add(mainEffectHypothesisPanel);
+        deckPanel.add(trendHypothesisPanel);
+        deckPanel.add(interactionHypothesisPanel);
 
         // layout panel
         panel.add(title);
         panel.add(description);
-        panel.add(tabPanel);
+        panel.add(typeContainer);
+        panel.add(deckPanel);
 
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -164,6 +187,9 @@ implements ClickHandler, ChangeHandler {
                 GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        typeContainer.setStyleName(GlimmpseConstants.STYLE_BLOCK_WITH_SPACING);
+        deckPanel.setVisible(false);
+        
         // initialize
         updateHypothesisOptions();
         initWidget(panel);
@@ -185,30 +211,31 @@ implements ClickHandler, ChangeHandler {
     public void onWizardContextChange(WizardContextChangeEvent e) {
         switch(((StudyDesignChangeEvent) e).getType()) {
         case RESPONSES_LIST:
-            grandMeanHypothesisPanelInstance.loadResponseList(
+            grandMeanHypothesisPanel.loadResponseList(
                     studyDesignContext.getStudyDesign().getResponseList());
             updateHypothesisOptions();
-            buildAndSaveHypothesis();
             break;
         case BETWEEN_PARTICIPANT_FACTORS:
             // now update the panel
             List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
-            mainEffectHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
-            interactionHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
-            trendHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
+            mainEffectHypothesisPanel.loadBetweenParticipantFactors(factorList);
+            interactionHypothesisPanel.loadBetweenParticipantFactors(factorList);
+            trendHypothesisPanel.loadBetweenParticipantFactors(factorList);
             updateHypothesisOptions();
-            buildAndSaveHypothesis();
             break;
         case REPEATED_MEASURES:
             List<RepeatedMeasuresNode> rmNodeList = 
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-            mainEffectHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
-            interactionHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
-            trendHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
+            mainEffectHypothesisPanel.loadRepeatedMeasures(rmNodeList);
+            interactionHypothesisPanel.loadRepeatedMeasures(rmNodeList);
+            trendHypothesisPanel.loadRepeatedMeasures(rmNodeList);
             updateHypothesisOptions();
-            buildAndSaveHypothesis();
             break;
+        case HYPOTHESIS:
+            if (e.getSource() != this) {
+                loadFromContext();
+            }
         }
         
     };
@@ -218,7 +245,6 @@ implements ClickHandler, ChangeHandler {
      * number of factors, etc.
      */
     private void updateHypothesisOptions() {
-        int currentVisible = tabPanel.getVisibleIndex();
         
         List<BetweenParticipantFactor> factorList = 
                 studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
@@ -226,60 +252,60 @@ implements ClickHandler, ChangeHandler {
                 studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
         List<ResponseNode> responsesList = 
                 studyDesignContext.getStudyDesign().getResponseList();
-        int totalFactors = 0;
-        int maxLevels = 0;
-        int totalMultiCategoryFactors = 0;
+
+        // count the between participant factors
+        int numBetweenFactorsWithMultipleLevels = 0;
         if (factorList != null) {
-            totalFactors += factorList.size();
             for(BetweenParticipantFactor factor: factorList) {
-                List<Category> categoryList = factor.getCategoryList();
-                if (categoryList != null) {
-                    if (categoryList.size() > maxLevels) {
-                        maxLevels = categoryList.size();
-                    }
-                    if (categoryList.size() > 1) {
-                        totalMultiCategoryFactors++;
-                    }
+                List<Category> catList = factor.getCategoryList();
+                if (catList != null && catList.size() > 1) {
+                    numBetweenFactorsWithMultipleLevels++;
                 }
             }
         }
+        // count the within participant factors
+        int numWithinFactorsWithMultipleLevels = 0;
         if (rmNodeList != null) {
-            totalFactors += rmNodeList.size();
             for(RepeatedMeasuresNode node: rmNodeList) {
-                if (node.getNumberOfMeasurements() != null) {
-                    if (node.getNumberOfMeasurements() > maxLevels) {
-                        maxLevels = node.getNumberOfMeasurements();
-                    }
-                    if (node.getNumberOfMeasurements() > 1) {
-                        totalMultiCategoryFactors++;
-                    }
+                if (node.getNumberOfMeasurements() > 1) {
+                    numWithinFactorsWithMultipleLevels++;
                 }
             }
         }
-
-        // show the hypotheses based on the number of factors
-        tabPanel.remove(mainEffectSelectPanel);
-        tabPanel.remove(interactionSelectPanel);
-        tabPanel.remove(trendSelectPanel);
-        if (totalFactors > 0 && maxLevels > 1) {
-            tabPanel.add(mainEffectSelectPanel, (Widget) mainEffectHypothesisPanelInstance);
-            tabPanel.add(trendSelectPanel, (Widget) trendHypothesisPanelInstance);
-        } 
-        if (totalMultiCategoryFactors > 1) {
-            tabPanel.add(interactionSelectPanel, (Widget) interactionHypothesisPanelInstance);
-        }
-        if (currentVisible < tabPanel.getTabCount()) {
-            tabPanel.openTab(currentVisible);
-        } else {
-            tabPanel.openTab(0);
-        }
-
-        // if no factors or one-sample with no responses, set state to not-allowed.  
-        // Otherwise check if the panel is complete
-        if (totalFactors <= 0 || responsesList == null || responsesList.size() == 0) {
+        // count the response variables
+        int numResponses = (responsesList != null ? responsesList.size() : 0);
+        
+        if (numResponses <= 0) {
+            // must specify at least one outcome variable to enter the hypothesis screen
             changeState(WizardStepPanelState.NOT_ALLOWED);
         } else {
+            int totalValidFactors = numBetweenFactorsWithMultipleLevels + 
+                    numWithinFactorsWithMultipleLevels;
+            mainEffectSelectContainer.setVisible(totalValidFactors > 0);
+            trendSelectContainer.setVisible(totalValidFactors > 0);
+            interactionSelectContainer.setVisible(totalValidFactors > 1);
             checkComplete();
+        }
+        // make sure we are not showing a subpanel for a hidden radio button
+        switch (deckPanel.getVisibleWidget()) {
+        case MAIN_EFFECT_INDEX:
+            if (!mainEffectSelectContainer.isVisible()) {
+                grandMeanRadioButton.setValue(true);
+                deckPanel.showWidget(GRAND_MEAN_INDEX);
+            }
+            break;
+        case TREND_INDEX:
+            if (!trendSelectContainer.isVisible()) {
+                grandMeanRadioButton.setValue(true);
+                deckPanel.showWidget(GRAND_MEAN_INDEX);
+            }
+            break;
+        case INTERACTION_INDEX:
+            if (!interactionSelectContainer.isVisible()) {
+                grandMeanRadioButton.setValue(true);
+                deckPanel.showWidget(GRAND_MEAN_INDEX);
+            }
+            break;
         }
     }
 
@@ -299,21 +325,20 @@ implements ClickHandler, ChangeHandler {
         // load the responses
         List<ResponseNode> responsesList = 
             studyDesignContext.getStudyDesign().getResponseList();
-        grandMeanHypothesisPanelInstance.loadResponseList(responsesList);
+        grandMeanHypothesisPanel.loadResponseList(responsesList);
         // load the between participant factors
         List<BetweenParticipantFactor> factorList = 
                 studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
-        mainEffectHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
-        interactionHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
-        trendHypothesisPanelInstance.loadBetweenParticipantFactors(factorList);
+        mainEffectHypothesisPanel.loadBetweenParticipantFactors(factorList);
+        interactionHypothesisPanel.loadBetweenParticipantFactors(factorList);
+        trendHypothesisPanel.loadBetweenParticipantFactors(factorList);
         // load the repeated measures
         List<RepeatedMeasuresNode> rmNodeList = 
                 studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-        mainEffectHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
-        interactionHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
-        trendHypothesisPanelInstance.loadRepeatedMeasures(rmNodeList);
+        mainEffectHypothesisPanel.loadRepeatedMeasures(rmNodeList);
+        interactionHypothesisPanel.loadRepeatedMeasures(rmNodeList);
+        trendHypothesisPanel.loadRepeatedMeasures(rmNodeList);
         updateHypothesisOptions();       
-        tabPanel.openTab(0);
         
         // now that the screen is setup, load the hypothesis
         Set<Hypothesis> hypothesisSet = studyDesignContext.getStudyDesign().getHypothesis();
@@ -322,22 +347,26 @@ implements ClickHandler, ChangeHandler {
                 if (hypothesis.getType() != null) {
                     switch(hypothesis.getType()) {
                     case GRAND_MEAN:
-                        grandMeanHypothesisPanelInstance.loadHypothesis(
+                        grandMeanHypothesisPanel.loadHypothesis(
                                 studyDesignContext.getStudyDesign().getNamedMatrix(
                                         GlimmpseConstants.MATRIX_THETA));
-                        tabPanel.openTab(0);
+                        grandMeanRadioButton.setValue(true);
+                        deckPanel.showWidget(GRAND_MEAN_INDEX);
                         break;
                     case MAIN_EFFECT:
-                        mainEffectHypothesisPanelInstance.loadHypothesis(hypothesis);
-                        tabPanel.openTab(mainEffectSelectPanel);
+                        mainEffectHypothesisPanel.loadHypothesis(hypothesis);
+                        mainEffectRadioButton.setValue(true);
+                        deckPanel.showWidget(MAIN_EFFECT_INDEX);
                         break;
                     case TREND:
-                        trendHypothesisPanelInstance.loadHypothesis(hypothesis);
-                        tabPanel.openTab(trendSelectPanel);
+                        trendHypothesisPanel.loadHypothesis(hypothesis);
+                        trendRadioButton.setValue(true);
+                        deckPanel.showWidget(TREND_INDEX);
                         break;
                     case INTERACTION:
-                        interactionHypothesisPanelInstance.loadHypothesis(hypothesis);
-                        tabPanel.openTab(interactionSelectPanel);
+                        interactionHypothesisPanel.loadHypothesis(hypothesis);
+                        interactionRadioButton.setValue(true);
+                        deckPanel.showWidget(INTERACTION_INDEX);
                         break;
                     }
                 }
@@ -354,51 +383,51 @@ implements ClickHandler, ChangeHandler {
     /**
      * Check if the hypothesis is completely specified
      */
-    private void checkComplete() {
+    public void checkComplete() {
         // get the currently visible widget
-        HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
-        if (builder != null) { 
-            if (builder.checkComplete()) {
-                changeState(WizardStepPanelState.COMPLETE);
-            } else {
-                changeState(WizardStepPanelState.INCOMPLETE);
-            }
+        boolean complete = 
+                ((grandMeanRadioButton.getValue() &&
+                        grandMeanHypothesisPanel.checkComplete()) ||
+                        (mainEffectRadioButton.getValue() &&
+                                mainEffectHypothesisPanel.checkComplete()) ||
+                                (trendRadioButton.getValue() &&
+                                        trendHypothesisPanel.checkComplete()) ||
+                                        (interactionRadioButton.getValue() &&
+                                                interactionHypothesisPanel.checkComplete()));
+        if (complete) {
+            changeState(WizardStepPanelState.COMPLETE);
         } else {
             changeState(WizardStepPanelState.INCOMPLETE);
         }
-    }
-    
-    /**
-     * Save the hypothesis to the context
-     */
-    private void buildAndSaveHypothesis() {
-        // get the currently visible widget
-        HypothesisBuilder builder = (HypothesisBuilder) tabPanel.getVisibleWidget();
-        if (builder != null) {
-            studyDesignContext.setHypothesis(this, builder.buildHypothesis());
-            NamedMatrix thetaNull = builder.buildThetaNull();
-            studyDesignContext.setThetaNull(this, thetaNull);
-        } else {
-            studyDesignContext.setHypothesis(this, null);
-            studyDesignContext.setThetaNull(this, null);
-        }
-    }
-
-    /**
-     * Build the hypothesis object and store in the context
-     */
-    public void onExit()
-    {
-        buildAndSaveHypothesis();
     }
 
     @Override
     public void onClick(ClickEvent event) {
         checkComplete();        
     }
-
-    @Override
-    public void onChange(ChangeEvent event) {
-        checkComplete();   
+    
+    /**
+     * Save the new hypothesis type to the context
+     * @param type
+     */
+    private void updateHypothesisType(HypothesisTypeEnum type) {
+        deckPanel.setVisible(true);
+        switch(type) {
+        case GRAND_MEAN:
+            deckPanel.showWidget(GRAND_MEAN_INDEX);
+            break;
+        case MAIN_EFFECT:
+            deckPanel.showWidget(MAIN_EFFECT_INDEX);
+            break;
+        case TREND:
+            deckPanel.showWidget(TREND_INDEX);
+            break;
+        case INTERACTION:
+            deckPanel.showWidget(INTERACTION_INDEX);
+            break;
+        }
+        studyDesignContext.setHypothesisType(this, type);
+        checkComplete();
     }
+    
 }

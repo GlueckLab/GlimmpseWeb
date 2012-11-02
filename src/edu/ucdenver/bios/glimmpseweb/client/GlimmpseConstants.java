@@ -85,6 +85,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
+    
+    public static final String STYLE_BLOCK_WITH_BORDER = "blockWithBorder";
+    public static final String STYLE_BLOCK_WITH_SPACING = "blockWithSpacing";
     // generic dependent style names
     public static final String STYLE_EVEN = "even";
     public static final String STYLE_ODD = "odd";

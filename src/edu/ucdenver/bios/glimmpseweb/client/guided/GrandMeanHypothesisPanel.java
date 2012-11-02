@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.shared.RowColumnTextBox;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
@@ -53,9 +54,11 @@ implements HypothesisBuilder {
     private static final int LABEL_COLUMN = 0;
     private static final int TEXTBOX_COLUMN = 1;
 
-    // parent panel, change handler
-    protected ChangeHandler parent = null;
-        
+    // study design context
+    protected StudyDesignContext studyDesignContext = null;
+    // parent panel
+    protected HypothesisPanel parent = null;
+    
     // table of theta null inputs
     protected FlexTable comparisonMeanTable = new FlexTable();
     
@@ -66,9 +69,11 @@ implements HypothesisBuilder {
      * Constructor
      * @param studyDesignContext
      */
-    public GrandMeanHypothesisPanel(ChangeHandler handler)
+    public GrandMeanHypothesisPanel(StudyDesignContext context,
+            HypothesisPanel parent)
     {
-        this.parent = handler;
+        this.studyDesignContext = context;
+        this.parent = parent;
 
         VerticalPanel panel = new VerticalPanel();
         HTML text = new HTML(GlimmpseWeb.constants.grandMeanHypothesisPanelText());
@@ -109,7 +114,7 @@ implements HypothesisBuilder {
             int row = 0;
             for(ResponseNode response: responseList) {
                 comparisonMeanTable.setWidget(row, LABEL_COLUMN, new HTML(response.getName()));
-                comparisonMeanTable.setWidget(row, TEXTBOX_COLUMN, createTextBox());
+                comparisonMeanTable.setWidget(row, TEXTBOX_COLUMN, createTextBox(row, 1));
                 row++;
             }
         }
@@ -139,17 +144,20 @@ implements HypothesisBuilder {
     /**
      * Add an entry row to the flex table
      */
-    private TextBox createTextBox() {
-        TextBox tb = new TextBox();
+    private TextBox createTextBox(int row, int column) {
+        RowColumnTextBox tb = new RowColumnTextBox(row, column, "0");
         tb.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
                 // make sure the user entered a number
-                TextBox tb = (TextBox)event.getSource();
+                RowColumnTextBox tb = (RowColumnTextBox)event.getSource();
                 try
                 {
-                    Double.parseDouble(tb.getValue());
+                    double numericValue = Double.parseDouble(tb.getValue());
                     TextValidation.displayOkay(errorHTML, "");
+                    parent.checkComplete();
+                    studyDesignContext.updateHypothesisThetaNullValue(parent, 
+                            tb.row, tb.column, numericValue);
                 }
                 catch (Exception e)
                 {
@@ -158,7 +166,7 @@ implements HypothesisBuilder {
                 }
             }
         });
-        tb.addChangeHandler(parent);
+//        tb.addChangeHandler(parent);
         return tb;
     }
     

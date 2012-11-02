@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
@@ -48,8 +49,10 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 public class InteractionHypothesisPanel extends Composite
 implements HypothesisBuilder, ClickHandler
 {
-    // parent panel, change handler
-    ClickHandler parent = null;
+    // study design context
+    protected StudyDesignContext studyDesignContext = null;
+    // parent panel
+    protected HypothesisPanel parent = null;
 
     // counter of #variables selected
     int selectedCount = 0;
@@ -90,9 +93,12 @@ implements HypothesisBuilder, ClickHandler
      * @param studyDesignContext
      * @param handler
      */
-    public InteractionHypothesisPanel(ClickHandler handler)
+    public InteractionHypothesisPanel(StudyDesignContext context,
+            HypothesisPanel parent)
     {
-        this.parent = handler;
+        this.studyDesignContext = context;
+        this.parent = parent;
+
         VerticalPanel verticalPanel = new VerticalPanel();
 
         HTML text = new HTML(GlimmpseWeb.constants.interactionHypothesisPanelText());

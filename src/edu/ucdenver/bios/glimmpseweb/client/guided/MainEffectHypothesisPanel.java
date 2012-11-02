@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
@@ -51,9 +52,10 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
  */
 public class MainEffectHypothesisPanel extends Composite  
 implements HypothesisBuilder {
-
-    // parent panel, change handler
-    ClickHandler parent = null;
+    // study design context
+    protected StudyDesignContext studyDesignContext = null;
+    // parent panel
+    protected HypothesisPanel parent = null;
     
     // table column containing the radio buttons
     private static final int RADIO_BUTTON_COLUMN = 0;
@@ -98,9 +100,11 @@ implements HypothesisBuilder {
      * Constructor
      * @param studyDesignContext
      */
-    public MainEffectHypothesisPanel(ClickHandler handler)
+    public MainEffectHypothesisPanel(StudyDesignContext context,
+            HypothesisPanel parent)
     {
-        this.parent = handler;
+        this.studyDesignContext = context;
+        this.parent = parent;
 
         VerticalPanel verticalPanel = new VerticalPanel();
         HTML text = new HTML(GlimmpseWeb.constants.mainEffectPanelText());
@@ -234,8 +238,18 @@ implements HypothesisBuilder {
      * @param node
      */
     private void selectRepeatedMeasuresNode(RepeatedMeasuresNode node) {
+        if (selectedBetweenParticipantFactor != null) {
+            studyDesignContext.deleteHypothesisBetweenParticipantFactor(parent, 
+                    selectedBetweenParticipantFactor);
+        }
+        if (selectedRepeatedMeasuresNode != null) {
+            studyDesignContext.deleteHypothesisRepeatedMeasuresFactor(parent, 
+                    selectedRepeatedMeasuresNode);
+        }
         selectedBetweenParticipantFactor = null;
         selectedRepeatedMeasuresNode = node;
+        studyDesignContext.addHypothesisRepeatedMeasuresFactor(parent, 
+                selectedRepeatedMeasuresNode);
     }
     
     /**
@@ -243,8 +257,18 @@ implements HypothesisBuilder {
      * @param node
      */
     private void selectBetweenParticipantFactor(BetweenParticipantFactor factor) {
+        if (selectedBetweenParticipantFactor != null) {
+            studyDesignContext.deleteHypothesisBetweenParticipantFactor(parent, 
+                    selectedBetweenParticipantFactor);
+        }
+        if (selectedRepeatedMeasuresNode != null) {
+            studyDesignContext.deleteHypothesisRepeatedMeasuresFactor(parent, 
+                    selectedRepeatedMeasuresNode);
+        }
         selectedBetweenParticipantFactor = factor;
         selectedRepeatedMeasuresNode = null;
+        studyDesignContext.addHypothesisBetweenParticipantFactor(parent, 
+                selectedBetweenParticipantFactor);
     }
     
     /**

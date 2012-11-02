@@ -35,6 +35,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
+import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetweenParticipantFactor;
 import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
@@ -47,6 +49,11 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class TrendHypothesisPanel extends Composite
 implements HypothesisBuilder {
+    // study design context
+    protected StudyDesignContext studyDesignContext = null;
+    // parent panel
+    protected HypothesisPanel parent = null;
+    
     // radio button group for this panel
     private static final String BUTTON_GROUP = "trendButtonGroup"; 
 
@@ -69,9 +76,6 @@ implements HypothesisBuilder {
 
     // trend description panel
     protected EditTrendPanel editTrendPanel =  new EditTrendPanel("_TREND_PANEL_", -1); // TODO
-
-    // parent panel
-    protected ClickHandler parent = null;
     
     // RadioButton which contains a between participant effect
     private class BetweenParticipantRadioButton extends RadioButton {
@@ -97,11 +101,13 @@ implements HypothesisBuilder {
      * Create a trend hypothesis panel
      * @param studyDesignContext
      */
-    public TrendHypothesisPanel(ClickHandler handler)
+    public TrendHypothesisPanel(StudyDesignContext context,
+            HypothesisPanel parent)
     {
+        this.studyDesignContext = context;
+        this.parent = parent;
+        
         VerticalPanel verticalPanel = new VerticalPanel();
-
-        parent = handler;
         
         HTML text = new HTML(GlimmpseWeb.constants.trendHypothesisPanelText());
         HTML selectTypeOfTrend = new HTML(
@@ -112,7 +118,12 @@ implements HypothesisBuilder {
         withinParticipantFactors.setVisible(false);
         
         // listen for trend selection events
-        editTrendPanel.addClickHandler(parent);
+        editTrendPanel.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                updateTrend();
+            }
+        });
         
         //Style Sheets
         text.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
@@ -293,13 +304,52 @@ implements HypothesisBuilder {
         return hypothesis;
     }
 
+    private void updateTrend() {
+        if (selectedBetweenParticipantFactor != null) {
+            updateBetweenParticipantFactorTrend(
+                    selectedBetweenParticipantFactor,
+                    editTrendPanel.getSelectedTrend());
+            parent.checkComplete();
+        } else if (selectedRepeatedMeasuresNode != null) {
+            updateRepeatedMeasuresNodeTrend(
+                    selectedRepeatedMeasuresNode,
+                    editTrendPanel.getSelectedTrend());
+            parent.checkComplete();
+        }
+    }
+    
+    private void updateRepeatedMeasuresNodeTrend(
+            RepeatedMeasuresNode node, 
+            HypothesisTrendTypeEnum trendType) {
+        studyDesignContext.updateHypothesisRepeatedMeasuresFactorTrend(
+                parent, node, trendType);
+    }
+    
+    private void updateBetweenParticipantFactorTrend(
+            BetweenParticipantFactor factor, 
+            HypothesisTrendTypeEnum trendType) {
+        studyDesignContext.updateHypothesisBetweenParticipantFactorTrend(
+                parent, factor, trendType);
+    }
+    
     /**
      * Select the specified repeated measures node
      * @param node
      */
     private void selectRepeatedMeasuresNode(RepeatedMeasuresNode node) {
+        if (selectedBetweenParticipantFactor != null) {
+            studyDesignContext.deleteHypothesisBetweenParticipantFactor(parent, 
+                    selectedBetweenParticipantFactor);
+        }
+        if (selectedRepeatedMeasuresNode != null) {
+            studyDesignContext.deleteHypothesisRepeatedMeasuresFactor(parent, 
+                    selectedRepeatedMeasuresNode);
+        }
         selectedBetweenParticipantFactor = null;
         selectedRepeatedMeasuresNode = node;
+        studyDesignContext.addHypothesisRepeatedMeasuresFactor(parent, 
+                selectedRepeatedMeasuresNode);
+        updateTrend();
     }
     
     /**
@@ -307,8 +357,19 @@ implements HypothesisBuilder {
      * @param node
      */
     private void selectBetweenParticipantFactor(BetweenParticipantFactor factor) {
+        if (selectedBetweenParticipantFactor != null) {
+            studyDesignContext.deleteHypothesisBetweenParticipantFactor(parent, 
+                    selectedBetweenParticipantFactor);
+        }
+        if (selectedRepeatedMeasuresNode != null) {
+            studyDesignContext.deleteHypothesisRepeatedMeasuresFactor(parent, 
+                    selectedRepeatedMeasuresNode);
+        }
         selectedBetweenParticipantFactor = factor;
         selectedRepeatedMeasuresNode = null;
+        studyDesignContext.addHypothesisBetweenParticipantFactor(parent, 
+                selectedBetweenParticipantFactor);
+        updateTrend();
     }
     
     /**

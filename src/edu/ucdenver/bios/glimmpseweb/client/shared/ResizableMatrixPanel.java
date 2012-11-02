@@ -50,7 +50,8 @@ public class ResizableMatrixPanel extends Composite
     // change handler for matrix cell values
     // at present we only allow one of these - didn't have time to deal with
     // the timing issues of resize events and adding change handlers
-    protected ChangeHandler handler = null;
+    protected ArrayList<ResizableMatrixChangeHandler> handlers = 
+            new ArrayList<ResizableMatrixChangeHandler>();
     
     // maximum allowed rows and columns
     protected static final int DEFAULT_MAX_ROWS = 50;
@@ -130,9 +131,9 @@ public class ResizableMatrixPanel extends Composite
      */
     public ResizableMatrixPanel(int rows, int columns)
     {
-        this(rows, columns, true, true, true, false, null);
+        this(rows, columns, true, true, true, false);
     }
-    
+
     /**
      * Create a ResizableMatrixPanel with the specified restrictions
      * 
@@ -146,26 +147,7 @@ public class ResizableMatrixPanel extends Composite
     public ResizableMatrixPanel(int rows, int columns, boolean showDimensions, boolean allowEditDiagonal,
             boolean allowEditOffDiagonal, boolean isSymmetric)
     {
-        this(rows, columns, showDimensions, 
-                allowEditDiagonal, allowEditOffDiagonal, isSymmetric, null);
-    }
-
-    /**
-     * Create a ResizableMatrixPanel with the specified restrictions
-     * 
-     * @param row row dimension
-     * @param column column dimension
-     * @param showDimensions if true, the row x column dimensions will be displayed in the panel
-     * @param allowEditDiagonal if true, diagonal elements will be editable
-     * @param allowEditOffDiagonal if true, off diagonal elements will be editable
-     * @param isSymmetric indicates if the matrix is symmetric
-     * @param handler change handler for text boxes
-     */
-    public ResizableMatrixPanel(int rows, int columns, boolean showDimensions, boolean allowEditDiagonal,
-            boolean allowEditOffDiagonal, boolean isSymmetric, ChangeHandler handler)
-    {
         VerticalPanel verticalPanel = new VerticalPanel();
-        this.handler = handler;
         this.rows = rows;
         this.columns = columns;
         this.isSymmetric = isSymmetric;
@@ -464,6 +446,7 @@ public class ResizableMatrixPanel extends Composite
                         TextValidation.parseInteger(rowTextBox.getText(), MIN_ROW_COL, maxRows);
                     setRowDimension(newRows);
                     // notify listeners of row change
+                    notifyOnRows(newRows);
                     TextValidation.displayOkay(errorHTML, "");
                 }
                 catch (NumberFormatException nfe)
@@ -482,7 +465,8 @@ public class ResizableMatrixPanel extends Composite
                 {
                     int newCols = TextValidation.parseInteger(columnTextBox.getText(), MIN_ROW_COL, maxCols);
                     setColumnDimension(newCols);
-                    // notify listeners of row change
+                    // notify listeners of column change
+                    notifyOnColumns(newCols);
                     TextValidation.displayOkay(errorHTML, "");
                 }
                 catch (NumberFormatException nfe)
@@ -530,17 +514,25 @@ public class ResizableMatrixPanel extends Composite
                 try
                 {
                     String value = tb.getValue();
+                    double numericValue = Double.NaN;
                     if (!Double.isNaN(maxCellValue) && !Double.isNaN(maxCellValue) ) {
-                        TextValidation.parseDouble(value, minCellValue, maxCellValue, true);
+                        numericValue = TextValidation.parseDouble(value, minCellValue, maxCellValue, true);
                     } else if (!Double.isNaN(maxCellValue)) {
-                        TextValidation.parseDouble(value, maxCellValue, false, true);      
+                        numericValue = TextValidation.parseDouble(value, maxCellValue, false, true);      
                     } else if (!Double.isNaN(minCellValue)) {
-                        TextValidation.parseDouble(value, minCellValue, true, true);       
+                        numericValue = TextValidation.parseDouble(value, minCellValue, true, true);       
                     } else {
-                        TextValidation.parseDouble(value);
+                        numericValue = TextValidation.parseDouble(value);
                     }
                     TextValidation.displayOkay(errorHTML, "");
-                    if (isSymmetric && tb.row != tb.column) setCellValue(tb.column, tb.row, value);
+                    // notify listeners of cell contents change
+                    notifyOnCellChange(tb.row, tb.column, numericValue);
+                   
+                    if (isSymmetric && tb.row != tb.column) {
+                        setCellValue(tb.column, tb.row, value);
+                        // notify listeners of cell contents change
+                        notifyOnCellChange(tb.column, tb.row, numericValue);
+                    }
 
                 }
                 catch(Exception e)
@@ -787,4 +779,43 @@ public class ResizableMatrixPanel extends Composite
         return columns;
     }
 
+    /**
+     * Add a change handler to the matrix panel
+     * @param handler handler for dimension or contents changes
+     */
+    public void addChangeHandler(ResizableMatrixChangeHandler handler) {
+        handlers.add(handler);
+    }
+    
+    /**
+     * Notify handlers of a row dimension change
+     * @param newRows new row dimension
+     */
+    private void notifyOnRows(int newRows) {
+        for(ResizableMatrixChangeHandler handler: handlers) {
+            handler.onRowDimension(newRows);
+        }
+    }
+    
+    /**
+     * Notify handlers of a column dimension change
+     * @param newColumns new column dimension
+     */
+    private void notifyOnColumns(int newColumns) {
+        for(ResizableMatrixChangeHandler handler: handlers) {
+            handler.onColumnDimension(newColumns);
+        }
+    }
+    
+    /**
+     * Notify handlers of a cell contents change
+     * @param row cell row
+     * @param column cell column
+     * @param value new cell contents
+     */
+    private void notifyOnCellChange(int row, int column, double value) {
+        for(ResizableMatrixChangeHandler handler: handlers) {
+            handler.onCellChange(row, column, value);
+        }
+    }
 }
