@@ -100,7 +100,6 @@ implements ClickHandler, ListValidator
             @Override
             public void onClick(ClickEvent event)
             {
-                
                 quantileListPanel.setVisible(quantilePowerCheckBox.getValue());
             }
         });

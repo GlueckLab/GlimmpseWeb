@@ -267,7 +267,8 @@ implements ClickHandler {
         int numWithinFactorsWithMultipleLevels = 0;
         if (rmNodeList != null) {
             for(RepeatedMeasuresNode node: rmNodeList) {
-                if (node.getNumberOfMeasurements() > 1) {
+                if (node.getNumberOfMeasurements() != null &&
+                        node.getNumberOfMeasurements() > 1) {
                     numWithinFactorsWithMultipleLevels++;
                 }
             }

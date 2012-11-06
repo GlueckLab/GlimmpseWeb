@@ -22,7 +22,6 @@
 
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -41,13 +40,11 @@ import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
-import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
 public class InteractionHypothesisPanel extends Composite
-implements HypothesisBuilder, ClickHandler
 {
     // study design context
     protected StudyDesignContext studyDesignContext = null;
@@ -71,20 +68,64 @@ implements HypothesisBuilder, ClickHandler
     private class BetweenParticipantVariablePanel 
     extends InteractionVariablePanel {
         public BetweenParticipantFactor factor;
-        public BetweenParticipantVariablePanel(String label, ClickHandler handler,
+        public BetweenParticipantVariablePanel(String label, 
                 BetweenParticipantFactor factor) {
-            super(label, factor.getCategoryList().size(), handler);
+            super(label, factor.getCategoryList().size());
+            addVariableClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    CheckBox cb = (CheckBox) event.getSource();
+                    updateFactor(cb.getValue());
+                } 
+            });
+            addTrendClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    TrendRadioButton rb = (TrendRadioButton) event.getSource();
+                    updateTrend(rb.getTrend());
+                }
+            });
             this.factor = factor;
+        }
+        
+        private void updateTrend(HypothesisTrendTypeEnum type) {
+            updateBetweenParticipantFactorTrend(factor, type);
+        }
+        
+        private void updateFactor(boolean selected) {
+            selectBetweenParticipantFactor(selected, factor);
         }
     }
     // panel which contains a repeated measures effect
     private class RepeatedMeasuresVariablePanel  
     extends InteractionVariablePanel {
         public RepeatedMeasuresNode factor;
-        public RepeatedMeasuresVariablePanel(String label, ClickHandler handler,
+        public RepeatedMeasuresVariablePanel(String label, 
                 RepeatedMeasuresNode factor) {
-            super(label, factor.getNumberOfMeasurements(), handler);
+            super(label, factor.getNumberOfMeasurements());
             this.factor = factor;
+            addVariableClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    CheckBox cb = (CheckBox) event.getSource();
+                    updateFactor(cb.getValue());
+                } 
+            });
+            addTrendClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    TrendRadioButton rb = (TrendRadioButton) event.getSource();
+                    updateTrend(rb.getTrend());
+                }
+            });
+        }
+        
+        private void updateTrend(HypothesisTrendTypeEnum type) {
+            updateWithinParticipantFactorTrend(factor, type);
+        }
+        
+        private void updateFactor(boolean selected) {
+            selectWithinParticipantFactor(selected, factor);
         }
     }   
 
@@ -139,7 +180,7 @@ implements HypothesisBuilder, ClickHandler
                 if (categoryList != null && categoryList.size() > 1) {
                     BetweenParticipantVariablePanel panel = 
                         new BetweenParticipantVariablePanel(
-                                factor.getPredictorName(), this, factor);
+                                factor.getPredictorName(), factor);
                     betweenParticipantFactorsFlexTable.setWidget(
                             row, 0, panel);
                 }
@@ -167,7 +208,7 @@ implements HypothesisBuilder, ClickHandler
                         rmNode.getNumberOfMeasurements() > 1) {
                     RepeatedMeasuresVariablePanel panel = 
                         new RepeatedMeasuresVariablePanel(
-                                rmNode.getDimension(), this, rmNode);
+                                rmNode.getDimension(), rmNode);
                     withinParticipantFactorsFlexTable.setWidget(
                             row, 0, panel);
                     row++;
@@ -243,82 +284,70 @@ implements HypothesisBuilder, ClickHandler
     }
 
     /**
-     * Build a hypothesis object from the selected checkboxes.
-     */
-    @Override
-    public Hypothesis buildHypothesis() {
-        Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.INTERACTION);
-
-        // fill in any between participant effects
-        List<HypothesisBetweenParticipantMapping> factorList =
-            new ArrayList<HypothesisBetweenParticipantMapping>();
-        for(int i = 0; i < betweenParticipantFactorsFlexTable.getRowCount(); i++)
-        {
-            BetweenParticipantVariablePanel panel = 
-                (BetweenParticipantVariablePanel)
-                betweenParticipantFactorsFlexTable.getWidget(i, 0);
-            if(panel.isChecked())
-            {
-                HypothesisBetweenParticipantMapping map = 
-                    new HypothesisBetweenParticipantMapping();
-                map.setBetweenParticipantFactor(panel.factor);
-                map.setType(panel.getSelectedTrend());
-                factorList.add(map);
-            }
-        }
-        if (factorList.size() > 0) {
-            hypothesis.setBetweenParticipantFactorMapList(factorList);
-        }
-
-        // fill in repeated measures information
-        List<HypothesisRepeatedMeasuresMapping> nodeList =
-            new ArrayList<HypothesisRepeatedMeasuresMapping>();
-        for(int i = 0; i < withinParticipantFactorsFlexTable.getRowCount(); i++)
-        {
-            RepeatedMeasuresVariablePanel panel = 
-                (RepeatedMeasuresVariablePanel)
-                withinParticipantFactorsFlexTable.getWidget(i, 0);
-            if(panel.isChecked())
-            {
-                HypothesisRepeatedMeasuresMapping map =
-                    new HypothesisRepeatedMeasuresMapping();
-                map.setRepeatedMeasuresNode(panel.factor);
-                map.setType(panel.getSelectedTrend());
-                nodeList.add(map);
-            }
-        }
-        if (nodeList.size() > 0) {
-            hypothesis.setRepeatedMeasuresMapTree(nodeList);
-        }
-
-        return hypothesis;
-    }
-
-    /**
      * Panel is complete provided two or more variables are selected
      */
-    @Override
     public boolean checkComplete() {     
         return (selectedCount > 1);
     }
 
-
-    @Override
-    public void onClick(ClickEvent event) {
-        CheckBox checkBox = 
-            (CheckBox) event.getSource();
-        if (checkBox.getValue()) {
+    /**
+     * Update the between participant variable list for the hypothesis
+     * @param selected
+     * @param factor
+     */
+    private void selectBetweenParticipantFactor(boolean selected,
+            BetweenParticipantFactor factor) {
+        if (selected) {
             selectedCount++;
+            studyDesignContext.addHypothesisBetweenParticipantFactor(parent, factor);
         } else {
             selectedCount--;
+            studyDesignContext.deleteHypothesisBetweenParticipantFactor(parent, factor);
         }
-        parent.onClick(event);
+        parent.checkComplete();
+    }
+    
+    /**
+     * Update the between participant variable trend for the hypothesis
+     * @param selected
+     * @param factor
+     * @param trendType
+     */
+    private void updateBetweenParticipantFactorTrend(
+            BetweenParticipantFactor factor, HypothesisTrendTypeEnum trendType) {
+        studyDesignContext.updateHypothesisBetweenParticipantFactorTrend(
+                parent, factor, trendType);
+        parent.checkComplete();
+    }
+    
+    /**
+     * Update the within participant variable trend for the hypothesis
+     * @param selected
+     * @param factor
+     * @param trendType
+     */
+    private void updateWithinParticipantFactorTrend(
+            RepeatedMeasuresNode factor, HypothesisTrendTypeEnum trendType) {
+        studyDesignContext.updateHypothesisRepeatedMeasuresFactorTrend(
+                parent, factor, trendType);
+        parent.checkComplete();
+    }
+    
+    /**
+     * Update the within participant variable list for the hypothesis
+     * @param selected
+     * @param factor
+     */
+    private void selectWithinParticipantFactor(boolean selected,
+            RepeatedMeasuresNode factor) {
+        if (selected) {
+            selectedCount++;
+            studyDesignContext.addHypothesisRepeatedMeasuresFactor(parent, factor);
+        } else {
+            selectedCount--;
+            studyDesignContext.deleteHypothesisRepeatedMeasuresFactor(parent, factor);
+        }
+        parent.checkComplete();
     }
 
-
-    @Override
-    public NamedMatrix buildThetaNull() {
-        return null;
-    }
 }

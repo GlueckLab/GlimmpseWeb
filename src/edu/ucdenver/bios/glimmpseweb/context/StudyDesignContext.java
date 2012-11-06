@@ -180,7 +180,8 @@ public class StudyDesignContext extends WizardContext
         List<RepeatedMeasuresNode> rmList = studyDesign.getRepeatedMeasuresTree();
         if (rmList != null) {
             for(RepeatedMeasuresNode rmNode: rmList) {
-                if (rmNode.getNumberOfMeasurements() > 1) {
+                if (rmNode.getNumberOfMeasurements() != null &&
+                        rmNode.getNumberOfMeasurements() > 1) {
                     newCols *= rmNode.getNumberOfMeasurements();
                 }
             }
@@ -460,7 +461,7 @@ public class StudyDesignContext extends WizardContext
      * @param panel the panel initiating the change
      * @param powerMethod the nominal power value
      */
-    public void addNominalPower(WizardStepPanel panel, PowerMethodEnum powerMethod) {
+    public void addPowerMethod(WizardStepPanel panel, PowerMethodEnum powerMethod) {
         List<PowerMethod> powerMethodList = studyDesign.getPowerMethodList();
         if (powerMethodList == null) {
             powerMethodList = new ArrayList<PowerMethod>();
@@ -477,7 +478,7 @@ public class StudyDesignContext extends WizardContext
      * @param powerMethod the power method
      * @param index the index of the value in the list
      */
-    public void deleteNominalPower(WizardStepPanel panel, 
+    public void deletePowerMethod(WizardStepPanel panel, 
             PowerMethodEnum powerMethod, int index) {
         List<PowerMethod> powerMethodList = studyDesign.getPowerMethodList();
         if (powerMethodList != null) {
@@ -592,18 +593,6 @@ public class StudyDesignContext extends WizardContext
                 }
             }
         }
-    }
-
-    /**
-     * Store the list of statistical tests in the StudyDesign object. 
-     * @param panel wizard panel initiating the change
-     * @param statisticalTestList list of tests
-     */
-    public void setStatisticalTestList(WizardStepPanel panel, ArrayList<StatisticalTest> statisticalTestList)
-    {
-        studyDesign.setStatisticalTestList(statisticalTestList);
-        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-                StudyDesignChangeType.STATISTICAL_TEST_LIST));
     }
 
     /**
@@ -932,7 +921,7 @@ public class StudyDesignContext extends WizardContext
                 rmNode.setNumberOfMeasurements(numberOfMeasurements);
                 rmNode.setSpacingList(spacingList);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-                        StudyDesignChangeType.CLUSTERING));
+                        StudyDesignChangeType.REPEATED_MEASURES));
             }
         }
     }    
@@ -1503,27 +1492,6 @@ public class StudyDesignContext extends WizardContext
                     StudyDesignChangeType.HYPOTHESIS));
         }
     }
-    
-//    
-//    
-//    /**
-//     * Store the hypothesis in the study design
-//     * @param panel wizard panel initiating the change
-//     * @param hypothesis hypothesis objects
-//     */
-//    public void setHypothesis(WizardStepPanel panel, Hypothesis hypothesis)
-//    {
-//        if (hypothesis != null) { 
-//            // clear any prior hypothesis
-//            studyDesign.setHypothesis(null);
-//            // now add the new one
-//            studyDesign.setHypothesisToSet(hypothesis);
-//        } else {
-//            studyDesign.setHypothesis(null);
-//        }
-//        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-//                StudyDesignChangeType.HYPOTHESIS));
-//    }
 
 
     /**
