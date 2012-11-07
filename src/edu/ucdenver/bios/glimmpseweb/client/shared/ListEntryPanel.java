@@ -271,20 +271,12 @@ public class ListEntryPanel extends Composite
     }
     
     /**
-     * Manually add an item to the list.  Invalid entries are ignored
+     * Manually add an item to the list.  Bypasses validation
      * @param value the item to be added
      */
     public void add(String value)
     {
-    	try
-    	{
-    		validator.onAdd(value);
-        	listBox.addItem(value);
-    	}
-    	catch (Exception e)
-    	{
-    		// ignore invalid entries
-    	}
+        listBox.addItem(value);
     }
 
 }
