@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -135,8 +134,8 @@ implements ListValidator
                 for(SampleSize size: perGroupNList) {
                     perGroupNListPanel.add(Integer.toString(size.getValue()));
                 }
-                checkComplete();
             } 
+            checkComplete();
         } else {
             changeState(WizardStepPanelState.SKIPPED);
         }
