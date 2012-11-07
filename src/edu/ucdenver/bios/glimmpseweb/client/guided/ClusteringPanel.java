@@ -53,8 +53,6 @@ import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 public class ClusteringPanel extends WizardStepPanel {
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-    // indicates whether the user had added clustering or not
-    protected boolean hasClustering = false;
     // tree describing the clustering hierarchy
     protected Tree clusteringTree = new Tree();
     // number of items in the tree
@@ -81,7 +79,8 @@ public class ClusteringPanel extends WizardStepPanel {
             new ClickHandler() {
         public void onClick(ClickEvent event) {
             addSubgroup();
-            toggleClustering();
+            addClusteringNodeToStudyDesign();
+            checkComplete();
         }
     });
     // button to remove clustering information
@@ -90,7 +89,6 @@ public class ClusteringPanel extends WizardStepPanel {
             new ClickHandler() {
         public void onClick(ClickEvent event) {
             reset();
-            changed = true;
         }
     });
     //  button for adding a subgroups
@@ -99,6 +97,8 @@ public class ClusteringPanel extends WizardStepPanel {
                 new ClickHandler() {
         public void onClick(ClickEvent event) {
             addSubgroup();
+            addClusteringNodeToStudyDesign();
+            checkComplete();
         }
     });
     //  button for removing subgroups
@@ -107,6 +107,8 @@ public class ClusteringPanel extends WizardStepPanel {
                 new ClickHandler() {
         public void onClick(ClickEvent event) {
             removeSubgroup();
+            removeClusteringNodeFromStudyDesign();
+            checkComplete();
         }
     });
     // panel containing the add subgroup panel
@@ -133,11 +135,10 @@ public class ClusteringPanel extends WizardStepPanel {
         buttonPanel.add(removeSubgroupButton);
         panel.add(buttonPanel);
         // show/hide the appropriate buttons
-        addClusteringButton.setVisible(!hasClustering);
-        removeClusteringButton.setVisible(hasClustering);
-        addSubgroupButton.setVisible(hasClustering);
-        removeSubgroupButton.setVisible(hasClustering);
-
+        addClusteringButton.setVisible(true);
+        removeClusteringButton.setVisible(false);
+        addSubgroupButton.setVisible(false);
+        removeSubgroupButton.setVisible(false);
 
         // Setting Styles 
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -157,6 +158,8 @@ public class ClusteringPanel extends WizardStepPanel {
      */
     private void addSubgroup() 
     {
+        TreeItem parent = currentLeaf;
+        // create a new cluster node
         String dependentStyleName = GlimmpseConstants.STYLE_ODD;
         if (itemCount % 2 == 0) {
             dependentStyleName = GlimmpseConstants.STYLE_EVEN;
@@ -164,26 +167,22 @@ public class ClusteringPanel extends WizardStepPanel {
         ClusteringPanelSubPanel subpanel = 
             new ClusteringPanelSubPanel(dependentStyleName,
                     itemCount, this);	
+        // create a new tree item to hold the cluster node
         TreeItem newLeaf = new TreeItem(subpanel);
-        if (currentLeaf == null)
-        {
+        // add the new subpanel to the clustering tree
+        if (currentLeaf != null) {
+            currentLeaf.addItem(newLeaf);
+            currentLeaf.setState(true);
+        } else {
             clusteringTree.addItem(newLeaf);
             newLeaf.setState(true);
         }
-        else
-        {
-            currentLeaf.addItem(newLeaf);
-            currentLeaf.setState(true);
-            if(itemCount == 2)
-            {
-                addSubgroupButton.setVisible(false);
-            }			
-        }
-        itemCount++;
-        studyDesignContext.addClusteringNode(this, new ClusterNode());
-        changed = true;
+        // set the new leaf as the lowest node in the tree
         currentLeaf = newLeaf;
-        checkComplete();
+        // update the item count
+        itemCount++;
+        // update the visible buttons
+        updateButtons();
     }
 
     /**
@@ -195,33 +194,23 @@ public class ClusteringPanel extends WizardStepPanel {
         {
             TreeItem parent = currentLeaf.getParentItem();
             currentLeaf.remove();
-            studyDesignContext.deleteClusteringNode(this, itemCount-1);
             itemCount--;
             currentLeaf = parent;
-            if (itemCount <= 0)
-            {
-                toggleClustering();
-            }
-            else if (itemCount == 2)
-            {
-                addSubgroupButton.setVisible(true);
-            }
+            updateButtons();
+            checkComplete();
         }
-        checkComplete();
     };
 
 
     /**
-     * toggle clustering on/off
+     * show or hide the subgroup buttons
      */
-    public void toggleClustering()
+    public void updateButtons()
     {
-        hasClustering = !hasClustering;
-        addClusteringButton.setVisible(!hasClustering);
-        removeClusteringButton.setVisible(hasClustering);
-        addSubgroupButton.setVisible(hasClustering);
-        removeSubgroupButton.setVisible(hasClustering);
-        checkComplete();
+        addClusteringButton.setVisible(itemCount <= 0);
+        removeClusteringButton.setVisible(itemCount > 0);
+        addSubgroupButton.setVisible(itemCount > 0 && itemCount < 3);
+        removeSubgroupButton.setVisible(itemCount > 0);
     }
 
     /**
@@ -254,8 +243,25 @@ public class ClusteringPanel extends WizardStepPanel {
     }
 
     /**
+     * Add a blank clustering node to the study design
+     */
+    private void addClusteringNodeToStudyDesign() {
+        ClusterNode clusterNode = new ClusterNode();
+        clusterNode.setParent(itemCount-1);
+        clusterNode.setNode(itemCount);
+        studyDesignContext.addClusteringNode(this, clusterNode);
+    }
+    
+    /**
+     * Remove the last clustering node from the study design
+     */
+    private void removeClusteringNodeFromStudyDesign() {
+        studyDesignContext.deleteClusteringNode(this, itemCount);
+    }
+    
+    /**
      * Update the clustering tree in the study design when anything
-     * changes
+     * changes (called by the subpanel)
      *  
      * @param subpanel
      */
@@ -277,14 +283,9 @@ public class ClusteringPanel extends WizardStepPanel {
     public void reset() 
     {
         clusteringTree.removeItems();
-        hasClustering = false;
-        addClusteringButton.setVisible(!hasClustering);
-        removeClusteringButton.setVisible(hasClustering);
-        addSubgroupButton.setVisible(hasClustering);
-        removeSubgroupButton.setVisible(hasClustering);
         currentLeaf = null;
         itemCount = 0;
-        changed = false;
+        updateButtons();
     }
 
     /**
@@ -301,24 +302,13 @@ public class ClusteringPanel extends WizardStepPanel {
     public void loadFromContext()
     {
         reset();
-        List<ClusterNode> clusterNodeArrayList = studyDesignContext.getStudyDesign().getClusteringTree();
-        if (clusterNodeArrayList != null)
+        List<ClusterNode> clusterNodeList = studyDesignContext.getStudyDesign().getClusteringTree();
+        if (clusterNodeList != null)
         {
-            buttonPanel.setVisible(true);
             boolean first = true;
-            for(ClusterNode clusterNode: clusterNodeArrayList)
+            for(ClusterNode clusterNode: clusterNodeList)
             {
-                if (first)
-                {
-                    addSubgroup();
-                    toggleClustering();
-                    first = false;
-                }
-                else
-                {
-                    addSubgroup();
-                }
-
+                addSubgroup();
                 ClusteringPanelSubPanel currentPanel = (ClusteringPanelSubPanel) currentLeaf.getWidget();
                 currentPanel.loadFromClusterNode(clusterNode);
             }
@@ -326,6 +316,9 @@ public class ClusteringPanel extends WizardStepPanel {
         checkComplete();
     }
 
+    /**
+     * Respond to context changes
+     */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
         // no action needed here        

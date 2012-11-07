@@ -84,9 +84,9 @@ public class ClusteringPanelSubPanel extends Composite {
             public void onChange(ChangeEvent event) 
             {    
                 TextBox tb = (TextBox)event.getSource();
-                String value = tb.getValue();
                 try
                 {
+                    String value = TextValidation.parseString(tb.getValue());
                     TextValidation.parseString(value);
                     TextValidation.displayOkay(errorHTML, "");
                 }
@@ -95,6 +95,7 @@ public class ClusteringPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
                     tb.setText("");
                 }
+                checkComplete();
                 notifyParent();
             }
         });
@@ -116,6 +117,7 @@ public class ClusteringPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidClusterSize());
                     tb.setText("");
                 }
+                checkComplete();
                 notifyParent();
             }
         });
@@ -137,6 +139,7 @@ public class ClusteringPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidCorrelation());
                     tb.setText("");
                 }
+                checkComplete();
                 notifyParent();
             }
         });
