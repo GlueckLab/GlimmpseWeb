@@ -59,10 +59,12 @@ public class RelativeGroupSizePanel extends WizardStepPanel
         private int index;
         // constructor
         public RelativeSizeListBox(int index) {
+            super();
             this.index = index;
-            for(int i = 1; i <= MAX_RELATIVE_SIZE; i++) 
-                this.addItem(Integer.toString(i));
-            this.addChangeHandler(new ChangeHandler() {
+            for(int i = 1; i <= MAX_RELATIVE_SIZE; i++) {
+                addItem(Integer.toString(i));
+            }
+            addChangeHandler(new ChangeHandler() {
                 @Override
                 public void onChange(ChangeEvent event) {
                     RelativeSizeListBox listBox = (RelativeSizeListBox) event.getSource();
@@ -193,13 +195,11 @@ public class RelativeGroupSizePanel extends WizardStepPanel
         {
         case BETWEEN_PARTICIPANT_FACTORS:
             loadFromContext();
-            changed = true;
             break;
         case RELATIVE_GROUP_SIZE_LIST:
             if (this != changeEvent.getSource())
             {
                 loadFromContext();
-                changed = true;
             }
             break;
         }
