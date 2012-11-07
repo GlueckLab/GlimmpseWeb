@@ -166,6 +166,7 @@ public class ListEntryPanel extends Composite
 			finally
 			{
 				listEntryTextBox.setText("");
+				listEntryTextBox.setFocus(true);
 			}
 		}
 	}
