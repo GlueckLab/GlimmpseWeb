@@ -77,7 +77,7 @@ public class StudyDesignContext extends WizardContext
 
     // cache of all possible between participant effects
     private FactorTable participantGroups = new FactorTable();
-    
+
     /**
      * Create a new context with an empty study design object
      */
@@ -569,10 +569,51 @@ public class StudyDesignContext extends WizardContext
         if (testList == null) {
             testList = new ArrayList<StatisticalTest>();
             studyDesign.setStatisticalTestList(testList);
+        }
+        // insert in the same order as the tests are displayed in the GUI
+        int testIndex = getStatisticalTestIndex(test);
+        if (testIndex > -1) {
+            // find the appropriate insertion point
+            int insertIndex = 0;
+            for(StatisticalTest currentTest: testList) {
+                if (testIndex < getStatisticalTestIndex(currentTest.getType())) {
+                    break;
+                }
+                insertIndex++;
+            }
+            testList.add(insertIndex, new StatisticalTest(test));
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                     StudyDesignChangeType.STATISTICAL_TEST_LIST));
         }
-        testList.add(new StatisticalTest(test));
+    }
+
+    /**
+     * Get the order of the statistical tests.  Allows us to insert in order
+     * as displayed in the GUI (rather than depending on the enum order)
+     *   
+     * @param test
+     * @return
+     */
+    private int getStatisticalTestIndex(StatisticalTestTypeEnum test) {
+        switch(test)
+        {
+        case HLT:
+            return 0;
+        case PBT:
+            return 1;
+        case WL:
+            return 2;
+        case UNIREPBOX:
+            return 3;
+        case UNIREPGG:
+            return 4;
+        case UNIREPHF:
+            return 5;
+        case UNIREP:
+            return 6;
+        default:
+            return -1;
+        }   
     }
 
     /**
@@ -1005,7 +1046,7 @@ public class StudyDesignContext extends WizardContext
         }
         return null;
     }
-    
+
     /**
      * Get the index of the specified between participant factor
      * @param factorName name of the factor
@@ -1043,7 +1084,7 @@ public class StudyDesignContext extends WizardContext
         }
         return null;
     }
-    
+
     /**
      * Get the specified repeated measures factor by name
      * @param factorName name of the factor
@@ -1336,7 +1377,7 @@ public class StudyDesignContext extends WizardContext
                     StudyDesignChangeType.HYPOTHESIS));
         }
     }
-    
+
     /**
      * Update the trend information for a between participant factor in the hypothesis object
      * @param panel panel initiating the change
@@ -1364,7 +1405,7 @@ public class StudyDesignContext extends WizardContext
                     StudyDesignChangeType.HYPOTHESIS));
         }
     }
-    
+
     /**
      * Add a repeated measures factor to the hypothesis object
      * @param panel panel initiating the change
@@ -1443,7 +1484,7 @@ public class StudyDesignContext extends WizardContext
                     StudyDesignChangeType.HYPOTHESIS));
         }
     }
-    
+
     /**
      * Update the trend information for a repeated measures factor in the hypothesis object
      * @param panel panel initiating the change
