@@ -62,27 +62,28 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
 
     // number of measurements across this dimension
     protected TextBox noOfMeasurementsTextBox = new TextBox();
-    
+
     // indicates if the repeated measures dimension represents
     // numeric, ordinal, or categorical values
     protected ListBox typeListBox = new ListBox(false);
-    
+
     // spacing flexTable
     protected Grid spacingGrid = new Grid(2,2);
     protected HTML spacingHTML = 
-        new HTML(GlimmpseWeb.constants.repeatedMeasuresNodePanelSpacingLabel());
+            new HTML(GlimmpseWeb.constants.repeatedMeasuresNodePanelSpacingLabel());
     protected FlexTable spacingFlexTable = new FlexTable();
     // resets the spacing to even spacing
     protected Button spacingResetButton = new Button(
             GlimmpseWeb.constants.repeatedMeasuresNodePanelEqualSpacingButton(), 
             new ClickHandler() {
-        @Override
-        public void onClick(ClickEvent event) 
-        {
-            setEqualSpacing();
-        }
-    });
-    
+                @Override
+                public void onClick(ClickEvent event) 
+                {
+                    setEqualSpacing();
+                    notifyParent();
+                }
+            });
+
     //html widget to display the error message
     protected HTML errorHTML = new HTML();
 
@@ -90,10 +91,10 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     protected RepeatedMeasuresPanel parent = null;
     // current depth in the clustering tree
     protected int depth = -1;
-    
+
     // cache the spacing list
     ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
-    
+
     /**
      * Helper class for spacing text boxes
      * @author Sarah
@@ -128,12 +129,12 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TEXTBOX);
             addStyleDependentName(GlimmpseConstants.STYLE_SHORT);
         }
-        
+
         public int getIndex() {
             return index;
         }
     }
-    
+
     /**
      * Constructor.
      * @param dependentStyleName optional parameter to allow different
@@ -185,13 +186,9 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             public void onChange(ChangeEvent event) {
                 ListBox lb = (ListBox)event.getSource();
                 int index = lb.getSelectedIndex();
-                if(index == NUMERIC_INDEX)
-                {
-                    onSelectNumericItem();
-                }
-                else
-                {
-                    onDeselectNumericItem();					
+                showSpacingBar(index == NUMERIC_INDEX);
+                if (index != NUMERIC_INDEX) {
+                    setEqualSpacing();
                 }
                 notifyParent();
             }
@@ -227,12 +224,12 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         spacingGrid.setWidget(0, 1, spacingFlexTable);
         spacingGrid.setWidget(1, 0, spacingResetButton);
         showSpacingBar(false);
-        
+
         // layout overall panel
         panel.add(grid);
         panel.add(spacingGrid);
         panel.add(errorHTML);
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TREE_NODE);
         if (dependentStyleName != null && !dependentStyleName.isEmpty()) {
@@ -243,7 +240,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         initWidget(panel);
 
     }
-    
+
     /**
      * Synchronize the array list with the text boxes
      * @param index
@@ -254,7 +251,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             spacingList.get(index).setValue(spacingValue);
         }
     }
-    
+
     /**
      * Reset the spacing list to equal spacing
      */
@@ -265,25 +262,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             tb.setText(Integer.toString(c+1));
             spacingList.get(c).setValue(c+1);
         }
-        notifyParent();
     }
- 
-    /**
-     * Show the spacing panel when a numeric type is selected
-     */
-    public void onSelectNumericItem()
-    {
-        showSpacingBar(true);
-    }
-    
-    /**
-     * Hide the spacing panel when a numeric type is deselected
-     */
-    public void onDeselectNumericItem()
-    {
-        showSpacingBar(false);
-    }
-
 
     /** 
      * Clear the panel
@@ -323,11 +302,9 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 col++;
             }
         }
-        if (typeListBox.getSelectedIndex() == NUMERIC_INDEX) {
-            showSpacingBar(true);
-        }
+        showSpacingBar(typeListBox.getSelectedIndex() == NUMERIC_INDEX);
     }
-    
+
     /**
      * Hide the spacing bar
      */
@@ -347,7 +324,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         boolean validNumeric = true;
         boolean validTextBoxes = (checkDimension != null && !checkDimension.isEmpty()
                 && checkNumber != null && !checkNumber.isEmpty());
-        
+
         if (typeListBox.getSelectedIndex() == NUMERIC_INDEX) {
             if (spacingFlexTable.getRowCount() > 0 && spacingFlexTable.getCellCount(0) > 0) {
                 for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
@@ -365,84 +342,40 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     }
 
     /**
-     * Convert the contents of  repeated measures sub panel into a 
-     * RepeatedMeasuresNode domain object
-     * 
-     * @param nodeId node identifier
-     * @param parentId node identifier for the node's parent
-     * @return A RepeatedMeasuresNode instance
-     */
-    public RepeatedMeasuresNode toRepeatedMeasuresNode(int nodeId, int parentId) {
-
-        RepeatedMeasuresNode node = new RepeatedMeasuresNode();
-        String dimension = dimensionTextBox.getText();
-        if (dimension != null && !dimension.isEmpty()) {
-            node.setDimension(dimension);
-        }
-        String numMeasurements = noOfMeasurementsTextBox.getText();
-        if (numMeasurements != null && !numMeasurements.isEmpty()) {
-            node.setNumberOfMeasurements(Integer.parseInt(numMeasurements));
-        }
-        switch (typeListBox.getSelectedIndex()) {
-        case NUMERIC_INDEX:
-            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.NUMERICAL);
-            ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
-            if (spacingFlexTable.getRowCount() > 0) {
-                for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
-                    TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
-                    String valueStr = tb.getText();
-                    int value = Integer.MIN_VALUE;
-                    if (valueStr != null && !valueStr.isEmpty()) {
-                        value = Integer.parseInt(tb.getText());
-                    }
-                    Spacing spacingValue = new Spacing();
-                    spacingValue.setValue(value);
-                    spacingList.add(spacingValue);
-                }
-            }
-            node.setSpacingList(spacingList);
-            break;
-        case ORDINAL_INDEX:
-            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.ORDINAL);
-            break;
-        case NOMINAL_INDEX:
-            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.CATEGORICAL);
-            break;
-        }
-        return node;
-
-    }
-
-    /**
      * Fill in the panel from the repeated measures node
      * @param repeatedMeasuresNode
      */
     public void loadFromRepeatedMeasuresNode(
             RepeatedMeasuresNode repeatedMeasuresNode) {
+        reset();
         if (repeatedMeasuresNode != null) {
-            dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
-            noOfMeasurementsTextBox.setText(Integer.toString(repeatedMeasuresNode.getNumberOfMeasurements()));
-            switch (repeatedMeasuresNode.getRepeatedMeasuresDimensionType()) {
-            case NUMERICAL:
-                typeListBox.setSelectedIndex(NUMERIC_INDEX);
+            // !need to set type first!
+            if (repeatedMeasuresNode.getRepeatedMeasuresDimensionType() != null) {
+                switch (repeatedMeasuresNode.getRepeatedMeasuresDimensionType()) {
+                case NUMERICAL:
+                    typeListBox.setSelectedIndex(NUMERIC_INDEX);
+                    break;
+                case ORDINAL:
+                    typeListBox.setSelectedIndex(ORDINAL_INDEX);
+                    break;
+                case CATEGORICAL:
+                    typeListBox.setSelectedIndex(NOMINAL_INDEX);
+                    break;
+                }
+            }
+            // set the dimension name
+            if (repeatedMeasuresNode.getDimension() != null) {
+                dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
+            }
+            // set the number of measurements and update the spacing bar
+            if (repeatedMeasuresNode.getNumberOfMeasurements() != null) {
+                noOfMeasurementsTextBox.setText(Integer.toString(repeatedMeasuresNode.getNumberOfMeasurements()));
                 updateSpacingBar(repeatedMeasuresNode.getNumberOfMeasurements(),
                         repeatedMeasuresNode.getSpacingList());
-                break;
-            case ORDINAL:
-                typeListBox.setSelectedIndex(ORDINAL_INDEX);
-                spacingFlexTable.removeAllRows();
-                showSpacingBar(false);
-                break;
-            case CATEGORICAL:
-                typeListBox.setSelectedIndex(NOMINAL_INDEX);
-                spacingFlexTable.removeAllRows();
-                showSpacingBar(false);
-                break;
             }
-            dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
         }
     }
-     
+
     /**
      * get the dimension label
      * @return
@@ -450,7 +383,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     public String getDimensionName() {
         return dimensionTextBox.getText();
     }
-    
+
     /**
      * Get the spacing list
      * @return
@@ -458,7 +391,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     public List<Spacing> getSpacingList() {
         return spacingList;
     }
-    
+
     /**
      * get the repeated measures type
      * @return
@@ -475,7 +408,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             return null;
         }
     }
-    
+
     /**
      * get the number of measurements
      * @return
@@ -488,14 +421,14 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             return -1;
         }
     }
-    
+
     /**
      * Return the tree depth of this node
      */
     public int getDepth() {
         return depth;
     }
-    
+
     /**
      * Notify the parent panel that a change has occurred
      */

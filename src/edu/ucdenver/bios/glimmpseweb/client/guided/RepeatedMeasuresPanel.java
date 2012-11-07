@@ -308,7 +308,6 @@ public class RepeatedMeasuresPanel extends WizardStepPanel {
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
         if (contextRepeatedMeasuresNodeList != null)
         {
-            boolean first = true;
             for(RepeatedMeasuresNode repeatedMeasuresNode: contextRepeatedMeasuresNodeList)
             {
                 addSubDimension();
