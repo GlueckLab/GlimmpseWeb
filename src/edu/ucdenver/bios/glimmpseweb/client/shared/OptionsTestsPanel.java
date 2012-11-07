@@ -59,15 +59,6 @@ public class OptionsTestsPanel extends WizardStepPanel
 	protected CheckBox unirepGGCheckBox = new CheckBox();
 	protected CheckBox unirepHFCheckBox = new CheckBox();
 	protected CheckBox unirepBoxCheckBox = new CheckBox();
-	
-	// pre-allocate the test objects
-	protected StatisticalTest hotellingLawleyTraceTest = new StatisticalTest(StatisticalTestTypeEnum.HLT);
-	protected StatisticalTest pillaiBartlettTraceTest = new StatisticalTest(StatisticalTestTypeEnum.PBT);
-	protected StatisticalTest wilksLambdaTest = new StatisticalTest(StatisticalTestTypeEnum.WL);
-	protected StatisticalTest unirepTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREP);
-	protected StatisticalTest unirepBoxTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPBOX);
-	protected StatisticalTest unirepGGTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPGG);
-	protected StatisticalTest unirepHFTest = new StatisticalTest(StatisticalTestTypeEnum.UNIREPHF);
 
 	// only a subset of tests is available for covariate designs
 	protected boolean hasCovariate = false;
@@ -225,7 +216,9 @@ public class OptionsTestsPanel extends WizardStepPanel
 		// clear the statistical tests
 		hotellingLawleyCheckBox.setValue(false);
 		pillaiBartlettCheckBox.setValue(false);
+		pillaiBartlettCheckBox.setEnabled(true);
 		wilksCheckBox.setValue(false);
+		wilksCheckBox.setEnabled(true);
 		unirepCheckBox.setValue(false);
 		unirepGGCheckBox.setValue(false);
 		unirepHFCheckBox.setValue(false);
@@ -267,9 +260,16 @@ public class OptionsTestsPanel extends WizardStepPanel
 		case COVARIATE:
 			hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
 			pillaiBartlettCheckBox.setEnabled(!hasCovariate);
-			if (pillaiBartlettCheckBox.getValue() && !hasCovariate) pillaiBartlettCheckBox.setValue(false);
+			if (pillaiBartlettCheckBox.getValue() && hasCovariate) {
+			    pillaiBartlettCheckBox.setValue(false);
+			    studyDesignContext.deleteStatisticalTest(this, StatisticalTestTypeEnum.PBT);
+			}
 			wilksCheckBox.setEnabled(!hasCovariate);
-			if (wilksCheckBox.getValue() && !hasCovariate) wilksCheckBox.setValue(false);
+			if (wilksCheckBox.getValue() && hasCovariate) {
+			    wilksCheckBox.setValue(false);
+			    studyDesignContext.deleteStatisticalTest(this, StatisticalTestTypeEnum.WL);
+			}
+			checkComplete();
 			break;
 		case STATISTICAL_TEST_LIST:
 			if (this != changeEvent.getSource())
