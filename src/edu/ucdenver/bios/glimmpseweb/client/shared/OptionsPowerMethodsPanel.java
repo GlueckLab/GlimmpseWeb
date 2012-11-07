@@ -54,7 +54,7 @@ import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
  *
  */
 public class OptionsPowerMethodsPanel extends WizardStepPanel
-implements ClickHandler, ListValidator
+implements ListValidator
 {
     // study design context
     StudyDesignContext studyDesignContext;
@@ -96,18 +96,34 @@ implements ClickHandler, ListValidator
         grid.setWidget(2, 1, quantileListPanel);
 
         // only show quantile list when quantile power is selected
-        quantilePowerCheckBox.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event)
-            {
-                quantileListPanel.setVisible(quantilePowerCheckBox.getValue());
-            }
-        });
         quantileListPanel.setVisible(false);
 
         // add callback to check if screen is complete
-        unconditionalPowerCheckBox.addClickHandler(this);
-        quantilePowerCheckBox.addClickHandler(this);
+        unconditionalPowerCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addPowerMethod(PowerMethodEnum.UNCONDITIONAL);
+                } else {
+                    deletePowerMethod(PowerMethodEnum.UNCONDITIONAL);
+                }
+                checkComplete();
+            }
+        });
+        quantilePowerCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addPowerMethod(PowerMethodEnum.QUANTILE);
+                } else {
+                    deletePowerMethod(PowerMethodEnum.QUANTILE);
+                }
+                quantileListPanel.setVisible(cb.getValue());
+                checkComplete();
+            }
+        });
 
         // layout the overall panel
         panel.add(header);
@@ -138,17 +154,6 @@ implements ClickHandler, ListValidator
         quantileListPanel.reset();
         hasCovariate = false;
         changeState(WizardStepPanelState.SKIPPED);
-    }
-
-    /**
-     * Click handler for all checkboxes on the Options screen.
-     * Determines if the current selections represent a complete
-     * set of options.
-     */
-    @Override
-    public void onClick(ClickEvent event)
-    {
-        checkComplete();			
     }
 
     /**
@@ -270,6 +275,25 @@ implements ClickHandler, ListValidator
         checkComplete();
     }   
 
+    /**
+     * Add the specified power method to the study design
+     * @param method
+     */
+    private void addPowerMethod(PowerMethodEnum method) {
+        studyDesignContext.addPowerMethod(this, method);
+    }
+    
+    /**
+     * Add the specified power method to the study design
+     * @param method
+     */
+    private void deletePowerMethod(PowerMethodEnum method) {
+        studyDesignContext.deletePowerMethod(this, method);
+    }
+    
+    /**
+     * Called when a quantile is deleted from the quantile listbox
+     */
     @Override
     public void onDelete(String value, int index)
     {
