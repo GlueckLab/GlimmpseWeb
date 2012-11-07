@@ -38,6 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -53,11 +54,11 @@ import edu.ucdenver.bios.webservice.common.domain.Category;
 public class FixedPredictorsPanel extends WizardStepPanel
 {
     private static final int MIN_CATEGORIES = 2;
-	// pointer to the study design context
-	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-	
-	// subpanel for mult-sample designs
-	protected VerticalPanel multiSamplePanel = new VerticalPanel();
+    // pointer to the study design context
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+
+    // subpanel for mult-sample designs
+    protected VerticalPanel multiSamplePanel = new VerticalPanel();
     // list box displaying predictors
     protected ListBox predictorList = new ListBox();
     protected ListBox categoryList = new ListBox();
@@ -70,11 +71,18 @@ public class FixedPredictorsPanel extends WizardStepPanel
     // control buttons for predictor/category deletion
     protected Button predictorDeleteButton = new Button(GlimmpseWeb.constants.buttonDelete());
     protected Button categoryDeleteButton = new Button(GlimmpseWeb.constants.buttonDelete());
-    
+
+    // error message display
+    protected HTML errorHTML = new HTML();
+
+    /**
+     * Constructor
+     * @param context the study design context
+     */
     public FixedPredictorsPanel(WizardContext context)
     {
-    	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
-    	        WizardStepPanelState.COMPLETE);
+        super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
+                WizardStepPanelState.COMPLETE);
         VerticalPanel panel = new VerticalPanel();
 
         // create header/instruction text
@@ -85,13 +93,13 @@ public class FixedPredictorsPanel extends WizardStepPanel
         categoryTextBox.setEnabled(false);
         categoryDeleteButton.setEnabled(false);
         predictorDeleteButton.setEnabled(false);
-        
+
         // layout the overall panel
         buildCascadingList();
         panel.add(header);
         panel.add(description);
         panel.add(multiSamplePanel);
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -99,134 +107,159 @@ public class FixedPredictorsPanel extends WizardStepPanel
 
         initWidget(panel);
     }    
-        
+
     private void buildCascadingList()
     {    
         VerticalPanel panel = new VerticalPanel();
-        
-    	predictorList.setVisibleItemCount(5);
-    	predictorList.setWidth("100%");
-    	categoryList.setVisibleItemCount(5);
-    	categoryList.setWidth("100%");
-    	
-    	// add callbacks
-    	predictorTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				String value = predictorTextBox.getText();
-				if (!value.isEmpty())
-				{
-					addPredictor(value);
-					int selectedIndex = predictorList.getItemCount()-1;
-					predictorList.setSelectedIndex(selectedIndex);
-					selectPredictor(selectedIndex);
-					predictorTextBox.setText("");
-				}
-			}
-    	});
-    	predictorList.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				selectPredictor(predictorList.getSelectedIndex());
-			}
-    	});
-    	predictorDeleteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				int selectedIndex = predictorList.getSelectedIndex();
-				if (selectedIndex != -1)
-				{
-					deletePredictor(predictorList.getItemText(selectedIndex));
-					predictorList.removeItem(selectedIndex);
-					categoryList.clear();
-				}
-			}
-    	});
-    	categoryTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				String value = categoryTextBox.getText();
-				if (!value.isEmpty())
-				{
-					String predictor = predictorList.getItemText(predictorList.getSelectedIndex());
-					if (predictor != null && !predictor.isEmpty())
-					{
-						addCategory(predictor, value);
-					}
-					categoryTextBox.setText("");
-				}
-			}
-    	});
-    	categoryList.addChangeHandler(new ChangeHandler() {
 
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				categoryDeleteButton.setEnabled((categoryList.getSelectedIndex() != -1));
-			}
-    	});
-    	categoryDeleteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				int predictorIndex = predictorList.getSelectedIndex();
-				if (predictorIndex != -1)
-				{
-					String predictor = predictorList.getItemText(predictorIndex);
-					int categoryIndex = categoryList.getSelectedIndex();
-					if (categoryIndex != -1)
-					{
-						String category = categoryList.getItemText(categoryIndex);
-						deleteCategory(predictor, category);
-						categoryList.removeItem(categoryIndex);
-					}
-				}
-			}
-    	});
-    	// build text entry panels
-    	HorizontalPanel predictorPanel = new HorizontalPanel();
-    	predictorPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-    	VerticalPanel predictorTextContainer = new VerticalPanel();
-    	predictorTextContainer.add(new HTML(GlimmpseWeb.constants.predictorsTableColumn()));
-    	predictorTextContainer.add(predictorTextBox);
-    	predictorPanel.add(predictorTextContainer);
-    	predictorPanel.add(predictorAddButton);
-    	predictorPanel.add(predictorDeleteButton);
+        predictorList.setVisibleItemCount(5);
+        predictorList.setWidth("100%");
+        categoryList.setVisibleItemCount(5);
+        categoryList.setWidth("100%");
 
-    	HorizontalPanel categoryPanel = new HorizontalPanel();
-    	categoryPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-    	VerticalPanel categoryTextContainer = new VerticalPanel();
-    	categoryTextContainer.add(new HTML(GlimmpseWeb.constants.categoriesTableColumn()));
-    	categoryTextContainer.add(categoryTextBox);
-    	categoryPanel.add(categoryTextContainer);
-    	categoryPanel.add(categoryAddButton);
-    	categoryPanel.add(categoryDeleteButton);
-    	
-    	// layout the panels
-    	Grid grid = new Grid(2,2);
-    	grid.setWidget(0, 0, predictorPanel);
-    	grid.setWidget(0, 1, categoryPanel);
-    	grid.setWidget(1, 0, predictorList);
-    	grid.setWidget(1, 1, categoryList);
-    	panel.add(grid);
-    	
-    	// set style
-    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
-    	predictorAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	predictorDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	categoryAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	categoryDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	//grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
+        // add callbacks
+        // hitting enter in the predictor text box adds the name to the predictor list
+        predictorTextBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                try {
+                    String value = TextValidation.parseString(predictorTextBox.getText().trim());
+                    if (inList(predictorList, value)) {
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorNonUniqueValue());
+                    } else {
+                        addPredictor(value);
+                        int selectedIndex = predictorList.getItemCount()-1;
+                        predictorList.setSelectedIndex(selectedIndex);
+                        selectPredictor(selectedIndex);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                } catch (Exception e) {
+                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
+                }
+                predictorTextBox.setText("");
+                predictorTextBox.setFocus(true);
+            }
+        });
+        // clicking the name of a predictor in the predictor list
+        // will select the predictor and populate the categories list
+        predictorList.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                selectPredictor(predictorList.getSelectedIndex());
+            }
+        });
+        // clicking delete removes the predictor and updates the context
+        predictorDeleteButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                int selectedIndex = predictorList.getSelectedIndex();
+                if (selectedIndex != -1)
+                {
+                    deletePredictor(predictorList.getItemText(selectedIndex));
+                    predictorList.removeItem(selectedIndex);
+                    categoryList.clear();
+                }
+            }
+        });
+        // hitting enter in the category box adds the category to the list
+        categoryTextBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                try {
+                    String predictor = predictorList.getItemText(predictorList.getSelectedIndex());
+                    String value = TextValidation.parseString(categoryTextBox.getText().trim());
+                    if (inList(categoryList, value)) {
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorNonUniqueValue());
+                    } else {
+                        addCategory(predictor, value);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                } catch (Exception e) {
+                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
+                }
+                categoryTextBox.setText("");
+                categoryTextBox.setFocus(true);
+            }
+        });
+        // clicking add will add the category to the list and update the
+        // context for the selected predictor
+        categoryList.addChangeHandler(new ChangeHandler() {
+
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                categoryDeleteButton.setEnabled((categoryList.getSelectedIndex() != -1));
+            }
+        });
+        // clicking delete removes the category
+        categoryDeleteButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                int predictorIndex = predictorList.getSelectedIndex();
+                if (predictorIndex != -1)
+                {
+                    String predictor = predictorList.getItemText(predictorIndex);
+                    int categoryIndex = categoryList.getSelectedIndex();
+                    if (categoryIndex != -1)
+                    {
+                        String category = categoryList.getItemText(categoryIndex);
+                        deleteCategory(predictor, category);
+                        categoryList.removeItem(categoryIndex);
+                    }
+                }
+            }
+        });
+        // build text entry panels
+        HorizontalPanel predictorPanel = new HorizontalPanel();
+        predictorPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+        VerticalPanel predictorTextContainer = new VerticalPanel();
+        predictorTextContainer.add(new HTML(GlimmpseWeb.constants.predictorsTableColumn()));
+        predictorTextContainer.add(predictorTextBox);
+        predictorPanel.add(predictorTextContainer);
+        predictorPanel.add(predictorAddButton);
+        predictorPanel.add(predictorDeleteButton);
+
+        HorizontalPanel categoryPanel = new HorizontalPanel();
+        categoryPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+        VerticalPanel categoryTextContainer = new VerticalPanel();
+        categoryTextContainer.add(new HTML(GlimmpseWeb.constants.categoriesTableColumn()));
+        categoryTextContainer.add(categoryTextBox);
+        categoryPanel.add(categoryTextContainer);
+        categoryPanel.add(categoryAddButton);
+        categoryPanel.add(categoryDeleteButton);
+
+        // layout the panels
+        Grid grid = new Grid(2,2);
+        grid.setWidget(0, 0, predictorPanel);
+        grid.setWidget(0, 1, categoryPanel);
+        grid.setWidget(1, 0, predictorList);
+        grid.setWidget(1, 1, categoryList);
+        panel.add(grid);
+        panel.add(errorHTML);
+
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
+        predictorAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        predictorDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        categoryAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        categoryDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        //grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
         grid.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
 
         multiSamplePanel.add(panel);
     }
-    
+
+    /**
+     * Populate the categories list when a user selects a predictor
+     * @param predictor name of the predictor
+     */
     private void showCategories(String predictor)
     {
         BetweenParticipantFactor factor = 
@@ -244,97 +277,123 @@ public class FixedPredictorsPanel extends WizardStepPanel
             categoryDeleteButton.setEnabled(false);
         }
     }
-    
+
+    /**
+     * Add a predictor and update the context
+     * @param name name of the new predictor
+     */
     private void addPredictor(String name)
     {
-        BetweenParticipantFactor factor = 
-            studyDesignContext.getBetweenParticipantFactor(name);
-        if (factor != null) {
-            // TODO: show error - must be unique!!!
-        } else {
-            predictorList.addItem(name);
-            studyDesignContext.addBetweenParticipantFactor(this, name);
-            checkComplete();
-        }
+        predictorList.addItem(name);
+        studyDesignContext.addBetweenParticipantFactor(this, name);
+        checkComplete();
     }
-    
+
+    /**
+     * Update the view to show categories for the selected predictor
+     * @param selectedIndex
+     */
     private void selectPredictor(int selectedIndex)
     {
-		predictorDeleteButton.setEnabled((selectedIndex != -1));
-		categoryTextBox.setEnabled((selectedIndex != -1));
-		if (selectedIndex != -1)
-		{
-			String predictorName = predictorList.getItemText(selectedIndex);
-			showCategories(predictorName);
-		}
+        predictorDeleteButton.setEnabled((selectedIndex != -1));
+        categoryTextBox.setEnabled((selectedIndex != -1));
+        if (selectedIndex != -1)
+        {
+            String predictorName = predictorList.getItemText(selectedIndex);
+            showCategories(predictorName);
+        }
     }
-    
+
+    /**
+     * Remove a predictor from the study design
+     * @param name
+     */
     private void deletePredictor(String name)
     {
         studyDesignContext.deleteBetweenParticipantFactor(this, name);
         checkComplete();
     }
-    
+
+    /**
+     * Add a category to the study design for the specified predictor
+     * @param predictor
+     * @param category
+     */
     private void addCategory(String predictor, String category)
     {
         categoryList.addItem(category);
         studyDesignContext.addBetweenParticipantFactorCategory(this, predictor, category);
         checkComplete();
     }
-    
+
+    /**
+     * Remove a category for the specified predictor
+     * @param predictor
+     * @param category
+     */
     private void deleteCategory(String predictor, String category)
     {
         studyDesignContext.deleteBetweenParticipantFactorCategory(this, predictor, category);
         checkComplete();
     }
-    
+
+    /**
+     * Check if the user has entered a valid set of predictors.
+     * Either no predictors, or 1+ predictors each with at least 
+     * two categories
+     */
     public void checkComplete()
     {
-    	boolean isComplete = true;
+        boolean isComplete = true;
         List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
         if (factorList != null) {
             // multi-sample - each factor must have at least two categories
-    	    for(BetweenParticipantFactor factor: factorList) {
-    	        List<Category> factorCategoryList = factor.getCategoryList();
-    	        if (factorCategoryList == null || factorCategoryList.size() < MIN_CATEGORIES) {
-    	            isComplete = false;
-    	            break;
-    	        }
-    	    }
-    	}
-    	if (isComplete)
-    		changeState(WizardStepPanelState.COMPLETE);
-    	else
-    		changeState(WizardStepPanelState.INCOMPLETE);
-    }
-    
-    public void reset() 
-    {
-    	predictorList.clear();
-    	categoryList.clear();
-    	checkComplete();
+            for(BetweenParticipantFactor factor: factorList) {
+                List<Category> factorCategoryList = factor.getCategoryList();
+                if (factorCategoryList == null || factorCategoryList.size() < MIN_CATEGORIES) {
+                    isComplete = false;
+                    break;
+                }
+            }
+        }
+        if (isComplete)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
     }
 
     /**
-     * Resize the beta matrix when the design matrix dimensions change
+     * Clear the lists
+     */
+    public void reset() 
+    {
+        predictorList.clear();
+        categoryList.clear();
+        checkComplete();
+    }
+
+    /**
+     * Respond to context change events. At present no action needed
      */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e)
     {
-    	// no action needed
+        // no action needed
     }
-    
+
     /**
      * Load the between participant factor information from the context
      */
     @Override
     public void onWizardContextLoad()
     {
-    	loadFromContext();
-        changed = false; // reset to false so we don't reset any hypothesis or mean info.
+        loadFromContext();
     }
 
+    /**
+     * Load the predictors when
+     */
     private void loadFromContext()
     {
         reset();
@@ -354,5 +413,19 @@ public class FixedPredictorsPanel extends WizardStepPanel
         }
         checkComplete();
     }
-	
+
+    /**
+     * Utility function to see if the listbox contains a value
+     * @param lb
+     * @param value
+     * @returns true if value appears in the listbox
+     */
+    private boolean inList(ListBox lb, String value) {
+        for(int i = 0; i < lb.getItemCount(); i++) {
+            if (value != null && value.equals(lb.getItemText(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
