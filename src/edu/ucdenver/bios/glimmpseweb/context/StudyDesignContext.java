@@ -345,7 +345,7 @@ public class StudyDesignContext extends WizardContext
             double alpha, int index) {
         List<TypeIError> alphaList = studyDesign.getAlphaList();
         if (alphaList != null) {
-            if (index >=0 && index < alphaList.size()-1 &&
+            if (index >=0 && index < alphaList.size() &&
                     alphaList.get(index).getAlphaValue() == alpha) {
                 alphaList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -379,7 +379,7 @@ public class StudyDesignContext extends WizardContext
     public void deleteBetaScale(WizardStepPanel panel, double betaScale, int index) {
         List<BetaScale> betaScaleList = studyDesign.getBetaScaleList();
         if (betaScaleList != null) {
-            if (index >=0 && index < betaScaleList.size()-1 &&
+            if (index >=0 && index < betaScaleList.size() &&
                     betaScaleList.get(index).getValue() == betaScale) {
                 betaScaleList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -413,7 +413,7 @@ public class StudyDesignContext extends WizardContext
     public void deleteSigmaScale(WizardStepPanel panel, double sigmaScale, int index) {
         List<SigmaScale> sigmaScaleList = studyDesign.getSigmaScaleList();
         if (sigmaScaleList != null) {
-            if (index >=0 && index < sigmaScaleList.size()-1 &&
+            if (index >=0 && index < sigmaScaleList.size() &&
                     sigmaScaleList.get(index).getValue() == sigmaScale) {
                 sigmaScaleList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -447,7 +447,7 @@ public class StudyDesignContext extends WizardContext
     public void deleteNominalPower(WizardStepPanel panel, double power, int index) {
         List<NominalPower> nominalPowerList = studyDesign.getNominalPowerList();
         if (nominalPowerList != null) {
-            if (index >=0 && index < nominalPowerList.size()-1 &&
+            if (index >=0 && index < nominalPowerList.size() &&
                     nominalPowerList.get(index).getValue() == power) {
                 nominalPowerList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -482,7 +482,7 @@ public class StudyDesignContext extends WizardContext
             PowerMethodEnum powerMethod, int index) {
         List<PowerMethod> powerMethodList = studyDesign.getPowerMethodList();
         if (powerMethodList != null) {
-            if (index >=0 && index < powerMethodList.size()-1 &&
+            if (index >=0 && index < powerMethodList.size() &&
                     powerMethodList.get(index).getPowerMethodEnum() == powerMethod) {
                 powerMethodList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -516,7 +516,7 @@ public class StudyDesignContext extends WizardContext
     public void deleteQuantile(WizardStepPanel panel, double quantile, int index) {
         List<Quantile> quantileList = studyDesign.getQuantileList();
         if (quantileList != null) {
-            if (index >=0 && index < quantileList.size()-1 &&
+            if (index >=0 && index < quantileList.size() &&
                     quantileList.get(index).getValue() == quantile) {
                 quantileList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -550,7 +550,7 @@ public class StudyDesignContext extends WizardContext
     public void deletePerGroupSampleSize(WizardStepPanel panel, int sampleSize, int index) {
         List<SampleSize> sampleSizeList = studyDesign.getSampleSizeList();
         if (sampleSizeList != null) {
-            if (index >=0 && index < sampleSizeList.size()-1 &&
+            if (index >=0 && index < sampleSizeList.size() &&
                     sampleSizeList.get(index).getValue() == sampleSize) {
                 sampleSizeList.remove(index);
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -1165,7 +1165,7 @@ public class StudyDesignContext extends WizardContext
         List<RelativeGroupSize> relativeGroupSizeList = 
                 studyDesign.getRelativeGroupSizeList();
         if (relativeGroupSizeList != null && 
-                index >= 0 && index < relativeGroupSizeList.size()-1) {
+                index >= 0 && index < relativeGroupSizeList.size()) {
             RelativeGroupSize relativeGroupSize = relativeGroupSizeList.get(index);
             relativeGroupSize.setValue(value);
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -1205,7 +1205,7 @@ public class StudyDesignContext extends WizardContext
     public void deleteResponseVariable(WizardStepPanel panel, String variable, int index) {
         List<ResponseNode> responseList = studyDesign.getResponseList();
         if (responseList != null) {
-            if (index >=0 && index < responseList.size()-1 &&
+            if (index >=0 && index < responseList.size() &&
                     responseList.get(index).getName().equals(variable)) {
                 responseList.remove(index);
                 // update the hypothesis
