@@ -479,14 +479,17 @@ public class StudyDesignContext extends WizardContext
      * @param index the index of the value in the list
      */
     public void deletePowerMethod(WizardStepPanel panel, 
-            PowerMethodEnum powerMethod, int index) {
+            PowerMethodEnum powerMethod) {
         List<PowerMethod> powerMethodList = studyDesign.getPowerMethodList();
         if (powerMethodList != null) {
-            if (index >=0 && index < powerMethodList.size() &&
-                    powerMethodList.get(index).getPowerMethodEnum() == powerMethod) {
-                powerMethodList.remove(index);
-                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
-                        StudyDesignChangeType.POWER_METHOD_LIST));
+            for(int i = 0; i < powerMethodList.size(); i++) {
+                PowerMethod currentMethod = powerMethodList.get(i);
+                if (currentMethod.getPowerMethodEnum() == powerMethod) {
+                    powerMethodList.remove(i);
+                    notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                            StudyDesignChangeType.POWER_METHOD_LIST));
+                    break;
+                }
             }
         }
     }
