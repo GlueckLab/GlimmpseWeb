@@ -231,7 +231,9 @@ implements ListValidator
      */
     private void loadPowerMethodListFromContext()
     {
-        reset();
+        unconditionalPowerCheckBox.setValue(false);
+        quantilePowerCheckBox.setValue(false);
+        quantileListPanel.setVisible(false);
         List<PowerMethod> methodList = studyDesignContext.getStudyDesign().getPowerMethodList();
         if (methodList != null) {
             for(PowerMethod method: methodList)
@@ -243,6 +245,7 @@ implements ListValidator
                     break;
                 case QUANTILE:
                     quantilePowerCheckBox.setValue(true);
+                    quantileListPanel.setVisible(true);
                     break;
                 }
             }
@@ -269,6 +272,7 @@ implements ListValidator
      */
     public void loadFromContext()
     {
+        reset();
         hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
         loadPowerMethodListFromContext();
         loadQuantileListFromContext();
