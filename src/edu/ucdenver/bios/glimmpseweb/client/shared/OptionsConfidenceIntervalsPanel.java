@@ -114,9 +114,9 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
             public void onClick(ClickEvent event)
             {
                 CheckBox cb = (CheckBox) event.getSource();
-                boolean enabled = cb.getValue();
+                boolean enabled = !cb.getValue();
                 showConfidenceIntervalOptions(enabled);
-                if (cb.getValue()) {
+                if (enabled) {
                     addConfidenceIntervalDescription();
                 } else {
                     removeConfidenceIntervalDescription();
@@ -404,6 +404,7 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
         ConfidenceIntervalDescription description = 
                 studyDesignContext.getStudyDesign().getConfidenceIntervalDescriptions();
         if (description != null) {
+            noCICheckbox.setValue(false);
             showConfidenceIntervalOptions(true);
             if (description.isBetaFixed()) {
                 sigmaCIRadioButton.setValue(true);
