@@ -462,6 +462,12 @@ body {
 	font-size: 14pt;
 }
 
+.wizardStepSubeader {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
 .wizardStepDescription {
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin: 5px 5px;
@@ -916,5 +922,18 @@ body {
 	margin: 10px;
 }
 
+.wizardStepDeckPanelBar {
+	background: #e4eaef;
+	width: 600px;
+	border: 1px solid #999;
+	border-collapse: collapse;
+	padding: 10px;
+}
 
+.wizardStepDeckPanelContents {
+	border: 1px solid #999;
+	border-collapse: collapse;
+	width: 600px;
+	padding: 10px;
+}
 	
