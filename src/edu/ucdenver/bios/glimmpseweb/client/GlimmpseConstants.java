@@ -38,6 +38,7 @@ public interface GlimmpseConstants extends Constants
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
     public static final String STYLE_WIZARD_STEP_HEADER = "wizardStepHeader";
+    public static final String STYLE_WIZARD_STEP_SUBHEADER = "wizardStepSubheader";
     public static final String STYLE_WIZARD_STEP_DESCRIPTION = "wizardStepDescription";
     public static final String STYLE_WIZARD_STEP_SUBPANEL = "subpanel";
     public static final String STYLE_WIZARD_STEP_BUTTON = "wizardStepButton";
@@ -66,6 +67,8 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TAB_HEADER = "wizardStepTabPanelHeader";
     public static final String STYLE_WIZARD_STEP_TAB = "wizardStepTabPanelTab";
     public static final String STYLE_WIZARD_STEP_TAB_CONTENT = "wizardStepTabPanelContent";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_BAR = "wizardStepDeckPanelBar";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_CONTENTS = "wizardStepDeckPanelContents";
     // Begin : Added for Power Curve Screen
     public static final String STYLE_WIZARD_STEP_LIST_BOX = "wizardStepListBox";
     public static final String STYLE_WIZARD_STEP_CHECK_BOX = "wizardStepCheckBox";    
