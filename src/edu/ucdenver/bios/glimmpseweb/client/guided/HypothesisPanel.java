@@ -175,11 +175,14 @@ implements ClickHandler {
         deckPanel.add(trendHypothesisPanel);
         deckPanel.add(interactionHypothesisPanel);
 
+        VerticalPanel contentPanel = new VerticalPanel();
+        contentPanel.add(typeContainer);
+        contentPanel.add(deckPanel);
+        
         // layout panel
         panel.add(title);
         panel.add(description);
-        panel.add(typeContainer);
-        panel.add(deckPanel);
+        panel.add(contentPanel);
 
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
@@ -187,8 +190,8 @@ implements ClickHandler {
                 GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        typeContainer.setStyleName(GlimmpseConstants.STYLE_BLOCK_WITH_SPACING);
-        deckPanel.setVisible(false);
+        typeContainer.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DECK_PANEL_BAR);
+        deckPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DECK_PANEL_CONTENTS);
         
         // initialize
         updateHypothesisOptions();
