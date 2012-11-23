@@ -46,10 +46,6 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
  */
 public class InteractionVariablePanel extends Composite
 {   
-    // parent panel which listens for click events in this subpanel
-    protected ClickHandler variableHandler = null;
-    protected ClickHandler trendHandler = null;
-
     // label information
     protected String label = null;
 
@@ -145,7 +141,7 @@ public class InteractionVariablePanel extends Composite
      * @param handler
      */
     public void addVariableClickHandler(ClickHandler handler) {
-        this.variableHandler = handler;
+        checkBox.addClickHandler(handler);
     }
 
     /**
@@ -153,7 +149,7 @@ public class InteractionVariablePanel extends Composite
      * @param handler
      */
     public void addTrendClickHandler(ClickHandler handler) {
-        this.trendHandler = handler;
+        editTrendPanel.addClickHandler(handler);
     }
 
     /**
@@ -171,6 +167,11 @@ public class InteractionVariablePanel extends Composite
      */
     private void showTrendInformation(boolean show) {
         selectedTrendPanel.setVisible(show);
+        if (!show) {
+            // box has been unchecked, so reset the trend panel
+            editTrendPanel.selectTrend(HypothesisTrendTypeEnum.NONE);
+            selectedTrendHTML.setText(GlimmpseWeb.constants.editTrendNoTrend());
+        }
     }
 
     /**

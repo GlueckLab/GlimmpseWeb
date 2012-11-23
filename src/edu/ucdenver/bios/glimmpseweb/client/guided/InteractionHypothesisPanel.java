@@ -235,8 +235,7 @@ public class InteractionHypothesisPanel extends Composite
                 hypothesis.getBetweenParticipantFactorMapList();
             if (btwnFactorList != null && btwnFactorList.size() > 0) {
                 for(HypothesisBetweenParticipantMapping factorMapping: btwnFactorList) {
-                    BetweenParticipantFactor factor = 
-                        btwnFactorList.get(0).getBetweenParticipantFactor();
+                    BetweenParticipantFactor factor = factorMapping.getBetweenParticipantFactor();
                     if (factor != null) {
                         selectCheckBoxByFactor(factor.getPredictorName(), 
                                 factorMapping.getType(),
@@ -249,8 +248,7 @@ public class InteractionHypothesisPanel extends Composite
                 hypothesis.getRepeatedMeasuresMapTree();
             if (withinFactorList != null && withinFactorList.size() > 0) {
                 for(HypothesisRepeatedMeasuresMapping factorMapping: withinFactorList) {
-                    RepeatedMeasuresNode factor = 
-                        withinFactorList.get(0).getRepeatedMeasuresNode();
+                    RepeatedMeasuresNode factor = factorMapping.getRepeatedMeasuresNode();
                     if (factor != null) {
                         String factorName = factor.getDimension();
                         selectCheckBoxByFactor(factorName,
