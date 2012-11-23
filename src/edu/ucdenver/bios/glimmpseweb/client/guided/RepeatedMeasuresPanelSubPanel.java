@@ -213,6 +213,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 catch (Exception e)
                 {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidNumRepeatedMeasures());
+                    showSpacingBar(false);
                     tb.setText("");
                 }
                 notifyParent();
@@ -236,6 +237,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             panel.addStyleDependentName(dependentStyleName);
         }
         spacingResetButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         /*Initializing Widget*/
         initWidget(panel);
 
@@ -311,6 +313,10 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     private void showSpacingBar(boolean show)
     {
         spacingGrid.setVisible(show);
+        if (!show) {
+            // when we hide the spacing bar, clear it
+            spacingFlexTable.removeAllRows();
+        }
     }
 
     /**
