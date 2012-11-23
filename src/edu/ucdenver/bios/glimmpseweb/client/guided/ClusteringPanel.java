@@ -88,6 +88,7 @@ public class ClusteringPanel extends WizardStepPanel {
         new Button(GlimmpseWeb.constants.clusteringPanelRemoveClusteringButton(),
             new ClickHandler() {
         public void onClick(ClickEvent event) {
+            clearClusteringFromStudyDesign();
             reset();
         }
     });
@@ -288,6 +289,13 @@ public class ClusteringPanel extends WizardStepPanel {
         updateButtons();
     }
 
+    /**
+     * Completely clear clustering information from the study design
+     */
+    private void clearClusteringFromStudyDesign() {
+        studyDesignContext.clearClustering(this);
+    }
+    
     /**
      * This function is called when a study design is uploaded
      */

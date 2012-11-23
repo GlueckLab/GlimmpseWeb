@@ -89,6 +89,7 @@ public class RepeatedMeasuresPanel extends WizardStepPanel {
         new Button(GlimmpseWeb.constants.repeatedMeasuresPanelRemoveRMButton(), 
             new ClickHandler(){
         public void onClick(ClickEvent event) {
+            clearRepeatedMeasuresFromStudyDesign();
             reset();
         }
     });
@@ -276,6 +277,13 @@ public class RepeatedMeasuresPanel extends WizardStepPanel {
                     subpanel.getSpacingList());
             checkComplete();
         }
+    }
+    
+    /**
+     * Completely clear repeated measures information from the study design
+     */
+    private void clearRepeatedMeasuresFromStudyDesign() {
+        studyDesignContext.clearRepeatedMeasures(this);
     }
     
     /**

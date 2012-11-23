@@ -41,13 +41,11 @@ import edu.ucdenver.bios.webservice.common.domain.Category;
 import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMapping;
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
-import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 
-public class TrendHypothesisPanel extends Composite
-implements HypothesisBuilder {
+public class TrendHypothesisPanel extends Composite {
     // study design context
     protected StudyDesignContext studyDesignContext = null;
     // parent panel
@@ -126,9 +124,10 @@ implements HypothesisBuilder {
         
         //Style Sheets
         text.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        selectTypeOfTrend.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+        betweenParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBHEADER);
+        withinParticipantFactors.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_SUBHEADER);
+        selectTypeOfTrend.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        verticalPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DECK_PANEL_SUBPANEL);
 
         // layout the panel
         verticalPanel.add(text);
@@ -166,7 +165,7 @@ implements HypothesisBuilder {
                             BetweenParticipantRadioButton button = 
                                     (BetweenParticipantRadioButton) event.getSource();
                             selectBetweenParticipantFactor(button.factor);
-                            parent.onClick(event);
+                            parent.checkComplete();
                         }
                     });
                     betweenParticipantFactorsFlexTable.setWidget(
@@ -200,10 +199,9 @@ implements HypothesisBuilder {
                         RepeatedMeasuresRadioButton button = 
                             (RepeatedMeasuresRadioButton) event.getSource();
                         selectRepeatedMeasuresNode(button.factor);
-                        parent.onClick(event);
+                        parent.checkComplete();
                     }
                 });
-                button.addClickHandler(parent);
                 withinParticipantFactorsFlexTable.setWidget(
                         row, 0, button);
                 row++;
@@ -219,6 +217,8 @@ implements HypothesisBuilder {
      * loadBetweenParticipantFactors and loadRepeatedMeasures
      */
     public void loadHypothesis(Hypothesis hypothesis) {
+        selectedBetweenParticipantFactor = null;
+        selectedRepeatedMeasuresNode = null;
         // reset the trend panel
         editTrendPanel.selectTrend(HypothesisTrendTypeEnum.NONE);
         // load the hypothesis info
@@ -232,8 +232,10 @@ implements HypothesisBuilder {
                     btwnFactorList.get(0).getBetweenParticipantFactor();
                 if (factor != null) {
                     String factorName = factor.getPredictorName();
-                    selectRadioButtonByFactor(factorName,
-                            betweenParticipantFactorsFlexTable);
+                    if (selectRadioButtonByFactor(factorName,
+                            betweenParticipantFactorsFlexTable)) {
+                        selectedBetweenParticipantFactor = factor;
+                    }
                 }
                 editTrendPanel.selectTrend(btwnFactorList.get(0).getType());
                 
@@ -246,8 +248,10 @@ implements HypothesisBuilder {
                         withinFactorList.get(0).getRepeatedMeasuresNode();
                     if (factor != null) {
                         String factorName = factor.getDimension();
-                        selectRadioButtonByFactor(factorName,
-                                withinParticipantFactorsFlexTable);  
+                        if (selectRadioButtonByFactor(factorName,
+                                withinParticipantFactorsFlexTable)) {
+                            selectedRepeatedMeasuresNode = factor;
+                        }
                     }
                     editTrendPanel.selectTrend(withinFactorList.get(0).getType());
                 }
@@ -261,46 +265,16 @@ implements HypothesisBuilder {
      * @param factorName name of the factor
      * @param table the between or within participant factor table
      */
-    private void selectRadioButtonByFactor(String factorName, FlexTable table) {
+    private boolean selectRadioButtonByFactor(String factorName, FlexTable table) {
         for(int row = 0; row < table.getRowCount(); row++) {
             RadioButton rb = 
                 (RadioButton) table.getWidget(row, RADIO_BUTTON_COLUMN);
             if (rb.getText().equals(factorName)) {
                 rb.setValue(true);
-                break;
+                return true;
             }
         }
-    }
-
-    /**
-     * Create a hypothesis object from the panel
-     */
-    @Override
-    public Hypothesis buildHypothesis() {
-        Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.TREND);
-
-        if (selectedRepeatedMeasuresNode != null) {
-            HypothesisRepeatedMeasuresMapping mappingNode =
-                new HypothesisRepeatedMeasuresMapping();
-            mappingNode.setRepeatedMeasuresNode(selectedRepeatedMeasuresNode);
-            mappingNode.setType(editTrendPanel.getSelectedTrend());
-            List<HypothesisRepeatedMeasuresMapping> mappingList =
-                new ArrayList<HypothesisRepeatedMeasuresMapping>();
-            mappingList.add(mappingNode);
-            hypothesis.setRepeatedMeasuresMapTree(mappingList);
-            
-        } else if (selectedBetweenParticipantFactor != null) {
-            HypothesisBetweenParticipantMapping mappingParticipant =
-                new HypothesisBetweenParticipantMapping();
-            mappingParticipant.setBetweenParticipantFactor(selectedBetweenParticipantFactor);
-            mappingParticipant.setType(editTrendPanel.getSelectedTrend());
-            List<HypothesisBetweenParticipantMapping> mappingList = 
-                new ArrayList<HypothesisBetweenParticipantMapping>();
-            mappingList.add(mappingParticipant);
-            hypothesis.setBetweenParticipantFactorMapList(mappingList);
-        } 
-        return hypothesis;
+        return false;
     }
 
     private void updateTrend() {
@@ -374,15 +348,30 @@ implements HypothesisBuilder {
     /**
      * Returns true if the user has selected sufficient information
      */
-    @Override
     public boolean checkComplete() {
         return ((this.selectedBetweenParticipantFactor != null || 
                 this.selectedRepeatedMeasuresNode != null) &&
                 editTrendPanel.getSelectedTrend() != null);
     }
-
-    @Override
-    public NamedMatrix buildThetaNull() {
-        return null;
+    
+    /**
+     * Forces panel to update the studyDesign object with current selections.
+     * Called by parent panel when the user selects the interaction hypothesis.
+     */
+    public void syncStudyDesign() {
+        studyDesignContext.clearHypothesisFactors(parent);
+        if (selectedBetweenParticipantFactor != null) {
+            studyDesignContext.addHypothesisBetweenParticipantFactor(
+                    parent, selectedBetweenParticipantFactor);
+            updateBetweenParticipantFactorTrend(
+                    selectedBetweenParticipantFactor,
+                    editTrendPanel.getSelectedTrend());
+        } else if (selectedRepeatedMeasuresNode != null) {
+            studyDesignContext.addHypothesisRepeatedMeasuresFactor(
+                    parent, selectedRepeatedMeasuresNode);
+            updateRepeatedMeasuresNodeTrend(
+                    selectedRepeatedMeasuresNode,
+                    editTrendPanel.getSelectedTrend());
+        }
     }
 }

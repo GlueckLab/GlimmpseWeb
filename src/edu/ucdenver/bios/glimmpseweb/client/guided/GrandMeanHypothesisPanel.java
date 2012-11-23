@@ -47,8 +47,7 @@ import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
  * @author Sarah Kreidler
  *
  */
-public class GrandMeanHypothesisPanel extends Composite  
-implements HypothesisBuilder {
+public class GrandMeanHypothesisPanel extends Composite {
     
     // column indices for the flex table
     private static final int LABEL_COLUMN = 0;
@@ -82,7 +81,8 @@ implements HypothesisBuilder {
         text.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
-        
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DECK_PANEL_SUBPANEL);
+
         //Add individual widgets to vertical panel
         panel.add(text);
         panel.add(comparisonMeanTable);
@@ -94,7 +94,6 @@ implements HypothesisBuilder {
     /**
      * Returns true if the user has selected sufficient information
      */
-    @Override
     public boolean checkComplete() {
         for(int i = 0; i < comparisonMeanTable.getRowCount(); i++) {
             TextBox tb = (TextBox) comparisonMeanTable.getWidget(i, TEXTBOX_COLUMN);
@@ -114,7 +113,7 @@ implements HypothesisBuilder {
             int row = 0;
             for(ResponseNode response: responseList) {
                 comparisonMeanTable.setWidget(row, LABEL_COLUMN, new HTML(response.getName()));
-                comparisonMeanTable.setWidget(row, TEXTBOX_COLUMN, createTextBox(row, 1));
+                comparisonMeanTable.setWidget(row, TEXTBOX_COLUMN, createTextBox(row, 0));
                 row++;
             }
         }
@@ -162,45 +161,30 @@ implements HypothesisBuilder {
                 catch (Exception e)
                 {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidMean());
-                    tb.setText("");
+                    tb.setText("0");
                 }
             }
         });
-//        tb.addChangeHandler(parent);
         return tb;
-    }
-    
-    /**
-     * Create a grand mean hypothesis object
-     */
-    @Override
-    public Hypothesis buildHypothesis() {
-        Hypothesis hypothesis = new Hypothesis();
-        hypothesis.setType(HypothesisTypeEnum.GRAND_MEAN);
-        return hypothesis;
     }
 
     /**
-     * Create a theta null matrix
+     * Forces panel to update the studyDesign object with current selections.
+     * Called by parent panel when the user selects the grand mean hypothesis.
      */
-    @Override
-    public NamedMatrix buildThetaNull() {
-        NamedMatrix thetaNull = new NamedMatrix();
-        thetaNull.setName(GlimmpseConstants.MATRIX_THETA);
-        thetaNull.setRows(1);
-        thetaNull.setColumns(comparisonMeanTable.getRowCount());
-        double[][] data = new double[1][comparisonMeanTable.getRowCount()];
-        for(int row = 0; row < comparisonMeanTable.getRowCount(); row++) {
-            TextBox tb = (TextBox) comparisonMeanTable.getWidget(row, TEXTBOX_COLUMN);
-            String value = tb.getValue();
-            if (value != null && !value.isEmpty()) {
-                data[0][row] = Double.parseDouble(value);
-            } else {
-                data[0][row] = Double.NaN;
+    public void syncStudyDesign() {
+        for(int i = 0; i < comparisonMeanTable.getRowCount(); i++) {
+            RowColumnTextBox tb = 
+                (RowColumnTextBox) comparisonMeanTable.getWidget(i, TEXTBOX_COLUMN);
+            try
+            {
+                double numericValue = Double.parseDouble(tb.getValue());
+                studyDesignContext.updateHypothesisThetaNullValue(parent, 
+                        tb.row, tb.column, numericValue);
+            }
+            catch (Exception e) { 
+                // no action
             }
         }
-        thetaNull.setDataFromArray(data);
-        return thetaNull;
-        
     }
 }

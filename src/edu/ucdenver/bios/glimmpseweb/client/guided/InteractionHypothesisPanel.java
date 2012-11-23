@@ -152,9 +152,10 @@ public class InteractionHypothesisPanel extends Composite
         text.setStyleName(
                 GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         betweenParticipantFactors.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+                GlimmpseConstants.STYLE_WIZARD_STEP_SUBHEADER);
         withinParticipantFactors.setStyleName(
-                GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
+                GlimmpseConstants.STYLE_WIZARD_STEP_SUBHEADER);
+        verticalPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DECK_PANEL_SUBPANEL);
 
         verticalPanel.add(text);
         verticalPanel.add(betweenParticipantFactors);
@@ -350,4 +351,35 @@ public class InteractionHypothesisPanel extends Composite
         parent.checkComplete();
     }
 
+    
+    /**
+     * Forces panel to update the studyDesign object with current selections.
+     * Called by parent panel when the user selects the interaction hypothesis.
+     */
+    public void syncStudyDesign() {
+        studyDesignContext.clearHypothesisFactors(parent);
+        for(int row = 0; row < betweenParticipantFactorsFlexTable.getRowCount(); row++) {
+            BetweenParticipantVariablePanel panel = 
+                (BetweenParticipantVariablePanel) 
+                betweenParticipantFactorsFlexTable.getWidget(row, 0);
+            if (panel.isChecked()) {
+                studyDesignContext.addHypothesisBetweenParticipantFactor(parent, 
+                        panel.factor);
+                studyDesignContext.updateHypothesisBetweenParticipantFactorTrend(parent, 
+                        panel.factor, panel.getSelectedTrend());
+            }
+        }
+        for(int row = 0; row < withinParticipantFactorsFlexTable.getRowCount(); row++) {
+            RepeatedMeasuresVariablePanel panel = 
+                (RepeatedMeasuresVariablePanel) 
+                withinParticipantFactorsFlexTable.getWidget(row, 0);
+            if (panel.isChecked()) {
+                studyDesignContext.addHypothesisRepeatedMeasuresFactor(parent, 
+                        panel.factor);
+                studyDesignContext.updateHypothesisRepeatedMeasuresFactorTrend(parent, 
+                        panel.factor, panel.getSelectedTrend());
+            }
+        }
+    }
+    
 }
