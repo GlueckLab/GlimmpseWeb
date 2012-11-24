@@ -65,11 +65,12 @@ public class FactorTable {
             }
             
             // now build the columns
-            int numRepetitions = 1;
+            int numRepetitions = totalPermutations;
             for(BetweenParticipantFactor factor: factorList) {
                 ArrayList<String> column = new ArrayList<String>(totalPermutations);
                 List<Category> categoryList = factor.getCategoryList();
                 if (categoryList != null && categoryList.size() >= 2) {
+                    numRepetitions /= categoryList.size();
                     for(int perm = 0; perm < totalPermutations; ) {
                         for(Category category: categoryList) {
                             String value = category.getCategory();
@@ -79,7 +80,6 @@ public class FactorTable {
                             }
                         }
                     }
-                    numRepetitions *= categoryList.size();
                 }
                 columns.add(column);
             }
