@@ -184,16 +184,22 @@ public class StudyDesignContext extends WizardContext
      * predictors or repeated measures change
      * @param changeType
      */
-    private void updateMeans(StudyDesignChangeType changeType) {
-        NamedMatrix beta = getMatrixByName(GlimmpseConstants.MATRIX_BETA);
-
+    private void updateMeans() {
         // get new dimensions
         int newRows = participantGroups.getNumberOfRows();
-        if (newRows == 0) {
-            // if no groups, then assume a one sample design
+        List<BetweenParticipantFactor> factorList = 
+                studyDesign.getBetweenParticipantFactorList();
+        if (newRows == 0 && (factorList == null || factorList.size() == 0)) {
+            // if no groups and no partially specified factors, 
+            // then assume a one sample design
             newRows = 1;
         }
-        int newCols = 1;
+        // get the total number of columns
+        int newCols = 0;
+        List<ResponseNode> responsesList = studyDesign.getResponseList();
+        if (responsesList != null) {
+            newCols = responsesList.size();
+        }
         List<RepeatedMeasuresNode> rmList = studyDesign.getRepeatedMeasuresTree();
         if (rmList != null) {
             for(RepeatedMeasuresNode rmNode: rmList) {
@@ -203,51 +209,46 @@ public class StudyDesignContext extends WizardContext
                 }
             }
         }
-        List<ResponseNode> responsesList = studyDesign.getResponseList();
-        if (responsesList != null) {
-            newCols *= responsesList.size();
-        }
-
-        boolean allocateNewBetaMatrix = true;
-        switch (changeType) {
-        case BETWEEN_PARTICIPANT_FACTORS:
-            if (beta != null && beta.getRows() == newRows) {
-                allocateNewBetaMatrix = false;
-            }
-            break;
-        case RESPONSES_LIST:
-        case REPEATED_MEASURES:
-            if (beta != null && beta.getColumns() == newCols) {
-                allocateNewBetaMatrix = false;
-            }
-            break;
-        case COVARIATE:
-            allocateNewBetaMatrix = false;
-            if (!studyDesign.isGaussianCovariate()) {
-                removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
-            } else {
-                NamedMatrix betaRandom = new NamedMatrix();
-                double[][] betaRandomData = new double[1][newCols];
-                betaRandom.setRows(1);
-                betaRandom.setColumns(newCols);
-                betaRandom.setDataFromArray(betaRandomData);
-                betaRandom.setName(GlimmpseConstants.MATRIX_BETA_RANDOM);
-                studyDesign.setNamedMatrix(betaRandom);
-            }
-            break;
-        }
-
-        // create a new beta matrix with appropriate dimensions
-        if (allocateNewBetaMatrix && newRows > 0 && newCols > 0) {
+        
+        if (newRows > 0 && newCols > 0) {
+            /*
+             * If we have valid dimensions for a beta matrix, update the 
+             * stored beta matrix with the new dimensions
+             */
+            NamedMatrix beta = getMatrixByName(GlimmpseConstants.MATRIX_BETA);
             if (beta == null) {
                 beta = new NamedMatrix();
                 beta.setName(GlimmpseConstants.MATRIX_BETA);
                 studyDesign.setNamedMatrix(beta);
             }
-            double[][] betaData = new double[newRows][newCols];
-            beta.setRows(newRows);
-            beta.setColumns(newCols);
-            beta.setDataFromArray(betaData);
+            if (newRows != beta.getRows() || newCols != beta.getColumns()) {
+                beta.setRows(newRows);
+                beta.setColumns(newCols);
+                double[][] data = new double[newRows][newCols];
+                beta.setDataFromArray(data);
+            }
+            /*
+             * For designs with a Gaussian covariate, we also need to allocate the random portion of
+             * the beta matrix
+             */
+            if (studyDesign.isGaussianCovariate()) {
+                NamedMatrix betaRandom = getMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
+                if (betaRandom == null) {
+                    betaRandom = new NamedMatrix();
+                    betaRandom.setRows(1);
+                    betaRandom.setName(GlimmpseConstants.MATRIX_BETA_RANDOM);
+                    studyDesign.setNamedMatrix(betaRandom);
+                }
+                if (newCols != betaRandom.getColumns()) {
+                    double[][] data = new double[1][newCols];
+                    for(int c = 0; c < newCols; c++) { data[0][c] = 1; }
+                    betaRandom.setDataFromArray(data);
+                }
+            }
+        } else {
+            // clear the beta matrices
+            removeMatrixByName(GlimmpseConstants.MATRIX_BETA);
+            removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
         }
     }
 
@@ -684,7 +685,7 @@ public class StudyDesignContext extends WizardContext
         // update the variability
         updateCovariance(StudyDesignChangeType.COVARIATE);
         // update the random portion of the beta matrix
-        updateMeans(StudyDesignChangeType.COVARIATE);
+        updateMeans();
 
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.COVARIATE));
@@ -757,6 +758,52 @@ public class StudyDesignContext extends WizardContext
                 StudyDesignChangeType.WITHIN_CONTRAST_MATRIX));
     }
 
+    /**
+     * Returns true if the beta matrix is valid
+     * @return
+     */
+    public boolean betaIsValid() {
+        NamedMatrix beta = studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_BETA);
+        if (beta == null || beta.getRows() <= 0 ||
+                beta.getColumns() <= 0 || beta.getData() != null ||
+                beta.getData().getData() != null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    /**
+     * Get the value in the beta matrix at the specified row and column
+     * @param row row 
+     * @param column column
+     */
+    public double getBetaValue(int row, int column) {
+        NamedMatrix beta = studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_BETA);
+        if (beta != null && row >=0 && column >= 0 &&
+                row < beta.getRows() && column < beta.getColumns() &&
+                beta.getData() != null && beta.getData().getData() != null) {
+            return beta.getData().getData()[row][column];
+        } else {
+            return Double.NaN;
+        }
+    }
+    
+    /**
+     * Set the value in the beta matrix at the specified row and column
+     * @param panel
+     * @param row
+     * @param column
+     * @param value
+     */
+    public void setBetaValue(WizardStepPanel panel, int row, int column, double value) {
+        NamedMatrix beta = studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_BETA);
+        if (beta != null && row >=0 && column >= 0 &&
+                row < beta.getRows() && column < beta.getColumns() &&
+                beta.getData() != null && beta.getData().getData() != null) {
+            beta.getData().getData()[row][column] = value;
+        } 
+    }
+    
     /**
      * Store the beta matrix to the StudyDesign.
      * @param panel wizard panel initiating the change
@@ -944,7 +991,7 @@ public class StudyDesignContext extends WizardContext
         }
         rmTree.add(rmNode);
         // update the beta matrix
-        updateMeans(StudyDesignChangeType.REPEATED_MEASURES);
+        updateMeans();
         // update the variability
         updateCovariance(StudyDesignChangeType.REPEATED_MEASURES);
 
@@ -970,7 +1017,7 @@ public class StudyDesignContext extends WizardContext
                     clearHypothesis();
                 }
                 // update the beta matrix
-                updateMeans(StudyDesignChangeType.REPEATED_MEASURES);
+                updateMeans();
                 // update the variability
                 updateCovariance(StudyDesignChangeType.REPEATED_MEASURES);
 
@@ -995,7 +1042,7 @@ public class StudyDesignContext extends WizardContext
                 clearHypothesis();
             }
             // update the means
-            
+            updateMeans();
             // update the covariance
             
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -1033,8 +1080,9 @@ public class StudyDesignContext extends WizardContext
                     clearHypothesis();
                 }
                 // TODO: update the covariance info
-                // TODO: update the beta matrix
-
+                
+                // update the beta matrix
+                updateMeans();
                 // notify the other screens
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                         StudyDesignChangeType.REPEATED_MEASURES));
@@ -1066,7 +1114,7 @@ public class StudyDesignContext extends WizardContext
         // update the relative group sizes
         updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
         // update means
-        updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
+        updateMeans();
         // notify the other screens of the change
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -1101,7 +1149,7 @@ public class StudyDesignContext extends WizardContext
                         clearHypothesis();
                     }
                     // update means
-                    updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
+                    updateMeans();
                     // notify other screens of the change
                     notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                             StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -1208,7 +1256,7 @@ public class StudyDesignContext extends WizardContext
             // update the relative group sizes
             updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
             // update the means
-            updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
+            updateMeans();
             // notify other screens of the change
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                     StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -1246,7 +1294,7 @@ public class StudyDesignContext extends WizardContext
                         // update the relative group sizes
                         updateRelativeGroupSizeList(participantGroups.getNumberOfRows());
                         // update the means
-                        updateMeans(StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS);
+                        updateMeans();
                         // notify other screens
                         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                                 StudyDesignChangeType.BETWEEN_PARTICIPANT_FACTORS));
@@ -1318,7 +1366,7 @@ public class StudyDesignContext extends WizardContext
         // update the theta null matrix if we currently have a grand mean hypothesis
         updateThetaNullDimensions();
         // update the means
-        updateMeans(StudyDesignChangeType.RESPONSES_LIST);
+        updateMeans();
         // update the variability
         updateCovariance(StudyDesignChangeType.RESPONSES_LIST);
 
@@ -1341,7 +1389,7 @@ public class StudyDesignContext extends WizardContext
                 // update the theta null matrix if we currently have a grand mean hypothesis
                 updateThetaNullDimensions();
                 // update the means
-                updateMeans(StudyDesignChangeType.RESPONSES_LIST);
+                updateMeans();
                 // update the variability
                 updateCovariance(StudyDesignChangeType.RESPONSES_LIST);
 
