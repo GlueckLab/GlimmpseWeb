@@ -41,8 +41,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.FactorTable;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.Blob2DArray;
-import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
@@ -70,12 +68,7 @@ implements ChangeHandler
             new HTML(GlimmpseWeb.constants.meanDifferenceRepeatedMeasuresInstructions());
     protected FlexTable repeatedMeasuresTable = new FlexTable();
 
-    protected boolean hasCovariate = false;
     protected int totalBetweenFactors = 0;
-    protected int totalBetweenFactorCombinations = 0;
-    protected int totalRepeatedMeasures = 0;
-    protected int totalRepeatedMeasuresCombinations = 0;
-    protected int totalWithinFactorCombinations = 0;
     protected int totalResponseVariables = 0;
 
     protected HTML errorHTML = new HTML();
@@ -138,12 +131,7 @@ implements ChangeHandler
         meansTable.removeAllRows();
         currentColumnOffset = 0;
 
-        hasCovariate = false;
         totalBetweenFactors = 0;
-        totalBetweenFactorCombinations = 0;
-        totalRepeatedMeasures = 0;
-        totalRepeatedMeasuresCombinations = 0;
-        totalWithinFactorCombinations = 0;
         totalResponseVariables = 0;
 
         changeState(WizardStepPanelState.NOT_ALLOWED);
@@ -165,11 +153,9 @@ implements ChangeHandler
             }
         }
         totalBetweenFactors = 0;
-        totalBetweenFactorCombinations = 0;
         // load new between participant factor information
         FactorTable participantGroups = studyDesignContext.getParticipantGroups();
         if (participantGroups != null && participantGroups.getNumberOfRows() > 0) {
-            totalBetweenFactorCombinations = participantGroups.getNumberOfRows();
             // build the labels for the groups
             List<String> columnLabels = participantGroups.getColumnLabels();
             totalBetweenFactors = columnLabels.size();
@@ -202,6 +188,7 @@ implements ChangeHandler
 
             // lastly, fill in the text boxes
             fillTextBoxes();
+            // get the values for the matrix
             updateMatrixView();
         }
         checkComplete();
@@ -215,15 +202,14 @@ implements ChangeHandler
         repeatedMeasuresTable.removeAllRows();
         rmInstructions.setVisible(false);
         repeatedMeasuresTable.setVisible(false);
-        totalRepeatedMeasures = 0;
-        totalRepeatedMeasuresCombinations = 0;
-        totalWithinFactorCombinations = totalResponseVariables;
+        // total responses - product of all repeated measures and response variables
+        int totalResponses = totalResponseVariables;
+
         List<RepeatedMeasuresNode> rmNodeList = 
                 studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
-
         if (rmNodeList != null && rmNodeList.size() > 0) {
             // calculate the total repeated measures combinations
-            totalRepeatedMeasuresCombinations = 0;
+            int totalRepeatedMeasuresCombinations = 0;
             for(RepeatedMeasuresNode rmNode: rmNodeList) {
                 if (rmNode.getDimension() != null &&
                         !rmNode.getDimension().isEmpty() &&
@@ -238,12 +224,10 @@ implements ChangeHandler
             }
             if (totalRepeatedMeasuresCombinations > 0 && 
                     totalResponseVariables > 0) {
-                totalWithinFactorCombinations *= totalRepeatedMeasuresCombinations;
+                totalResponses *= totalRepeatedMeasuresCombinations;
             } else if (totalRepeatedMeasuresCombinations > 0) {
-                totalWithinFactorCombinations = totalRepeatedMeasuresCombinations;
-            } else {
-                totalWithinFactorCombinations = totalResponseVariables;
-            }
+                totalResponses = totalRepeatedMeasuresCombinations;
+            } 
 
             /* create dropdowns displaying possible values for repeated measures.
              *  The string displays the spacing value for the dimension of repeated
@@ -252,37 +236,41 @@ implements ChangeHandler
              */
             if (totalRepeatedMeasuresCombinations > 0) {
                 int row = 0;
-                int offset = (totalWithinFactorCombinations > 0 ?
-                        totalWithinFactorCombinations : 1);
+                int offset = (totalResponses > 0 ? totalResponses : 1);
                 for(RepeatedMeasuresNode rmNode: rmNodeList) {
-                    offset /= rmNode.getNumberOfMeasurements();
-                    // add the label
-                    repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
-                            new HTML(rmNode.getDimension()));
-                    // add the listbox
-                    ListBox lb = new ListBox();
-                    lb.addChangeHandler(new ChangeHandler() {
-                        @Override
-                        public void onChange(ChangeEvent event) {
-                            updateMatrixView();
-                        }                      
-                    });
-                    List<Spacing> spacingList = rmNode.getSpacingList();
-                    if (spacingList != null) {
-                        int index = 0;
-                        for(Spacing spacing: spacingList) {
-                            lb.addItem(Integer.toString(spacing.getValue()), 
-                                    Integer.toString(index*offset));
-                            index++;
+                    if (rmNode.getDimension() != null &&
+                            !rmNode.getDimension().isEmpty() &&
+                            rmNode.getNumberOfMeasurements() != null &&
+                            rmNode.getNumberOfMeasurements() > 1) {
+                        offset /= rmNode.getNumberOfMeasurements();
+                        // add the label
+                        repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
+                                new HTML(rmNode.getDimension()));
+                        // add the listbox
+                        ListBox lb = new ListBox();
+                        lb.addChangeHandler(new ChangeHandler() {
+                            @Override
+                            public void onChange(ChangeEvent event) {
+                                updateMatrixView();
+                            }                      
+                        });
+                        List<Spacing> spacingList = rmNode.getSpacingList();
+                        if (spacingList != null) {
+                            int index = 0;
+                            for(Spacing spacing: spacingList) {
+                                lb.addItem(Integer.toString(spacing.getValue()), 
+                                        Integer.toString(index*offset));
+                                index++;
+                            }
+                        } else {
+                            for(int i = 1; i <= rmNode.getNumberOfMeasurements(); i++) {
+                                lb.addItem(Integer.toString(i), Integer.toString((i-1)*offset));
+                            }
                         }
-                    } else {
-                        for(int i = 1; i <= rmNode.getNumberOfMeasurements(); i++) {
-                            lb.addItem(Integer.toString(i), Integer.toString((i-1)*offset));
-                        }
+                        repeatedMeasuresTable.setWidget(row, LISTBOX_COLUMN, 
+                                lb);
+                        row++;
                     }
-                    repeatedMeasuresTable.setWidget(row, LISTBOX_COLUMN, 
-                            lb);
-                    row++;
                 }
 
             }
@@ -298,8 +286,13 @@ implements ChangeHandler
      * specified, this function creates the text box input widgets
      */
     private void fillTextBoxes() {
-        if (totalBetweenFactors > 0 && totalResponseVariables > 0) {
-            for(int row = 1; row < meansTable.getRowCount(); row++) {
+        if (totalResponseVariables > 0) {
+            int rows = 2;
+            if (totalBetweenFactors > 0) {
+                rows = meansTable.getRowCount();
+            }
+            // fill in 
+            for(int row = 1; row < rows; row++) {
                 meansTable.getRowFormatter().setStyleName(row, 
                         GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
                 for(int col = totalBetweenFactors; col < totalResponseVariables+totalBetweenFactors; col++) {
@@ -311,29 +304,6 @@ implements ChangeHandler
             }
         }
     }
-
-    /**
-     * Load the beta matrix information from the context
-     */
-    //    private void loadMatrixDataFromContext() {
-    //        NamedMatrix betaMatrix = 
-    //            studyDesignContext.getStudyDesign().getNamedMatrix(
-    //                    GlimmpseConstants.MATRIX_BETA);
-    //        if (betaMatrix != null && betaMatrix.getColumns() == totalWithinFactorCombinations &&
-    //                betaMatrix.getRows() == totalBetweenFactorCombinations) {
-    //            Blob2DArray blob = betaMatrix.getData();
-    //            if (blob != null && blob.getData() != null) {
-    //                double[][] betaData = blob.getData();
-    //                for(int row = 0; row < totalBetweenFactorCombinations; row++) {
-    //                    for(int col = 0; col < totalWithinFactorCombinations; col++) {
-    //                        betaFixedData[row][col] = betaData[row][col];
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        updateMatrixView();
-    //        checkComplete();
-    //    }
 
     /**
      * Load response variable information from the context
@@ -358,17 +328,12 @@ implements ChangeHandler
                 }
             }
         }
-        totalWithinFactorCombinations = totalRepeatedMeasuresCombinations;
         totalResponseVariables = 0;
 
         // now load the new responses
         List<ResponseNode> outcomeList = studyDesignContext.getStudyDesign().getResponseList();
         if (outcomeList != null && outcomeList.size() > 0) {
             totalResponseVariables = outcomeList.size();
-            totalWithinFactorCombinations = totalResponseVariables;
-            if (totalRepeatedMeasuresCombinations > 0) {
-                totalWithinFactorCombinations *= totalRepeatedMeasuresCombinations;
-            }
             int col = totalBetweenFactors;
             for(ResponseNode outcome: outcomeList) {
                 meansTable.setWidget(0, col, new HTML(outcome.getName()));
@@ -393,28 +358,15 @@ implements ChangeHandler
         checkComplete();
     }
 
+    /**
+     * Check if the screen is complete
+     */
     private void checkComplete() {        
-        if (totalBetweenFactors > 0 && totalWithinFactorCombinations > 0) {
-            if (totalWithinFactorCombinations == 1) {
+        if (studyDesignContext.getValidResponseVariableCount() > 0) {
+            if (studyDesignContext.betaIsValid()) {
                 changeState(WizardStepPanelState.COMPLETE);
             } else {
-//                boolean hasNonZero = false;
-//                for(int row = 0; row < totalBetweenFactorCombinations; row++) {
-//                    for(int col = 0; col < totalWithinFactorCombinations; col++) {
-//                        if (betaFixedData[row][col] != 0) {
-//                            hasNonZero = true;
-//                            break;
-//                        }
-//                    }
-//                    if (hasNonZero) {
-//                        break;
-//                    }
-//                }
-                if (studyDesignContext.betaIsValid()) {
-                    changeState(WizardStepPanelState.COMPLETE);
-                } else {
-                    changeState(WizardStepPanelState.INCOMPLETE);
-                }
+                changeState(WizardStepPanelState.INCOMPLETE);
             }
         } else {
             changeState(WizardStepPanelState.NOT_ALLOWED);
@@ -473,6 +425,7 @@ implements ChangeHandler
         {
             TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidNumber());
             tb.setText("0");
+            studyDesignContext.setBetaValue(this, tb.getRow(), tb.getColumn()+ currentColumnOffset, 0);
         }
         checkComplete();
     }
@@ -495,9 +448,6 @@ implements ChangeHandler
         case RESPONSES_LIST:
             // clear the data from the context
             loadResponsesFromContext();
-            break;
-        case COVARIATE:
-            this.hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
             break;
         }
     };

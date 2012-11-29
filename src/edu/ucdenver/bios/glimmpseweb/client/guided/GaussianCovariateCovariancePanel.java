@@ -58,21 +58,21 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
 public class GaussianCovariateCovariancePanel extends WizardStepPanel
 implements ChangeHandler
 {
-	// context object
+    // context object
     protected StudyDesignContext studyDesignContext;
-    
+
     // column indices for repeated measures dropdown lists
     protected static final int LABEL_COLUMN = 0;
     protected static final int LISTBOX_COLUMN = 1;
     // flextable index for correlation textboxes
     protected static final int TEXTBOX_COLUMN = 1;
-    
+
     // complete matrix data for covariance of outcomes and Gaussian covariate
     protected double[][] sigmaYGData = null;
     protected int sigmaYGRows = 0;
     protected int sigmaYGColumns = 1;
     protected int currentRowOffset = 0;    
-    
+
     // standard deviation of Gaussian covariate
     protected TextBox standardDeviationTextBox = new TextBox();
     // flex table representing sigma YG
@@ -85,13 +85,13 @@ implements ChangeHandler
     // selection of repeated measures
     protected VerticalPanel rmPanel = new VerticalPanel();
     protected HTML rmInstructions = 
-        new HTML(GlimmpseWeb.constants.randomCovariateCovarianceRepeatedMeasuresInstructions());
+            new HTML(GlimmpseWeb.constants.randomCovariateCovarianceRepeatedMeasuresInstructions());
     protected FlexTable repeatedMeasuresTable = new FlexTable();
     // check box to allow users to enter one correlation value and share it across all
     // repeated measures
     CheckBox sameCorrelationCheckBox = new CheckBox(
             GlimmpseWeb.constants.randomCovariateCovarianceSameCorrelationInstructions());
-    
+
     // counts of responses, repeated measures
     protected boolean hasCovariate = false;
     protected int totalRepeatedMeasures = 0;
@@ -117,25 +117,25 @@ implements ChangeHandler
         public int getRow() { return row; }
         public int getColumn() { return column; }
     }
-    
+
     /**
      * Constructor
      * @param context study design context object
      */
-	public GaussianCovariateCovariancePanel(WizardContext context) 
-	{
-		super(context, GlimmpseWeb.constants.navItemVariabilityGaussianCovariate(),
-		        WizardStepPanelState.SKIPPED);
-		studyDesignContext = (StudyDesignContext) context;
-		
-		VerticalPanel verticalPanel = new VerticalPanel();
-		// header text
-		HTML header = new HTML(
-		        GlimmpseWeb.constants.randomCovariateCovarianceHeader());
-		HTML description = new HTML(
-		        GlimmpseWeb.constants.randomCovariateCovarianceDescription());
-				
-	      // add validation to standard deviation box
+    public GaussianCovariateCovariancePanel(WizardContext context) 
+    {
+        super(context, GlimmpseWeb.constants.navItemVariabilityGaussianCovariate(),
+                WizardStepPanelState.SKIPPED);
+        studyDesignContext = (StudyDesignContext) context;
+
+        VerticalPanel verticalPanel = new VerticalPanel();
+        // header text
+        HTML header = new HTML(
+                GlimmpseWeb.constants.randomCovariateCovarianceHeader());
+        HTML description = new HTML(
+                GlimmpseWeb.constants.randomCovariateCovarianceDescription());
+
+        // add validation to standard deviation box
         standardDeviationTextBox.addChangeHandler(new ChangeHandler(){ 
             @Override
             public void onChange(ChangeEvent event)
@@ -156,115 +156,115 @@ implements ChangeHandler
                 checkComplete();
             }
         });
-        
-        // add change handler for using the same correlation for all repeated measures
-		sameCorrelationCheckBox.addClickHandler(new ClickHandler()
-		{
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				CheckBox cb = (CheckBox)event.getSource();
-				if (cb.getValue()) {
-				    setEqualCorrelationForRepeatedMeasures();
-				} else {
-				    enableUnequalCorrelationForRepeatedMeasures();
-				}
-			}
-		});
 
-		// layout the repeated measures panel
-		rmPanel.add(rmInstructions);
-		rmPanel.add(repeatedMeasuresTable);
-		rmPanel.add(sameCorrelationCheckBox);
-		rmPanel.setVisible(false);
-		
-		// layout the overall panel
-		verticalPanel.add(header);
-		verticalPanel.add(description);
-		verticalPanel.add(new HTML(
+        // add change handler for using the same correlation for all repeated measures
+        sameCorrelationCheckBox.addClickHandler(new ClickHandler()
+        {
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                CheckBox cb = (CheckBox)event.getSource();
+                if (cb.getValue()) {
+                    setEqualCorrelationForRepeatedMeasures();
+                } else {
+                    enableUnequalCorrelationForRepeatedMeasures();
+                }
+            }
+        });
+
+        // layout the repeated measures panel
+        rmPanel.add(rmInstructions);
+        rmPanel.add(repeatedMeasuresTable);
+        rmPanel.add(sameCorrelationCheckBox);
+        rmPanel.setVisible(false);
+
+        // layout the overall panel
+        verticalPanel.add(header);
+        verticalPanel.add(description);
+        verticalPanel.add(new HTML(
                 GlimmpseWeb.constants.randomCovariateCovarianceStandardDeviationInstructions()));
-		verticalPanel.add(standardDeviationTextBox);
-		verticalPanel.add(stdDevErrorHTML);
-		verticalPanel.add( new HTML(
+        verticalPanel.add(standardDeviationTextBox);
+        verticalPanel.add(stdDevErrorHTML);
+        verticalPanel.add( new HTML(
                 GlimmpseWeb.constants.randomCovariateCovarianceCorrelationInstructions()));
-		verticalPanel.add(sigmaYGTable);
-		verticalPanel.add(correlationErrorHTML);
-		verticalPanel.add(rmPanel);
-		
-		// add style
-		verticalPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
+        verticalPanel.add(sigmaYGTable);
+        verticalPanel.add(correlationErrorHTML);
+        verticalPanel.add(rmPanel);
+
+        // add style
+        verticalPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-		sameCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        sameCorrelationCheckBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
         sigmaYGTable.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TABLE);
         stdDevErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         correlationErrorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
 
-		initWidget(verticalPanel);
+        initWidget(verticalPanel);
 
-	}
+    }
 
-	/**
-	 * Clear the text boxes, flex table of correlations, etc.
-	 */
-	@Override
-	public void reset() 
-	{
-	    hasCovariate = false;
-	    totalRepeatedMeasures = 0;
-	    totalRepeatedMeasuresCombinations = 0;
-	    totalWithinFactorCombinations = 0;
-	    totalResponseVariables = 0;
-	    
-	    sigmaYGRows = 0;
-	    sigmaYGColumns = 1;
+    /**
+     * Clear the text boxes, flex table of correlations, etc.
+     */
+    @Override
+    public void reset() 
+    {
+        hasCovariate = false;
+        totalRepeatedMeasures = 0;
+        totalRepeatedMeasuresCombinations = 0;
+        totalWithinFactorCombinations = 0;
+        totalResponseVariables = 0;
+
+        sigmaYGRows = 0;
+        sigmaYGColumns = 1;
         sigmaYGTable.removeAllRows();
         sigmaYGData = null;
         repeatedMeasuresTable.removeAllRows();
         currentRowOffset = 0;
         changeState(WizardStepPanelState.SKIPPED);
-	}
-	
-	/**
-	 * Copy the currently displayed values across all repeated measurements
-	 */
-	private void setEqualCorrelationForRepeatedMeasures() {	   
-	    // populate the entire sigmaYG matrix with the appropriate values
-	    if (totalResponseVariables > 0) { // safety check to avoid potential infinite loop
-	        for(int row = 0; row < sigmaYGRows; row += totalResponseVariables) {
-	            if (row != currentRowOffset) {
-	                for(int responseIdx = 0; responseIdx < totalResponseVariables; responseIdx++) {
-	                    sigmaYGData[row+responseIdx][0] = sigmaYGData[currentRowOffset+responseIdx][0];
-	                }
-	            }
-	        }
-	        // now reset the view to the first time point and disable the repeated measures drop down
-	        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
-	            ListBox lb = 
-	                    (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
-	            lb.setSelectedIndex(0);
-	            lb.setEnabled(false);
-	        }
-	        updateMatrixView();
-	    }
-	}
-	
-	/**
-	 * Enable the repeated measures dropdown lists
-	 */
-	private void enableUnequalCorrelationForRepeatedMeasures() {
-	    // reenable the repeated measures dropdowns
+    }
+
+    /**
+     * Copy the currently displayed values across all repeated measurements
+     */
+    private void setEqualCorrelationForRepeatedMeasures() {	   
+        // populate the entire sigmaYG matrix with the appropriate values
+        if (totalResponseVariables > 0) { // safety check to avoid potential infinite loop
+            for(int row = 0; row < sigmaYGRows; row += totalResponseVariables) {
+                if (row != currentRowOffset) {
+                    for(int responseIdx = 0; responseIdx < totalResponseVariables; responseIdx++) {
+                        sigmaYGData[row+responseIdx][0] = sigmaYGData[currentRowOffset+responseIdx][0];
+                    }
+                }
+            }
+            // now reset the view to the first time point and disable the repeated measures drop down
+            for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
+                ListBox lb = 
+                        (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
+                lb.setSelectedIndex(0);
+                lb.setEnabled(false);
+            }
+            updateMatrixView();
+        }
+    }
+
+    /**
+     * Enable the repeated measures dropdown lists
+     */
+    private void enableUnequalCorrelationForRepeatedMeasures() {
+        // reenable the repeated measures dropdowns
         for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
             ListBox lb = 
                     (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
             lb.setEnabled(true);
         }
-	}
-	
-	/**
-	 * Load the repeated measures information from the context
-	 */
-	private void loadRepeatedMeasuresFromContext() {
+    }
+
+    /**
+     * Load the repeated measures information from the context
+     */
+    private void loadRepeatedMeasuresFromContext() {
         // clear the data from the context
         studyDesignContext.setSigmaOutcomesCovariate(this, null);
         repeatedMeasuresTable.removeAllRows();
@@ -273,7 +273,7 @@ implements ChangeHandler
         totalRepeatedMeasuresCombinations = 0;
         totalWithinFactorCombinations = totalResponseVariables;
         List<RepeatedMeasuresNode> rmNodeList = 
-            studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
+                studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
 
         if (rmNodeList != null && rmNodeList.size() > 0) {
             // calculate the total repeated measures combinations
@@ -308,33 +308,38 @@ implements ChangeHandler
                 int offset = (totalWithinFactorCombinations > 0 ?
                         totalWithinFactorCombinations : 1);
                 for(RepeatedMeasuresNode rmNode: rmNodeList) {
-                    offset /= rmNode.getNumberOfMeasurements();
-                    // add the label
-                    repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
-                            new HTML(rmNode.getDimension()));
-                    // add the listbox
-                    ListBox lb = new ListBox();
-                    lb.addChangeHandler(new ChangeHandler() {
-                        @Override
-                        public void onChange(ChangeEvent event) {
-                            updateMatrixView();
-                        }                      
-                    });
-                    List<Spacing> spacingList = rmNode.getSpacingList();
-                    if (spacingList != null) {
-                        int index = 0;
-                        for(Spacing spacing: spacingList) {
-                            lb.addItem(Integer.toString(spacing.getValue()), 
-                                    Integer.toString(index*offset));
-                            index++;
+                    if (rmNode.getDimension() != null &&
+                            !rmNode.getDimension().isEmpty() &&
+                            rmNode.getNumberOfMeasurements() != null &&
+                            rmNode.getNumberOfMeasurements() > 1) {
+                        offset /= rmNode.getNumberOfMeasurements();
+                        // add the label
+                        repeatedMeasuresTable.setWidget(row, LABEL_COLUMN, 
+                                new HTML(rmNode.getDimension()));
+                        // add the listbox
+                        ListBox lb = new ListBox();
+                        lb.addChangeHandler(new ChangeHandler() {
+                            @Override
+                            public void onChange(ChangeEvent event) {
+                                updateMatrixView();
+                            }                      
+                        });
+                        List<Spacing> spacingList = rmNode.getSpacingList();
+                        if (spacingList != null) {
+                            int index = 0;
+                            for(Spacing spacing: spacingList) {
+                                lb.addItem(Integer.toString(spacing.getValue()), 
+                                        Integer.toString(index*offset));
+                                index++;
+                            }
+                        } else {
+                            for(int i = 1; i <= rmNode.getNumberOfMeasurements(); i++) {
+                                lb.addItem(Integer.toString(i), Integer.toString((i-1)*offset));
+                            }
                         }
-                    } else {
-                        for(int i = 1; i <= rmNode.getNumberOfMeasurements(); i++) {
-                            lb.addItem(Integer.toString(i), Integer.toString((i-1)*offset));
-                        }
+                        repeatedMeasuresTable.setWidget(row, LISTBOX_COLUMN, lb);
+                        row++;
                     }
-                    repeatedMeasuresTable.setWidget(row, LISTBOX_COLUMN, lb);
-                    row++;
                 }
 
             }
@@ -346,35 +351,35 @@ implements ChangeHandler
         } else {
             changeState(WizardStepPanelState.SKIPPED);
         }
-	}
-	
-	/**
-	 * Update the correlation text boxes to display the sigma YG
-	 * submatrix corresponding to the currently selected 
-	 * repeated measures observation episode
-	 */
-	private void updateMatrixView() {
-	    // calculate the new row offset
-	    currentRowOffset = 0;
-	    for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
-	        ListBox lb = 
-	                (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
-	        String valueStr = lb.getValue(lb.getSelectedIndex());
-	        int value = Integer.parseInt(valueStr);
-	        currentRowOffset += value;
-	    }
+    }
 
-	    // update the values in the textboxes
-	    for(int row = 1; row < sigmaYGTable.getRowCount(); row++) {
-	        TextBox tb = (TextBox) sigmaYGTable.getWidget(row, TEXTBOX_COLUMN);
-	        tb.setText(Double.toString(sigmaYGData[row-1+currentRowOffset][0]));
-	    }
-	}
-    	
-	/**
-	 * Load the responses from the context
-	 */
-	private void loadResponsesFromContext() {
+    /**
+     * Update the correlation text boxes to display the sigma YG
+     * submatrix corresponding to the currently selected 
+     * repeated measures observation episode
+     */
+    private void updateMatrixView() {
+        // calculate the new row offset
+        currentRowOffset = 0;
+        for(int i = 0; i < repeatedMeasuresTable.getRowCount(); i++) {
+            ListBox lb = 
+                    (ListBox) repeatedMeasuresTable.getWidget(i, LISTBOX_COLUMN);
+            String valueStr = lb.getValue(lb.getSelectedIndex());
+            int value = Integer.parseInt(valueStr);
+            currentRowOffset += value;
+        }
+
+        // update the values in the textboxes
+        for(int row = 1; row < sigmaYGTable.getRowCount(); row++) {
+            TextBox tb = (TextBox) sigmaYGTable.getWidget(row, TEXTBOX_COLUMN);
+            tb.setText(Double.toString(sigmaYGData[row-1+currentRowOffset][0]));
+        }
+    }
+
+    /**
+     * Load the responses from the context
+     */
+    private void loadResponsesFromContext() {
         // clear the data from the context
         studyDesignContext.setSigmaOutcomesCovariate(this, null);
         sigmaYGTable.removeAllRows();
@@ -387,7 +392,7 @@ implements ChangeHandler
         totalWithinFactorCombinations = totalRepeatedMeasuresCombinations;
         totalResponseVariables = 0;
         sigmaYGRows = 0;
-        
+
         // now load the new responses
         List<ResponseNode> outcomeList = studyDesignContext.getStudyDesign().getResponseList();
         if (outcomeList != null && outcomeList.size() > 0) {
@@ -417,8 +422,8 @@ implements ChangeHandler
         } else {
             changeState(WizardStepPanelState.SKIPPED);
         }
-	}
-		
+    }
+
     /**
      * Allocate a new beta matrix
      */
@@ -426,35 +431,35 @@ implements ChangeHandler
         sigmaYGData = null;
         if (totalWithinFactorCombinations > 0) {
             sigmaYGData = 
-                new double[totalWithinFactorCombinations][1];
+                    new double[totalWithinFactorCombinations][1];
             sigmaYGRows = totalWithinFactorCombinations;
             for(int row = 0; row < totalWithinFactorCombinations; row++) {
                 sigmaYGData[row][0] = 0;
             }
         }
     }
-    	
-	/**
-	 * Store the sigma G and sigma YG covariance matrices
-	 * in the context.
-	 */
-	public  void onExit() 
-	{
-	    // store the 1x1 covariance for the Gaussian covariate
-	    NamedMatrix sigmaCovariate = null;
-	    if (!standardDeviationTextBox.getValue().isEmpty()) {
-	        double[][] sigmaCovariateData = new double[1][1];
-	        double value = Double.parseDouble(standardDeviationTextBox.getValue());
-	        sigmaCovariateData[0][0] = value*value;
-	        
-	        sigmaCovariate = new NamedMatrix();
-	        sigmaCovariate.setColumns(1);
-	        sigmaCovariate.setRows(1);
-	        sigmaCovariate.setDataFromArray(sigmaCovariateData);
-	        sigmaCovariate.setName(GlimmpseWeb.constants.MATRIX_SIGMA_COVARIATE);
-	    }
+
+    /**
+     * Store the sigma G and sigma YG covariance matrices
+     * in the context.
+     */
+    public  void onExit() 
+    {
+        // store the 1x1 covariance for the Gaussian covariate
+        NamedMatrix sigmaCovariate = null;
+        if (!standardDeviationTextBox.getValue().isEmpty()) {
+            double[][] sigmaCovariateData = new double[1][1];
+            double value = Double.parseDouble(standardDeviationTextBox.getValue());
+            sigmaCovariateData[0][0] = value*value;
+
+            sigmaCovariate = new NamedMatrix();
+            sigmaCovariate.setColumns(1);
+            sigmaCovariate.setRows(1);
+            sigmaCovariate.setDataFromArray(sigmaCovariateData);
+            sigmaCovariate.setName(GlimmpseWeb.constants.MATRIX_SIGMA_COVARIATE);
+        }
         studyDesignContext.setSigmaCovariate(this, sigmaCovariate);
-        
+
         // store the px1 covariance for the Gaussian covariate with the outcomes
         NamedMatrix sigmaYG = null;
         if (sigmaYGData != null) {
@@ -467,37 +472,37 @@ implements ChangeHandler
         studyDesignContext.setSigmaOutcomesCovariate(this, sigmaYG);
     }
 
-	/**
-	 * Load the data from the context regarding the sigmaG and sigmaYG matrices
-	 */
-	private void loadMatricesFromContext() {
-	    // load the data for the sigma G matrix
-	    NamedMatrix sigmaGMatrix = 
-	        studyDesignContext.getStudyDesign().getNamedMatrix(
-	                GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
-	    if (sigmaGMatrix != null && sigmaGMatrix.getData() != null) {
-	        double[][] data = sigmaGMatrix.getData().getData();
-	        if (data != null) {
-	            standardDeviationTextBox.setText(Double.toString(Math.sqrt(data[0][0])));
-	        }
-	    }
-	    
-	    // load the data for the sigma YG matrix
-	    NamedMatrix sigmaYGMatrix = 
-	        studyDesignContext.getStudyDesign().getNamedMatrix(
-	                GlimmpseConstants.MATRIX_SIGMA_OUTCOME);
-	    if (sigmaYGMatrix != null && 
-	            sigmaYGMatrix.getRows() > 0 &&
-	            sigmaYGMatrix.getColumns() > 0 &&
-	            sigmaYGMatrix.getData() != null) {
-	        sigmaYGData = sigmaYGMatrix.getData().getData();
-	    }
-	    updateMatrixView();
-	}
-	
-	/**
-	 * Handle changes in responses and repeated measures.
-	 */
+    /**
+     * Load the data from the context regarding the sigmaG and sigmaYG matrices
+     */
+    private void loadMatricesFromContext() {
+        // load the data for the sigma G matrix
+        NamedMatrix sigmaGMatrix = 
+                studyDesignContext.getStudyDesign().getNamedMatrix(
+                        GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+        if (sigmaGMatrix != null && sigmaGMatrix.getData() != null) {
+            double[][] data = sigmaGMatrix.getData().getData();
+            if (data != null) {
+                standardDeviationTextBox.setText(Double.toString(Math.sqrt(data[0][0])));
+            }
+        }
+
+        // load the data for the sigma YG matrix
+        NamedMatrix sigmaYGMatrix = 
+                studyDesignContext.getStudyDesign().getNamedMatrix(
+                        GlimmpseConstants.MATRIX_SIGMA_OUTCOME);
+        if (sigmaYGMatrix != null && 
+                sigmaYGMatrix.getRows() > 0 &&
+                sigmaYGMatrix.getColumns() > 0 &&
+                sigmaYGMatrix.getData() != null) {
+            sigmaYGData = sigmaYGMatrix.getData().getData();
+        }
+        updateMatrixView();
+    }
+
+    /**
+     * Handle changes in responses and repeated measures.
+     */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
         switch(((StudyDesignChangeEvent) e).getType()) {
@@ -535,7 +540,7 @@ implements ChangeHandler
             changeState(WizardStepPanelState.NOT_ALLOWED);
         }
     }
-    
+
     /**
      * Load covariance data from the context
      */
@@ -544,9 +549,9 @@ implements ChangeHandler
         loadResponsesFromContext();
         loadRepeatedMeasuresFromContext();
         loadMatricesFromContext();
-        
+
     }
-    
+
     /**
      * Textbox input validation and check complete
      */

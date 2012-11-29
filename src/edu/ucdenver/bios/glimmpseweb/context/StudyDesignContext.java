@@ -765,8 +765,8 @@ public class StudyDesignContext extends WizardContext
     public boolean betaIsValid() {
         NamedMatrix beta = studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_BETA);
         if (beta == null || beta.getRows() <= 0 ||
-                beta.getColumns() <= 0 || beta.getData() != null ||
-                beta.getData().getData() != null) {
+                beta.getColumns() <= 0 || beta.getData() == null ||
+                beta.getData().getData() == null) {
             return false;
         } else {
             return true;
