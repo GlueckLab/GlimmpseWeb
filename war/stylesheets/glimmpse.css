@@ -623,6 +623,7 @@ body {
 }
 
 .wizardStepTableRow .gwt-TextBox {
+	padding: 0px;
 	width: 100%;
 }
 
