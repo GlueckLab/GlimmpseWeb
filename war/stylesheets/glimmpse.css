@@ -462,9 +462,8 @@ body {
 	font-size: 14pt;
 }
 
-.wizardStepSubeader {
-	margin-top: 5px;
-	margin-bottom: 5px;
+.wizardStepSubheader {
+	margin: 5px 5px;
 	font-weight: bold;
 }
 
@@ -935,6 +934,9 @@ body {
 	border: 1px solid #999;
 	border-collapse: collapse;
 	width: 600px;
-	padding: 10px;
+}
+
+.wizardStepDeckPanelContentsSubpanel {
+	padding: 20px;	
 }
 	
