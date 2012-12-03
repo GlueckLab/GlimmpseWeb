@@ -21,11 +21,9 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -39,9 +37,9 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
-import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
+import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
  * 
@@ -50,15 +48,19 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
  *
  */
 public class WithinParticipantCovariancePanel extends WizardStepPanel
-implements ChangeHandler
+implements CovarianceSetManager
 {
     // context object
     protected StudyDesignContext studyDesignContext;
     // tabs for each covariance
     protected DynamicTabPanel tabPanel = new DynamicTabPanel();
     // keep a ptr to the responses tab header
-    protected HTML responsesTabHeader = new HTML(GlimmpseWeb.constants.covarianceResponsesLabel());
-    
+    protected HTML responsesTabHeader = 
+        new HTML(GlimmpseWeb.constants.covarianceResponsesLabel());
+    // map of each covariance component and whether or not it is complete
+    protected HashMap<String,Boolean> completenessMap = new HashMap<String,Boolean>();
+
+
     /**
      * Constructor
      * @param context study design context
@@ -68,33 +70,33 @@ implements ChangeHandler
         super(context, GlimmpseWeb.constants.navItemVariabilityWithinParticipant(),
                 WizardStepPanelState.NOT_ALLOWED);
         studyDesignContext = (StudyDesignContext) context;
-        
+
         VerticalPanel panel = new VerticalPanel();
-        
+
         // header text
         HTML header = new HTML(GlimmpseWeb.constants.withinSubjectCovarianceHeader());
         HTML instructions = new HTML(GlimmpseWeb.constants.withinSubjectCovarianceInstructions());
-        
+
         // TODO: allow upload of a full covariance - not necessarily Kronecker
         // for V2 we will just force the user into the Kronecker format for
         // reversible mixed model support - return to this later
-//        // upload a covariance button
-//        ButtonWithExplanationPanel uploadFullCovarianceMatrixButton =
-//            new ButtonWithExplanationPanel(
-//                    GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
-//                    GlimmpseWeb.constants.fullCovarianceMatrixHeader(), 
-//                    GlimmpseWeb.constants.fullCovarianceMatrixText());
-//        uploadFullCovarianceMatrixButton.addClickHandler(new ClickHandler()
-//        {
-//            @Override
-//            public void onClick(ClickEvent event) 
-//            {
-//
-//            }
-//
-//        });
+        //        // upload a covariance button
+        //        ButtonWithExplanationPanel uploadFullCovarianceMatrixButton =
+        //            new ButtonWithExplanationPanel(
+        //                    GlimmpseWeb.constants.uploadFullCovarianceMatrix(), 
+        //                    GlimmpseWeb.constants.fullCovarianceMatrixHeader(), 
+        //                    GlimmpseWeb.constants.fullCovarianceMatrixText());
+        //        uploadFullCovarianceMatrixButton.addClickHandler(new ClickHandler()
+        //        {
+        //            @Override
+        //            public void onClick(ClickEvent event) 
+        //            {
+        //
+        //            }
+        //
+        //        });
 
-        
+
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         instructions.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
@@ -115,6 +117,7 @@ implements ChangeHandler
     public void reset() 
     {
         tabPanel.clear();
+        completenessMap.clear();
     }
 
     /**
@@ -141,11 +144,11 @@ implements ChangeHandler
                 if (node.getDimension() != null &&
                         !node.getDimension().isEmpty() &&
                         node.getNumberOfMeasurements() != null &&
-                                node.getNumberOfMeasurements() > 1) {
-                    
-                    CorrelationDeckPanel panel = new CorrelationDeckPanel(node, this);
+                        node.getNumberOfMeasurements() > 1) {
+
+                    CorrelationDeckPanel panel = new CorrelationDeckPanel(this, node);
                     panel.loadCovariance(
-                            studyDesignContext.getStudyDesign().getCovarianceFromSet(node.getDimension()));
+                            studyDesignContext.getCovarianceByName(node.getDimension()));
                     if (tabPanel.getTabCount() <= 0) {
                         tabPanel.insert(0, new HTML(node.getDimension()), panel);
                     } else {
@@ -156,7 +159,7 @@ implements ChangeHandler
             }
         }
     }
-    
+
     /**
      * Load the response variables from the context
      */
@@ -169,9 +172,9 @@ implements ChangeHandler
             studyDesignContext.getStudyDesign().getResponseList();
         if (responseNodeList != null && responseNodeList.size() > 0) {
             CovarianceCorrelationDeckPanel panel =
-                new CovarianceCorrelationDeckPanel(responseNodeList, this, true);
+                new CovarianceCorrelationDeckPanel(this, responseNodeList, true);
             panel.loadCovariance(
-                    studyDesignContext.getStudyDesign().getCovarianceFromSet(
+                    studyDesignContext.getCovarianceByName(
                             GlimmpseConstants.RESPONSES_COVARIANCE_LABEL));
             tabPanel.add(responsesTabHeader, panel);
         }
@@ -184,15 +187,12 @@ implements ChangeHandler
 
         if (tabPanel.getTabCount() > 0) {
             boolean complete = true;
-            for(int i = 0; i < tabPanel.getTabCount(); i++) {
-                CovarianceBuilder panel = 
-                    (CovarianceBuilder) tabPanel.getTabContents(i);
-                if (!panel.checkComplete()) {
+            for(Boolean value: completenessMap.values()) {
+                if (!value) {
                     complete = false;
                     break;
                 }
             }
-
             if (complete) {
                 changeState(WizardStepPanelState.COMPLETE);
             } else {
@@ -211,20 +211,20 @@ implements ChangeHandler
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) 
     {
-        switch(((StudyDesignChangeEvent) e).getType()) {
-        case REPEATED_MEASURES:
-            // clear the context 
-            loadRepeatedMeasuresFromContext();
-            buildAndSaveCovariance();
-            break;
-        case RESPONSES_LIST:
-            // clear the context 
-            loadResponsesFromContext();
-            buildAndSaveCovariance();
-            break;
+        if (e.getSource() != this) {
+            switch(((StudyDesignChangeEvent) e).getType()) {
+            case REPEATED_MEASURES:
+                // clear the context 
+                loadRepeatedMeasuresFromContext();
+                break;
+            case RESPONSES_LIST:
+                // clear the context 
+                loadResponsesFromContext();
+                break;
+            }
+            tabPanel.openTab(0);
+            checkComplete();
         }
-        tabPanel.openTab(0);
-        checkComplete();
     };
 
     /**
@@ -240,32 +240,53 @@ implements ChangeHandler
     }
 
     /**
-     * Build the covariance objects and store them in the context
+     * Reset the type in the named covariance object in the context
+     * @param name
+     * @param type
      */
-    private void buildAndSaveCovariance() {
-        studyDesignContext.clearCovariance(this);
-        for(int i = 0; i < tabPanel.getTabCount(); i++)
-        {
-            CovarianceBuilder panel = 
-                (CovarianceBuilder) tabPanel.getTabContents(i);
-            Covariance covariance = panel.getCovariance();
-            studyDesignContext.setCovariance(this, covariance);
-        }
+    @Override
+    public void setType(String name, CovarianceTypeEnum type) {
+        studyDesignContext.setCovarianceType(this, name, type);
     }
 
     /**
-     * Build the covariance objects as we exit the screen
+     * Update the values of the Lear parameters in the named covariance object
+     * @param name
+     * @param rho
+     * @param delta
      */
     @Override
-    public void onExit()
-    {
-        buildAndSaveCovariance();
+    public void setLearParameters(String name, double rho, double delta) {
+        studyDesignContext.setCovarianceLearParameters(this, name, rho, delta);
+    }
+
+    /**
+     * Set the value of the specified cell in the named covariance matrix
+     * @param name
+     * @param row
+     * @param column
+     * @param value
+     */
+    @Override
+    public void setCovarianceCellValue(String name, int row, int column,
+            double value) {
+        studyDesignContext.setCovarianceValue(this, name, row, column, value);
+    }
+
+    /**
+     * Mark the named covariance object as complete or 
+     * incomplete
+     */
+    @Override
+    public void setComplete(String name, boolean complete) {
+        completenessMap.put(name, complete);
+        checkComplete();
     }
 
 
     @Override
-    public void onChange(ChangeEvent event) {
-        checkComplete();
+    public void setStandardDeviationValue(String name, int index, double value) {
+        studyDesignContext.setCovarianceStandardDeviationValue(this, name, index, value);
     }
 }
 

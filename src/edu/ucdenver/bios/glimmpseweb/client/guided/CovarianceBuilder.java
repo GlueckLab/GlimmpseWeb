@@ -30,23 +30,15 @@ import edu.ucdenver.bios.webservice.common.domain.Covariance;
  *
  */
 public interface CovarianceBuilder 
-{
-
-    /**
-     * Gets the covariance.
-     *
-     * @return the covariance
-     */
-    public Covariance getCovariance();
-    
-    /**
-     * Returns true if the builder panel has enough information
-     * to build a valid covariance object.
-     */
-    public boolean checkComplete();
-    
+{    
     /**
      * Load data from the specified covariance object
      */
     public void loadCovariance(Covariance covariance);
+    
+    /**
+     * Sync the current covariance GUI to the study design context
+     * 
+     */
+    public void syncCovariance();
 }

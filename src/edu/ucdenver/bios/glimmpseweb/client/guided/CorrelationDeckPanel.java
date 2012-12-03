@@ -25,21 +25,18 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ButtonWithExplanationPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
-import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 import edu.ucdenver.bios.webservice.common.domain.Spacing;
+import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
  * Class which allows input of correlation matrices either as
@@ -51,14 +48,14 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
  *
  */
 public class CorrelationDeckPanel extends Composite
-implements ChangeHandler, CovarianceBuilder
+implements CovarianceBuilder
 {
     // deck panel indices for the correlation/covariance views
     private static final int STRUCT_CORRELATION_INDEX = 0;
     private static final int UNSTRUCT_CORRELATION_INDEX = 1;
     
     // parent panel
-    protected ChangeHandler parent = null;
+    protected CovarianceSetManager manager = null;
     // name of the dimension
     protected String name = "";
     // row / column dimension of the correlation matrix
@@ -86,12 +83,13 @@ implements ChangeHandler, CovarianceBuilder
 	 * Build a covariance deck for a repeated measures dimension
 	 * @param repeatedMeasuresNode
 	 */
-	public CorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode,
-	        ChangeHandler handler) {
-	    parent = handler;
+	public CorrelationDeckPanel(CovarianceSetManager manager,
+            RepeatedMeasuresNode repeatedMeasuresNode) {
+	    this.manager = manager;
 	    name = repeatedMeasuresNode.getDimension();
 	    // build a list of labels and spacing values
-		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
+		List<String> labelList = 
+		    new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
 		List<Spacing> spacingList = repeatedMeasuresNode.getSpacingList();
 		List<Integer> integerSpacingList = new ArrayList<Integer>();
 		if (spacingList != null && 
@@ -124,9 +122,9 @@ implements ChangeHandler, CovarianceBuilder
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
 		StructuredCorrelationPanel structuredCorrelationPanelInstance = 
-				new StructuredCorrelationPanel(name, labelList, spacingList, this);
+				new StructuredCorrelationPanel(manager, name, labelList, spacingList);
 		UnStructuredCorrelationPanel unstructuredCorrelationPanelInstance = 
-              new UnStructuredCorrelationPanel(name, labelList, spacingList, false, this);
+              new UnStructuredCorrelationPanel(manager, name, labelList, spacingList, false);
 		
 		deckPanel.add(structuredCorrelationPanelInstance);
 		deckPanel.add(unstructuredCorrelationPanelInstance);
@@ -145,6 +143,7 @@ implements ChangeHandler, CovarianceBuilder
 			public void onClick(ClickEvent event) 
 			{
                 showWidget(UNSTRUCT_CORRELATION_INDEX);	
+                syncCovariance();
 			}
 		});
 		structuredCorrelationButton.addClickHandler(new ClickHandler()
@@ -153,6 +152,7 @@ implements ChangeHandler, CovarianceBuilder
 		    public void onClick(ClickEvent event) 
 		    {
 		        showWidget(STRUCT_CORRELATION_INDEX); 
+		        syncCovariance();
 		    }
 		});	
 		
@@ -172,37 +172,6 @@ implements ChangeHandler, CovarianceBuilder
 	    structuredCorrelationButton.setVisible(index != STRUCT_CORRELATION_INDEX &&
 	            size > 2);
 	}
-	
-	/**
-	 * Create a covariance domain object based on the currently
-	 * visible covariance view
-	 * @return Covariance domain object
-	 */
-	public Covariance getCovariance()
-	{
-	    int visibleIndex = deckPanel.getVisibleWidget();
-	    CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
-	    Covariance covariance = covarianceBuilder.getCovariance();
-	    return covariance;
-	}
-	
-	/**
-	 * Check if the panel is complete
-	 * @return true if complete, false otherwise
-	 */
-	public boolean checkComplete() {
-        int visibleIndex = deckPanel.getVisibleWidget();
-        CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
-        return covarianceBuilder.checkComplete();
-	}
-
-	/**
-	 * Call the change handler for the parent panel
-	 */
-    @Override
-    public void onChange(ChangeEvent event) {
-        parent.onChange(event);
-    }
 
     /**
      * Load information from the specified covariance object into the panel
@@ -228,6 +197,15 @@ implements ChangeHandler, CovarianceBuilder
                 }
             }
         }
+    }
+    
+    /**
+     * Sync the current GUI view to the context
+     */
+    public void syncCovariance() {
+        CovarianceBuilder covarianceBuilder = 
+            (CovarianceBuilder) deckPanel.getWidget(deckPanel.getVisibleWidget());
+        covarianceBuilder.syncCovariance();
     }
 }
 

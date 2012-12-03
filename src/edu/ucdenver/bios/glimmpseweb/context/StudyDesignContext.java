@@ -22,7 +22,7 @@
 package edu.ucdenver.bios.glimmpseweb.context;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -188,7 +188,7 @@ public class StudyDesignContext extends WizardContext
         // get new dimensions
         int newRows = participantGroups.getNumberOfRows();
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         if (newRows == 0 && (factorList == null || factorList.size() == 0)) {
             // if no groups and no partially specified factors, 
             // then assume a one sample design
@@ -209,7 +209,7 @@ public class StudyDesignContext extends WizardContext
                 }
             }
         }
-        
+
         if (newRows > 0 && newCols > 0) {
             /*
              * If we have valid dimensions for a beta matrix, update the 
@@ -249,60 +249,6 @@ public class StudyDesignContext extends WizardContext
             // clear the beta matrices
             removeMatrixByName(GlimmpseConstants.MATRIX_BETA);
             removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
-        }
-    }
-
-    /**
-     * Determine if we need to clear the covariance information when
-     * response variables or repeated measures change
-     * @param changeType
-     */
-    private void updateCovariance(StudyDesignChangeType changeType) {
-        switch (changeType) {
-        case RESPONSES_LIST:
-            List<ResponseNode> responsesList = studyDesign.getResponseList();
-            int numResponses = 0;
-            if (responsesList != null) {
-                numResponses = responsesList.size();
-            }
-            Set<Covariance> covarianceList = studyDesign.getCovariance();
-            if (covarianceList != null) {
-                Iterator<Covariance> iter = covarianceList.iterator();
-                while (iter.hasNext()) {
-                    Covariance covariance = iter.next();
-                    if (covariance.getName().equals(
-                            GlimmpseConstants.RESPONSES_COVARIANCE_LABEL)) {
-                        if (covariance.getRows() != numResponses) {
-                            covariance.setRows(numResponses);
-                            covariance.setColumns(numResponses);
-                            covariance.setBlob(createIdentityMatrix(numResponses));
-                        }
-                    }
-                }
-            } else {
-                if (numResponses > 0) {
-                    Covariance covariance = new Covariance();
-                    covariance.setName(
-                            GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
-                    covariance.setType(CovarianceTypeEnum.UNSTRUCTURED_COVARIANCE);
-                    covariance.setRows(numResponses);
-                    covariance.setColumns(numResponses);
-                    covariance.setBlob(createIdentityMatrix(numResponses));
-                }
-            }            
-            break;
-        case REPEATED_MEASURES:
-            // TODO
-            break;
-        case COVARIATE:
-            if (studyDesign.isGaussianCovariate()) {
-                // clear the sigmaYG and sigmaG matrices
-                removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
-                removeMatrixByName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
-            } else {
-
-            }
-            break;
         }
     }
 
@@ -683,7 +629,7 @@ public class StudyDesignContext extends WizardContext
             deleteStatisticalTest(panel, StatisticalTestTypeEnum.WL);
         }
         // update the variability
-        updateCovariance(StudyDesignChangeType.COVARIATE);
+//       TODO:  updateCovariance(StudyDesignChangeType.COVARIATE);
         // update the random portion of the beta matrix
         updateMeans();
 
@@ -787,7 +733,7 @@ public class StudyDesignContext extends WizardContext
             return Double.NaN;
         }
     }
-    
+
     /**
      * Set the value in the beta matrix at the specified row and column
      * @param panel
@@ -801,9 +747,11 @@ public class StudyDesignContext extends WizardContext
                 row < beta.getRows() && column < beta.getColumns() &&
                 beta.getData() != null && beta.getData().getData() != null) {
             beta.getData().getData()[row][column] = value;
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.BETA_MATRIX));
         } 
     }
-    
+
     /**
      * Store the beta matrix to the StudyDesign.
      * @param panel wizard panel initiating the change
@@ -940,7 +888,7 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }
-    
+
     /**
      * Clear all clustering information from the study design
      * @param panel panel initiating the change
@@ -993,8 +941,11 @@ public class StudyDesignContext extends WizardContext
         // update the beta matrix
         updateMeans();
         // update the variability
-        updateCovariance(StudyDesignChangeType.REPEATED_MEASURES);
-
+        updateCovarianceSizeRepeatedMeasures(panel,
+                    rmNode.getDimension(), 
+                    (rmNode.getNumberOfMeasurements() != null ? 
+                            rmNode.getNumberOfMeasurements() : 0));
+        // notify the other panels
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.REPEATED_MEASURES));
     }
@@ -1019,7 +970,8 @@ public class StudyDesignContext extends WizardContext
                 // update the beta matrix
                 updateMeans();
                 // update the variability
-                updateCovariance(StudyDesignChangeType.REPEATED_MEASURES);
+                updateCovarianceSizeRepeatedMeasures(panel,
+                        factor.getDimension(), 0);
 
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                         StudyDesignChangeType.REPEATED_MEASURES));
@@ -1044,12 +996,13 @@ public class StudyDesignContext extends WizardContext
             // update the means
             updateMeans();
             // update the covariance
-            
+            clearCovarianceRepeatedMeasures(panel);
+
             notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                     StudyDesignChangeType.REPEATED_MEASURES));
         }
     }
-    
+
     /**
      * Update the value of a repeated measures node
      * @param panel
@@ -1079,8 +1032,10 @@ public class StudyDesignContext extends WizardContext
                 } else {
                     clearHypothesis();
                 }
-                // TODO: update the covariance info
-                
+                // update the variability
+                updateCovarianceSizeRepeatedMeasures(panel,
+                            rmNode.getDimension(), 
+                            rmNode.getNumberOfMeasurements());
                 // update the beta matrix
                 updateMeans();
                 // notify the other screens
@@ -1368,8 +1323,8 @@ public class StudyDesignContext extends WizardContext
         // update the means
         updateMeans();
         // update the variability
-        updateCovariance(StudyDesignChangeType.RESPONSES_LIST);
-
+        updateCovarianceSizeResponses(panel, responseList.size());
+        // notify the other panels
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.RESPONSES_LIST));
     }
@@ -1391,8 +1346,8 @@ public class StudyDesignContext extends WizardContext
                 // update the means
                 updateMeans();
                 // update the variability
-                updateCovariance(StudyDesignChangeType.RESPONSES_LIST);
-
+                updateCovarianceSizeResponses(panel, responseList.size());
+                // notify the panels
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                         StudyDesignChangeType.RESPONSES_LIST));
             }
@@ -1479,7 +1434,7 @@ public class StudyDesignContext extends WizardContext
             }
         }
     }
-    
+
     /**
      * Clear the factors associated with the current hypothesis
      * @param panel
@@ -1792,6 +1747,231 @@ public class StudyDesignContext extends WizardContext
     }
 
     /******* Functions for managing the covariance structure ********/
+
+    /**
+     * Reset the dimensions of the named covariance structure
+     * 
+     * @param covarianceName name of the covariance dimension
+     * @param newDimension new size of the covariance structure
+     */
+    private void updateCovarianceSizeRepeatedMeasures(WizardStepPanel panel,
+            String name, int newDimension) {
+        if (name != null && !name.isEmpty()) {
+            Covariance covariance = 
+                studyDesign.getCovarianceFromSet(name);
+            if (newDimension > 1) {
+                if (covariance == null) {
+                    // allocate a new covariance structure if it is not yet available
+                    covariance = new Covariance();
+                    covariance.setName(name);
+                    covariance.setType(CovarianceTypeEnum.LEAR_CORRELATION);
+                    // store the new object in the study design
+                    Set<Covariance> covarSet = studyDesign.getCovariance();
+                    if (covarSet == null) {
+                        covarSet = new HashSet<Covariance>();
+                        studyDesign.setCovariance(covarSet);
+                    }
+                    covarSet.add(covariance);
+                }
+                if (covariance.getRows() != newDimension || 
+                        covariance.getColumns() != newDimension) {
+                    covariance.setRows(newDimension);
+                    covariance.setColumns(newDimension);
+                    covariance.setBlob(createIdentityMatrix(newDimension));
+                    // set the std deviation list
+                    List<StandardDeviation> stddevList = covariance.getStandardDeviationList();
+                    if (stddevList == null) {
+                        stddevList = new ArrayList<StandardDeviation>();
+                        covariance.setStandardDeviationList(stddevList);
+                    }
+                    stddevList.clear();
+                    for(int i = 0; i < newDimension; i++) {
+                        stddevList.add(new StandardDeviation(1));
+                    }
+                }
+            } else {
+                // clear if the new dimension is 0
+                if (covariance != null) {
+                    Set<Covariance> covarSet = studyDesign.getCovariance();
+                    if (covarSet != null) {
+                        covarSet.remove(covariance);
+                    }
+                }
+            }
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.COVARIANCE));
+        }
+
+    }
+
+    /**
+     * Reset the dimensions of the response covariance structure
+     * 
+     * @param covarianceName name of the covariance dimension
+     * @param newDimension new size of the covariance structure
+     */
+    private void updateCovarianceSizeResponses(WizardStepPanel panel,
+            int newDimension) {
+        Covariance covariance = 
+            studyDesign.getCovarianceFromSet(
+                    GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
+        if (newDimension > 0) {
+            if (covariance == null) {
+                // allocate a new covariance structure if it is not yet available
+                covariance = new Covariance();
+                covariance.setName(GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
+                covariance.setType(CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
+                // store the new object in the study design
+                Set<Covariance> covarSet = studyDesign.getCovariance();
+                if (covarSet == null) {
+                    covarSet = new HashSet<Covariance>();
+                    studyDesign.setCovariance(covarSet);
+                }
+                covarSet.add(covariance);
+            }
+            if (covariance.getRows() != newDimension || 
+                    covariance.getColumns() != newDimension) {
+                covariance.setRows(newDimension);
+                covariance.setColumns(newDimension);
+                covariance.setBlob(createIdentityMatrix(newDimension));
+                // set the std deviation list
+                List<StandardDeviation> stddevList = covariance.getStandardDeviationList();
+                if (stddevList == null) {
+                    stddevList = new ArrayList<StandardDeviation>();
+                    covariance.setStandardDeviationList(stddevList);
+                }
+                stddevList.clear();
+                for(int i = 0; i < newDimension; i++) {
+                    stddevList.add(new StandardDeviation(1));
+                }
+            }
+        } else {
+            // clear if the new dimension is 0
+            Set<Covariance> covarSet = studyDesign.getCovariance();
+            if (covarSet != null) {
+                covarSet.remove(covariance);
+            }
+        }
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.COVARIANCE));
+    }
+
+    /**
+     * Clear all repeated measures from the covariance set
+     */
+    public void clearCovarianceRepeatedMeasures(WizardStepPanel panel) {
+        Set<Covariance> covarianceSet = studyDesign.getCovariance();
+        if (covarianceSet != null) {
+            Covariance responseCovariance = 
+                studyDesign.getCovarianceFromSet(
+                        GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
+            covarianceSet.clear();
+            if (responseCovariance != null) {
+                covarianceSet.add(responseCovariance);
+            }
+        }
+        notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                StudyDesignChangeType.COVARIANCE));
+    }
+    
+    /**
+     * Set the type of the named covariance structure
+     * @param panel panel initiating the change
+     * @param type new type
+     */
+    public void setCovarianceType(WizardStepPanel panel, 
+            String covarianceName,
+            CovarianceTypeEnum type) {
+        Covariance covariance = 
+            studyDesign.getCovarianceFromSet(covarianceName);
+        if (covariance != null) {
+            if (covariance.getType() != type) {
+                covariance.setType(type);
+                //  note: contents of covariance will be set by subsequent calls to
+                // set cell contents, lear params, etc.
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.COVARIANCE));
+            }
+        }
+    }
+
+    /**
+     * Update the LEAR parameters (Simpson 2010)
+     * @param panel
+     * @param covarianceName
+     * @param baseCorrelation
+     * @param decayRate
+     */
+    public void setCovarianceLearParameters(WizardStepPanel panel, 
+            String covarianceName, double baseCorrelation, double decayRate) {
+        Covariance covariance = 
+            studyDesign.getCovarianceFromSet(covarianceName);
+        if (covariance != null) {
+            if (covariance.getType() == CovarianceTypeEnum.LEAR_CORRELATION) {
+                covariance.setRho(baseCorrelation);
+                covariance.setDelta(decayRate);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.COVARIANCE));
+            }
+        }
+    }
+
+    /**
+     * Set the specified cell value in the named covariance structure
+     * @param panel
+     * @param covarianceName
+     * @param row
+     * @param column
+     * @param value 
+     */
+    public void setCovarianceValue(WizardStepPanel panel, 
+            String covarianceName, int row, int column, double value) {
+        Covariance covariance = 
+            studyDesign.getCovarianceFromSet(covarianceName);
+        if (covariance != null && covariance.getBlob() != null) {
+            double[][] data = covariance.getBlob().getData();
+            if (data != null && 
+                    row >= 0 && row < covariance.getRows() &&
+                    column >= 0 && column < covariance.getColumns()) {
+                data[row][column] = value;
+                // preserve symmetry
+                data[column][row] = value;
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.COVARIANCE));
+            }
+        }
+    }
+
+    /**
+     * Get the specified covariance object 
+     * @param covarianceName
+     * @return Covariance object, or null if not found
+     */
+    public Covariance getCovarianceByName(String covarianceName) {
+        return studyDesign.getCovarianceFromSet(covarianceName);
+    }
+
+    /**
+     * Set a standard deviation value for the named covariance object
+     * @param panel
+     * @param covarianceName
+     * @param index
+     * @param value
+     */
+    public void setCovarianceStandardDeviationValue(
+            WizardStepPanel panel, String covarianceName, int index, double value) {
+        Covariance covariance = 
+            studyDesign.getCovarianceFromSet(covarianceName);
+        if (covariance != null &&
+                covariance.getStandardDeviationList() != null &&
+                index >= 0 && index < covariance.getStandardDeviationList().size()) {
+            StandardDeviation stddev = covariance.getStandardDeviationList().get(index);
+            stddev.setValue(value);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.COVARIANCE));
+        }
+    }
+
     /**
      * Add covariance information in the study design.
      * @param panel wizard panel initiating the change
