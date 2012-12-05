@@ -102,6 +102,7 @@ ClickHandler, WizardContextListener {
     protected boolean hasCovariate = false;
     protected boolean solvingForPower = true;
     protected boolean hasConfidenceIntervalDescription = false;
+    protected boolean hasQuantilePower = false;
 
     // mutliplier to get total sample size from relative sizes
     protected int totalSampleSizeMultiplier = 1;
@@ -532,7 +533,8 @@ ClickHandler, WizardContextListener {
         hasCovariate = false;
         solvingForPower = true;
         hasConfidenceIntervalDescription = false;
-
+        hasQuantilePower = false;
+        
         // set the display to remove power options
         disableCheckbox.setValue(true);
         // reset confidence limits checkbox
@@ -746,7 +748,8 @@ ClickHandler, WizardContextListener {
      * @param testStr
      * @return
      */
-    public static PowerMethodEnum powerMethodStringToEnum(String powerMethodStr) {
+    public static PowerMethodEnum powerMethodStringToEnum(
+            String powerMethodStr) {
         if (powerMethodStr.equals(GlimmpseWeb.constants
                 .powerMethodConditionalLabel())) {
             return PowerMethodEnum.CONDITIONAL;
@@ -793,14 +796,15 @@ ClickHandler, WizardContextListener {
      * notify that forward navigation is allowed
      */
     private void checkComplete() {
-        if ((totalNListBox.isVisible() && totalNListBox.getItemCount() <= 0) ||
-                (nominalPowerListBox.isVisible() && nominalPowerListBox.getItemCount() <= 0) ||
-                (betaScaleListBox.isVisible() && betaScaleListBox.getItemCount() <= 0) ||
-                (sigmaScaleListBox.isVisible() && sigmaScaleListBox.getItemCount() <= 0) ||
-                (testListBox.isVisible() && testListBox.getItemCount() <= 0) ||
-                (alphaListBox.isVisible() && alphaListBox.getItemCount() <= 0) ||
-                (powerMethodListBox.isVisible() && powerMethodListBox.getItemCount() <= 0) ||
-                (quantileListBox.isVisible() && quantileListBox.getItemCount() <= 0)) {
+        if ((studyDesignContext.getStudyDesign().getSolutionTypeEnum() == null) ||
+                (solvingForPower && totalNListBox.getItemCount() <= 0) ||
+                (!solvingForPower && nominalPowerListBox.getItemCount() <= 0) ||
+                (betaScaleListBox.getItemCount() <= 0) ||
+                (sigmaScaleListBox.getItemCount() <= 0) ||
+                (testListBox.getItemCount() <= 0) ||
+                (alphaListBox.getItemCount() <= 0) ||
+                (hasCovariate && powerMethodListBox.getItemCount() <= 0) ||
+                (hasQuantilePower && quantileListBox.getItemCount() <= 0)) {
             // if any visible dropdown lists are not filled, then the user
             // can't enter this screen
             changeState(WizardStepPanelState.NOT_ALLOWED);
@@ -850,13 +854,13 @@ ClickHandler, WizardContextListener {
         powerMethodListBox.setVisible(hasCovariate);
         showDataSeriesGridField(COLUMN_POWER_METHOD, hasCovariate);
         // quantile
-        quantileHTML.setVisible(hasCovariate);
-        quantileListBox.setVisible(hasCovariate);
-        showDataSeriesGridField(COLUMN_QUANTILE, hasCovariate);
+        quantileHTML.setVisible(hasQuantilePower);
+        quantileListBox.setVisible(hasQuantilePower);
+        showDataSeriesGridField(COLUMN_QUANTILE, hasQuantilePower);
         // Set visibility for Confidence Interval Description CheckBox
         confidenceLimitsLabelHTML.setVisible(hasConfidenceIntervalDescription);
         confidenceLimitsCheckBox.setVisible(hasConfidenceIntervalDescription);
-        showDataSeriesGridField(COLUMN_QUANTILE, hasCovariate);
+        showDataSeriesGridField(COLUMN_CI, hasConfidenceIntervalDescription);
     }
 
     /**
@@ -965,7 +969,12 @@ ClickHandler, WizardContextListener {
                 studyDesignContext.getStudyDesign().getPowerMethodList();
             powerMethodListBox.clear();
             if (powerMethodList != null) {
+                hasQuantilePower = false;
                 for (PowerMethod powerMethod : powerMethodList) {
+                    if (powerMethod.getPowerMethodEnum() ==
+                        PowerMethodEnum.QUANTILE) {
+                        hasQuantilePower = true;
+                    }
                     powerMethodListBox.addItem(
                             powerMethodToString(
                                     powerMethod.getPowerMethodEnum()));
@@ -1068,7 +1077,12 @@ ClickHandler, WizardContextListener {
         .getStudyDesign().getPowerMethodList();
         powerMethodListBox.clear();
         if (powerMethodList != null) {
+            hasQuantilePower = false;
             for (PowerMethod powerMethod : powerMethodList) {
+                if (powerMethod.getPowerMethodEnum() ==
+                    PowerMethodEnum.QUANTILE) {
+                    hasQuantilePower = true;
+                }
                 powerMethodListBox.addItem(
                         powerMethodToString(powerMethod.getPowerMethodEnum()));
             }
