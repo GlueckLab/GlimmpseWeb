@@ -369,9 +369,6 @@ implements ChangeHandler
                         GlimmpseConstants.STYLE_WIZARD_STEP_TABLE_ROW);
                 sigmaYGTable.setWidget(row, 0, new HTML(outcome.getName()));
                 RowColumnTextBox tb = new RowColumnTextBox(row-1, 0);
-                tb.setText(Double.toString(
-                        studyDesignContext.getCovariateOutcomesCovarianceValue(
-                                row-1+currentRowOffset, 0)));
                 tb.addChangeHandler(this);
                 sigmaYGTable.setWidget(row, 1, tb);
                 row++;
@@ -426,7 +423,7 @@ implements ChangeHandler
         if (sigmaGMatrix != null && sigmaGMatrix.getData() != null) {
             double[][] data = sigmaGMatrix.getData().getData();
             if (data != null) {
-                standardDeviationTextBox.setText(Double.toString(Math.sqrt(data[0][0])));
+                standardDeviationTextBox.setText(Double.toString(data[0][0]));
             }
         }
 
@@ -445,12 +442,14 @@ implements ChangeHandler
             break;
         case RESPONSES_LIST:
             loadResponsesFromContext();
+            loadMatricesFromContext();
             break;
         case REPEATED_MEASURES:
             loadRepeatedMeasuresFromContext();
+            loadMatricesFromContext();
             break;
         case COVARIATE_COVARIANCE:
-            // TODO
+            loadMatricesFromContext();
             break;
         }
         checkComplete();
@@ -482,6 +481,7 @@ implements ChangeHandler
      */
     @Override
     public void onWizardContextLoad() {
+        hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
         loadResponsesFromContext();
         loadRepeatedMeasuresFromContext();
         loadMatricesFromContext();

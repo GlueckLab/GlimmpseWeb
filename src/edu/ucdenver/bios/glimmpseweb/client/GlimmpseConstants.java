@@ -448,8 +448,8 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsTitle();
     public String curveOptionsDescription();
     public String curveOptionsNone();
-    public String curveOptionsXAxisLabel();
-    public String curveOptionsStratifyLabel();
+    public String curveOptionsXAxisDescription();
+    public String curveOptionsDataSeriesDescription();
     public String curveOptionsDataSeriesLabel();
     public String curveOptionsSampleSizeLabel();
     public String curveOptionsBetaScaleLabel();

@@ -43,6 +43,7 @@ import edu.ucdenver.bios.webservice.common.domain.HypothesisBetweenParticipantMa
 import edu.ucdenver.bios.webservice.common.domain.HypothesisRepeatedMeasuresMapping;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
+import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
@@ -57,6 +58,7 @@ import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
 import edu.ucdenver.bios.webservice.common.domain.StudyDesign;
 import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
+import edu.ucdenver.bios.webservice.common.enums.HorizontalAxisLabelEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.HypothesisTypeEnum;
 import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
@@ -68,7 +70,6 @@ import edu.ucdenver.bios.webservice.common.enums.StudyDesignViewTypeEnum;
 /**
  * Wizard context for study designs
  * @author Sarah Kreidler
- * @author Vijay Akula
  *
  */
 public class StudyDesignContext extends WizardContext
@@ -130,7 +131,7 @@ public class StudyDesignContext extends WizardContext
      */
     public int getValidBetweenParticipantFactorCount() {
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
 
         // count the between participant factors
         int numValidBetweenFactors = 0;
@@ -166,7 +167,7 @@ public class StudyDesignContext extends WizardContext
         int totalResponses =  (responsesList != null ? responsesList.size() : 0);
         // multiply the repeated measures
         List<RepeatedMeasuresNode> rmNodeList = 
-                studyDesign.getRepeatedMeasuresTree();
+            studyDesign.getRepeatedMeasuresTree();
         if (rmNodeList != null) {
             for(RepeatedMeasuresNode node: rmNodeList) {
                 if (node.getDimension() != null &&
@@ -188,7 +189,7 @@ public class StudyDesignContext extends WizardContext
      */
     public int getValidRepeatedMeasuresFactorCount() {
         List<RepeatedMeasuresNode> rmNodeList = 
-                studyDesign.getRepeatedMeasuresTree();
+            studyDesign.getRepeatedMeasuresTree();
 
         // count the within participant factors
         int numValidWithinFactors = 0;
@@ -214,7 +215,7 @@ public class StudyDesignContext extends WizardContext
         // get new dimensions
         int newRows = participantGroups.getNumberOfRows();
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         if (newRows == 0 && (factorList == null || factorList.size() == 0)) {
             // if no groups and no partially specified factors, 
             // then assume a one sample design
@@ -1086,7 +1087,7 @@ public class StudyDesignContext extends WizardContext
             String predictorName)
     {
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         if (factorList == null) {
             factorList = new ArrayList<BetweenParticipantFactor>();
             studyDesign.setBetweenParticipantFactorList(factorList);
@@ -1116,7 +1117,7 @@ public class StudyDesignContext extends WizardContext
             String predictorName)
     {
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         if (factorList != null) {
             for(int i = 0; i < factorList.size(); i++) {
                 BetweenParticipantFactor factor = factorList.get(i);
@@ -1152,7 +1153,7 @@ public class StudyDesignContext extends WizardContext
      */
     public BetweenParticipantFactor getBetweenParticipantFactor(String factorName) {
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         if (factorList != null) {
             for(BetweenParticipantFactor factor: factorList) {
                 if (factorName.equals(factor.getPredictorName())) {
@@ -1170,7 +1171,7 @@ public class StudyDesignContext extends WizardContext
      */
     public int getBetweenParticipantFactorIndex(BetweenParticipantFactor factor) {
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         if (factorList != null) {
             int index = 0;
             for(BetweenParticipantFactor currentFactor: factorList) {
@@ -1190,7 +1191,7 @@ public class StudyDesignContext extends WizardContext
      */
     public RepeatedMeasuresNode getRepeatedMeasuresNode(String nodeName) {
         List<RepeatedMeasuresNode> nodeList = 
-                studyDesign.getRepeatedMeasuresTree();
+            studyDesign.getRepeatedMeasuresTree();
         if (nodeList != null) {
             for(RepeatedMeasuresNode node: nodeList) {
                 if (nodeName.equals(node.getDimension())) {
@@ -1208,7 +1209,7 @@ public class StudyDesignContext extends WizardContext
      */
     public int getRepeatedMeasuresNodeIndex(RepeatedMeasuresNode node) {
         List<RepeatedMeasuresNode> nodeList = 
-                studyDesign.getRepeatedMeasuresTree();
+            studyDesign.getRepeatedMeasuresTree();
         if (nodeList != null) {
             int index = 0;
             for(RepeatedMeasuresNode currentNode: nodeList) {
@@ -1328,7 +1329,7 @@ public class StudyDesignContext extends WizardContext
             int value, int index)
     {
         List<RelativeGroupSize> relativeGroupSizeList = 
-                studyDesign.getRelativeGroupSizeList();
+            studyDesign.getRelativeGroupSizeList();
         if (relativeGroupSizeList != null && 
                 index >= 0 && index < relativeGroupSizeList.size()) {
             RelativeGroupSize relativeGroupSize = relativeGroupSizeList.get(index);
@@ -1460,7 +1461,7 @@ public class StudyDesignContext extends WizardContext
         if (hypothesis != null) {
             // clear the within participant factor list
             List<HypothesisRepeatedMeasuresMapping> withinFactorMap = 
-                    hypothesis.getRepeatedMeasuresMapTree();
+                hypothesis.getRepeatedMeasuresMapTree();
             if (withinFactorMap != null && withinFactorMap.size() > 0) {
                 withinFactorMap.clear();
                 notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
@@ -1478,12 +1479,12 @@ public class StudyDesignContext extends WizardContext
         if (hypothesis != null) {
             // clear the factor lists 
             List<HypothesisBetweenParticipantMapping> betweenFactorMap = 
-                    hypothesis.getBetweenParticipantFactorMapList();
+                hypothesis.getBetweenParticipantFactorMapList();
             if (betweenFactorMap != null) {
                 betweenFactorMap.clear();
             }
             List<HypothesisRepeatedMeasuresMapping> withinFactorMap = 
-                    hypothesis.getRepeatedMeasuresMapTree();
+                hypothesis.getRepeatedMeasuresMapTree();
             if (withinFactorMap != null) {
                 withinFactorMap.clear();
             }
@@ -1540,12 +1541,12 @@ public class StudyDesignContext extends WizardContext
             // clear the factor lists - these will be updated by subsequent
             // calls to add/remove factors
             List<HypothesisBetweenParticipantMapping> betweenFactorMap = 
-                    hypothesis.getBetweenParticipantFactorMapList();
+                hypothesis.getBetweenParticipantFactorMapList();
             if (betweenFactorMap != null) {
                 betweenFactorMap.clear();
             }
             List<HypothesisRepeatedMeasuresMapping> withinFactorMap = 
-                    hypothesis.getRepeatedMeasuresMapTree();
+                hypothesis.getRepeatedMeasuresMapTree();
             if (withinFactorMap != null) {
                 withinFactorMap.clear();
             }
@@ -1567,7 +1568,7 @@ public class StudyDesignContext extends WizardContext
         Hypothesis hypothesis = getPrimaryHypothesis();
         if (hypothesis != null) {
             List<HypothesisBetweenParticipantMapping> mapList = 
-                    hypothesis.getBetweenParticipantFactorMapList();
+                hypothesis.getBetweenParticipantFactorMapList();
             if (mapList == null) {
                 mapList = new ArrayList<HypothesisBetweenParticipantMapping>();
                 hypothesis.setBetweenParticipantFactorMapList(mapList);
@@ -1612,7 +1613,7 @@ public class StudyDesignContext extends WizardContext
         Hypothesis hypothesis = getPrimaryHypothesis();
         if (hypothesis != null) {
             List<HypothesisBetweenParticipantMapping> mapList = 
-                    hypothesis.getBetweenParticipantFactorMapList();
+                hypothesis.getBetweenParticipantFactorMapList();
             if (mapList != null) {
                 for(int i = 0; i < mapList.size(); i++) {
                     HypothesisBetweenParticipantMapping mapping = mapList.get(i);
@@ -1643,7 +1644,7 @@ public class StudyDesignContext extends WizardContext
         } 
         if (hypothesis != null) {
             List<HypothesisBetweenParticipantMapping> mapList = 
-                    hypothesis.getBetweenParticipantFactorMapList();
+                hypothesis.getBetweenParticipantFactorMapList();
             for(HypothesisBetweenParticipantMapping mapping : mapList) {
                 if (factor == mapping.getBetweenParticipantFactor()) {
                     mapping.setType(trendType);
@@ -1670,7 +1671,7 @@ public class StudyDesignContext extends WizardContext
         } 
         if (hypothesis != null) {
             List<HypothesisRepeatedMeasuresMapping> mapList = 
-                    hypothesis.getRepeatedMeasuresMapTree();
+                hypothesis.getRepeatedMeasuresMapTree();
             if (mapList == null) {
                 mapList = new ArrayList<HypothesisRepeatedMeasuresMapping>();
                 hypothesis.setRepeatedMeasuresMapTree(mapList);
@@ -1716,7 +1717,7 @@ public class StudyDesignContext extends WizardContext
         Hypothesis hypothesis = getPrimaryHypothesis();
         if (hypothesis != null) {
             List<HypothesisRepeatedMeasuresMapping> mapList = 
-                    hypothesis.getRepeatedMeasuresMapTree();
+                hypothesis.getRepeatedMeasuresMapTree();
             if (mapList != null) {
                 for(int i = 0; i < mapList.size(); i++) {
                     HypothesisRepeatedMeasuresMapping mapping = mapList.get(i);
@@ -1747,7 +1748,7 @@ public class StudyDesignContext extends WizardContext
         } 
         if (hypothesis != null) {
             List<HypothesisRepeatedMeasuresMapping> mapList = 
-                    hypothesis.getRepeatedMeasuresMapTree();
+                hypothesis.getRepeatedMeasuresMapTree();
             for(HypothesisRepeatedMeasuresMapping mapping : mapList) {
                 if (factor == mapping.getRepeatedMeasuresNode()) {
                     mapping.setType(trendType);
@@ -1770,7 +1771,7 @@ public class StudyDesignContext extends WizardContext
             int row, int column, double value) {
         // get the theta null matrix
         NamedMatrix thetaNull = 
-                this.getMatrixByName(GlimmpseConstants.MATRIX_THETA);
+            this.getMatrixByName(GlimmpseConstants.MATRIX_THETA);
         if (thetaNull != null && thetaNull.getData() != null &&
                 row >= 0 && row < thetaNull.getRows() &&
                 column >= 0 && column < thetaNull.getColumns()) {
@@ -1792,7 +1793,7 @@ public class StudyDesignContext extends WizardContext
             String name, int newDimension) {
         if (name != null && !name.isEmpty()) {
             Covariance covariance = 
-                    studyDesign.getCovarianceFromSet(name);
+                studyDesign.getCovarianceFromSet(name);
             if (newDimension > 1) {
                 if (covariance == null) {
                     // allocate a new covariance structure if it is not yet available
@@ -1847,8 +1848,8 @@ public class StudyDesignContext extends WizardContext
     private void updateCovarianceSizeResponses(WizardStepPanel panel,
             int newDimension) {
         Covariance covariance = 
-                studyDesign.getCovarianceFromSet(
-                        GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
+            studyDesign.getCovarianceFromSet(
+                    GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
         if (newDimension > 0) {
             if (covariance == null) {
                 // allocate a new covariance structure if it is not yet available
@@ -1899,7 +1900,7 @@ public class StudyDesignContext extends WizardContext
         if (hasCovariate) {
             // reallocate the sigmaG matrix
             NamedMatrix sigmaG = 
-                    studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+                studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
             if (sigmaG == null) {
                 sigmaG = new NamedMatrix();
                 sigmaG.setName(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
@@ -1909,13 +1910,14 @@ public class StudyDesignContext extends WizardContext
                 double[][] data = new double[1][1];
                 data[0][0] = 1;
                 sigmaG.setDataFromArray(data);
+                studyDesign.setNamedMatrix(sigmaG);
             }
             // count the total number of outcomes
             int rows = getValidTotalResponsesCount();
             int columns = 1;
             // reallocate the sigmaYG matrix if needed
             NamedMatrix sigmaYG = 
-                    studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+                studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
             if (sigmaYG == null) {
                 sigmaYG = new NamedMatrix();
                 sigmaYG.setName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
@@ -1930,6 +1932,7 @@ public class StudyDesignContext extends WizardContext
                         data[i][0] = 0;
                     }
                     sigmaYG.setDataFromArray(data);
+                    studyDesign.setNamedMatrix(sigmaYG);
                 }
             } else {
                 // insufficient information to build the sigmaYG matrix
@@ -1944,7 +1947,7 @@ public class StudyDesignContext extends WizardContext
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.COVARIATE_COVARIANCE));
     }
-    
+
     /**
      * Returns true if the sigmaG matrix is valid
      * @return
@@ -1953,7 +1956,7 @@ public class StudyDesignContext extends WizardContext
         return true;
         // TODO: finish!
     }
-    
+
     /**
      * Returns true if the sigmaG matrix is valid
      * @return
@@ -1962,21 +1965,21 @@ public class StudyDesignContext extends WizardContext
         return true;
         // TODO: finish!
     }
-    
+
     /**
      * Get the value in the sigmaG matrix 
      */
     public double getGaussianCovariateStandardDeviation() {
         NamedMatrix sigmaG = 
-                studyDesign.getNamedMatrix(
-                        GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+            studyDesign.getNamedMatrix(
+                    GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
         if (sigmaG != null &&  sigmaG.getData() != null && sigmaG.getData().getData() != null) {
             return sigmaG.getData().getData()[0][0];
         } else {
             return Double.NaN;
         }
     }
-    
+
     /**
      * Set the standard deviation (really the variance) in the sigmaG matrix
      * @param panel
@@ -1985,7 +1988,7 @@ public class StudyDesignContext extends WizardContext
     public void setGaussianCovariateStandardDeviation(WizardStepPanel panel,
             double value) {
         NamedMatrix sigmaG = 
-                studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
+            studyDesign.getNamedMatrix(GlimmpseConstants.MATRIX_SIGMA_COVARIATE);
         if (sigmaG != null && sigmaG.getData() != null &&
                 sigmaG.getData().getData() != null) {
             double[][] data = sigmaG.getData().getData();
@@ -1994,7 +1997,7 @@ public class StudyDesignContext extends WizardContext
                     StudyDesignChangeType.COVARIATE_COVARIANCE));
         }
     }
-    
+
     /**
      * Get the value in the sigmaYG matrix at the specified row and column.
      * We adjust back to a correlation since the values are stored as covariances
@@ -2003,8 +2006,8 @@ public class StudyDesignContext extends WizardContext
      */
     public double getCovariateOutcomesCovarianceValue(int row, int column) {
         NamedMatrix sigmaYG = 
-                studyDesign.getNamedMatrix(
-                        GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
+            studyDesign.getNamedMatrix(
+                    GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
         if (sigmaYG != null && row >=0 && column >= 0 &&
                 row < sigmaYG.getRows() && column < sigmaYG.getColumns() &&
                 sigmaYG.getData() != null && sigmaYG.getData().getData() != null) {
@@ -2041,8 +2044,8 @@ public class StudyDesignContext extends WizardContext
         Set<Covariance> covarianceSet = studyDesign.getCovariance();
         if (covarianceSet != null) {
             Covariance responseCovariance = 
-                    studyDesign.getCovarianceFromSet(
-                            GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
+                studyDesign.getCovarianceFromSet(
+                        GlimmpseConstants.RESPONSES_COVARIANCE_LABEL);
             covarianceSet.clear();
             if (responseCovariance != null) {
                 covarianceSet.add(responseCovariance);
@@ -2061,7 +2064,7 @@ public class StudyDesignContext extends WizardContext
             String covarianceName,
             CovarianceTypeEnum type) {
         Covariance covariance = 
-                studyDesign.getCovarianceFromSet(covarianceName);
+            studyDesign.getCovarianceFromSet(covarianceName);
         if (covariance != null) {
             if (covariance.getType() != type) {
                 covariance.setType(type);
@@ -2083,7 +2086,7 @@ public class StudyDesignContext extends WizardContext
     public void setCovarianceLearParameters(WizardStepPanel panel, 
             String covarianceName, double baseCorrelation, double decayRate) {
         Covariance covariance = 
-                studyDesign.getCovarianceFromSet(covarianceName);
+            studyDesign.getCovarianceFromSet(covarianceName);
         if (covariance != null) {
             if (covariance.getType() == CovarianceTypeEnum.LEAR_CORRELATION) {
                 covariance.setRho(baseCorrelation);
@@ -2105,7 +2108,7 @@ public class StudyDesignContext extends WizardContext
     public void setCovarianceValue(WizardStepPanel panel, 
             String covarianceName, int row, int column, double value) {
         Covariance covariance = 
-                studyDesign.getCovarianceFromSet(covarianceName);
+            studyDesign.getCovarianceFromSet(covarianceName);
         if (covariance != null && covariance.getBlob() != null) {
             double[][] data = covariance.getBlob().getData();
             if (data != null && 
@@ -2139,7 +2142,7 @@ public class StudyDesignContext extends WizardContext
     public void setCovarianceStandardDeviationValue(
             WizardStepPanel panel, String covarianceName, int index, double value) {
         Covariance covariance = 
-                studyDesign.getCovarianceFromSet(covarianceName);
+            studyDesign.getCovarianceFromSet(covarianceName);
         if (covariance != null &&
                 covariance.getStandardDeviationList() != null &&
                 index >= 0 && index < covariance.getStandardDeviationList().size()) {
@@ -2226,15 +2229,97 @@ public class StudyDesignContext extends WizardContext
     }
 
     /**
-     * Store the power curve description to the context
+     * Toggle the power curve description in the studyDesign 
      * @param panel wizard panel initiating the change
-     * @param curveDescription power curve description
+     * @param includePowerCurve power curve description
      */
     public void setPowerCurveDescription(WizardStepPanel panel,
-            PowerCurveDescription curveDescription) {
-        studyDesign.setPowerCurveDescriptions(curveDescription);
+            boolean includePowerCurve) {
+        if (includePowerCurve) {
+            studyDesign.setPowerCurveDescriptions(new PowerCurveDescription());
+        } else {
+            studyDesign.setPowerCurveDescriptions(null);
+        }
         notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
                 StudyDesignChangeType.POWER_CURVE));
+    }
+
+    /**
+     * Set the X-axis type in the power curve description
+     * @param panel panel initiating the change
+     * @param axisType
+     */
+    public void setPowerCurveXAxisType(WizardStepPanel panel,
+            HorizontalAxisLabelEnum axisType) {
+        PowerCurveDescription curveDescription = 
+            studyDesign.getPowerCurveDescriptions();
+        if (curveDescription != null &&
+                axisType != curveDescription.getHorizontalAxisLabelEnum()) {
+            curveDescription.setHorizontalAxisLabelEnum(axisType);
+            // for consistency, we clear the data series when the axis changes
+            clearPowerCurveDataSeries(panel);
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.POWER_CURVE));
+        }
+    }
+
+    /**
+     * Clear the data series in the power curve description
+     * @param panel
+     */
+    public void clearPowerCurveDataSeries(WizardStepPanel panel) {
+        PowerCurveDescription curveDescription = 
+            studyDesign.getPowerCurveDescriptions();
+        if (curveDescription != null && 
+                curveDescription.getDataSeriesList() != null &&
+                curveDescription.getDataSeriesList().size() > 0) {
+            curveDescription.getDataSeriesList().clear();
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.POWER_CURVE));
+        }
+    }
+
+    /**
+     * Add a data series to the power curve description
+     * @param panel panel initiating the change
+     * @param series the data series
+     */
+    public void addPowerCurveDataSeries(WizardStepPanel panel,
+            PowerCurveDataSeries series) {
+        PowerCurveDescription curveDescription = 
+            studyDesign.getPowerCurveDescriptions();
+        if (curveDescription != null ) {
+            List<PowerCurveDataSeries> seriesList = 
+                curveDescription.getDataSeriesList();
+            if (seriesList == null) {
+                seriesList = new ArrayList<PowerCurveDataSeries>();
+                curveDescription.setDataSeriesList(seriesList);
+            }
+            seriesList.add(series);
+            notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                    StudyDesignChangeType.POWER_CURVE));
+        }
+    }
+
+    /**
+     * Delete the specified data series from the power curve description
+     * @param panel panel initiating the change
+     * @param index index of the data series in the list of series
+     */
+    public void deletePowerCurveDataSeries(WizardStepPanel panel,
+            int index) {
+        PowerCurveDescription curveDescription = 
+            studyDesign.getPowerCurveDescriptions();
+        if (curveDescription != null ) {
+            List<PowerCurveDataSeries> seriesList = 
+                curveDescription.getDataSeriesList();
+            if (seriesList != null && index >= 0 &&
+                    index < seriesList.size()) {
+                seriesList.remove(index);
+                notifyWizardContextChanged(new StudyDesignChangeEvent(panel, 
+                        StudyDesignChangeType.POWER_CURVE));
+            }
+        }
     }
 
     /**
@@ -2303,7 +2388,7 @@ public class StudyDesignContext extends WizardContext
                     validClustering() &&
                     validLists() && validOptions() &&
                     (hasBeta && hasBetaRandom && hasSigmaYG && hasSigmaG)
-                    );
+            );
         }
     }
 
@@ -2376,9 +2461,9 @@ public class StudyDesignContext extends WizardContext
                 }
             }
             complete = validLists() && validOptions() &&
-                    (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
-                            && hasU && hasThetaNull
-                            && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
+            (hasX && hasBeta && hasBetaRandom && hasC && hasCRandom 
+                    && hasU && hasThetaNull
+                    && hasSigmaE && hasSigmaY && hasSigmaYG && hasSigmaG);
         }
     }
 
@@ -2389,24 +2474,29 @@ public class StudyDesignContext extends WizardContext
      */
     private boolean validBetweenFactors() {
         List<BetweenParticipantFactor> factorList = 
-                studyDesign.getBetweenParticipantFactorList();
+            studyDesign.getBetweenParticipantFactorList();
         boolean complete = false;
-        if (factorList != null && factorList.size() > 0) {
-            if (factorList.size() == 1) {
-                List<Category> categoryList = factorList.get(0).getCategoryList();
-                complete = (categoryList != null && categoryList.size() > 0);
-            } else {
-                complete = true;
-                for(BetweenParticipantFactor factor: factorList) {
-                    List<Category> categoryList = factor.getCategoryList();
-                    if (categoryList.size() < 2) {
-                        complete = false;
-                        break;
+        if (factorList == null || factorList.size() <= 0) {
+            // one sample design
+            complete = true;
+        } else {
+            // multi sample design
+            if (factorList != null && factorList.size() > 0) {
+                if (factorList.size() == 1) {
+                    List<Category> categoryList = factorList.get(0).getCategoryList();
+                    complete = (categoryList != null && categoryList.size() > 0);
+                } else {
+                    complete = true;
+                    for(BetweenParticipantFactor factor: factorList) {
+                        List<Category> categoryList = factor.getCategoryList();
+                        if (categoryList.size() < 2) {
+                            complete = false;
+                            break;
+                        }
                     }
                 }
-            }
-        } 
-
+            } 
+        }
         return complete;
     }
 
@@ -2421,7 +2511,7 @@ public class StudyDesignContext extends WizardContext
                 validCovariance(
                         studyDesign.getCovarianceFromSet(
                                 GlimmpseConstants.RESPONSES_COVARIANCE_LABEL
-                                ), responseList.size())) {
+                        ), responseList.size())) {
             return true;
         } 
 
@@ -2439,25 +2529,25 @@ public class StudyDesignContext extends WizardContext
             switch(studyDesign.getSolutionTypeEnum()) {
             case POWER:
                 if (studyDesign.getSampleSizeList() == null
-                || studyDesign.getSampleSizeList().size() < 1
-                || studyDesign.getBetaScaleList() == null 
-                || studyDesign.getBetaScaleList().size() < 1) {
+                        || studyDesign.getSampleSizeList().size() < 1
+                        || studyDesign.getBetaScaleList() == null 
+                        || studyDesign.getBetaScaleList().size() < 1) {
                     return false;
                 }
                 break;
             case SAMPLE_SIZE:
                 if (studyDesign.getNominalPowerList() == null
-                || studyDesign.getNominalPowerList().size() < 1
-                || studyDesign.getBetaScaleList() == null 
-                || studyDesign.getBetaScaleList().size() < 1) {
+                        || studyDesign.getNominalPowerList().size() < 1
+                        || studyDesign.getBetaScaleList() == null 
+                        || studyDesign.getBetaScaleList().size() < 1) {
                     return false;
                 }
                 break;
             case DETECTABLE_DIFFERENCE:
                 if (studyDesign.getSampleSizeList() == null
-                || studyDesign.getSampleSizeList().size() < 1
-                || studyDesign.getNominalPowerList() == null 
-                || studyDesign.getNominalPowerList().size() < 1) {
+                        || studyDesign.getSampleSizeList().size() < 1
+                        || studyDesign.getNominalPowerList() == null 
+                        || studyDesign.getNominalPowerList().size() < 1) {
                     return false;
                 }
                 break;
@@ -2478,7 +2568,7 @@ public class StudyDesignContext extends WizardContext
                     for(PowerMethod method : studyDesign.getPowerMethodList()) {
                         if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
                                 && (studyDesign.getPowerMethodList() == null 
-                                || studyDesign.getPowerMethodList().size() < 1)){
+                                        || studyDesign.getPowerMethodList().size() < 1)){
                             return false;
                         }
                     }
@@ -2500,15 +2590,15 @@ public class StudyDesignContext extends WizardContext
         ConfidenceIntervalDescription ciDescr = studyDesign.getConfidenceIntervalDescriptions();
         return (
                 (curveDescr == null ||
-                (curveDescr.getHorizontalAxisLabelEnum() != null &&
-                curveDescr.getDataSeriesList() != null &&
-                curveDescr.getDataSeriesList().size() > 0)) &&
-                (ciDescr == null ||
-                (ciDescr.getLowerTailProbability() >= 0 &&
-                ciDescr.getUpperTailProbability() >= 0 &&
-                ciDescr.getSampleSize() > 1 &&
-                ciDescr.getRankOfDesignMatrix() > 0))
-                );
+                        (curveDescr.getHorizontalAxisLabelEnum() != null &&
+                                curveDescr.getDataSeriesList() != null &&
+                                curveDescr.getDataSeriesList().size() > 0)) &&
+                                (ciDescr == null ||
+                                        (ciDescr.getLowerTailProbability() >= 0 &&
+                                                ciDescr.getUpperTailProbability() >= 0 &&
+                                                ciDescr.getSampleSize() > 1 &&
+                                                ciDescr.getRankOfDesignMatrix() > 0))
+        );
     }
 
     /**
@@ -2526,22 +2616,22 @@ public class StudyDesignContext extends WizardContext
                     return hasThetaNull;
                 case MAIN_EFFECT:
                     if ((hypothesis.getBetweenParticipantFactorList() == null ||
-                    hypothesis.getBetweenParticipantFactorList().size() <= 0) &&
-                    (hypothesis.getRepeatedMeasuresList() == null ||
-                    hypothesis.getRepeatedMeasuresList().size() <= 0)) {
+                            hypothesis.getBetweenParticipantFactorList().size() <= 0) &&
+                            (hypothesis.getRepeatedMeasuresList() == null ||
+                                    hypothesis.getRepeatedMeasuresList().size() <= 0)) {
                         return false;
                     } else {
                         return true;
                     }
                 case TREND:
                     if ((hypothesis.getBetweenParticipantFactorList() == null ||
-                    hypothesis.getBetweenParticipantFactorList().size() <= 0 ||
-                    hypothesis.getBetweenParticipantFactorMapList() == null ||
-                    hypothesis.getBetweenParticipantFactorMapList().size() <= 0) &&
-                    (hypothesis.getRepeatedMeasuresList() == null ||
-                    hypothesis.getRepeatedMeasuresList().size() <= 0 ||
-                    hypothesis.getRepeatedMeasuresMapTree() == null ||
-                    hypothesis.getRepeatedMeasuresMapTree().size() <= 0)) {
+                            hypothesis.getBetweenParticipantFactorList().size() <= 0 ||
+                            hypothesis.getBetweenParticipantFactorMapList() == null ||
+                            hypothesis.getBetweenParticipantFactorMapList().size() <= 0) &&
+                            (hypothesis.getRepeatedMeasuresList() == null ||
+                                    hypothesis.getRepeatedMeasuresList().size() <= 0 ||
+                                    hypothesis.getRepeatedMeasuresMapTree() == null ||
+                                    hypothesis.getRepeatedMeasuresMapTree().size() <= 0)) {
                         return false;
                     } else {
                         return true;
@@ -2588,7 +2678,7 @@ public class StudyDesignContext extends WizardContext
                 if (rmNode.getDimension() != null && !rmNode.getDimension().isEmpty()
                         && rmNode.getNumberOfMeasurements() > 1) {
                     if (rmNode.getRepeatedMeasuresDimensionType() == 
-                            RepeatedMeasuresDimensionType.NUMERICAL) {
+                        RepeatedMeasuresDimensionType.NUMERICAL) {
                         if (rmNode.getSpacingList() == null || rmNode.getSpacingList().size() <= 0) {
                             return false;
                         }
@@ -2623,18 +2713,18 @@ public class StudyDesignContext extends WizardContext
                 switch (covariance.getType()) {
                 case LEAR_CORRELATION:
                     if (covariance.getDelta() <= 0 || 
-                    covariance.getRho() < -1 || covariance.getRho() > 1 ||
-                    covariance.getStandardDeviationList() == null || 
-                    covariance.getStandardDeviationList().size() != 1 ||
-                    covariance.getStandardDeviationList().get(0).getValue() <= 0) {
+                            covariance.getRho() < -1 || covariance.getRho() > 1 ||
+                            covariance.getStandardDeviationList() == null || 
+                            covariance.getStandardDeviationList().size() != 1 ||
+                            covariance.getStandardDeviationList().get(0).getValue() <= 0) {
                         return false;
                     }
                     break;
                 case UNSTRUCTURED_CORRELATION:
                     if (covariance.getBlob() == null ||
-                    covariance.getBlob().getData() == null ||
-                    covariance.getStandardDeviationList() == null ||
-                    covariance.getStandardDeviationList().size() != covariance.getRows()) {
+                            covariance.getBlob().getData() == null ||
+                            covariance.getStandardDeviationList() == null ||
+                            covariance.getStandardDeviationList().size() != covariance.getRows()) {
                         return false;
                     } else {
                         // make sure the std dev list is valid
@@ -2647,7 +2737,7 @@ public class StudyDesignContext extends WizardContext
                     break;
                 case UNSTRUCTURED_COVARIANCE:
                     if (covariance.getBlob() == null ||
-                    covariance.getBlob().getData() == null) {
+                            covariance.getBlob().getData() == null) {
                         return false;
                     }
                     break;
