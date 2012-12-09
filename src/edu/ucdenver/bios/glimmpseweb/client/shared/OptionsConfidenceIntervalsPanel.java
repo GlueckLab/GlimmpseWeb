@@ -358,8 +358,8 @@ public class OptionsConfidenceIntervalsPanel extends WizardStepPanel
 	        }
 	        
 	        // fill in the tail probabilities
-	        alphaUpperTextBox.setValue(Float.toString(description.getUpperTailProbability()));
-	        alphaLowerTextBox.setValue(Float.toString(description.getLowerTailProbability()));
+	        alphaUpperTextBox.setValue(Double.toString(description.getUpperTailProbability()));
+	        alphaLowerTextBox.setValue(Double.toString(description.getLowerTailProbability()));
 	        
 	        // fill in the rank and sample size for the pilot data
 	        sampleSizeTextBox.setValue(Integer.toString(description.getSampleSize()));
