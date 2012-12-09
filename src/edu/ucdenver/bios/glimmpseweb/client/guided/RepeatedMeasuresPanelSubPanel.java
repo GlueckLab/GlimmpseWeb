@@ -259,10 +259,12 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
      */
     public void setEqualSpacing()
     {
-        for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
-            TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
-            tb.setText(Integer.toString(c+1));
-            spacingList.get(c).setValue(c+1);
+        if (spacingFlexTable.getRowCount() > 0) {
+            for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
+                TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
+                tb.setText(Integer.toString(c+1));
+                spacingList.get(c).setValue(c+1);
+            }
         }
     }
 
