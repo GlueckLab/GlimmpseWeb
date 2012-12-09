@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="test-classes" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/thirdparty/gwt-visualization/1.1/lib/gwt-visualization.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/gin-1.5.0.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/guice-3.0.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/guice-assistedinject-3.0.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/piriti-dev-0.8.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/piriti-restlet-0.8.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/piriti-user-0.8.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/totoe-0.4.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/piriti/0.8/lib/velocity-1.7.jar"/>
+	<classpathentry kind="lib" path="/WebServiceCommon/build/artifacts/edu.ucdenver.bios.webservice.common-gwt-dev.jar"/>
+	<classpathentry kind="lib" path="/thirdparty/smartgwt/3.0p/lib/smartgwt.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>

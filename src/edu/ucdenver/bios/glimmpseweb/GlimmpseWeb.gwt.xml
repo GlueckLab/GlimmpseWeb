@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+GLIMMPSE (General Linear Multivariate Model Power and Sample size)
+Copyright (C) 2010 Regents of the University of Colorado.  
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ -->
+<module rename-to='glimmpseweb'>
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+
+  <!-- Inherit the default GWT style sheet.  You can change       -->
+  <!-- the theme of your GWT application by uncommenting          -->
+  <!-- any one of the following lines.                 -->          
+  <inherits name='com.google.gwt.user.theme.clean.Clean'/> 
+  <!-- Other module inherits                                      -->
+ <!--  xml -->
+ <inherits name="com.google.gwt.xml.XML"/>
+ <!-- JSON interface -->
+ <inherits name="com.google.gwt.json.JSON" />
+ <!-- Piriti library includes (JSON encoder/decoder) -->
+ <inherits name="name.pehl.piriti.json.JSON" />
+ <!-- required for JSON code generation -->
+ <inherits name="com.google.gwt.inject.Inject"/> 
+ <!-- Smart GWT widget set -->
+ <inherits name="com.smartgwt.SmartGwt"/>
+ <!-- UC Denver Web Service Common api -->
+ <inherits name="edu.ucdenver.bios.webservice.common.common"/>
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class='edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb'/>
+  
+  <!-- Specify the paths for translatable code                    -->
+  <source path='client'/>
+  <source path='context'/>
+</module>
