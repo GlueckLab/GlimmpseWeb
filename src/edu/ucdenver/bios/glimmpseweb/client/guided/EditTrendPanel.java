@@ -50,12 +50,12 @@ public class EditTrendPanel extends Composite
     protected static final String STYLE_CHANGE_FROM_BASELINE = "changeFromBaseline";
     
     // radio selection buttons for different trends
-	RadioButton noTrendTestRadioButton;
-	RadioButton changeFromBaselineRadioButton;
-	RadioButton allPolynomialTrendsRadioButton;
-	RadioButton linearTrendOnlyRadioButton;
-	RadioButton quadraticTrendOnlyRadioButton;
-	RadioButton cubicTrendOnlyRadioButton;
+    TrendRadioButton noTrendTestRadioButton;
+    TrendRadioButton changeFromBaselineRadioButton;
+    TrendRadioButton allPolynomialTrendsRadioButton;
+    TrendRadioButton linearTrendOnlyRadioButton;
+    TrendRadioButton quadraticTrendOnlyRadioButton;
+    TrendRadioButton cubicTrendOnlyRadioButton;
 	
 	// panels containing the radio buttons - makes it easier to hide/show buttons
 	// depending on the type of study design
@@ -76,23 +76,29 @@ public class EditTrendPanel extends Composite
 		
 		// create the radio buttons
 		noTrendTestRadioButton = 
-		        new RadioButton(prefix+radioButtonGroup, 
-		                GlimmpseWeb.constants.editTrendNoTrend());
+		        new TrendRadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendNoTrend(),
+		                HypothesisTrendTypeEnum.NONE);
 		changeFromBaselineRadioButton = 
-		        new RadioButton(prefix+radioButtonGroup, 
-		                GlimmpseWeb.constants.editTrendChangeFromBaseline());
+		        new TrendRadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendChangeFromBaseline(),
+                        HypothesisTrendTypeEnum.CHANGE_FROM_BASELINE);
 		allPolynomialTrendsRadioButton = 
-		        new RadioButton(prefix+radioButtonGroup, 
-		                GlimmpseWeb.constants.editTrendAllPolynomialTrends());
+		        new TrendRadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendAllPolynomialTrends(),
+                        HypothesisTrendTypeEnum.ALL_POLYNOMIAL);
 		linearTrendOnlyRadioButton = 
-		        new RadioButton(prefix+radioButtonGroup, 
-		                GlimmpseWeb.constants.editTrendLinearTrendOnly());
+		        new TrendRadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendLinearTrendOnly(),
+                        HypothesisTrendTypeEnum.LINEAR);
 		quadraticTrendOnlyRadioButton = 
-		        new RadioButton(prefix+radioButtonGroup, 
-		                GlimmpseWeb.constants.editTrendQudraticTrendOnly());
+		        new TrendRadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendQudraticTrendOnly(),
+                        HypothesisTrendTypeEnum.QUADRATIC);
 		cubicTrendOnlyRadioButton = 
-		        new RadioButton(prefix+radioButtonGroup, 
-		                GlimmpseWeb.constants.editTrendCubicTrendOnly());
+		        new TrendRadioButton(prefix+radioButtonGroup, 
+		                GlimmpseWeb.constants.editTrendCubicTrendOnly(),
+                        HypothesisTrendTypeEnum.CUBIC);
 		// select no trend by default
 		noTrendTestRadioButton.setValue(true);
 	        

@@ -36,7 +36,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
 import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixChangeHandler;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
+import edu.ucdenver.bios.glimmpseweb.client.shared.RowColumnTextBox;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
 import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
@@ -48,12 +50,13 @@ import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
  * @author Sarah Kreidler
  *
  */
-public class UnStructuredCorrelationPanel extends Composite implements CovarianceBuilder
+public class UnStructuredCorrelationPanel extends Composite 
+implements CovarianceBuilder, ResizableMatrixChangeHandler
 {    
     // name of this covariance piece
     protected String name;
     // parent panel
-    protected ChangeHandler parent = null;
+    protected CovarianceSetManager manager = null;
     // indicates if this is a correlation only panel, or includes the ability
     // to edit standard deviation values.  If non-editable, all std dev
     // values are forced to 1.
@@ -79,13 +82,14 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
      * @param showStdDev
      * @param handler
      */
-    public UnStructuredCorrelationPanel(String covarianceName,
+    public UnStructuredCorrelationPanel(CovarianceSetManager manager,
+            String covarianceName,
             List<String> labelList, List<Integer> spacingList, 
-            boolean showStdDev, ChangeHandler handler)
+            boolean showStdDev)
     {
         // store the covariance name
         name = covarianceName;
-        parent = handler;
+        this.manager = manager;
         showStandardDeviation = showStdDev;
         //Instance of vertical panel to hold all the widgets created in this class
         VerticalPanel verticalPanel = new VerticalPanel();
@@ -117,6 +121,7 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         correlationMatrix.setMinCellValue(-1.0);
         correlationMatrix.setCellErrorMessage(GlimmpseWeb.constants.errorInvalidCorrelation());
         correlationMatrix.setColumnLabels(labelList);
+        correlationMatrix.addChangeHandler(this);
         // add to the correlation sub panel
         correlationPanel.add(expectedCorrelationText);
         correlationPanel.add(correlationMatrix);
@@ -151,16 +156,17 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
         int row = 0;
         for(String label: labelList)
         {
-            TextBox textBox = new TextBox();
+            RowColumnTextBox textBox = new RowColumnTextBox(row, 0);
             textBox.addChangeHandler(new ChangeHandler()
             {
                 @Override
                 public void onChange(ChangeEvent event)
                 {
-                    TextBox tb = (TextBox)event.getSource();
+                    RowColumnTextBox tb = (RowColumnTextBox)event.getSource();
+                    double value = Double.NaN;
                     try
                     {
-                        TextValidation.parseDouble(tb.getText(), 0.0, true);
+                        value = TextValidation.parseDouble(tb.getText(), 0.0, true);
                         TextValidation.displayOkay(errorHTML, "");
                     }
                     catch (Exception e)
@@ -168,9 +174,10 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
                         tb.setText("");
                         TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidStandardDeviation());
                     }
+                    notifyStandardDeviation(tb.row, value);
                 }
             });
-            textBox.addChangeHandler(parent);
+//            textBox.addChangeHandler(parent);
             standardDeviationFlexTable.setWidget(row, 0, new HTML(label));
             standardDeviationFlexTable.setWidget(row, 1, textBox);
             row++;
@@ -198,43 +205,40 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
     }
 
     /**
-     * Create a covariance domain object
+     * Sync the GUI view with the context
      */
     @Override
-    public Covariance getCovariance() 
+    public void syncCovariance() 
     {
-        Covariance covariance = new Covariance();
-        covariance.setName(name);
-        covariance.setType(CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
-        List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
+        // sync the type
+        manager.setType(name, CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
+        // sync the standard deviation values
         if (showStandardDeviation) {
             for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
             {
                 TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(i, 1);
-                String value = tb.getValue();
-                StandardDeviation sd = new StandardDeviation();
-                if (value != null && !value.isEmpty()) {
-                    sd.setValue(Double.parseDouble(tb.getValue()));
-                } else {
-                    sd.setValue(-1);
+                double value = Double.NaN;
+                try {
+                    value = Double.parseDouble(tb.getValue());
+                } catch (Exception e) {
+                    // no action needed
                 }
-                sdList.add(sd);
+                manager.setStandardDeviationValue(name, i, value);
             }
         } else {
             for(int i = 0; i < standardDeviationFlexTable.getRowCount(); i++)
             {
-                StandardDeviation sd = new StandardDeviation();
-                sd.setValue(1);
-                sdList.add(sd);
+                manager.setStandardDeviationValue(name, i, 1);
             }
         }
-        covariance.setStandardDeviationList(sdList);
-
+        // sync the actual correlation values
         NamedMatrix matrix = correlationMatrix.toNamedMatrix(name);
-        covariance.setRows(matrix.getRows());
-        covariance.setColumns(matrix.getColumns());
-        covariance.setBlob(matrix.getData());
-        return covariance;
+        double[][] data = matrix.getData().getData();
+        for(int row = 0; row < matrix.getRows(); row++) {
+            for(int column = 0; column <= row; column++) {
+                manager.setCovarianceCellValue(name, row, column, data[row][column]);
+            }
+        }
     }
     
     /**
@@ -263,6 +267,43 @@ public class UnStructuredCorrelationPanel extends Composite implements Covarianc
                         covariance.getColumns(), covariance.getBlob().getData());
             }
         }
+    }
+
+    /**
+     * Alert the manager class of the changed standard deviation value
+     * @param row
+     * @param stddev
+     */
+    private void notifyStandardDeviation(int row, double stddev) {
+        manager.setStandardDeviationValue(name, row, stddev);
+        manager.setComplete(name, checkComplete());
+    }
+    
+    /**
+     * Event handler for row resize events in the covariance matrix
+     */
+    @Override
+    public void onRowDimension(int rows) {
+        // nothing to do since user can't change dimension of 
+        // covariance from this screen
+    }
+
+    /**
+     * Event handler for column resize events in the covariance matrix
+     */
+    @Override
+    public void onColumnDimension(int columns) {
+        // nothing to do since user can't change dimension of 
+        // covariance from this screen
+    }
+
+    /**
+     * Handler for changes to the resizable matrix contents
+     */
+    @Override
+    public void onCellChange(int row, int column, double value) {
+        manager.setCovarianceCellValue(name, row, column, value);
+        manager.setComplete(name, checkComplete());
     }
     
 }

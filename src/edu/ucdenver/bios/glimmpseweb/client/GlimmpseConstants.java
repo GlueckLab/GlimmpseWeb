@@ -38,6 +38,7 @@ public interface GlimmpseConstants extends Constants
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
     public static final String STYLE_WIZARD_STEP_HEADER = "wizardStepHeader";
+    public static final String STYLE_WIZARD_STEP_SUBHEADER = "wizardStepSubheader";
     public static final String STYLE_WIZARD_STEP_DESCRIPTION = "wizardStepDescription";
     public static final String STYLE_WIZARD_STEP_SUBPANEL = "subpanel";
     public static final String STYLE_WIZARD_STEP_BUTTON = "wizardStepButton";
@@ -66,6 +67,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TAB_HEADER = "wizardStepTabPanelHeader";
     public static final String STYLE_WIZARD_STEP_TAB = "wizardStepTabPanelTab";
     public static final String STYLE_WIZARD_STEP_TAB_CONTENT = "wizardStepTabPanelContent";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_BAR = "wizardStepDeckPanelBar";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_CONTENTS = "wizardStepDeckPanelContents";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_SUBPANEL="wizardStepDeckPanelContentsSubpanel";
     // Begin : Added for Power Curve Screen
     public static final String STYLE_WIZARD_STEP_LIST_BOX = "wizardStepListBox";
     public static final String STYLE_WIZARD_STEP_CHECK_BOX = "wizardStepCheckBox";    
@@ -74,11 +78,20 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MATRIX_DIMENSION = "matrixDimensions";
     public static final String STYLE_MATRIX_DATA = "matrixData";
     public static final String STYLE_MATRIX_CELL= "matrixCell";  
-    
+    // styles for feedback page
+    public static final String STYLE_FEEDBACK_HEADER = "feedbackHeader";
+    public static final String STYLE_FEEDBACK_DESCRIPTION = "feedbackDescription";
+    public static final String STYLE_FEEDBACK_QUESTION = "feedbackQuestion";
+    public static final String STYLE_FEEDBACK_RESPONSE = "feedbackResponse";
+    public static final String STYLE_FEEDBACK_SUBMIT = "feedbackSubmit";
+    public static final String STYLE_FEEDBACK_MESSAGE = "feedbackMessage";
     
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
+    
+    public static final String STYLE_BLOCK_WITH_BORDER = "blockWithBorder";
+    public static final String STYLE_BLOCK_WITH_SPACING = "blockWithSpacing";
     // generic dependent style names
     public static final String STYLE_EVEN = "even";
     public static final String STYLE_ODD = "odd";
@@ -97,6 +110,7 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_RIGHT = "right";
     public static final String STYLE_RIGHT_ACTIVE = "rightActive";
     public static final String STYLE_SINGLE = "single";
+    public static final String STYLE_INDENT = "indent";
     // mode names
     public static final String MODE_MATRIX = "matrix";
     public static final String MODE_GUIDED = "guided";
@@ -230,6 +244,11 @@ public interface GlimmpseConstants extends Constants
     
     // miscellaneous words
     public String and();
+    public String yes();
+    public String no();
+    public String other();
+    public String notSure();
+    public String submit();
     
     // mode selection panel constants
     public String modeSelectionTitle();
@@ -273,7 +292,6 @@ public interface GlimmpseConstants extends Constants
     // categorical predictors panel constants
     public String predictorsTitle();
     public String predictorsDescription();
-    public String predictorsMultiSampleDescription();
     public String predictorsOneSampleButton();
     public String predictorsMultiSampleButton();
     public String predictorsTableColumn();
@@ -430,8 +448,8 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsTitle();
     public String curveOptionsDescription();
     public String curveOptionsNone();
-    public String curveOptionsXAxisLabel();
-    public String curveOptionsStratifyLabel();
+    public String curveOptionsXAxisDescription();
+    public String curveOptionsDataSeriesDescription();
     public String curveOptionsDataSeriesLabel();
     public String curveOptionsSampleSizeLabel();
     public String curveOptionsBetaScaleLabel();
@@ -540,12 +558,15 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidClusterSize();
     public String errorInvalidCorrelation();
     public String errorInvalidNumRepeatedMeasures();
+    public String errorInvalidEmail();
+    public String errorNonUniqueValue();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();
     
     // web services urls
     public String helpManualURI();
+    public String formmailURI();
     public String chartSvcHostScatter();
     public String chartSvcHostLegend();
     public String powerSvcHostPower();
@@ -556,7 +577,7 @@ public interface GlimmpseConstants extends Constants
     public String matrixSvcHostMatrices();
     public String fileSvcHostUpload();
     public String fileSvcHostSaveAs();
-    
+
     //response panel constants
      public String responsesPanelTitle();
      public String responsesPanelDescription();
@@ -651,5 +672,26 @@ public interface GlimmpseConstants extends Constants
      public String resultsPowerCurveLabel();
      public String resultsSaveToCSVLabel();
      public String resultsViewMatricesLabel();
-
+     
+     // feedback screen
+     public String feedbackHeader();
+     public String feedbackDescription();
+     public String feedbackTypeLabel();
+     public String feedbackTypeGeneral();
+     public String feedbackTypeFeature();
+     public String feedbackTypeBug();
+     public String feedbackNameLabel();
+     public String feedbackEmailLabel();
+     public String feedbackMayWeContactLabel();
+     public String feedbackBrowserLabel();
+     public String feedbackOtherLabel();
+     public String feedbackVersionLabel();
+     public String feedbackContentsLabel();
+     
+     // browser labels
+     public String browserIELabel();
+     public String browserFirefoxLabel();
+     public String browserChromeLabel();
+     public String browserSafariLabel();
+     public String browserOperaLabel();
 }

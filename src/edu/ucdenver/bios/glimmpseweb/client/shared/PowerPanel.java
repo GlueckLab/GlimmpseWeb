@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -37,7 +36,6 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.NominalPower;
-import edu.ucdenver.bios.webservice.common.domain.TypeIError;
 import edu.ucdenver.bios.webservice.common.enums.SolutionTypeEnum;
 
 /**
@@ -54,9 +52,6 @@ implements ListValidator
     // list of nominal power values.  Only displayed when solving for effect size or sample size
     protected ListEntryPanel nominalPowerListPanel = 
         new ListEntryPanel(GlimmpseWeb.constants.solvingForNominalPowerTableColumn(), this);
-
-    // avoids reallocating this everytime we exit
-    ArrayList<NominalPower> powerList = new ArrayList<NominalPower>();
 
     public PowerPanel(WizardContext context)
     {
@@ -78,36 +73,6 @@ implements ListValidator
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
 
         initWidget(panel);
-    }
-
-    /**
-     * Validate new entries in the alpha list
-     * @see DynamicListValidator
-     */
-    public void validate(String value) throws IllegalArgumentException
-    {
-        try
-        {
-            TextValidation.parseDouble(value, 0, 1, false);
-        }
-        catch (NumberFormatException nfe)
-        {
-            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidPower());
-        }
-    }
-
-    /**
-     * Callback when the number of valid entries in the list of
-     * alpha values changes
-     * 
-     * @see DynamicListValidator
-     */
-    public void onValidRowCount(int validRowCount)
-    {
-        if (validRowCount > 0)
-            changeState(WizardStepPanelState.COMPLETE);
-        else
-            changeState(WizardStepPanelState.INCOMPLETE);
     }
 
     /**
@@ -136,7 +101,7 @@ implements ListValidator
             }
             else
             {
-                onValidRowCount(nominalPowerListPanel.getValidRowCount());
+                checkComplete();
             }			
             break;
         case POWER_LIST:
@@ -171,26 +136,45 @@ implements ListValidator
             {
                 nominalPowerListPanel.add(Double.toString(power.getValue()));
             }
-            onValidRowCount(nominalPowerListPanel.getValidRowCount());
+            checkComplete();
         } 
+    }
+    
+    /**
+     * Add a nominal power to the study design
+     */
+    @Override
+    public void onAdd(String value) throws IllegalArgumentException {
+        try
+        {
+            double power = TextValidation.parseDouble(value, 0, 1, false);
+            studyDesignContext.addNominalPower(this, power);
+            changeState(WizardStepPanelState.COMPLETE);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidPower());
+        }
     }
 
     /**
-     * Notify context of any changes as we exit the screen
+     * Delete a nominal power from the study design
      */
     @Override
-    public void onExit()
-    {
-        if (nominalPowerListPanel.isChanged()) {
-            List<String> stringValues = nominalPowerListPanel.getValues();
-            powerList.clear();
-            for(String value: stringValues)
-            {
-                powerList.add(new NominalPower(Double.parseDouble(value)));
-            }
-            // save to context object
-            studyDesignContext.setNominalPowerList(this, powerList);
-            nominalPowerListPanel.resetChanged();
-        }
+    public void onDelete(String value, int index) {
+        double power = Double.parseDouble(value);
+        studyDesignContext.deleteNominalPower(this, power, index);
+        checkComplete();
     }
+
+    /**
+     * Check if the panel is complete
+     */
+    private void checkComplete() {
+        if (nominalPowerListPanel.getValidRowCount() > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
+    }
+      
 }

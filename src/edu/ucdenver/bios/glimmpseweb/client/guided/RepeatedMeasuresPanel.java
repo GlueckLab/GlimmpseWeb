@@ -19,14 +19,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -45,20 +41,18 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
+import edu.ucdenver.bios.webservice.common.domain.ClusterNode;
 import edu.ucdenver.bios.webservice.common.domain.RepeatedMeasuresNode;
 
 /**
  * Panel for entering information about repeated measures.
  * @author Vijay Akula
+ * @author Sarah Kreidler
  *
  */
-public class RepeatedMeasuresPanel extends WizardStepPanel
-implements ChangeHandler
-{
+public class RepeatedMeasuresPanel extends WizardStepPanel {
     // context object
     protected StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-    // indicates whether the user had added repeated measures or not
-    protected boolean hasRepeatedMeasures = false;
     // tree describing the clustering hierarchy
     protected Tree repeatedMeasuresTree = new Tree();
     // number of items in the tree
@@ -67,10 +61,6 @@ implements ChangeHandler
     protected TreeItem currentLeaf = null;
     // used to verify completeness
     protected boolean complete = false;
-    
-    // list of repeated measures node domain objects
-    protected ArrayList<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
-        new ArrayList<RepeatedMeasuresNode>();
     
     // actions performed when iterating over the tree of clustering nodes
     // action to determine if the screen is complete
@@ -81,90 +71,81 @@ implements ChangeHandler
             updateComplete((RepeatedMeasuresPanelSubPanel) item.getWidget());
         }
     };
-    // action to build the clustering domain object
-    TreeItemAction buildClusteringObjectAction = new TreeItemAction() {
-        @Override
-        public void execute(TreeItem item, int visitCount, int parentVisitCount)
-        {
-            if (item != null) {
-                buildRepeatedMeasuresNode((RepeatedMeasuresPanelSubPanel) item.getWidget(), 
-                        visitCount, parentVisitCount);
-            }
-        }
-    };
-    
-    protected HorizontalPanel buttonPanel = new HorizontalPanel();
 
+    /* buttons */
+    // button to initiate entering of repeated measures
     Button addRepeatedMeasuresButton = new Button(
             GlimmpseWeb.constants.repeatedMeasuresPanelAddRMButton(), 
             new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
             addSubDimension();
-            toggleRepeatedMeasures();
+            addRepeatedMeasuresNodeToStudyDesign();
+            checkComplete();
         }
     });
-
-    Button removeRepeatedMeasuresButton = new Button(
-            GlimmpseWeb.constants.repeatedMeasuresPanelRemoveRMButton(), 
+    // button to remove repeated measures information
+    Button removeRepeatedMeasuresButton = 
+        new Button(GlimmpseWeb.constants.repeatedMeasuresPanelRemoveRMButton(), 
             new ClickHandler(){
-        @Override
         public void onClick(ClickEvent event) {
+            clearRepeatedMeasuresFromStudyDesign();
             reset();
-            changed = true;
         }
     });
-
-    Button addSubDimensionButton = new Button(
-            GlimmpseWeb.constants.repeatedMeasuresPanelAddSubDimensionButton(), 
+    //  button for adding a sub dimensions
+    Button addSubDimensionButton = 
+        new Button(GlimmpseWeb.constants.repeatedMeasuresPanelAddSubDimensionButton(), 
                 new ClickHandler(){
-        @Override
         public void onClick(ClickEvent event) {
             addSubDimension();
+            addRepeatedMeasuresNodeToStudyDesign();
+            checkComplete();
         }
     });
-
-    Button removeSubDimensionButton = new Button(
-            GlimmpseWeb.constants.repeatedMeasuresPanelRemoveSubDimensionButton(), 
+    // button for removing repeated measures dimensions
+    Button removeSubDimensionButton = 
+        new Button(GlimmpseWeb.constants.repeatedMeasuresPanelRemoveSubDimensionButton(), 
             new ClickHandler(){
-        @Override
         public void onClick(ClickEvent event) {
             removeSubDimension();
+            removeRepeatedMeasuresNodeFromStudyDesign();
+            checkComplete();
         }
     });
+    // panel containing the add dimension panel
+    protected HorizontalPanel buttonPanel = new HorizontalPanel();
 
-
-
+    /**
+     * Constructor for the Repeated Measures Panel Class
+     */
     public RepeatedMeasuresPanel(WizardContext context)
     {
         super(context, GlimmpseWeb.constants.navItemRepeatedMeasure(),
                 WizardStepPanelState.COMPLETE);
-
         VerticalPanel panel = new VerticalPanel();
+        // title and header text
         HTML title = new HTML(GlimmpseWeb.constants.repeatedMeasuresTitle());
         HTML description = new HTML(GlimmpseWeb.constants.repeatedMeasuresDescription());
-        
+
         panel.add(title);
         panel.add(description);
         panel.add(addRepeatedMeasuresButton);
-        removeRepeatedMeasuresButton.setVisible(false);
         panel.add(removeRepeatedMeasuresButton);
         panel.add(repeatedMeasuresTree);
-
         buttonPanel.add(addSubDimensionButton);
         buttonPanel.add(removeSubDimensionButton);
         panel.add(buttonPanel);
         // show/hide the appropriate buttons
-        addRepeatedMeasuresButton.setVisible(!hasRepeatedMeasures);
-        removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
-        addSubDimensionButton.setVisible(hasRepeatedMeasures);
-        removeSubDimensionButton.setVisible(hasRepeatedMeasures);
+        addRepeatedMeasuresButton.setVisible(true);
+        removeRepeatedMeasuresButton.setVisible(false);
+        addSubDimensionButton.setVisible(false);
+        removeSubDimensionButton.setVisible(false);
 
         //Setting Styles
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         title.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
         description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-        // button styles
         addRepeatedMeasuresButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
         removeRepeatedMeasuresButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
         addSubDimensionButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
@@ -179,27 +160,31 @@ implements ChangeHandler
      */
     private void addSubDimension() 
     {        
-        RepeatedMeasuresPanelSubPanel subpanel = new RepeatedMeasuresPanelSubPanel(null);   
-        subpanel.addChangeHandler(this);
+        TreeItem parent = currentLeaf;
+        // create a new repeated measures node
+        String dependentStyleName = GlimmpseConstants.STYLE_ODD;
+        if (itemCount % 2 == 0) {
+            dependentStyleName = GlimmpseConstants.STYLE_EVEN;
+        }
+        RepeatedMeasuresPanelSubPanel subpanel = 
+            new RepeatedMeasuresPanelSubPanel(dependentStyleName,
+                itemCount, this);   
+        // create a new tree item to hold the cluster node
         TreeItem newLeaf = new TreeItem(subpanel);
-        if (currentLeaf == null)
-        {
+        // add the new subpanel to the repeated measures tree
+        if (currentLeaf != null) {
+            currentLeaf.addItem(newLeaf);
+            currentLeaf.setState(true);
+        } else {
             repeatedMeasuresTree.addItem(newLeaf);
             newLeaf.setState(true);
         }
-        else
-        {
-            currentLeaf.addItem(newLeaf);
-            currentLeaf.setState(true);
-            if(itemCount == 2)
-            {
-                addSubDimensionButton.setVisible(false);
-            }           
-        }
-        itemCount++;
-        changed = true;
+        // set the new leaf as the lowest node in the tree
         currentLeaf = newLeaf;
-        checkComplete();
+        // update the item count
+        itemCount++;
+        // update the visible buttons
+        updateButtons();
     }
 
     /**
@@ -214,46 +199,23 @@ implements ChangeHandler
             currentLeaf.remove();
             itemCount--;
             currentLeaf = parent;
-            if (itemCount <= 0)
-            {
-                toggleRepeatedMeasures();
-            }
-            else if (itemCount == 2)
-            {
-                addSubDimensionButton.setVisible(true);
-            }
-            changed = true;
+            updateButtons();
+            checkComplete();
         }
-        checkComplete();
     };
 
-    
-    /**
-     * Called when any of the subpanels change.  Allows us to check
-     * if the panel is complete and the user can/cannot proceed 
-     * forward
-     */
-    public void onChange(ChangeEvent e) 
-    {
-        changed = true;
-        checkComplete();
-    }
-    
 
     /**
-     * toggle the repeated measures on/off
+     * show or hide the subgroup buttons
      */
-    public void toggleRepeatedMeasures()
+    public void updateButtons()
     {
-        hasRepeatedMeasures = !hasRepeatedMeasures;
-        addRepeatedMeasuresButton.setVisible(!hasRepeatedMeasures);
-        removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
-        addSubDimensionButton.setVisible(hasRepeatedMeasures);
-        removeSubDimensionButton.setVisible(hasRepeatedMeasures);
-        changed = true;
-        checkComplete();
+        addRepeatedMeasuresButton.setVisible(itemCount <= 0);
+        removeRepeatedMeasuresButton.setVisible(itemCount > 0);
+        addSubDimensionButton.setVisible(itemCount > 0 && itemCount < 3);
+        removeSubDimensionButton.setVisible(itemCount > 0);
     }
-    
+
     /**
      * checkComplete() method is to check if all the instances of Clustering Panel Sub Panel Class added to the tree are
      * validated or not and then activate the Next button in the Wizard Setup Panel 
@@ -271,37 +233,69 @@ implements ChangeHandler
     }
 
     /**
-     * Remove all repeated measures information and
-     * set back to the default state
+     * Determine the overall status of the screen completion by checking
+     * each subpanel.  If all subpanels are complete, then the screen is complete,
+     * but if any subpanel is incomplete, then the screen is incomplete 
+     * 
+     * @param subpanel subpanel associated with current tree node
+     */
+    private void updateComplete(RepeatedMeasuresPanelSubPanel subpanel)
+    {
+        boolean subpanelComplete = subpanel.checkComplete();
+        complete = complete && subpanelComplete;
+    }
+
+    /**
+     * Add a blank clustering node to the study design
+     */
+    private void addRepeatedMeasuresNodeToStudyDesign() {
+        RepeatedMeasuresNode rmNode = new RepeatedMeasuresNode();
+        rmNode.setParent(itemCount-1);
+        rmNode.setNode(itemCount);
+        studyDesignContext.addRepeatedMeasuresNode(this, rmNode);
+    }
+    
+    /**
+     * Remove the last repeated measures node from the study design
+     */
+    private void removeRepeatedMeasuresNodeFromStudyDesign() {
+        studyDesignContext.deleteRepeatedMeasuresNode(this, itemCount);
+    }
+    
+    /**
+     * Update the repeated measures tree in the study design when anything
+     * changes (called by the subpanel)
+     *  
+     * @param subpanel
+     */
+    public void updateRepeatedMeasuresNode(RepeatedMeasuresPanelSubPanel subpanel)
+    {
+        if (subpanel != null) {
+            studyDesignContext.updateRepeatedMeasuresNode(this, 
+                    subpanel.getDepth(), subpanel.getDimensionName(), 
+                    subpanel.getType(), subpanel.getNumberOfMeausrements(), 
+                    subpanel.getSpacingList());
+            checkComplete();
+        }
+    }
+    
+    /**
+     * Completely clear repeated measures information from the study design
+     */
+    private void clearRepeatedMeasuresFromStudyDesign() {
+        studyDesignContext.clearRepeatedMeasures(this);
+    }
+    
+    /**
+     * Clear the panel and reset to the "no repeated measures" state
      */
     @Override
     public void reset()
     {
         repeatedMeasuresTree.removeItems();
-        repeatedMeasuresNodeList.clear();
         currentLeaf = null;
         itemCount = 0;
-        hasRepeatedMeasures = false;
-        addRepeatedMeasuresButton.setVisible(!hasRepeatedMeasures);
-        removeRepeatedMeasuresButton.setVisible(hasRepeatedMeasures);
-        addSubDimensionButton.setVisible(hasRepeatedMeasures);
-        removeSubDimensionButton.setVisible(hasRepeatedMeasures);
-        changed = false;
-        checkComplete();
-    }
-
-    /**
-     * Update the repeated measures information in the context
-     */
-    @Override
-    public void onExit()
-    {
-        if (changed) {
-            repeatedMeasuresNodeList.clear();
-            TreeItemIterator.traverseDepthFirst(repeatedMeasuresTree, buildClusteringObjectAction);
-            studyDesignContext.setRepeatedMeasures(this, repeatedMeasuresNodeList);
-            changed = false;
-        }
+        updateButtons();
     }
 
     /**
@@ -322,61 +316,22 @@ implements ChangeHandler
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();
         if (contextRepeatedMeasuresNodeList != null)
         {
-            buttonPanel.setVisible(true);
-            boolean first = true;
             for(RepeatedMeasuresNode repeatedMeasuresNode: contextRepeatedMeasuresNodeList)
             {
-                if (first)
-                {
-                    addSubDimension();
-                    toggleRepeatedMeasures();
-                    first = false;
-                }
-                else
-                {
-                    addSubDimension();
-                }
-
+                addSubDimension();
                 RepeatedMeasuresPanelSubPanel currentPanel = 
                     (RepeatedMeasuresPanelSubPanel) currentLeaf.getWidget();
                 currentPanel.loadFromRepeatedMeasuresNode(repeatedMeasuresNode);
             }
         }
-        // need to reset this here since toggleRepeatedMeasures may set it to true.
-        changed = false;
         checkComplete();
     }
-    
-    /**
-     * Determine the overall status of the screen completion by checking
-     * each subpanel.  If all subpanels are complete, then the screen is complete,
-     * but if any subpanel is incomplete, then the screen is incomplete 
-     * 
-     * @param subpanel subpanel associated with current tree node
-     */
-    private void updateComplete(RepeatedMeasuresPanelSubPanel subpanel)
-    {
-        boolean subpanelComplete = subpanel.checkComplete();
-        complete = complete && subpanelComplete;
-    }
 
     /**
-     * Create a repeated measures node based on the information filled into
-     * the current subpanel.
-     * @param subpanel subpanel associated with current tree node
-     * @param nodeId node visit number in the depth first traversal
-     * @param parentId parent's visit number
+     * Respond to context changes
      */
-    private void buildRepeatedMeasuresNode(
-            RepeatedMeasuresPanelSubPanel subpanel, int nodeId, int parentId) {
-        if (subpanel != null) {
-            repeatedMeasuresNodeList.add(subpanel.toRepeatedMeasuresNode(nodeId, parentId));
-        }
-    }
-
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e) {
         // no action required for this panel
     }
-
 }

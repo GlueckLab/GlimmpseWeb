@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -62,12 +61,10 @@ public class ListEntryPanel extends Composite
     protected HTML errorHTML = new HTML();
     // object for validating new entries
     protected ListValidator validator;
-    // counter of the number of valid rows in the table
-    protected int validRowCount = 0;
     // optional maximum number of entries for list
     protected int maxRows = -1;
-    // indcates if the panel has changed since the last call to resetChanged();
-    protected boolean changed = false;
+    // optional flag indicating that the list only allows unique values
+    protected boolean uniqueOnly = true;
     
     /**
      * Construct a new list entry panel
@@ -152,13 +149,15 @@ public class ListEntryPanel extends Composite
 		{
 			try
 			{
+			    value = value.trim();
 				if (maxRows > 0 && listBox.getItemCount() >= maxRows)
 					throw new IllegalArgumentException(GlimmpseWeb.constants.errorMaxRows());
-				validator.validate(value);
+				if (uniqueOnly && isValueInList(value)) {
+				    throw new IllegalArgumentException(GlimmpseWeb.constants.errorNonUniqueValue());
+				}
+				validator.onAdd(value);
 				listBox.addItem(value);
 				TextValidation.displayOkay(errorHTML, "");
-				changed = true;
-				validator.onValidRowCount(listBox.getItemCount());
 			}
 			catch (IllegalArgumentException iae)
 			{
@@ -167,8 +166,23 @@ public class ListEntryPanel extends Composite
 			finally
 			{
 				listEntryTextBox.setText("");
+				listEntryTextBox.setFocus(true);
 			}
 		}
+	}
+	
+	/**
+	 * Return true if the value is currently in the list
+	 * @param value
+	 * @return
+	 */
+	private boolean isValueInList(String value) {
+	    for(int i = 0; i < listBox.getItemCount(); i++) {
+	        if (value.equals(listBox.getItemText(i))) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 	
 	/**
@@ -178,10 +192,12 @@ public class ListEntryPanel extends Composite
 	{
 		for(int i = listBox.getItemCount()-1; i >= 0; i--)
 		{
-			if (listBox.isItemSelected(i)) listBox.removeItem(i);
+			if (listBox.isItemSelected(i)) {
+			    String value = listBox.getItemText(i);
+			    listBox.removeItem(i);
+			    validator.onDelete(value, i);
+			}
 		}
-		changed = true;
-		validator.onValidRowCount(listBox.getItemCount());
 	}
 	
 	/**
@@ -235,89 +251,33 @@ public class ListEntryPanel extends Composite
     public void reset()
     {
     	listBox.clear();
-    	changed = false;
     	TextValidation.displayOkay(errorHTML, "");
     }
     
+    /**
+     * Set the maximum rows the user may enter in the list
+     * @param maxRows
+     */
     public void setMaxRows(int maxRows)
     {
     	this.maxRows = maxRows;
     }
     
     /**
-     * Manually add an item to the list.  Invalid entries are ignored
+     * If true, the list will enforce unique values
+     * @param uniqueOnly
+     */
+    public void setUniqueOnly(boolean uniqueOnly) {
+        this.uniqueOnly = uniqueOnly;
+    }
+    
+    /**
+     * Manually add an item to the list.  Bypasses validation
      * @param value the item to be added
      */
     public void add(String value)
     {
-    	try
-    	{
-    		validator.validate(value);
-        	listBox.addItem(value);
-    	}
-    	catch (Exception e)
-    	{
-    		// ignore invalid entries
-    	}
+        listBox.addItem(value);
     }
-    
-    /**
-     * Load the list of doubles into the list box widget.
-     * 
-     * @param valueList list of doubles
-     */
-    public void loadFromDoubleList(List<Double> valueList, boolean clear)
-    {
-    	if (clear) reset();
-		for(Double value: valueList)
-		{
-			add(Double.toString(value));
-		}
-		validator.onValidRowCount(listBox.getItemCount());
-    }
-    
-    /**
-     * Load the list of integers into the list box widget.
-     * 
-     * @param valueList list of integers
-     */
-    public void loadFromIntegerList(List<Integer> valueList, boolean clear)
-    {
-    	if (clear) reset();
-		for(Integer value: valueList)
-		{
-			add(Integer.toString(value));
-		}
-		validator.onValidRowCount(listBox.getItemCount());
-    }
-    
-    /**
-     * Load the list of String values into the list box widget.
-     * 
-     * @param valueList list of Strings
-     */
-    public void loadFromStringList(List<String> valueList, boolean clear)
-    {
-    	if (clear) reset();
-		for(String value: valueList)
-		{
-			add(value);
-		}
-		validator.onValidRowCount(listBox.getItemCount());
-    }
-    
-    /**
-     * Indicates if the panel has changed since the last call to resetChanged
-     * @return
-     */
-    public boolean isChanged() {
-        return changed;
-    }
-    
-    /**
-     * Set the panel to unchanged
-     */
-    public void resetChanged() {
-        changed = false;
-    }
+
 }

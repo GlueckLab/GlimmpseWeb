@@ -24,7 +24,6 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -63,40 +62,89 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
 
     // number of measurements across this dimension
     protected TextBox noOfMeasurementsTextBox = new TextBox();
-    
+
     // indicates if the repeated measures dimension represents
     // numeric, ordinal, or categorical values
     protected ListBox typeListBox = new ListBox(false);
-    
+
     // spacing flexTable
     protected Grid spacingGrid = new Grid(2,2);
     protected HTML spacingHTML = 
-        new HTML(GlimmpseWeb.constants.repeatedMeasuresNodePanelSpacingLabel());
+            new HTML(GlimmpseWeb.constants.repeatedMeasuresNodePanelSpacingLabel());
     protected FlexTable spacingFlexTable = new FlexTable();
     // resets the spacing to even spacing
     protected Button spacingResetButton = new Button(
             GlimmpseWeb.constants.repeatedMeasuresNodePanelEqualSpacingButton(), 
-            new ClickHandler(){
-        @Override
-        public void onClick(ClickEvent event) 
-        {
-            setEqualSpacing();
-        }
-    });
-    
+            new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) 
+                {
+                    setEqualSpacing();
+                    notifyParent();
+                }
+            });
+
     //html widget to display the error message
     protected HTML errorHTML = new HTML();
-    
-    // Parent panels, etc which listen for changes within the subpanel
-    protected ArrayList<ChangeHandler> handlerList = new ArrayList<ChangeHandler>();
+
+    // pointer to the parent panel to manage changes
+    protected RepeatedMeasuresPanel parent = null;
+    // current depth in the clustering tree
+    protected int depth = -1;
+
+    // cache the spacing list
+    ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
+
+    /**
+     * Helper class for spacing text boxes
+     * @author Sarah
+     *
+     */
+    private class SpacingTextBox extends TextBox {
+        int index = -1;
+        public SpacingTextBox(String text, int index) {
+            this.index = index;
+            setText(text);
+            addChangeHandler(new ChangeHandler() {
+                @Override
+                public void onChange(ChangeEvent event) {                
+                    SpacingTextBox tb = (SpacingTextBox)event.getSource();
+                    int spacingValue = tb.getIndex()+1;
+                    String value = tb.getValue();
+                    try
+                    {
+                        spacingValue = TextValidation.parseInteger(value, 1, true);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                    catch (Exception e)
+                    {
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidPositiveNumber());
+                        tb.setText(Double.toString(spacingValue));
+                    }
+                    updateSpacingList(tb.getIndex(), spacingValue);
+                    notifyParent();   
+                }
+            });
+            // add style
+            setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TEXTBOX);
+            addStyleDependentName(GlimmpseConstants.STYLE_SHORT);
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
 
     /**
      * Constructor.
      * @param dependentStyleName optional parameter to allow different
      * styles for subpanels depending on depth
      */
-    public RepeatedMeasuresPanelSubPanel(String dependentStyleName)
+    public RepeatedMeasuresPanelSubPanel(String dependentStyleName,
+            int depth, RepeatedMeasuresPanel parent)
     {
+        this.depth = depth;
+        this.parent = parent;
         VerticalPanel panel = new VerticalPanel();
 
         Grid grid = new Grid(3,2);
@@ -120,7 +168,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -138,15 +186,11 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
             public void onChange(ChangeEvent event) {
                 ListBox lb = (ListBox)event.getSource();
                 int index = lb.getSelectedIndex();
-                if(index == NUMERIC_INDEX)
-                {
-                    onSelectNumericItem();
+                showSpacingBar(index == NUMERIC_INDEX);
+                if (index != NUMERIC_INDEX) {
+                    setEqualSpacing();
                 }
-                else
-                {
-                    onDeselectNumericItem();					
-                }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -169,9 +213,10 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                 catch (Exception e)
                 {
                     TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidNumRepeatedMeasures());
+                    showSpacingBar(false);
                     tb.setText("");
                 }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);
+                notifyParent();
             }
         });
 
@@ -180,81 +225,47 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         spacingGrid.setWidget(0, 1, spacingFlexTable);
         spacingGrid.setWidget(1, 0, spacingResetButton);
         showSpacingBar(false);
-        
+
         // layout overall panel
         panel.add(grid);
         panel.add(spacingGrid);
         panel.add(errorHTML);
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TREE_NODE);
         if (dependentStyleName != null && !dependentStyleName.isEmpty()) {
             panel.addStyleDependentName(dependentStyleName);
         }
         spacingResetButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_BUTTON);
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
         /*Initializing Widget*/
         initWidget(panel);
 
     }
-    
+
+    /**
+     * Synchronize the array list with the text boxes
+     * @param index
+     * @param spacingValue
+     */
+    public void updateSpacingList(int index, int spacingValue) {
+        if (index >= 0 && index < spacingList.size()) {
+            spacingList.get(index).setValue(spacingValue);
+        }
+    }
+
     /**
      * Reset the spacing list to equal spacing
      */
     public void setEqualSpacing()
     {
-        for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
-            TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
-            tb.setText(Integer.toString(c+1));
-        }
-    }
- 
-    /**
-     * Show the spacing panel when a numeric type is selected
-     */
-    public void onSelectNumericItem()
-    {
-        showSpacingBar(true);
-    }
-    
-    /**
-     * Hide the spacing panel when a numeric type is deselected
-     */
-    public void onDeselectNumericItem()
-    {
-        showSpacingBar(false);
-    }
-
-    /**
-     * Create a spacing bar widget with the specified text
-     * @param text default text
-     * @return text box
-     */
-    public TextBox createSpacingTextBox(String text)
-    {
-        TextBox spacingTextBox = new TextBox();
-        spacingTextBox.setText(text);
-        spacingTextBox.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {                
-                TextBox tb = (TextBox)event.getSource();
-                String value = tb.getValue();
-                try
-                {
-                    TextValidation.parseDouble(value, 1, true);
-                    TextValidation.displayOkay(errorHTML, "");
-                }
-                catch (Exception e)
-                {
-                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidPositiveNumber());
-                    tb.setText("");
-                }
-                for(ChangeHandler handler: handlerList) handler.onChange(event);                
+        if (spacingFlexTable.getRowCount() > 0) {
+            for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
+                TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
+                tb.setText(Integer.toString(c+1));
+                spacingList.get(c).setValue(c+1);
             }
-        });
-        // add style
-        spacingTextBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_TEXTBOX);
-        spacingTextBox.addStyleDependentName(GlimmpseConstants.STYLE_SHORT);
-        return spacingTextBox;
+        }
     }
 
     /** 
@@ -271,16 +282,18 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
      * Reset the size of the spacing bar
      * @param numMeasurements
      */
-    private void updateSpacingBar(int numMeasurements, List<Spacing> spacingList)
+    private void updateSpacingBar(int numMeasurements, List<Spacing> inputSpacingList)
     {
         spacingFlexTable.removeAllRows();
-        if (spacingList == null || spacingList.size() != numMeasurements) {
+        spacingList.clear();
+        if (inputSpacingList == null || inputSpacingList.size() != numMeasurements) {
             for(int i = 0; i < numMeasurements; i++) {
-                spacingFlexTable.setWidget(0, i ,createSpacingTextBox(Integer.toString(i+1)));
+                spacingList.add(new Spacing(i+1));
+                spacingFlexTable.setWidget(0, i , new SpacingTextBox(Integer.toString(i+1), i));
             }
         } else {
             int col = 0;
-            for(Spacing spacingValue: spacingList) {
+            for(Spacing spacingValue: inputSpacingList) {
                 String spacingStr = "";
                 // the user can save incomplete information - this will be saved as MIN_VALUE
                 // if the text box was empty at time of save.
@@ -288,21 +301,24 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
                     spacingStr = Integer.toString(spacingValue.getValue());
                 }
                 spacingFlexTable.setWidget(0, col ,
-                        createSpacingTextBox(spacingStr));
+                        new SpacingTextBox(spacingStr, col));
+                spacingList.add(new Spacing(spacingValue.getValue()));
                 col++;
             }
         }
-        if (typeListBox.getSelectedIndex() == NUMERIC_INDEX) {
-            showSpacingBar(true);
-        }
+        showSpacingBar(typeListBox.getSelectedIndex() == NUMERIC_INDEX);
     }
-    
+
     /**
      * Hide the spacing bar
      */
     private void showSpacingBar(boolean show)
     {
         spacingGrid.setVisible(show);
+        if (!show) {
+            // when we hide the spacing bar, clear it
+            spacingFlexTable.removeAllRows();
+        }
     }
 
     /**
@@ -316,7 +332,7 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
         boolean validNumeric = true;
         boolean validTextBoxes = (checkDimension != null && !checkDimension.isEmpty()
                 && checkNumber != null && !checkNumber.isEmpty());
-        
+
         if (typeListBox.getSelectedIndex() == NUMERIC_INDEX) {
             if (spacingFlexTable.getRowCount() > 0 && spacingFlexTable.getCellCount(0) > 0) {
                 for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
@@ -334,89 +350,97 @@ public class RepeatedMeasuresPanelSubPanel extends Composite {
     }
 
     /**
-     * Convert the contents of  repeated measures sub panel into a 
-     * RepeatedMeasuresNode domain object
-     * 
-     * @param nodeId node identifier
-     * @param parentId node identifier for the node's parent
-     * @return A RepeatedMeasuresNode instance
-     */
-    public RepeatedMeasuresNode toRepeatedMeasuresNode(int nodeId, int parentId) {
-
-        RepeatedMeasuresNode node = new RepeatedMeasuresNode();
-        String dimension = dimensionTextBox.getText();
-        if (dimension != null && !dimension.isEmpty()) {
-            node.setDimension(dimension);
-        }
-        String numMeasurements = noOfMeasurementsTextBox.getText();
-        if (numMeasurements != null && !numMeasurements.isEmpty()) {
-            node.setNumberOfMeasurements(Integer.parseInt(numMeasurements));
-        }
-        switch (typeListBox.getSelectedIndex()) {
-        case NUMERIC_INDEX:
-            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.NUMERICAL);
-            ArrayList<Spacing> spacingList = new ArrayList<Spacing>();
-            if (spacingFlexTable.getRowCount() > 0) {
-                for(int c = 0; c < spacingFlexTable.getCellCount(0); c++) {
-                    TextBox tb = (TextBox) spacingFlexTable.getWidget(0, c);
-                    String valueStr = tb.getText();
-                    int value = Integer.MIN_VALUE;
-                    if (valueStr != null && !valueStr.isEmpty()) {
-                        value = Integer.parseInt(tb.getText());
-                    }
-                    Spacing spacingValue = new Spacing();
-                    spacingValue.setValue(value);
-                    spacingList.add(spacingValue);
-                }
-            }
-            node.setSpacingList(spacingList);
-            break;
-        case ORDINAL_INDEX:
-            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.ORDINAL);
-            break;
-        case NOMINAL_INDEX:
-            node.setRepeatedMeasuresDimensionType(RepeatedMeasuresDimensionType.CATEGORICAL);
-            break;
-        }
-        return node;
-
-    }
-
-    /**
      * Fill in the panel from the repeated measures node
      * @param repeatedMeasuresNode
      */
     public void loadFromRepeatedMeasuresNode(
             RepeatedMeasuresNode repeatedMeasuresNode) {
+        reset();
         if (repeatedMeasuresNode != null) {
-            dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
-            noOfMeasurementsTextBox.setText(Integer.toString(repeatedMeasuresNode.getNumberOfMeasurements()));
-            switch (repeatedMeasuresNode.getRepeatedMeasuresDimensionType()) {
-            case NUMERICAL:
-                typeListBox.setSelectedIndex(NUMERIC_INDEX);
+            // !need to set type first!
+            if (repeatedMeasuresNode.getRepeatedMeasuresDimensionType() != null) {
+                switch (repeatedMeasuresNode.getRepeatedMeasuresDimensionType()) {
+                case NUMERICAL:
+                    typeListBox.setSelectedIndex(NUMERIC_INDEX);
+                    break;
+                case ORDINAL:
+                    typeListBox.setSelectedIndex(ORDINAL_INDEX);
+                    break;
+                case CATEGORICAL:
+                    typeListBox.setSelectedIndex(NOMINAL_INDEX);
+                    break;
+                }
+            }
+            // set the dimension name
+            if (repeatedMeasuresNode.getDimension() != null) {
+                dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
+            }
+            // set the number of measurements and update the spacing bar
+            if (repeatedMeasuresNode.getNumberOfMeasurements() != null) {
+                noOfMeasurementsTextBox.setText(Integer.toString(repeatedMeasuresNode.getNumberOfMeasurements()));
                 updateSpacingBar(repeatedMeasuresNode.getNumberOfMeasurements(),
                         repeatedMeasuresNode.getSpacingList());
-                break;
-            case ORDINAL:
-                typeListBox.setSelectedIndex(ORDINAL_INDEX);
-                spacingFlexTable.removeAllRows();
-                showSpacingBar(false);
-                break;
-            case CATEGORICAL:
-                typeListBox.setSelectedIndex(NOMINAL_INDEX);
-                spacingFlexTable.removeAllRows();
-                showSpacingBar(false);
-                break;
             }
-            dimensionTextBox.setText(repeatedMeasuresNode.getDimension());
         }
     }
-    
+
     /**
-     * A Change Handler method to add changes to the handler
-     * @param handler
+     * get the dimension label
+     * @return
      */
-    public void addChangeHandler(ChangeHandler handler) {
-        handlerList.add(handler);
+    public String getDimensionName() {
+        return dimensionTextBox.getText();
+    }
+
+    /**
+     * Get the spacing list
+     * @return
+     */
+    public List<Spacing> getSpacingList() {
+        return spacingList;
+    }
+
+    /**
+     * get the repeated measures type
+     * @return
+     */
+    public RepeatedMeasuresDimensionType getType() {
+        switch (typeListBox.getSelectedIndex()) {
+        case NUMERIC_INDEX:
+            return RepeatedMeasuresDimensionType.NUMERICAL;
+        case ORDINAL_INDEX:
+            return RepeatedMeasuresDimensionType.ORDINAL;
+        case NOMINAL_INDEX:
+            return RepeatedMeasuresDimensionType.CATEGORICAL;
+        default:
+            return null;
+        }
+    }
+
+    /**
+     * get the number of measurements
+     * @return
+     */
+    public int getNumberOfMeausrements() {
+        String numMeasurements = noOfMeasurementsTextBox.getText();
+        if (numMeasurements != null && !numMeasurements.isEmpty()) {
+            return Integer.parseInt(numMeasurements);
+        } else {
+            return -1;
+        }
+    }
+
+    /**
+     * Return the tree depth of this node
+     */
+    public int getDepth() {
+        return depth;
+    }
+
+    /**
+     * Notify the parent panel that a change has occurred
+     */
+    private void notifyParent() {
+        parent.updateRepeatedMeasuresNode(this);
     }
 }

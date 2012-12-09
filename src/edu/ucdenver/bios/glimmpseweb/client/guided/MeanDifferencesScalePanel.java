@@ -21,9 +21,10 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -52,8 +53,6 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
     
     protected CheckBox scaleCheckBox = new CheckBox();
     
-    ArrayList<BetaScale> betaScaleList = new ArrayList<BetaScale>();
-    
 	public MeanDifferencesScalePanel(WizardContext context)
 	{
 		super(context, GlimmpseWeb.constants.navItemMeansScaleFactors(),
@@ -68,7 +67,13 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
         HorizontalPanel checkBoxContainer = new HorizontalPanel();
         checkBoxContainer.add(scaleCheckBox);
         checkBoxContainer.add(new HTML(GlimmpseWeb.constants.meanDifferenceScaleAnswer()));
-
+        // add callback on checkbox
+        scaleCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                setBetaScaleList();
+            }
+        });
         // layout the overall panel
         panel.add(header);
         panel.add(description);
@@ -84,6 +89,22 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
 		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * Store the appropriate beta scale values to the context
+	 */
+	private void setBetaScaleList() {
+	    List<BetaScale> contentBetaScaleList = 
+	            studyDesignContext.getStudyDesign().getBetaScaleList();
+	    if (contentBetaScaleList != null) {
+	        contentBetaScaleList.clear();
+	    }
+        studyDesignContext.addBetaScale(this, 1);
+	    if (scaleCheckBox.getValue()) {
+	        studyDesignContext.addBetaScale(this, 0.5);
+	        studyDesignContext.addBetaScale(this, 2);
+	    } 
+	}
+	
 	@Override
 	public void reset()
 	{
@@ -126,19 +147,5 @@ public class MeanDifferencesScalePanel extends WizardStepPanel
     public void onWizardContextLoad() 
     {
         loadFromContext();
-    }
-
-    
-    @Override
-    public void onExit()
-    {
-        betaScaleList.clear();
-        betaScaleList.add(new BetaScale(1.0));
-        if (scaleCheckBox.getValue())
-        {
-            betaScaleList.add(new BetaScale(0.5));
-            betaScaleList.add(new BetaScale(2));
-        }
-        studyDesignContext.setBetaScaleList(this, betaScaleList);
     }
 }

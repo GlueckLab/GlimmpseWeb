@@ -21,7 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -53,8 +52,6 @@ implements ListValidator
    	// list of per group sample sizes
     protected ListEntryPanel perGroupNListPanel =
     	new ListEntryPanel(GlimmpseWeb.constants.perGroupSampleSizeTableColumn(), this);
-    // list of sample sizes to be set into the context
-    ArrayList<SampleSize> sampleSizeList = new ArrayList<SampleSize>();
     
 	public PerGroupSampleSizePanel(WizardContext context)
 	{
@@ -76,35 +73,13 @@ implements ListValidator
         initWidget(panel);
 	}
 	
-	
-	@Override
-	public void onValidRowCount(int validRowCount)
-	{
-		if (validRowCount > 0)
-			changeState(WizardStepPanelState.COMPLETE);
-		else
-			changeState(WizardStepPanelState.INCOMPLETE);
-	}
-
-	@Override
-	public void validate(String value)
-			throws IllegalArgumentException
-	{
-    	try
-    	{
-    		TextValidation.parseInteger(value, 0, true);
-    	}
-    	catch (NumberFormatException nfe)
-    	{
-    		throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidSampleSize());
-    	}
-	}
-	
+	/**
+	 * Reset the panel 
+	 */
 	@Override
 	public void reset()
 	{
 		perGroupNListPanel.reset();
-		onValidRowCount(perGroupNListPanel.getValidRowCount());
 		changeState(WizardStepPanelState.INCOMPLETE);
 	}    
     
@@ -124,7 +99,7 @@ implements ListValidator
 			}
 			else
 			{
-				onValidRowCount(perGroupNListPanel.getValidRowCount());
+				checkComplete();
 			}			
 			break;
 		case PER_GROUP_N_LIST:
@@ -159,31 +134,48 @@ implements ListValidator
                 for(SampleSize size: perGroupNList) {
                     perGroupNListPanel.add(Integer.toString(size.getValue()));
                 }
-                onValidRowCount(perGroupNListPanel.getValidRowCount());
             } 
+            checkComplete();
         } else {
             changeState(WizardStepPanelState.SKIPPED);
         }
-    }
+    }   
     
     /**
-     * Notify context of any changes as we exit the screen
+     * Add a sample size to the study design
      */
     @Override
-    public void onExit()
-    {
-        if (perGroupNListPanel.isChanged()) {
-            List<String> stringValues = perGroupNListPanel.getValues();
-            sampleSizeList.clear();
-            for(String value: stringValues)
-            {
-                sampleSizeList.add(new SampleSize(Integer.parseInt(value)));
-            }
-            // save to context object
-            studyDesignContext.setPerGroupSampleSizeList(this, sampleSizeList);
-            perGroupNListPanel.resetChanged();
+    public void onAdd(String value) throws IllegalArgumentException {
+        try
+        {
+            int sampleSize = TextValidation.parseInteger(value, 2, true);
+            studyDesignContext.addPerGroupSampleSize(this, sampleSize);
+            changeState(WizardStepPanelState.COMPLETE);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidSampleSize());
         }
     }
-    
+
+    /**
+     * Delete a sample size from the study design
+     */
+    @Override
+    public void onDelete(String value, int index) {
+        int sampleSize = Integer.parseInt(value);
+        studyDesignContext.deletePerGroupSampleSize(this, sampleSize, index);
+        checkComplete();
+    }
+
+    /**
+     * Check if the panel is complete
+     */
+    private void checkComplete() {
+        if (perGroupNListPanel.getValidRowCount() > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
+    }
 	
 }

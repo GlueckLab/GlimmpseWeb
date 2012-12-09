@@ -462,6 +462,11 @@ body {
 	font-size: 14pt;
 }
 
+.wizardStepSubheader {
+	margin: 5px 5px;
+	font-weight: bold;
+}
+
 .wizardStepDescription {
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin: 5px 5px;
@@ -617,6 +622,7 @@ body {
 }
 
 .wizardStepTableRow .gwt-TextBox {
+	padding: 0px;
 	width: 100%;
 }
 
@@ -869,4 +875,68 @@ body {
 	font-weight: bold;
 }
 
+/* feedback panel */
+.feedbackHeader {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin: 5px 5px;
+	font-weight: bold;
+	font-size: 14pt;
+}
 
+.feedbackDescription {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin: 5px 5px;
+	font-size: 12pt;
+	width: 100%;
+	border-bottom: 1px solid #ddd
+}
+
+.feedbackQuestion {
+	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+	margin-top: 10px;
+	margin-left: 10px;
+	font-size: 12pt;
+	width: 100%;
+}
+
+.feedbackResponse {
+	margin-left: 10px;
+}
+
+.feedbackSubmit {
+	margin-left: 10px;
+	margin-top: 10px;
+}
+
+.feedbackMessage {
+	margin-left: 10px;
+	width: 500px;
+	height: 200px;
+}
+
+.blockWithBorder {
+	border: 1px solid #ddd;
+}
+
+.blockWithSpacing {
+	margin: 10px;
+}
+
+.wizardStepDeckPanelBar {
+	background: #e4eaef;
+	width: 600px;
+	border: 1px solid #999;
+	border-collapse: collapse;
+	padding: 10px;
+}
+
+.wizardStepDeckPanelContents {
+	border: 1px solid #999;
+	border-collapse: collapse;
+	width: 600px;
+}
+
+.wizardStepDeckPanelContentsSubpanel {
+	padding: 20px;	
+}
+	

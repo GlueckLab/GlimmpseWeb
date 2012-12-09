@@ -17,12 +17,26 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  -->
-<project name="Glimmpse Web Interface" default="build-distributions" >
+<project name="Glimmpse Web Interface" default="distributions" >
 	<!-- when releasing software, this is the only place the version information
 			should be specified. Appropriate changes to the manifest and source
 			code will be performed by the build -->
-	<property name="version" value="dev" />
-	<property name="svc.name" value="glimmpse-web" />
+	<property name="app.version" value="dev" />
+	<!-- optional suffix if we have multiple versions of the 
+		web services running on the same tomcat -->
+	<condition property="warfile.suffix" value="">
+	   <not>  
+	      <isset property=""/>
+	   </not>
+	</condition>
+	<!-- allows user to override default version of web service 
+	     common library -->
+	<condition property="webservicecommon.version" value="dev">
+	   <not>  
+	      <isset property=""/>
+	   </not>
+	</condition>
+	<property name="app.name" value="glimmpse-web" />
 	<property name="owner" value="University of Colorado Denver, 
 		Department of Biostatistics and Informatics" />
 	<!-- optional Apache httpd installation directory -->
@@ -36,16 +50,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <property name="artifacts.dir" value="${basedir}/artifacts" />
     <property name="tmp.dir" value="${basedir}/tmp" />
     <property name="source.dir" value="${basedir}/../src" />
-	<property name="target.dir" value="${tmp.dir}/${svc.name}-${version}" />
-	<property name="javadoc.dir" value="${tmp.dir}/${svc.name}-${version}-javadoc" />
+	<property name="target.dir" value="${tmp.dir}/${app.name}-${app.version}" />
+	<property name="javadoc.dir" value="${tmp.dir}/${app.name}-${app.version}-javadoc" />
 	<property name="thirdparty.dir" value="${basedir}/../../thirdparty" />
 	<property name="gwt.dir" value="${thirdparty.dir}/gwt/2.4.0/lib" />
 	<property name="gwt.visualization.dir" value="${thirdparty.dir}/gwt-visualization/1.1/lib" />
-	<property name="zip.file" value="${svc.name}-${version}-binary.zip" />
+	<property name="zip.file" value="${app.name}-${app.version}-binary.zip" />
 	<property name="war.dir" value="${basedir}/../war"/>
 	<property name="checkstyle.dir" value="${thirdparty.dir}/checkstyle/5.3"/>
 	<property name="webservicecommon.lib" 
-		value="${basedir}/../../WebServiceCommon/build/bin/edu.ucdenver.bios.webservice.common-gwt-1.0.0.jar" />
+		value="${basedir}/../../WebServiceCommon/build/artifacts/edu.ucdenver.bios.webservice.common-gwt-${webservicecommon.version}.jar" />
 	
 	<!-- class path -->
   	<path id="compile.path">
@@ -53,9 +67,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   		<fileset dir="${gwt.dir}">
   			<include name="gwt-user.jar"/>
   			<include name="gwt-dev.jar"/>
-  		</fileset>
-  		<fileset dir="${gwt.visualization.dir}">
-  			<include name="gwt-visualization.jar"/>
   		</fileset>
   		<fileset file="${webservicecommon.lib}" />
   		<fileset dir="${thirdparty.dir}">
@@ -68,6 +79,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 			<include name="piriti/0.8/lib/javax.inject-1.jar"/>
 			<include name="piriti/0.8/lib/totoe-0.4.jar"/>
 			<include name="piriti/0.8/lib/velocity-1.7.jar"/>
+			<include name="smartgwt/3.0p/lib/smartgwt.jar"/>
   		</fileset>
   	</path>
 	
@@ -93,6 +105,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	<!-- build the app -->
   	<target name="compile.gwt" depends="prepare"
     	description="compiles Java source files to JavaScript">
+  		<!-- replace the URI's for web services with appropriate
+  			suffix -->
+  		<replace file="${source.dir}/edu/ucdenver/bios/glimmpseweb/client/GlimmpseConstants.properties" 
+  			token="_WARFILE_SUFFIX_" value="${warfile.suffix}"/>
     	<java classname="com.google.gwt.dev.Compiler" fork="true">
             <arg value="-war" />
             <arg value="${target.dir}" />
@@ -123,11 +139,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 		  <copy todir="${target.dir}">
 			<fileset dir="${war.dir}">
 				<include name="index.html"/>
+				<include name="feedback.html"/>
+				<include name="feedbackSuccess.html"/>
+				<include name="feedbackError.html"/>
+				<include name="formmail.php"/>
 				<include name="favicon.ico"/>
 			</fileset>
 		  </copy>
 		<!-- replace the version number in index.html -->
-    	<replace file="${target.dir}/index.html" token="UNKNOWN" value="${version}"/>
+    	<replace file="${target.dir}/index.html" token="UNKNOWN" value="${app.version}"/>
+    	<replace file="${target.dir}/feedback.html" token="UNKNOWN" value="${app.version}"/>
+    	<replace file="${target.dir}/feedbackSuccess.html" token="UNKNOWN" value="${app.version}"/>
+        <replace file="${target.dir}/feedbackError.html" token="UNKNOWN" value="${app.version}"/>
 	</target>
 
 	<!-- run checkstyle-->
@@ -165,19 +188,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                  use="true"
                  author="true"
                  version="true"
-                 windowtitle="${owner}: GLIMMPSE Web Java API (${version}) Specification"
-                 doctitle="${owner}: GLIMMPSE Web Java API (${version}) Specification">
+                 windowtitle="${owner}: GLIMMPSE Web Java API (${app.version}) Specification"
+                 doctitle="${owner}: GLIMMPSE Web Java API (${app.version}) Specification">
              <fileset dir="${source.dir}" defaultexcludes="yes">
                  <include name="**/*.java"/>
             </fileset>
             <header><![CDATA[<p><b>Glimmpse Web</b></p>]]></header>
             <bottom><![CDATA[<font size=1>${owner}</font>]]></bottom>
             <link href="http://java.sun.com/javase/6/docs/api"/>
+            <classpath>
+                <path refid="compile.path" />
+            </classpath>
         </javadoc>
     </target>
 	
 	<!-- Create the binary distribution -->
-	<target name="binary-distribution" depends="compile.gwt,copy,javadoc"
+	<target name="distribution.binary" depends="compile.gwt,copy,javadoc"
 	  description="builds the zip file">
 	  <delete file="${artifacts.dir}/${zip.file}"/>
 		<zip destfile="${artifacts.dir}/${zip.file}"  >
@@ -188,8 +214,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	</target>
 	
 	<!-- Create the javadoc distribution  -->	
-	<target name="javadoc-distribution" >
-		<zip destfile="${artifacts.dir}/${svc.name}-${version}-javadoc.zip" basedir="${javadoc.dir}/.." >
+	<target name="distribution.javadoc" >
+		<zip destfile="${artifacts.dir}/${app.name}-${app.version}-javadoc.zip" basedir="${javadoc.dir}/.." >
 			<zipfileset dir="${javadoc.dir}" />
 			<zipfileset file="${basedir}/../LICENSE-gpl2.0.txt"/>
 		    <zipfileset file="${basedir}/../README.txt"/>
@@ -197,8 +223,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	</target>
 	
 	<!-- Create the source distribution -->
-	<target name="source-distribution">
-		<zip destfile="${artifacts.dir}/${svc.name}-${version}-source.zip"  >
+	<target name="distribution.source">
+		<zip destfile="${artifacts.dir}/${app.name}-${app.version}-source.zip"  >
 			<zipfileset dir="${basedir}/../.."  			
 				includes="GlimmpseWeb/*,
 				GlimmpseWeb/build/build.xml,
@@ -210,9 +236,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	</target>
 	
 	<!-- build all distributions -->
-	<target name="build-distributions" depends="binary-distribution,javadoc-distribution,source-distribution"/>
+	<target name="distributions" 
+		depends="distribution.binary,
+		distribution.javadoc,
+		distribution.source"/>
 
 	<!-- full build then deploy to apache server -->
-	<target name="buildDeploy" depends="build-distributions, deploy"/>
+	<target name="buildDeploy" depends="distributions, deploy"/>
 	
 </project>

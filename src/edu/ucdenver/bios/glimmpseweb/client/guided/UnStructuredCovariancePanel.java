@@ -23,17 +23,16 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixChangeHandler;
 import edu.ucdenver.bios.glimmpseweb.client.shared.ResizableMatrixPanel;
 import edu.ucdenver.bios.webservice.common.domain.Covariance;
 import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
-import edu.ucdenver.bios.webservice.common.domain.StandardDeviation;
 import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
 
 /**
@@ -43,41 +42,42 @@ import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
  *
  */
 public class UnStructuredCovariancePanel extends Composite 
-implements CovarianceBuilder
+implements CovarianceBuilder, ResizableMatrixChangeHandler
 {
     // matrix display panel
-	protected ResizableMatrixPanel covarianceMatrix;
-	// name for this covariance component
-	protected String name;
+    protected ResizableMatrixPanel covarianceMatrix;
+    // name for this covariance component
+    protected String name;
     // parent panel
-    protected ChangeHandler parent = null;
-    
-	public UnStructuredCovariancePanel(String name, List<String> labelList, 
-	        List<Integer> spacingList, ChangeHandler handler)
-	{
-		VerticalPanel verticalPanel = new VerticalPanel();
-		this.name = name;
-        parent = handler;
-		HTML header = new HTML();
-		header.setText(GlimmpseWeb.constants.unstructuredCovarianceHeader());
-		HTML instructions = new HTML();
-		instructions.setText(GlimmpseWeb.constants.unstructuredCovarianceInstructions());
-		
-		int size = spacingList.size();
-		covarianceMatrix = new ResizableMatrixPanel(size, size, false, true, true, true);
-		covarianceMatrix.setRowLabels(labelList);
-		covarianceMatrix.setColumnLabels(labelList);
-		
-		verticalPanel.add(header);
-		verticalPanel.add(instructions);
-		verticalPanel.add(covarianceMatrix);
-		initWidget(verticalPanel);
-	}
-	
-	/**
-	 * Build a covariance object from the panel
-	 */
-    @Override
+    protected CovarianceSetManager manager = null;
+
+    public UnStructuredCovariancePanel(CovarianceSetManager manager, 
+            String name, List<String> labelList, 
+            List<Integer> spacingList)
+    {
+        VerticalPanel verticalPanel = new VerticalPanel();
+        this.name = name;
+        this.manager = manager;
+        HTML header = new HTML();
+        header.setText(GlimmpseWeb.constants.unstructuredCovarianceHeader());
+        HTML instructions = new HTML();
+        instructions.setText(GlimmpseWeb.constants.unstructuredCovarianceInstructions());
+
+        int size = spacingList.size();
+        covarianceMatrix = new ResizableMatrixPanel(size, size, false, true, true, true);
+        covarianceMatrix.setRowLabels(labelList);
+        covarianceMatrix.setColumnLabels(labelList);
+        covarianceMatrix.addChangeHandler(this);
+
+        verticalPanel.add(header);
+        verticalPanel.add(instructions);
+        verticalPanel.add(covarianceMatrix);
+        initWidget(verticalPanel);
+    }
+
+    /**
+     * Build a covariance object from the panel
+     */
     public Covariance getCovariance() 
     {
         NamedMatrix matrix = covarianceMatrix.toNamedMatrix(name);
@@ -89,7 +89,7 @@ implements CovarianceBuilder
         covariance.setBlob(matrix.getData());
         return covariance;
     }
-    
+
 
     /**
      * Indicates if all required information has been entered
@@ -98,7 +98,7 @@ implements CovarianceBuilder
     public boolean checkComplete() {
         return true;
     }
-    
+
     /**
      * Load the panel from the specified covariance object
      * @param covariance covariance object
@@ -114,4 +114,55 @@ implements CovarianceBuilder
             }
         }
     }
+
+    /**
+     * Event handler for row resize events in the covariance matrix
+     */
+    @Override
+    public void onRowDimension(int rows) {
+        // nothing to do since user can't change dimension of 
+        // covariance from this screen
+    }
+
+    /**
+     * Event handler for column resize events in the covariance matrix
+     */
+    @Override
+    public void onColumnDimension(int columns) {
+        // nothing to do since user can't change dimension of 
+        // covariance from this screen
+    }
+
+    /**
+     * Handler for changes to the resizable matrix contents
+     */
+    @Override
+    public void onCellChange(int row, int column, double value) {
+        manager.setCovarianceCellValue(name, row, column, value);
+        manager.setComplete(name, checkComplete());
+    }
+
+    /**
+     * Sync the GUI view with the context
+     */
+    @Override
+    public void syncCovariance() 
+    {
+        NamedMatrix matrix = covarianceMatrix.toNamedMatrix(name);
+        // sync the type
+        manager.setType(name, CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
+        // sync the standard deviation values
+        for(int i = 0; i < matrix.getRows(); i++)
+        {
+            manager.setStandardDeviationValue(name, i, 1);
+        }
+        // sync the actual covariance values
+        double[][] data = matrix.getData().getData();
+        for(int row = 0; row < matrix.getRows(); row++) {
+            for(int column = 0; column <= row; column++) {
+                manager.setCovarianceCellValue(name, row, column, data[row][column]);
+            }
+        }
+    }
+
 }

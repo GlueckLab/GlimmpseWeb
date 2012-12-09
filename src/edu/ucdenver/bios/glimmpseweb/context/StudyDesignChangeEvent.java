@@ -16,6 +16,7 @@ public class StudyDesignChangeEvent extends WizardContextChangeEvent
         CONFIDENCE_INTERVAL,
         COVARIATE,
         COVARIANCE,
+        COVARIATE_COVARIANCE,
         DESIGN_ESSENCE_MATRIX,
         HYPOTHESIS,
         PER_GROUP_N_LIST,

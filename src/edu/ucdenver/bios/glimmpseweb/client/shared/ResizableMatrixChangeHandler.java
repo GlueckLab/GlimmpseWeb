@@ -1,5 +1,5 @@
 /*
- * User Interface for the GLIMMPSE Software System.  Allows
+ * Web Interface for the GLIMMPSE Software System.  Allows
  * users to perform power, sample size, and detectable difference
  * calculations. 
  * 
@@ -19,34 +19,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package edu.ucdenver.bios.glimmpseweb.client.guided;
-
-import edu.ucdenver.bios.webservice.common.domain.Hypothesis;
-import edu.ucdenver.bios.webservice.common.domain.NamedMatrix;
+package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 /**
- * Common interface for generating hypothesis objects
+ * Handler for changes to the matrix dimension or contents
  * @author Sarah Kreidler
  *
  */
-public interface HypothesisBuilder {
-
+public interface ResizableMatrixChangeHandler {
     /**
-     * Create a Hypothesis domain object from the current panel
-     * @return Hypothesis object
+     * Handle changes in the row dimension of the matrix
+     * @param rows new row dimension
      */
-    public Hypothesis buildHypothesis();
+    public void onRowDimension(int rows);
     
     /**
-     * Create a Hypothesis domain object from the current panel
-     * @return Hypothesis object
+     * Handle changes in the column dimension of the matrix
+     * @param columns new column dimensions
      */
-    public NamedMatrix buildThetaNull();
+    public void onColumnDimension(int columns);
     
     /**
-     * Indicates if the panel has sufficient information to build a hypothesis
-     * @return true if complete, false otherwise
+     * Handle changes in the contents of the specified cell
+     * @param row cell row
+     * @param column cell column
+     * @param value new cell value
      */
-    public boolean checkComplete();
-
+    public void onCellChange(int row, int column, double value);
 }

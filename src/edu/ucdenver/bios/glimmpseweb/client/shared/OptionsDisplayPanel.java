@@ -36,6 +36,11 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.smartgwt.client.types.AutoFitWidthApproach;
+import com.smartgwt.client.types.SelectionStyle;
+import com.smartgwt.client.widgets.grid.ListGrid;
+import com.smartgwt.client.widgets.grid.ListGridField;
+import com.smartgwt.client.widgets.grid.ListGridRecord;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
@@ -47,6 +52,7 @@ import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanelState;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.context.StudyDesignContext;
 import edu.ucdenver.bios.webservice.common.domain.BetaScale;
+import edu.ucdenver.bios.webservice.common.domain.NominalPower;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
@@ -71,19 +77,32 @@ import edu.ucdenver.bios.webservice.common.enums.StatisticalTestTypeEnum;
  */
 public class OptionsDisplayPanel extends WizardStepPanel implements
 ClickHandler, WizardContextListener {
+    // index in the x-axis dropdown
     private static final int TOTAL_N_INDEX = 0;
     private static final int BETA_SCALE_INDEX = 1;
     private static final int SIGMA_SCALE_INDEX = 2;
-
+    // names of the columns in the table
+    private static final String COLUMN_LABEL = "label";
+    private static final String COLUMN_SAMPLE_SIZE = "sampleSize";
+    private static final String COLUMN_BETA_SCALE = "betaScale";
+    private static final String COLUMN_SIGMA_SCALE = "sigmaScale";
+    private static final String COLUMN_ALPHA = "alpha";
+    private static final String COLUMN_TEST = "test";
+    private static final String COLUMN_CI = "ci";
+    private static final String COLUMN_NOMINAL_POWER = "nominalPower";
+    private static final String COLUMN_POWER_METHOD = "powerMethod";
+    private static final String COLUMN_QUANTILE = "quantile";
     // context object
     protected StudyDesignContext studyDesignContext;
+    // work around for problem with ListGrid: cannot hide/show fields
+    // unless the widget is currently visible
+    protected boolean visible = false;
 
-    protected boolean hasCovariate;
-    protected boolean solvingForPower;
-    
-    // Begin Change : Added a flag for Confidence Interval Description
-    protected boolean hasConfidenceIntervalDescription;
-    // End Change : Added a flag for Confidence Interval Description
+    // cache some information about solution type and covariate
+    protected boolean hasCovariate = false;
+    protected boolean solvingForPower = true;
+    protected boolean hasConfidenceIntervalDescription = false;
+    protected boolean hasQuantilePower = false;
 
     // mutliplier to get total sample size from relative sizes
     protected int totalSampleSizeMultiplier = 1;
@@ -126,21 +145,52 @@ ClickHandler, WizardContextListener {
             GlimmpseWeb.constants.curveOptionsPowerMethodLabel());
     protected HTML quantileHTML = new HTML(
             GlimmpseWeb.constants.curveOptionsQuantileLabel());
-    protected HTML dataSeriesLabelHTML = new HTML("Data Series Label");
-    // Begin Change : Added a new label for checkbox option
+    protected HTML dataSeriesLabelHTML = new HTML(
+            GlimmpseWeb.constants.curveOptionsDataSeriesLabel());
     protected HTML confidenceLimitsLabelHTML = new HTML(
             GlimmpseWeb.constants.curveOptionsConfidenceLimitsLabel());
-    // End Change : Added a new label for checkbox option
 
-    // listbox showing currently entered data series
-    protected ListBox dataSeriesTable = new ListBox(true);
+    // listbox showing the data series
+    protected ListGrid dataSeriesGrid = new ListGrid();
 
     // panels for x-axis type selection and data series input
     private VerticalPanel xAxisPanel = new VerticalPanel();
     private VerticalPanel dataSeriesPanel = new VerticalPanel();
 
-    // list of data series
-    protected ArrayList<PowerCurveDataSeries> dataSeriesList = new ArrayList<PowerCurveDataSeries>();
+    // Column model for the data series display grid
+    private class DataSeriesRecord extends ListGridRecord {
+        public DataSeriesRecord(PowerCurveDataSeries series) {
+            setAttribute(COLUMN_LABEL, series.getLabel());  
+            if (series.getSampleSize() > 0) {
+                setAttribute(COLUMN_SAMPLE_SIZE, 
+                        Integer.toString(series.getSampleSize()));
+            }
+            setAttribute(COLUMN_BETA_SCALE, 
+                    Double.toString(series.getBetaScale()));
+            setAttribute(COLUMN_SIGMA_SCALE, 
+                    Double.toString(series.getSigmaScale()));
+            setAttribute(COLUMN_ALPHA, 
+                    Double.toString(series.getTypeIError()));
+            setAttribute(COLUMN_TEST, 
+                    statisticalTestToString(series.getStatisticalTestTypeEnum()));
+            setAttribute(COLUMN_CI, 
+                    (series.isConfidenceLimits() ? 
+                            GlimmpseWeb.constants.yes() :
+                                GlimmpseWeb.constants.no()));
+            if (series.getNominalPower() > 0) {
+                setAttribute(COLUMN_NOMINAL_POWER, 
+                        Double.toString(series.getNominalPower()));
+            }
+            if (series.getPowerMethod() != null) {
+                setAttribute(COLUMN_POWER_METHOD, 
+                        powerMethodToString(series.getPowerMethod()));
+            }
+            if (series.getQuantile() > 0) {
+                setAttribute(COLUMN_QUANTILE, 
+                        Double.toString(series.getQuantile()));
+            }
+        }
+    }
 
     /**
      * Constructor
@@ -173,8 +223,8 @@ ClickHandler, WizardContextListener {
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
-        description
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
+        description.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
 
         // initialize
         initWidget(panel);
@@ -191,6 +241,81 @@ ClickHandler, WizardContextListener {
     }
 
     /**
+     * Sync the GUI to the study design context
+     */
+    private void syncPowerCurveDescription() {
+        boolean enabled = !disableCheckbox.getValue();
+        studyDesignContext.setPowerCurveDescription(this, enabled);
+        if (enabled) {
+            // sync the axis type
+            switch (xAxisListBox.getSelectedIndex()) {
+            case TOTAL_N_INDEX:
+                studyDesignContext.setPowerCurveXAxisType(this, 
+                        HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
+                break;
+            case BETA_SCALE_INDEX:
+                studyDesignContext.setPowerCurveXAxisType(this, 
+                        HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
+                break;
+            case SIGMA_SCALE_INDEX:
+                studyDesignContext.setPowerCurveXAxisType(this, 
+                        HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
+                break;
+            }
+            // sync the data series
+            ListGridRecord[] recordList = dataSeriesGrid.getRecords();
+            for(ListGridRecord record: recordList) {
+                studyDesignContext.addPowerCurveDataSeries(this, 
+                        recordToDataSeries((DataSeriesRecord) record));
+            }
+        } 
+    }
+
+    /**
+     * Create a data series object from a record in the ListGrid
+     * @param record
+     * @return
+     */
+    private PowerCurveDataSeries recordToDataSeries(DataSeriesRecord record) {
+        PowerCurveDataSeries series = new PowerCurveDataSeries();
+        series.setLabel(record.getAttribute(COLUMN_LABEL));
+        Double alpha = record.getAttributeAsDouble(COLUMN_ALPHA);
+        if (alpha != null) {
+            series.setTypeIError(alpha);
+        }
+        Double betaScale = record.getAttributeAsDouble(COLUMN_BETA_SCALE);
+        if (betaScale != null) {
+            series.setBetaScale(betaScale);
+        }
+        Double sigmaScale = record.getAttributeAsDouble(COLUMN_SIGMA_SCALE);
+        if (sigmaScale != null) {
+            series.setSigmaScale(sigmaScale);
+        }
+        series.setStatisticalTestTypeEnum(
+                statisticalTestStringToEnum(record.getAttribute(COLUMN_TEST)));
+        Integer sampleSize = record.getAttributeAsInt(COLUMN_SAMPLE_SIZE);
+        if (sampleSize != null) {
+            series.setSampleSize(sampleSize);
+        }
+        Double nominalPower = 
+            record.getAttributeAsDouble(COLUMN_NOMINAL_POWER);
+        if (nominalPower != null) {
+            series.setNominalPower(nominalPower);
+        }
+        series.setPowerMethod(
+                powerMethodStringToEnum(record.getAttribute(COLUMN_POWER_METHOD)));
+        Double quantile = record.getAttributeAsDouble(COLUMN_QUANTILE);
+        if (quantile != null) {
+            series.setQuantile(quantile);
+        }
+        String ciString = record.getAttribute(COLUMN_CI);
+        if (ciString != null && ciString.equals(GlimmpseWeb.constants.yes())) {
+            series.setConfidenceLimits(true);
+        }
+        return series;
+    }
+
+    /**
      * Create panel with checkbox to enable/disable power curves
      * 
      * @return HorizontalPanel containing the checkbox
@@ -204,6 +329,8 @@ ClickHandler, WizardContextListener {
             public void onClick(ClickEvent event) {
                 CheckBox cb = (CheckBox) event.getSource();
                 enableOptions(!cb.getValue());
+                syncPowerCurveDescription();
+                checkComplete();
             }
         });
         disableCheckbox.setValue(true);
@@ -223,26 +350,26 @@ ClickHandler, WizardContextListener {
      */
     private VerticalPanel createXAxisPanel() {
         // create the listbox for the x-axis values
-        xAxisListBox.addItem(GlimmpseWeb.constants
-                .curveOptionsSampleSizeLabel());
-        xAxisListBox
-        .addItem(GlimmpseWeb.constants.curveOptionsBetaScaleLabel());
-        xAxisListBox.addItem(GlimmpseWeb.constants
-                .curveOptionsSigmaScaleLabel());
+        xAxisListBox.addItem(
+                GlimmpseWeb.constants.curveOptionsSampleSizeLabel());
+        xAxisListBox.addItem(
+                GlimmpseWeb.constants.curveOptionsBetaScaleLabel());
+        xAxisListBox.addItem(
+                GlimmpseWeb.constants.curveOptionsSigmaScaleLabel());
 
         // add callback
         xAxisListBox.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                dataSeriesList.clear();
-                dataSeriesTable.clear();
+                clearDataSeries();
                 updateDataSeriesOptions();
+                checkComplete();
             }
         });
 
         // layout the panel
         HTML xAxixDescription = new HTML(
-                GlimmpseWeb.constants.curveOptionsXAxisLabel());
+                GlimmpseWeb.constants.curveOptionsXAxisDescription());
         xAxisPanel.add(xAxixDescription);
         xAxisPanel.add(xAxisListBox);
 
@@ -255,31 +382,82 @@ ClickHandler, WizardContextListener {
         return xAxisPanel;
     }
 
+    /**
+     * Create the panel allowing the user to specify data series
+     * @return
+     */
     private VerticalPanel createDataSeriesPanel() {
         VerticalPanel mainPanel = new VerticalPanel();
 
+        // set the columns of the grid, size, etc
+        dataSeriesGrid.setWidth(575);  
+        dataSeriesGrid.setHeight(120);
+        dataSeriesGrid.setUseAllDataSourceFields(true);  
+        dataSeriesGrid.setAutoFitFieldWidths(true);
+        dataSeriesGrid.setAutoFitWidthApproach(AutoFitWidthApproach.TITLE);
+        dataSeriesGrid.setSelectionType(SelectionStyle.MULTIPLE);  
+        // build columns
+        ListGridField dataLabelField = new ListGridField(
+                COLUMN_LABEL, 
+                GlimmpseWeb.constants.curveOptionsDataSeriesLabel());  
+        ListGridField sampleSizeField = new ListGridField(
+                COLUMN_SAMPLE_SIZE, 
+                GlimmpseWeb.constants.curveOptionsSampleSizeLabel()); 
+        ListGridField betaScaleField = new ListGridField(
+                COLUMN_BETA_SCALE, 
+                GlimmpseWeb.constants.curveOptionsBetaScaleLabel());  
+        ListGridField sigmaScaleField = new ListGridField(
+                COLUMN_SIGMA_SCALE, 
+                GlimmpseWeb.constants.curveOptionsSigmaScaleLabel());  
+        ListGridField alphaField = new ListGridField(
+                COLUMN_ALPHA, 
+                GlimmpseWeb.constants.curveOptionsAlphaLabel());  
+        ListGridField testField = new ListGridField(
+                COLUMN_TEST, 
+                GlimmpseWeb.constants.curveOptionsTestLabel());  
+        ListGridField ciField = new ListGridField(
+                COLUMN_CI, 
+                GlimmpseWeb.constants.curveOptionsConfidenceLimitsLabel());  
+        ListGridField nominalPowerField = new ListGridField(
+                COLUMN_NOMINAL_POWER, 
+                GlimmpseWeb.constants.curveOptionsNominalPowerLabel());  
+        ListGridField powerMethodField = new ListGridField(
+                COLUMN_POWER_METHOD, 
+                GlimmpseWeb.constants.curveOptionsPowerMethodLabel());  
+        ListGridField quantileField = new ListGridField(
+                COLUMN_QUANTILE, 
+                GlimmpseWeb.constants.curveOptionsQuantileLabel());  
+        dataSeriesGrid.setFields(dataLabelField, nominalPowerField,
+                sampleSizeField, betaScaleField, sigmaScaleField, 
+                testField, alphaField, powerMethodField, 
+                quantileField, ciField);  
+
+        // input fields for the data series
         Grid grid = new Grid(10, 2);
-        // add drop down lists for remaining values that need to be fixed
-        grid.setWidget(0, 1, totalNListBox);
-        grid.setWidget(1, 1, betaScaleListBox);
-        grid.setWidget(2, 1, sigmaScaleListBox);
-        grid.setWidget(3, 1, testListBox);
-        grid.setWidget(4, 1, alphaListBox);
-        grid.setWidget(5, 1, powerMethodListBox);
-        grid.setWidget(6, 1, quantileListBox);
-        grid.setWidget(7, 1, dataSeriesLabelTextBox);
-        grid.setWidget(8, 1, confidenceLimitsCheckBox);
+        // labels
+        grid.setWidget(0, 0, dataSeriesLabelHTML);
+        grid.setWidget(1, 0, nominalPowerHTML);
+        grid.setWidget(2, 0, totalNHTML);
+        grid.setWidget(3, 0, betaScaleHTML);
+        grid.setWidget(4, 0, sigmaScaleHTML);
+        grid.setWidget(5, 0, testHTML);
+        grid.setWidget(6, 0, alphaHTML);
+        grid.setWidget(7, 0, powerMethodHTML);
+        grid.setWidget(8, 0, quantileHTML);
+        grid.setWidget(9, 0, confidenceLimitsLabelHTML);
+        // list widgets
+        grid.setWidget(0, 1, dataSeriesLabelTextBox);
+        grid.setWidget(1, 1, nominalPowerListBox);
+        grid.setWidget(2, 1, totalNListBox);
+        grid.setWidget(3, 1, betaScaleListBox);
+        grid.setWidget(4, 1, sigmaScaleListBox);
+        grid.setWidget(5, 1, testListBox);
+        grid.setWidget(6, 1, alphaListBox);
+        grid.setWidget(7, 1, powerMethodListBox);
+        grid.setWidget(8, 1, quantileListBox);
+        grid.setWidget(9, 1, confidenceLimitsCheckBox);
 
-        grid.setWidget(0, 0, totalNHTML);
-        grid.setWidget(1, 0, betaScaleHTML);
-        grid.setWidget(2, 0, sigmaScaleHTML);
-        grid.setWidget(3, 0, testHTML);
-        grid.setWidget(4, 0, alphaHTML);
-        grid.setWidget(5, 0, powerMethodHTML);
-        grid.setWidget(6, 0, quantileHTML);
-        grid.setWidget(7, 0, dataSeriesLabelHTML);
-        grid.setWidget(8, 0, confidenceLimitsLabelHTML);
-
+        // add a data series button
         Button addSeriesButton = new Button(GlimmpseWeb.constants.buttonAdd(),
                 new ClickHandler() {
             @Override
@@ -287,6 +465,7 @@ ClickHandler, WizardContextListener {
                 addSeries();
             }
         });
+        // remove a data series button
         Button removeSeriesButton = new Button(
                 GlimmpseWeb.constants.buttonDelete(), new ClickHandler() {
                     @Override
@@ -302,39 +481,45 @@ ClickHandler, WizardContextListener {
         grid.setWidget(9, 0, addRemovePanel);
 
         mainPanel.add(grid);
-        mainPanel.add(dataSeriesTable);
+        mainPanel.add(dataSeriesGrid);
 
         // layout the panel
-        dataSeriesPanel.add(new HTML(GlimmpseWeb.constants
-                .curveOptionsDataSeriesLabel()));
+        dataSeriesPanel.add(new HTML(
+                GlimmpseWeb.constants.curveOptionsDataSeriesDescription()));
         dataSeriesPanel.add(mainPanel);
-        dataSeriesTable.setVisibleItemCount(5);
 
         // set style
-        totalNListBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        betaScaleListBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        sigmaScaleListBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        testListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        alphaListBox.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        powerMethodListBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        quantileListBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        dataSeriesLabelTextBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
-        confidenceLimitsCheckBox
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_CHECK_BOX);
+        nominalPowerListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        totalNListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        betaScaleListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        sigmaScaleListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        testListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        alphaListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        powerMethodListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        quantileListBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        dataSeriesLabelTextBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BOX);
+        confidenceLimitsCheckBox.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_CHECK_BOX);
 
-        addSeriesButton
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-        removeSeriesButton
-        .setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-        mainPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
-        grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
-        dataSeriesPanel.setStyleName(GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
+        addSeriesButton.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        removeSeriesButton.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        mainPanel.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
+        grid.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_INDENTED_CONTENT);
+        dataSeriesPanel.setStyleName(
+                GlimmpseConstants.STYLE_WIZARD_PARAGRAPH);
 
         return dataSeriesPanel;
     }
@@ -343,7 +528,13 @@ ClickHandler, WizardContextListener {
      * Clear the options panel
      */
     public void reset() {
-        dataSeriesList.clear();
+        visible = false;
+
+        hasCovariate = false;
+        solvingForPower = true;
+        hasConfidenceIntervalDescription = false;
+        hasQuantilePower = false;
+        
         // set the display to remove power options
         disableCheckbox.setValue(true);
         // reset confidence limits checkbox
@@ -351,6 +542,7 @@ ClickHandler, WizardContextListener {
         enableOptions(false);
 
         // clear the list boxes
+        nominalPowerListBox.clear();
         totalNListBox.clear();
         betaScaleListBox.clear();
         sigmaScaleListBox.clear();
@@ -358,6 +550,10 @@ ClickHandler, WizardContextListener {
         alphaListBox.clear();
         powerMethodListBox.clear();
         quantileListBox.clear();
+
+        // clear the data series
+        dataSeriesGrid.selectAllRecords();
+        dataSeriesGrid.removeSelectedData();
 
         // reset the flags
         hasCovariate = false;
@@ -375,126 +571,118 @@ ClickHandler, WizardContextListener {
     private void addSeries() {
         PowerCurveDataSeries series = new PowerCurveDataSeries();
         int index = -1;
+        // set label in table and data series object
         series.setLabel(dataSeriesLabelTextBox.getText());
+        // set the show confidence limit flag
         if (confidenceLimitsCheckBox.getValue()) {
             series.setConfidenceLimits(true);
+        } else {
+            series.setConfidenceLimits(false);
         }
+        // set the power method
         if (hasCovariate) {
             index = powerMethodListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setPowerMethod(powerMethodStringToEnum(powerMethodListBox
-                        .getItemText(powerMethodListBox.getSelectedIndex())));
+                series.setPowerMethod(
+                        powerMethodStringToEnum(
+                                powerMethodListBox.getItemText(
+                                        powerMethodListBox.getSelectedIndex())));
             }
             index = quantileListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setQuantile(Double.parseDouble(quantileListBox
-                        .getItemText(quantileListBox.getSelectedIndex())));
+                series.setQuantile(Double.parseDouble(
+                        quantileListBox.getItemText(
+                                quantileListBox.getSelectedIndex())));
             }
         }
-
+        // remaining fields depend on the selected axis type 
         if (xAxisListBox.getSelectedIndex() == TOTAL_N_INDEX) {
+            // set the sample beta scale and sigma scale 
             index = betaScaleListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setBetaScale(Double.parseDouble(betaScaleListBox
-                        .getItemText(betaScaleListBox.getSelectedIndex())));
+                series.setBetaScale(
+                        Double.parseDouble(
+                                betaScaleListBox.getItemText(
+                                        betaScaleListBox.getSelectedIndex())));
             }
             index = sigmaScaleListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setSigmaScale(Double.parseDouble(sigmaScaleListBox
-                        .getItemText(sigmaScaleListBox.getSelectedIndex())));
+                series.setSigmaScale(
+                        Double.parseDouble(
+                                sigmaScaleListBox.getItemText(
+                                        sigmaScaleListBox.getSelectedIndex())));
             }
 
         } else if (xAxisListBox.getSelectedIndex() == BETA_SCALE_INDEX) {
+            // set sample size and sigma scale
             index = totalNListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setSampleSize(Integer.parseInt(totalNListBox
-                        .getItemText(totalNListBox.getSelectedIndex())));
+                series.setSampleSize(Integer.parseInt(
+                        totalNListBox.getItemText(
+                                totalNListBox.getSelectedIndex())));
             }
             index = sigmaScaleListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setSigmaScale(Double.parseDouble(sigmaScaleListBox
-                        .getItemText(sigmaScaleListBox.getSelectedIndex())));
+                series.setSigmaScale(
+                        Double.parseDouble(
+                                sigmaScaleListBox.getItemText(
+                                        sigmaScaleListBox.getSelectedIndex())));
             }
 
         } else {
-            // sigma scale selected
+            // set sample size and beta scale
             index = totalNListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setSampleSize(Integer.parseInt(totalNListBox
-                        .getItemText(totalNListBox.getSelectedIndex())));
+                series.setSampleSize(
+                        Integer.parseInt(
+                                totalNListBox.getItemText(
+                                        totalNListBox.getSelectedIndex())));
             }
             index = betaScaleListBox.getSelectedIndex();
             if (index >= 0) {
-                series.setBetaScale(Double.parseDouble(betaScaleListBox
-                        .getItemText(betaScaleListBox.getSelectedIndex())));
+                series.setBetaScale(
+                        Double.parseDouble(
+                                betaScaleListBox.getItemText(
+                                        betaScaleListBox.getSelectedIndex())));
             }
         }
 
         // add alpha
         index = alphaListBox.getSelectedIndex();
         if (index >= 0) {
-            series.setTypeIError(Double.parseDouble(alphaListBox
-                    .getItemText(alphaListBox.getSelectedIndex())));
+            series.setTypeIError(
+                    Double.parseDouble(
+                            alphaListBox.getItemText(
+                                    alphaListBox.getSelectedIndex())));
         }
         // add test
         index = testListBox.getSelectedIndex();
         if (index >= 0) {
-            series.setStatisticalTestTypeEnum(statisticalTestStringToEnum(testListBox
-                    .getItemText(testListBox.getSelectedIndex())));
+            series.setStatisticalTestTypeEnum(
+                    statisticalTestStringToEnum(
+                            testListBox.getItemText(
+                                    testListBox.getSelectedIndex())));
         }
 
-        dataSeriesList.add(series);
-        dataSeriesTable.addItem(dataSeriesAsString(series));
+        // display the record
+        dataSeriesGrid.addData(new DataSeriesRecord(series));
+        // update the context
+        studyDesignContext.addPowerCurveDataSeries(this, series);
     }
 
     /**
      * Remove the currently selected data series
      */
     private void removeSeries() {
-        int index = dataSeriesTable.getSelectedIndex();
-        if (index >= 0 && index < dataSeriesList.size()) {
-            dataSeriesList.remove(index);
-            dataSeriesTable.removeItem(index);
+        ListGridRecord[] selectedRecords = 
+            dataSeriesGrid.getSelectedRecords();
+        if (selectedRecords != null && selectedRecords.length > 0) {
+            for(ListGridRecord record: selectedRecords) {
+                int index = dataSeriesGrid.getRecordIndex(record);
+                studyDesignContext.deletePowerCurveDataSeries(this, index);
+                dataSeriesGrid.removeData(record);
+            }
         }
-    }
-
-    /**
-     * Format data series into pretty string
-     * 
-     * @param series
-     * @return
-     */
-    private String dataSeriesAsString(PowerCurveDataSeries series) {
-        StringBuffer display = new StringBuffer();
-        display.append(series.getLabel() + ":");
-        if (series.getSampleSize() > 0) {
-            display.append(" Sample Size=" + series.getSampleSize());
-        }
-        if (series.getNominalPower() > 0) {
-            display.append(" Nominal Power=" + series.getNominalPower());
-        }
-        if (series.getStatisticalTestTypeEnum() != null) {
-            display.append(" Test="
-                    + statisticalTestToString(series
-                            .getStatisticalTestTypeEnum()));
-        }
-        if (series.getBetaScale() != 0) {
-            display.append(" Regr. Scale=" + series.getBetaScale());
-        }
-        if (series.getSigmaScale() != 0) {
-            display.append(" Var. Scale=" + series.getSigmaScale());
-        }
-        if (series.getTypeIError() > 0) {
-            display.append(" Alpha=" + series.getTypeIError());
-        }
-        if (series.getPowerMethod() != null) {
-            display.append(" Method="
-                    + powerMethodToString(series.getPowerMethod()));
-        }
-        if (series.getQuantile() > 0) {
-            display.append(" Quantile=" + series.getQuantile());
-        }
-        return display.toString();
     }
 
     /**
@@ -560,7 +748,8 @@ ClickHandler, WizardContextListener {
      * @param testStr
      * @return
      */
-    public static PowerMethodEnum powerMethodStringToEnum(String powerMethodStr) {
+    public static PowerMethodEnum powerMethodStringToEnum(
+            String powerMethodStr) {
         if (powerMethodStr.equals(GlimmpseWeb.constants
                 .powerMethodConditionalLabel())) {
             return PowerMethodEnum.CONDITIONAL;
@@ -607,89 +796,86 @@ ClickHandler, WizardContextListener {
      * notify that forward navigation is allowed
      */
     private void checkComplete() {
-        if (disableCheckbox.getValue()) {
-            changeState(WizardStepPanelState.COMPLETE);
+        if ((studyDesignContext.getStudyDesign().getSolutionTypeEnum() == null) ||
+                (solvingForPower && totalNListBox.getItemCount() <= 0) ||
+                (!solvingForPower && nominalPowerListBox.getItemCount() <= 0) ||
+                (betaScaleListBox.getItemCount() <= 0) ||
+                (sigmaScaleListBox.getItemCount() <= 0) ||
+                (testListBox.getItemCount() <= 0) ||
+                (alphaListBox.getItemCount() <= 0) ||
+                (hasCovariate && powerMethodListBox.getItemCount() <= 0) ||
+                (hasQuantilePower && quantileListBox.getItemCount() <= 0)) {
+            // if any visible dropdown lists are not filled, then the user
+            // can't enter this screen
+            changeState(WizardStepPanelState.NOT_ALLOWED);
         } else {
-            if ((totalNListBox.isVisible() && totalNListBox.getItemCount() <= 0) ||
-                    (nominalPowerListBox.isVisible() && nominalPowerListBox.getItemCount() <= 0) ||
-                    (betaScaleListBox.isVisible() && betaScaleListBox.getItemCount() <= 0) ||
-                    (sigmaScaleListBox.isVisible() && sigmaScaleListBox.getItemCount() <= 0) ||
-                    (testListBox.isVisible() && testListBox.getItemCount() <= 0) ||
-                    (alphaListBox.isVisible() && alphaListBox.getItemCount() <= 0) ||
-                    (powerMethodListBox.isVisible() && powerMethodListBox.getItemCount() <= 0) ||
-                    (quantileListBox.isVisible() && quantileListBox.getItemCount() <= 0)) {
-                // if any visible dropdown lists are not filled, then the user
-                // can't enter this screen
-                changeState(WizardStepPanelState.NOT_ALLOWED);
+            if (disableCheckbox.getValue() || dataSeriesGrid.getTotalRows() > 0) {
+                changeState(WizardStepPanelState.COMPLETE);
             } else {
-                if (dataSeriesList.size() > 0) {
-                    changeState(WizardStepPanelState.COMPLETE);
-                } else {
-                    changeState(WizardStepPanelState.INCOMPLETE);
-                }
+                changeState(WizardStepPanelState.INCOMPLETE);
             }
         }
     }
 
     /**
-     * Notify options listeners of selected options as we exit the options
-     * screen
+     * Update the displayed options for the data series
      */
-    @Override
-    public void onExit() {
-        // build a power curve description object
-        PowerCurveDescription curveDescription = null;
-        if (!disableCheckbox.getValue()) {
-            curveDescription = new PowerCurveDescription();
-            if (xAxisListBox.getSelectedIndex() == TOTAL_N_INDEX) {
-                curveDescription
-                .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
-            } else if (xAxisListBox.getSelectedIndex() == BETA_SCALE_INDEX) {
-                curveDescription
-                .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
-            } else {
-                curveDescription
-                .setHorizontalAxisLabelEnum(HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
-            }
-            curveDescription.setDataSeriesList(dataSeriesList);            
-
-        } else {
-            // clear the power curve
-        }
-        studyDesignContext.setPowerCurveDescription(this, curveDescription);
-    }
-
     private void updateDataSeriesOptions() {
 
-        // select boxes for items that must be fixed for the curve
-        totalNListBox.setVisible(solvingForPower &&
-                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
-        nominalPowerListBox.setVisible(!solvingForPower);
-        betaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() != 
-            BETA_SCALE_INDEX);
-        sigmaScaleListBox.setVisible(xAxisListBox.getSelectedIndex() !=
-            SIGMA_SCALE_INDEX);
-        testListBox.setVisible(true);
-        alphaListBox.setVisible(true);
-        powerMethodListBox.setVisible(hasCovariate);
-        quantileListBox.setVisible(hasCovariate);
-        // Set visibility for Confidence Interval Description CheckBox
-        confidenceLimitsCheckBox.setVisible(hasConfidenceIntervalDescription);
+        // determine which fields to hide/show
+        boolean showSampleSize = 
+            (solvingForPower && 
+                    xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
+        boolean showNominalPower = !solvingForPower;
+        boolean showBetaScale = 
+            (xAxisListBox.getSelectedIndex() != BETA_SCALE_INDEX);
+        boolean showSigmaScale = 
+            (xAxisListBox.getSelectedIndex() != SIGMA_SCALE_INDEX);
 
-        // labels for each listbox
-        totalNHTML.setVisible(solvingForPower &&
-                xAxisListBox.getSelectedIndex() != TOTAL_N_INDEX);
-        nominalPowerHTML.setVisible(!solvingForPower);
-        betaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != 
-            BETA_SCALE_INDEX);
-        sigmaScaleHTML.setVisible(xAxisListBox.getSelectedIndex() != 
-            SIGMA_SCALE_INDEX);
-        testHTML.setVisible(true);
-        alphaHTML.setVisible(true);
+        // hide and show options
+        // sample size
+        totalNHTML.setVisible(showSampleSize);
+        totalNListBox.setVisible(showSampleSize);
+        showDataSeriesGridField(COLUMN_SAMPLE_SIZE, showSampleSize);
+        // nominal power
+        nominalPowerHTML.setVisible(showNominalPower);
+        nominalPowerListBox.setVisible(showNominalPower);
+        showDataSeriesGridField(COLUMN_NOMINAL_POWER, showNominalPower);
+        // beta scale
+        betaScaleHTML.setVisible(showBetaScale);
+        betaScaleListBox.setVisible(showBetaScale);
+        showDataSeriesGridField(COLUMN_BETA_SCALE, showBetaScale);
+        // sigma scale
+        sigmaScaleHTML.setVisible(showSigmaScale);
+        sigmaScaleListBox.setVisible(showSigmaScale);
+        showDataSeriesGridField(COLUMN_SIGMA_SCALE, showSigmaScale);
+        // power method
         powerMethodHTML.setVisible(hasCovariate);
-        quantileHTML.setVisible(hasCovariate);
-        // Set visibility for Confidence Interval Description Label
+        powerMethodListBox.setVisible(hasCovariate);
+        showDataSeriesGridField(COLUMN_POWER_METHOD, hasCovariate);
+        // quantile
+        quantileHTML.setVisible(hasQuantilePower);
+        quantileListBox.setVisible(hasQuantilePower);
+        showDataSeriesGridField(COLUMN_QUANTILE, hasQuantilePower);
+        // Set visibility for Confidence Interval Description CheckBox
         confidenceLimitsLabelHTML.setVisible(hasConfidenceIntervalDescription);
+        confidenceLimitsCheckBox.setVisible(hasConfidenceIntervalDescription);
+        showDataSeriesGridField(COLUMN_CI, hasConfidenceIntervalDescription);
+    }
+
+    /**
+     * Hide or show a column in the data series grid
+     * @param fieldName
+     * @param show
+     */
+    private void showDataSeriesGridField(String fieldName, boolean show) {
+        if (show) {
+            if (visible) {
+                dataSeriesGrid.showField(fieldName);
+            }
+        } else {
+            dataSeriesGrid.hideField(fieldName);
+        }
     }
 
     /**
@@ -703,10 +889,22 @@ ClickHandler, WizardContextListener {
             solvingForPower = 
                 (studyDesignContext.getStudyDesign().getSolutionTypeEnum() == 
                     SolutionTypeEnum.POWER);
+            clearDataSeries();
             break;
         case COVARIATE:
             hasCovariate = 
                 studyDesignContext.getStudyDesign().isGaussianCovariate();
+            clearDataSeries();
+            break;
+        case POWER_LIST:
+            List<NominalPower> nominalPowerList = 
+                studyDesignContext.getStudyDesign().getNominalPowerList();
+            nominalPowerListBox.clear();
+            if (nominalPowerList != null) {
+                for (NominalPower power : nominalPowerList) {
+                    nominalPowerListBox.addItem(Double.toString(power.getValue()));
+                }
+            }
             break;
         case PER_GROUP_N_LIST:
             List<SampleSize> sampleSizeList = 
@@ -771,7 +969,12 @@ ClickHandler, WizardContextListener {
                 studyDesignContext.getStudyDesign().getPowerMethodList();
             powerMethodListBox.clear();
             if (powerMethodList != null) {
+                hasQuantilePower = false;
                 for (PowerMethod powerMethod : powerMethodList) {
+                    if (powerMethod.getPowerMethodEnum() ==
+                        PowerMethodEnum.QUANTILE) {
+                        hasQuantilePower = true;
+                    }
                     powerMethodListBox.addItem(
                             powerMethodToString(
                                     powerMethod.getPowerMethodEnum()));
@@ -805,16 +1008,27 @@ ClickHandler, WizardContextListener {
      */
     public void loadFromContext() {
         reset();
-        solvingForPower = (studyDesignContext.getStudyDesign()
-                .getSolutionTypeEnum() == SolutionTypeEnum.POWER);
-        hasCovariate = studyDesignContext.getStudyDesign()
-        .isGaussianCovariate();
-        hasConfidenceIntervalDescription = (studyDesignContext.getStudyDesign()
+        solvingForPower = (
+                studyDesignContext.getStudyDesign().getSolutionTypeEnum() ==
+                    SolutionTypeEnum.POWER);
+        hasCovariate = 
+            studyDesignContext.getStudyDesign().isGaussianCovariate();
+        hasConfidenceIntervalDescription = (
+                studyDesignContext.getStudyDesign()
                 .getConfidenceIntervalDescriptions() != null);     
 
+        // load the nominal power list
+        List<NominalPower> nominalPowerList = 
+            studyDesignContext.getStudyDesign().getNominalPowerList();
+        nominalPowerListBox.clear();
+        if (nominalPowerList != null) {
+            for (NominalPower power : nominalPowerList) {
+                nominalPowerListBox.addItem(Double.toString(power.getValue()));
+            }
+        }
         // load the per group n list
-        List<SampleSize> sampleSizeList = studyDesignContext
-        .getStudyDesign().getSampleSizeList();
+        List<SampleSize> sampleSizeList = 
+            studyDesignContext.getStudyDesign().getSampleSizeList();
         totalNListBox.clear();
         if (sampleSizeList != null) {
             for (SampleSize size : sampleSizeList) {
@@ -823,8 +1037,8 @@ ClickHandler, WizardContextListener {
             }
         }
         // load the beta scale list
-        List<BetaScale> betaScaleList = studyDesignContext.getStudyDesign()
-        .getBetaScaleList();
+        List<BetaScale> betaScaleList = 
+            studyDesignContext.getStudyDesign().getBetaScaleList();
         betaScaleListBox.clear();
         if (betaScaleList != null) {
             for (BetaScale scale : betaScaleList) {
@@ -837,8 +1051,7 @@ ClickHandler, WizardContextListener {
         sigmaScaleListBox.clear();
         if (sigmaScaleList != null) {
             for (SigmaScale scale : sigmaScaleList) {
-                sigmaScaleListBox
-                .addItem(Double.toString(scale.getValue()));
+                sigmaScaleListBox.addItem(Double.toString(scale.getValue()));
             }
         }
         // load the statistical test list
@@ -847,8 +1060,7 @@ ClickHandler, WizardContextListener {
         testListBox.clear();
         if (testList != null) {
             for (StatisticalTest test : testList) {
-                testListBox
-                .addItem(statisticalTestToString(test.getType()));
+                testListBox.addItem(statisticalTestToString(test.getType()));
             }
         }
         // load the alpha list
@@ -857,8 +1069,7 @@ ClickHandler, WizardContextListener {
         alphaListBox.clear();
         if (alphaList != null) {
             for (TypeIError alpha : alphaList) {
-                alphaListBox
-                .addItem(Double.toString(alpha.getAlphaValue()));
+                alphaListBox.addItem(Double.toString(alpha.getAlphaValue()));
             }
         }
         // load the power method list
@@ -866,9 +1077,14 @@ ClickHandler, WizardContextListener {
         .getStudyDesign().getPowerMethodList();
         powerMethodListBox.clear();
         if (powerMethodList != null) {
+            hasQuantilePower = false;
             for (PowerMethod powerMethod : powerMethodList) {
-                powerMethodListBox.addItem(powerMethodToString(powerMethod
-                        .getPowerMethodEnum()));
+                if (powerMethod.getPowerMethodEnum() ==
+                    PowerMethodEnum.QUANTILE) {
+                    hasQuantilePower = true;
+                }
+                powerMethodListBox.addItem(
+                        powerMethodToString(powerMethod.getPowerMethodEnum()));
             }
         }
         // load the quantile list
@@ -877,8 +1093,7 @@ ClickHandler, WizardContextListener {
         quantileListBox.clear();
         if (quantileList != null) {
             for (Quantile quantile : quantileList) {
-                quantileListBox
-                .addItem(Double.toString(quantile.getValue()));
+                quantileListBox.addItem(Double.toString(quantile.getValue()));
             }
         }
         updateDataSeriesOptions();
@@ -886,16 +1101,16 @@ ClickHandler, WizardContextListener {
         // fill in the data series
         PowerCurveDescription curveDescription = 
             studyDesignContext.getStudyDesign().getPowerCurveDescriptions();
-        dataSeriesList.clear();
-        dataSeriesTable.clear();
+        // clear the display grid
+        dataSeriesGrid.selectAllRecords();
+        dataSeriesGrid.removeSelectedData();
         if (curveDescription != null) {
             disableCheckbox.setValue(false);
             enableOptions(true);
             List<PowerCurveDataSeries> seriesList = curveDescription.getDataSeriesList();
             if (seriesList != null) {
                 for(PowerCurveDataSeries series: seriesList) {
-                    dataSeriesList.add(series);
-                    dataSeriesTable.addItem(dataSeriesAsString(series));
+                    dataSeriesGrid.addData(new DataSeriesRecord(series));
                 }
             }
         } else {
@@ -905,6 +1120,14 @@ ClickHandler, WizardContextListener {
         checkComplete();
     }
 
+    /**
+     * Clear the data series
+     */
+    private void clearDataSeries() {
+        studyDesignContext.clearPowerCurveDataSeries(this);
+        dataSeriesGrid.selectAllRecords();
+        dataSeriesGrid.removeSelectedData();
+    }
 
     /**
      * Handler upload and cancel events when a new context is created
@@ -914,4 +1137,23 @@ ClickHandler, WizardContextListener {
         loadFromContext();
     }
 
+    /**
+     * Update the data series grid upon entering the
+     * screen - avoids bug in SmartGWT: can't show a field
+     * unless the widget is currently visible on screen
+     */
+    @Override
+    public void onEnter() {
+        visible = true;
+        updateDataSeriesOptions();
+    }
+
+    /**
+     * Change the state to not visible - workaround
+     * for SmartGWT bug
+     */
+    @Override
+    public void onExit() {
+        visible = false;
+    }
 }

@@ -19,13 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  -->
 <html>
   <head>   
+    <LINK REL="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta name="gwt:property" content="locale=default"> 
     <!--                                                               -->
     <!-- Consider inlining CSS to reduce the number of requested files -->
-    <!--                                                               
-    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse_shared.css">
-    <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse_wizard.css"> -->
     <link type="text/css" rel="stylesheet" href="stylesheets/glimmpse.css">
     <title>GLIMMPSE: General Linear Multivariate Model Power &amp; Sample Size</title>
         
@@ -34,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <!-- If you add any GWT meta tags, they must   -->
     <!-- be added before this line.                -->                                         
     <script type="text/javascript" src="glimmpseweb/glimmpseweb.nocache.js"></script>
-    <!--  <script type="text/javascript">
+    <script type="text/javascript">
   		var _gaq = _gaq || [];
   		_gaq.push(['_setAccount', 'UA-21939703-1']);
   		_gaq.push(['_trackPageview']);
@@ -44,7 +42,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   	})();
-	</script>-->
+	</script>
+	<script type="text/javascript"
+  	src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
     
   </head>
   <body>
@@ -52,26 +53,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <div id="center">
    <div id="header">
 	<div id="glimmpse-topbar">
-		<div id="glimmpse-logo">GLIMMPSE <sup><font color="red" >beta</font></sup></div>
+		<div id="glimmpse-logo">GLIMMPSE</div>
 		<div id="top-navbar">
-		<div class="top-navbar-link no-border"><a href="http://samplesizeshop.com">SampleSizeShop.com</a></div>
-		<div class="top-navbar-link"><a href="http://samplesizeshop.com">Downloads</a></div>
-		<div class="top-navbar-link"><a href="http://samplesizeshop.com">Documentation</a></div>
-	  </div> 
+		  <div class="top-navbar-link no-border"><a href="/feedback.html">Feedback</a></div>
+		  <div class="top-navbar-link"><a href="http://samplesizeshop.com/software-downloads/glimmpse-software-downloads/">Downloads</a></div>
+		  <div class="top-navbar-link"><a href="http://samplesizeshop.com/documentation/glimmpse/">Documentation</a></div>
+		  <div class="top-navbar-link"><a href="http://samplesizeshop.com">SampleSizeShop.com</a></div>
+	    </div>
 	</div>
    </div>
   <table id="content-table">
    <tr><td>
-	<!-- main wizard -->
-	<div id="glimmpseApp"></div>
+	<!-- feedback panel -->
+	<div id="glimmpseFeedback"></div>
 	</td></tr>
 	</table>
 	</div>
 	<div id="footer">
-	Copyright 2012 University of Colorado Denver
+	Copyright 2012 University of Colorado Denver.  GLIMMPSE is released under the
+	<a href="http://www.gnu.org/licenses/gpl-2.0.html">GNU Public License version 2.0</a>.
 	<p>
-	GLIMMPSE is funded by NIDCR 1 R01 DE020832-01A1 to the University of Florida 
-	(Keith Muller, PI; Deborah Glueck, University of Colorado site PI)
+	GLIMMPSE version UNKNOWN is funded by NIDCR 1 R01 DE020832-01A1 to the University of Florida 
+	(Keith E. Muller, PI; Deborah Glueck, University of Colorado site PI)
 	</p><p>
 	Previous funding was received from an American Recovery 
 	and Re-investment Act supplement (3K07CA088811-06S) for NCI grant K07CA088811.
