@@ -46,11 +46,14 @@ public class GlimmpseWeb implements EntryPoint
 	 */
 	public void onModuleLoad()
 	{        
-        // remove the splash screen
-        Element loadingDiv =  RootPanel.get("loadingMessage").getElement();
-        if (loadingDiv != null) {
-            loadingDiv.setInnerHTML(" ");
-        }
+	    // remove the splash screen
+	    RootPanel loadingPanel = RootPanel.get("loadingMessage");
+	    if (loadingPanel != null) {
+	        Element loadingDiv =  loadingPanel.getElement();
+	        if (loadingDiv != null) {
+	            loadingDiv.setInnerHTML(" ");
+	        }
+	    }
 	    
         // add the main application
         RootPanel glimmpseApp = RootPanel.get("glimmpseApp");
