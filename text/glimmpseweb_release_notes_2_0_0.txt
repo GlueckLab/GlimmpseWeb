@@ -1,0 +1,68 @@
+##
+## GLIMMPSE (General Linear Multivariate Model Power and Sample size)
+## GLIMMPSE is a web application which calculates power and sample
+## size for the general linear multivariate model
+## 
+## Copyright (C) 2010 Regents of the University of Colorado.  
+##
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2
+## of the License, or (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+
+GLIMMPSE Web 2.0.0 Release Notes
+--------------------------------------------
+
+Features
+
+- Full redesign of the user interface look and feel
+- Added left navigation bar which allows the user to jump
+  directly to specific screens in the GLIMMPSE wizard
+- Added support for multilevel and longitudinal designs
+- Redesigned hypothesis screen to support trends and interactions
+- Redesigned covariance screen to support the LEAR (Simpson 2010)
+  model, as well as unstructured covariance and correlation models
+- Redesigned user interface for specifying power curves
+
+Internal Features
+
+- Rewrite of communication layer to use StudyDesign object model
+(see the WebServiceCommon library for details)
+- Integrated Piriti library to automate encoding of StudyDesign
+  objects into JSON
+- Redesign of internal callback to use a central StudyDesignContext object
+
+Dependency Changes
+
+- Now uses WebServiceCommon 1.1.0 library for communication to web services
+- Integrated Piriti 0.8 for JSON serialization
+- Now uses ListGrid class from Smart GWT 3.0
+
+Bug Fixes
+
+- When solving for sample size, designs with no mean difference will
+now return power = Type I error rate, and a sample size = -1, rather than
+causing an infinite loop
+
+Known Issues
+
+- We are still working on improving error messages when only a subset of 
+power calculations fail.
+- Extremely large sample sizes (> 100K) may lead to numerical
+overflows and yield lower than expected power values, or
+may fail due to invalid degrees of freedom in the underlying
+F approximations
+
+
+
+ 
