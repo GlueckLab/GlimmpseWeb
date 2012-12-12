@@ -195,10 +195,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
             </fileset>
             <header><![CDATA[<p><b>Glimmpse Web</b></p>]]></header>
             <bottom><![CDATA[<font size=1>${owner}</font>]]></bottom>
-            <link href="http://java.sun.com/javase/6/docs/api"/>
+            <link href="http://java.sun.com/javase/7/docs/api"/>
+            <!-- NOTE: including the classpath here causes a javadoc failure due
+                   to errors in the gwt-*.jar files, so we just need to watch the 
+                   javadoc warnings go by.  Sorry for the inconvenience :-(
             <classpath>
-                <path refid="compile.path" />
-            </classpath>
+                <path refid="compile.path"/>
+            </classpath> -->
         </javadoc>
     </target>
 	
@@ -215,7 +218,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	
 	<!-- Create the javadoc distribution  -->	
 	<target name="distribution.javadoc" >
-		<zip destfile="${artifacts.dir}/${app.name}-${app.version}-javadoc.zip" basedir="${javadoc.dir}/.." >
+		<zip destfile="${artifacts.dir}/${app.name}-${app.version}-javadoc.zip" >
 			<zipfileset dir="${javadoc.dir}" />
 			<zipfileset file="${basedir}/../LICENSE-gpl2.0.txt"/>
 		    <zipfileset file="${basedir}/../README.txt"/>
