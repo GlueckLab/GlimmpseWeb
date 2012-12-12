@@ -232,6 +232,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 				includes="GlimmpseWeb/*,
 				GlimmpseWeb/build/build.xml,
 				GlimmpseWeb/src/**,
+				GlimmpseWeb/text/**,
 				GlimmpseWeb/war/**" />	
 			<zipfileset file="${basedir}/../LICENSE-gpl2.0.txt"/>
 		    <zipfileset file="${basedir}/../README.txt"/>
