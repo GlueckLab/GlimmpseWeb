@@ -257,7 +257,9 @@ implements CovarianceBuilder, ResizableMatrixChangeHandler
                         break;
                     }
                     TextBox tb = (TextBox) standardDeviationFlexTable.getWidget(row, 1);
-                    tb.setText(Double.toString(stdDev.getValue()));
+                    if (stdDev.getValue() > 0) {
+                        tb.setText(Double.toString(stdDev.getValue()));
+                    }
                     row++;
                 }
             }
@@ -266,6 +268,7 @@ implements CovarianceBuilder, ResizableMatrixChangeHandler
                 correlationMatrix.loadMatrixData(covariance.getRows(), 
                         covariance.getColumns(), covariance.getBlob().getData());
             }
+            manager.setComplete(name, checkComplete());
         }
     }
 

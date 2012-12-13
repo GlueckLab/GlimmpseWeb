@@ -112,6 +112,7 @@ implements CovarianceBuilder, ResizableMatrixChangeHandler
                 covarianceMatrix.loadMatrixData(covariance.getRows(), 
                         covariance.getColumns(), covariance.getBlob().getData());
             }
+            manager.setComplete(name, checkComplete());
         }
     }
 
@@ -150,7 +151,7 @@ implements CovarianceBuilder, ResizableMatrixChangeHandler
     {
         NamedMatrix matrix = covarianceMatrix.toNamedMatrix(name);
         // sync the type
-        manager.setType(name, CovarianceTypeEnum.UNSTRUCTURED_CORRELATION);
+        manager.setType(name, CovarianceTypeEnum.UNSTRUCTURED_COVARIANCE);
         // sync the standard deviation values
         for(int i = 0; i < matrix.getRows(); i++)
         {
