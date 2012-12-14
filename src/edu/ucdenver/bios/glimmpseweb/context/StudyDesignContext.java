@@ -1923,7 +1923,7 @@ public class StudyDesignContext extends WizardContext
                 sigmaYG.setName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
             }
             if (rows > 0 && columns > 0) {
-                if (rows != sigmaYG.getRows() &&
+                if (rows != sigmaYG.getRows() ||
                         columns != sigmaYG.getColumns()) {
                     sigmaYG.setRows(rows);
                     sigmaYG.setColumns(columns);

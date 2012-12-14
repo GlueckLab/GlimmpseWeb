@@ -194,6 +194,7 @@ implements ChangeHandler
         sigmaYGTable.removeAllRows();
         repeatedMeasuresTable.removeAllRows();
         currentRowOffset = 0;
+        sameCorrelationCheckBox.setValue(false);
         changeState(WizardStepPanelState.SKIPPED);
     }
 
@@ -243,8 +244,7 @@ implements ChangeHandler
      * Load the repeated measures information from the context
      */
     private void loadRepeatedMeasuresFromContext() {
-        // clear the data from the context
-        studyDesignContext.setSigmaOutcomesCovariate(this, null);
+        // clear the repeated measures table
         repeatedMeasuresTable.removeAllRows();
         rmPanel.setVisible(false);
 
@@ -266,7 +266,7 @@ implements ChangeHandler
             int totalResponses = 0;
             if (totalRepeatedMeasuresCombinations > 0 && 
                     totalResponseVariables > 0) {
-                totalResponses *= totalRepeatedMeasuresCombinations;
+                totalResponses = totalResponseVariables * totalRepeatedMeasuresCombinations;
             } else if (totalRepeatedMeasuresCombinations > 0) {
                 totalResponses = totalRepeatedMeasuresCombinations;
             } else {
@@ -341,9 +341,11 @@ implements ChangeHandler
         // update the values in the textboxes
         for(int row = 1; row < sigmaYGTable.getRowCount(); row++) {
             TextBox tb = (TextBox) sigmaYGTable.getWidget(row, TEXTBOX_COLUMN);
-            tb.setText(Double.toString(
-                    studyDesignContext.getCovariateOutcomesCovarianceValue(
-                            row-1+currentRowOffset, 0)));
+            double value = studyDesignContext.getCovariateOutcomesCovarianceValue(
+                    row-1+currentRowOffset, 0);
+            if (!Double.isNaN(value)) {
+                tb.setText(Double.toString(value));
+            }
         }
     }
 
@@ -481,6 +483,7 @@ implements ChangeHandler
      */
     @Override
     public void onWizardContextLoad() {
+        reset();
         hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
         loadResponsesFromContext();
         loadRepeatedMeasuresFromContext();
