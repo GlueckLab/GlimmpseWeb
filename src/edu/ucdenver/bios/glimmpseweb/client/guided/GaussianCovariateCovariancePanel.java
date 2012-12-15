@@ -451,7 +451,9 @@ implements ChangeHandler
             loadMatricesFromContext();
             break;
         case COVARIATE_COVARIANCE:
-            loadMatricesFromContext();
+            if (e.getSource() != this) {
+                loadMatricesFromContext();
+            }
             break;
         }
         checkComplete();
