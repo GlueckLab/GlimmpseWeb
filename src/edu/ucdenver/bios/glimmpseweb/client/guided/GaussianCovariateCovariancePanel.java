@@ -375,6 +375,18 @@ implements ChangeHandler
                 sigmaYGTable.setWidget(row, 1, tb);
                 row++;
             }
+            
+            // if repeated measures are present, update the column offsets
+            if (repeatedMeasuresTable.getRowCount() > 0) {
+                int offset = studyDesignContext.getValidTotalResponsesCount();
+                for(row = 0; row < repeatedMeasuresTable.getRowCount(); row++) {
+                    ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(row, LISTBOX_COLUMN);
+                    offset /= lb.getItemCount();
+                    for(int i = 0; i < lb.getItemCount(); i++) {
+                        lb.setValue(i, Integer.toString(i * offset));
+                    }
+                }
+            }
         }  
         checkComplete();
     }
