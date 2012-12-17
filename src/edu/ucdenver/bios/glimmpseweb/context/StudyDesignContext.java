@@ -2569,8 +2569,8 @@ public class StudyDesignContext extends WizardContext
                 } else {
                     for(PowerMethod method : studyDesign.getPowerMethodList()) {
                         if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
-                                && (studyDesign.getPowerMethodList() == null 
-                                        || studyDesign.getPowerMethodList().size() < 1)){
+                                && (studyDesign.getQuantileList() == null 
+                                        || studyDesign.getQuantileList().size() < 1)){
                             return false;
                         }
                     }
