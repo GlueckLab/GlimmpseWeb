@@ -279,34 +279,34 @@ ClickHandler, WizardContextListener {
     private PowerCurveDataSeries recordToDataSeries(DataSeriesRecord record) {
         PowerCurveDataSeries series = new PowerCurveDataSeries();
         series.setLabel(record.getAttribute(COLUMN_LABEL));
-        Double alpha = record.getAttributeAsDouble(COLUMN_ALPHA);
-        if (alpha != null) {
-            series.setTypeIError(alpha);
+        String alphaStr = record.getAttribute(COLUMN_ALPHA);
+        if (alphaStr != null && !alphaStr.isEmpty()) {
+            series.setTypeIError(Double.parseDouble(alphaStr));
         }
-        Double betaScale = record.getAttributeAsDouble(COLUMN_BETA_SCALE);
-        if (betaScale != null) {
-            series.setBetaScale(betaScale);
+        String betaScaleStr = record.getAttribute(COLUMN_BETA_SCALE);
+        if (betaScaleStr != null && !betaScaleStr.isEmpty()) {
+            series.setBetaScale(Double.parseDouble(betaScaleStr));
         }
-        Double sigmaScale = record.getAttributeAsDouble(COLUMN_SIGMA_SCALE);
-        if (sigmaScale != null) {
-            series.setSigmaScale(sigmaScale);
+        String sigmaScaleStr = record.getAttribute(COLUMN_SIGMA_SCALE);
+        if (sigmaScaleStr != null && !sigmaScaleStr.isEmpty()) {
+            series.setSigmaScale(Double.parseDouble(sigmaScaleStr));
         }
         series.setStatisticalTestTypeEnum(
                 statisticalTestStringToEnum(record.getAttribute(COLUMN_TEST)));
-        Integer sampleSize = record.getAttributeAsInt(COLUMN_SAMPLE_SIZE);
-        if (sampleSize != null) {
-            series.setSampleSize(sampleSize);
+        String sampleSizeStr = record.getAttribute(COLUMN_SAMPLE_SIZE);
+        if (sampleSizeStr != null && !sampleSizeStr.isEmpty()) {
+            series.setSampleSize(Integer.parseInt(sampleSizeStr));
         }
-        Double nominalPower = 
-            record.getAttributeAsDouble(COLUMN_NOMINAL_POWER);
-        if (nominalPower != null) {
-            series.setNominalPower(nominalPower);
+        String nominalPowerStr = 
+            record.getAttribute(COLUMN_NOMINAL_POWER);
+        if (nominalPowerStr != null && !nominalPowerStr.isEmpty()) {
+            series.setNominalPower(Double.parseDouble(nominalPowerStr));
         }
         series.setPowerMethod(
                 powerMethodStringToEnum(record.getAttribute(COLUMN_POWER_METHOD)));
-        Double quantile = record.getAttributeAsDouble(COLUMN_QUANTILE);
-        if (quantile != null) {
-            series.setQuantile(quantile);
+        String quantileStr = record.getAttribute(COLUMN_QUANTILE);
+        if (quantileStr != null && !quantileStr.isEmpty()) {
+            series.setQuantile(Double.parseDouble(quantileStr));
         }
         String ciString = record.getAttribute(COLUMN_CI);
         if (ciString != null && ciString.equals(GlimmpseWeb.constants.yes())) {
@@ -534,7 +534,7 @@ ClickHandler, WizardContextListener {
         solvingForPower = true;
         hasConfidenceIntervalDescription = false;
         hasQuantilePower = false;
-        
+
         // set the display to remove power options
         disableCheckbox.setValue(true);
         // reset confidence limits checkbox
@@ -693,24 +693,26 @@ ClickHandler, WizardContextListener {
      */
     public static StatisticalTestTypeEnum statisticalTestStringToEnum(
             String testStr) {
-        if (testStr.equals(GlimmpseWeb.constants
-                .testHotellingLawleyTraceLabel())) {
-            return StatisticalTestTypeEnum.HLT;
-        } else if (testStr.equals(GlimmpseWeb.constants
-                .testPillaiBartlettTraceLabel())) {
-            return StatisticalTestTypeEnum.PBT;
-        } else if (testStr.equals(GlimmpseWeb.constants.testWilksLambdaLabel())) {
-            return StatisticalTestTypeEnum.WL;
-        } else if (testStr.equals(GlimmpseWeb.constants.testUnirepBoxLabel())) {
-            return StatisticalTestTypeEnum.UNIREPBOX;
-        } else if (testStr.equals(GlimmpseWeb.constants
-                .testUnirepGeisserGreenhouseLabel())) {
-            return StatisticalTestTypeEnum.UNIREPGG;
-        } else if (testStr.equals(GlimmpseWeb.constants
-                .testUnirepHuynhFeldtLabel())) {
-            return StatisticalTestTypeEnum.UNIREPHF;
-        } else if (testStr.equals(GlimmpseWeb.constants.testUnirepLabel())) {
-            return StatisticalTestTypeEnum.UNIREP;
+        if (testStr != null) {
+            if (testStr.equals(GlimmpseWeb.constants
+                    .testHotellingLawleyTraceLabel())) {
+                return StatisticalTestTypeEnum.HLT;
+            } else if (testStr.equals(GlimmpseWeb.constants
+                    .testPillaiBartlettTraceLabel())) {
+                return StatisticalTestTypeEnum.PBT;
+            } else if (testStr.equals(GlimmpseWeb.constants.testWilksLambdaLabel())) {
+                return StatisticalTestTypeEnum.WL;
+            } else if (testStr.equals(GlimmpseWeb.constants.testUnirepBoxLabel())) {
+                return StatisticalTestTypeEnum.UNIREPBOX;
+            } else if (testStr.equals(GlimmpseWeb.constants
+                    .testUnirepGeisserGreenhouseLabel())) {
+                return StatisticalTestTypeEnum.UNIREPGG;
+            } else if (testStr.equals(GlimmpseWeb.constants
+                    .testUnirepHuynhFeldtLabel())) {
+                return StatisticalTestTypeEnum.UNIREPHF;
+            } else if (testStr.equals(GlimmpseWeb.constants.testUnirepLabel())) {
+                return StatisticalTestTypeEnum.UNIREP;
+            }
         }
         return null;
     }
@@ -750,15 +752,17 @@ ClickHandler, WizardContextListener {
      */
     public static PowerMethodEnum powerMethodStringToEnum(
             String powerMethodStr) {
-        if (powerMethodStr.equals(GlimmpseWeb.constants
-                .powerMethodConditionalLabel())) {
-            return PowerMethodEnum.CONDITIONAL;
-        } else if (powerMethodStr.equals(GlimmpseWeb.constants
-                .powerMethodUnconditionalLabel())) {
-            return PowerMethodEnum.UNCONDITIONAL;
-        } else if (powerMethodStr.equals(GlimmpseWeb.constants
-                .powerMethodQuantileLabel())) {
-            return PowerMethodEnum.QUANTILE;
+        if (powerMethodStr != null) {
+            if (powerMethodStr.equals(GlimmpseWeb.constants
+                    .powerMethodConditionalLabel())) {
+                return PowerMethodEnum.CONDITIONAL;
+            } else if (powerMethodStr.equals(GlimmpseWeb.constants
+                    .powerMethodUnconditionalLabel())) {
+                return PowerMethodEnum.UNCONDITIONAL;
+            } else if (powerMethodStr.equals(GlimmpseWeb.constants
+                    .powerMethodQuantileLabel())) {
+                return PowerMethodEnum.QUANTILE;
+            }
         }
         return null;
     }
