@@ -139,7 +139,7 @@ public class ResultsDisplayPanel extends WizardStepPanel
             Quantile quantile = result.getQuantile();
             if (quantile != null) {
                 setAttribute(GlimmpseConstants.COLUMN_NAME_QUANTILE, 
-                        result.getQuantile());  
+                        quantile.getValue());  
             }
 
             // set confidence intervals if applicable
