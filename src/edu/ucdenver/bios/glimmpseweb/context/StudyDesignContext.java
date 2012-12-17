@@ -271,6 +271,8 @@ public class StudyDesignContext extends WizardContext
                     for(int c = 0; c < newCols; c++) { data[0][c] = 1; }
                     betaRandom.setDataFromArray(data);
                 }
+            } else {
+                removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
             }
         } else {
             // clear the beta matrices
