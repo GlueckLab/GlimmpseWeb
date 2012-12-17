@@ -317,8 +317,12 @@ WizardStepPanelStateChangeHandler, ClickHandler
     @Override
     public void onWizardContextLoad()
     {
-        // TODO Auto-generated method stub
-
+        if (context.isComplete()) {
+            finishPanel.state = WizardStepPanelState.COMPLETE;
+        } else {
+            finishPanel.state = WizardStepPanelState.NOT_ALLOWED;
+        }
+        enableFinishButton(context.isComplete());
     }
 
     @Override

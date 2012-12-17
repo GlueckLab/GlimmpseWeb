@@ -2586,8 +2586,10 @@ public class StudyDesignContext extends WizardContext
      * @return true if complete, false otherwise
      */
     private boolean validOptions() {
-        PowerCurveDescription curveDescr = studyDesign.getPowerCurveDescriptions();
-        ConfidenceIntervalDescription ciDescr = studyDesign.getConfidenceIntervalDescriptions();
+        PowerCurveDescription curveDescr = 
+            studyDesign.getPowerCurveDescriptions();
+        ConfidenceIntervalDescription ciDescr = 
+            studyDesign.getConfidenceIntervalDescriptions();
         return (
                 (curveDescr == null ||
                         (curveDescr.getHorizontalAxisLabelEnum() != null &&
