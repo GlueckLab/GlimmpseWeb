@@ -57,6 +57,7 @@ import edu.ucdenver.bios.webservice.common.domain.PowerCurveDataSeries;
 import edu.ucdenver.bios.webservice.common.domain.PowerCurveDescription;
 import edu.ucdenver.bios.webservice.common.domain.PowerMethod;
 import edu.ucdenver.bios.webservice.common.domain.Quantile;
+import edu.ucdenver.bios.webservice.common.domain.RelativeGroupSize;
 import edu.ucdenver.bios.webservice.common.domain.SampleSize;
 import edu.ucdenver.bios.webservice.common.domain.SigmaScale;
 import edu.ucdenver.bios.webservice.common.domain.StatisticalTest;
@@ -248,20 +249,7 @@ ClickHandler, WizardContextListener {
         studyDesignContext.setPowerCurveDescription(this, enabled);
         if (enabled) {
             // sync the axis type
-            switch (xAxisListBox.getSelectedIndex()) {
-            case TOTAL_N_INDEX:
-                studyDesignContext.setPowerCurveXAxisType(this, 
-                        HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
-                break;
-            case BETA_SCALE_INDEX:
-                studyDesignContext.setPowerCurveXAxisType(this, 
-                        HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
-                break;
-            case SIGMA_SCALE_INDEX:
-                studyDesignContext.setPowerCurveXAxisType(this, 
-                        HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
-                break;
-            }
+            notifyType();
             // sync the data series
             ListGridRecord[] recordList = dataSeriesGrid.getRecords();
             for(ListGridRecord record: recordList) {
@@ -362,6 +350,7 @@ ClickHandler, WizardContextListener {
             @Override
             public void onChange(ChangeEvent event) {
                 clearDataSeries();
+                notifyType();
                 updateDataSeriesOptions();
                 checkComplete();
             }
@@ -909,8 +898,34 @@ ClickHandler, WizardContextListener {
                     nominalPowerListBox.addItem(Double.toString(power.getValue()));
                 }
             }
+            clearDataSeries();
+            break;
+        case RELATIVE_GROUP_SIZE_LIST:
+            // update the relative group size information
+            // get the relative group size information
+            totalSampleSizeMultiplier = 1;
+            List<RelativeGroupSize> relativeSizeList = 
+                studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
+            if (relativeSizeList != null && relativeSizeList.size() > 0) {
+                totalSampleSizeMultiplier = 0;
+                for(RelativeGroupSize relativeSize : relativeSizeList) {
+                    totalSampleSizeMultiplier += relativeSize.getValue();
+                }
+            }
+            // update the sample size 
+            List<SampleSize> totalNList = 
+                studyDesignContext.getStudyDesign().getSampleSizeList();
+            totalNListBox.clear();
+            if (totalNList != null) {
+                for (SampleSize size : totalNList) {
+                    int totalN = size.getValue() * totalSampleSizeMultiplier;
+                    totalNListBox.addItem(Integer.toString(totalN));
+                }
+            }
+            clearDataSeries();
             break;
         case PER_GROUP_N_LIST:
+            // fill the sample size 
             List<SampleSize> sampleSizeList = 
                 studyDesignContext.getStudyDesign().getSampleSizeList();
             totalNListBox.clear();
@@ -920,6 +935,7 @@ ClickHandler, WizardContextListener {
                     totalNListBox.addItem(Integer.toString(totalN));
                 }
             }
+            clearDataSeries();
             break;
         case BETA_SCALE_LIST:
             List<BetaScale> betaScaleList = 
@@ -931,6 +947,7 @@ ClickHandler, WizardContextListener {
                             Double.toString(scale.getValue()));
                 }
             }
+            clearDataSeries();
             break;
 
         case SIGMA_SCALE_LIST:
@@ -943,6 +960,7 @@ ClickHandler, WizardContextListener {
                             Double.toString(scale.getValue()));
                 }
             }
+            clearDataSeries();
             break;
 
         case STATISTICAL_TEST_LIST:
@@ -955,6 +973,7 @@ ClickHandler, WizardContextListener {
                             statisticalTestToString(test.getType()));
                 }
             }
+            clearDataSeries();
             break;
 
         case ALPHA_LIST:
@@ -967,6 +986,7 @@ ClickHandler, WizardContextListener {
                             Double.toString(alpha.getAlphaValue()));
                 }
             }
+            clearDataSeries();
             break;
         case POWER_METHOD_LIST:
             List<PowerMethod> powerMethodList = 
@@ -984,6 +1004,7 @@ ClickHandler, WizardContextListener {
                                     powerMethod.getPowerMethodEnum()));
                 }
             }
+            clearDataSeries();
             break;
         case QUANTILE_LIST:
             List<Quantile> quantileList = 
@@ -995,6 +1016,7 @@ ClickHandler, WizardContextListener {
                             Double.toString(quantile.getValue()));
                 }
             }
+            clearDataSeries();
             break;
         case CONFIDENCE_INTERVAL:
             hasConfidenceIntervalDescription = 
@@ -1021,6 +1043,17 @@ ClickHandler, WizardContextListener {
                 studyDesignContext.getStudyDesign()
                 .getConfidenceIntervalDescriptions() != null);     
 
+        // get the relative group size information
+        totalSampleSizeMultiplier = 1;
+        List<RelativeGroupSize> relativeSizeList = 
+            studyDesignContext.getStudyDesign().getRelativeGroupSizeList();
+        if (relativeSizeList != null && relativeSizeList.size() > 0) {
+            totalSampleSizeMultiplier = 0;
+            for(RelativeGroupSize relativeSize : relativeSizeList) {
+                totalSampleSizeMultiplier += relativeSize.getValue();
+            }
+        }
+        
         // load the nominal power list
         List<NominalPower> nominalPowerList = 
             studyDesignContext.getStudyDesign().getNominalPowerList();
@@ -1141,6 +1174,27 @@ ClickHandler, WizardContextListener {
         loadFromContext();
     }
 
+    /**
+     * Notify the context of changes in the X-axis type
+     */
+    private void notifyType() {
+        switch (xAxisListBox.getSelectedIndex()) {
+        case TOTAL_N_INDEX:
+            studyDesignContext.setPowerCurveXAxisType(this, 
+                    HorizontalAxisLabelEnum.TOTAL_SAMPLE_SIZE);
+            break;
+        case BETA_SCALE_INDEX:
+            studyDesignContext.setPowerCurveXAxisType(this, 
+                    HorizontalAxisLabelEnum.REGRESSION_COEEFICIENT_SCALE_FACTOR);
+            break;
+        case SIGMA_SCALE_INDEX:
+            studyDesignContext.setPowerCurveXAxisType(this, 
+                    HorizontalAxisLabelEnum.VARIABILITY_SCALE_FACTOR);
+            break;
+        }
+    }
+    
+    
     /**
      * Update the data series grid upon entering the
      * screen - avoids bug in SmartGWT: can't show a field
