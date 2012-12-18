@@ -148,7 +148,7 @@ implements ListValidator
     public void onAdd(String value) throws IllegalArgumentException {
         try
         {
-            int sampleSize = TextValidation.parseInteger(value, 2, true);
+            int sampleSize = TextValidation.parseInteger(value, 1, true);
             studyDesignContext.addPerGroupSampleSize(this, sampleSize);
             changeState(WizardStepPanelState.COMPLETE);
         }
