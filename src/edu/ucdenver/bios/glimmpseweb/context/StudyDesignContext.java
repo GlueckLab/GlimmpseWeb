@@ -271,6 +271,8 @@ public class StudyDesignContext extends WizardContext
                     for(int c = 0; c < newCols; c++) { data[0][c] = 1; }
                     betaRandom.setDataFromArray(data);
                 }
+            } else {
+                removeMatrixByName(GlimmpseConstants.MATRIX_BETA_RANDOM);
             }
         } else {
             // clear the beta matrices
@@ -1923,7 +1925,7 @@ public class StudyDesignContext extends WizardContext
                 sigmaYG.setName(GlimmpseConstants.MATRIX_SIGMA_OUTCOME_COVARIATE);
             }
             if (rows > 0 && columns > 0) {
-                if (rows != sigmaYG.getRows() &&
+                if (rows != sigmaYG.getRows() ||
                         columns != sigmaYG.getColumns()) {
                     sigmaYG.setRows(rows);
                     sigmaYG.setColumns(columns);
@@ -2567,8 +2569,8 @@ public class StudyDesignContext extends WizardContext
                 } else {
                     for(PowerMethod method : studyDesign.getPowerMethodList()) {
                         if (PowerMethodEnum.QUANTILE ==method.getPowerMethodEnum()
-                                && (studyDesign.getPowerMethodList() == null 
-                                        || studyDesign.getPowerMethodList().size() < 1)){
+                                && (studyDesign.getQuantileList() == null 
+                                        || studyDesign.getQuantileList().size() < 1)){
                             return false;
                         }
                     }
@@ -2586,8 +2588,10 @@ public class StudyDesignContext extends WizardContext
      * @return true if complete, false otherwise
      */
     private boolean validOptions() {
-        PowerCurveDescription curveDescr = studyDesign.getPowerCurveDescriptions();
-        ConfidenceIntervalDescription ciDescr = studyDesign.getConfidenceIntervalDescriptions();
+        PowerCurveDescription curveDescr = 
+            studyDesign.getPowerCurveDescriptions();
+        ConfidenceIntervalDescription ciDescr = 
+            studyDesign.getConfidenceIntervalDescriptions();
         return (
                 (curveDescr == null ||
                         (curveDescr.getHorizontalAxisLabelEnum() != null &&

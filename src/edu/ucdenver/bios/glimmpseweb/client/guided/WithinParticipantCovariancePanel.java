@@ -139,22 +139,19 @@ implements CovarianceSetManager
         List<RepeatedMeasuresNode> repeatedMeasuresNodeList = 
             studyDesignContext.getStudyDesign().getRepeatedMeasuresTree();        
         if (repeatedMeasuresNodeList != null) {
+            int pos = 0;
             for(RepeatedMeasuresNode node: repeatedMeasuresNodeList)
             {
                 if (node.getDimension() != null &&
                         !node.getDimension().isEmpty() &&
                         node.getNumberOfMeasurements() != null &&
                         node.getNumberOfMeasurements() > 1) {
-
+                    
                     CorrelationDeckPanel panel = new CorrelationDeckPanel(this, node);
                     panel.loadCovariance(
                             studyDesignContext.getCovarianceByName(node.getDimension()));
-                    if (tabPanel.getTabCount() <= 0) {
-                        tabPanel.insert(0, new HTML(node.getDimension()), panel);
-                    } else {
-                        tabPanel.insert(tabPanel.getTabCount()-1,
-                                new HTML(node.getDimension()), panel);
-                    }
+                    tabPanel.insert(pos, new HTML(node.getDimension()), panel);
+                    pos++;
                 }
             }
         }

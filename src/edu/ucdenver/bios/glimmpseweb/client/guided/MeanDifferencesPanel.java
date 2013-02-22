@@ -142,17 +142,16 @@ implements ChangeHandler
      */
     private void loadBetweenParticipantFactorsFromContext() {
         // remove existing information related to between factors
-        if (totalBetweenFactors > 0) {
-            // remove all but the header row
-            for(int row = meansTable.getRowCount()-1; row >= 1; row--) {
-                meansTable.removeRow(row);
-            }
-            // remove the header widgets for the between subject factors
-            for(int col = 0; col < totalBetweenFactors; col++) {
-                meansTable.removeCell(0, 0);
-            }
+        // remove all but the header row
+        for(int row = meansTable.getRowCount()-1; row >= 1; row--) {
+            meansTable.removeRow(row);
+        }
+        // remove the header widgets for the between subject factors
+        for(int col = 0; col < totalBetweenFactors; col++) {
+            meansTable.removeCell(0, 0);
         }
         totalBetweenFactors = 0;
+        
         // load new between participant factor information
         FactorTable participantGroups = studyDesignContext.getParticipantGroups();
         if (participantGroups != null && participantGroups.getNumberOfRows() > 0) {
@@ -174,7 +173,7 @@ implements ChangeHandler
                 }
             }
 
-            // now fill the columns
+            // now fill the columns of between participant groups names
             for(int col = 0; col < participantGroups.getNumberOfColumns(); col++) {
                 List<String> column = participantGroups.getColumn(col);
                 if (column != null) {
@@ -185,12 +184,13 @@ implements ChangeHandler
                     }
                 }
             }
-
-            // lastly, fill in the text boxes
-            fillTextBoxes();
-            // get the values for the matrix
-            updateMatrixView();
         }
+
+        // lastly, fill in the text boxes
+        fillTextBoxes();
+        // get the values for the matrix
+        updateMatrixView();
+        // check if we're done
         checkComplete();
     }
 
@@ -318,15 +318,6 @@ implements ChangeHandler
                     meansTable.removeCell(row, col);
                 }
             }
-            // update the offsets in the list boxes
-            for(int row = 0; row < repeatedMeasuresTable.getRowCount(); row++) {
-                ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(row, LISTBOX_COLUMN);
-                for(int i = 0; i < lb.getItemCount(); i++) {
-                    int currentValue = Integer.parseInt(lb.getValue(i));
-                    currentValue /= totalResponseVariables;
-                    lb.setValue(i, Integer.toString(currentValue));
-                }
-            }
         }
         totalResponseVariables = 0;
 
@@ -342,22 +333,23 @@ implements ChangeHandler
         }
 
         // if repeated measures are present, update the column offsets
-        if (totalResponseVariables > 0) {
+        if (repeatedMeasuresTable.getRowCount() > 0) {
+            int offset = studyDesignContext.getValidTotalResponsesCount();
             for(int row = 0; row < repeatedMeasuresTable.getRowCount(); row++) {
                 ListBox lb = (ListBox) repeatedMeasuresTable.getWidget(row, LISTBOX_COLUMN);
+                offset /= lb.getItemCount();
                 for(int i = 0; i < lb.getItemCount(); i++) {
-                    int currentValue = Integer.parseInt(lb.getValue(i));
-                    currentValue *= totalResponseVariables;
-                    lb.setValue(i, Integer.toString(currentValue));
+                    lb.setValue(i, Integer.toString(i * offset));
                 }
             }
         }
+        
         // create text boxes to hold the means
         fillTextBoxes();
         updateMatrixView();
         checkComplete();
     }
-
+    
     /**
      * Check if the screen is complete
      */
