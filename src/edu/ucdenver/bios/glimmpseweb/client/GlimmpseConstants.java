@@ -682,6 +682,7 @@ public interface GlimmpseConstants extends Constants
      public String feedbackTypeBug();
      public String feedbackNameLabel();
      public String feedbackEmailLabel();
+     public String feedbackEmailAddress();
      public String feedbackMayWeContactLabel();
      public String feedbackBrowserLabel();
      public String feedbackOtherLabel();
