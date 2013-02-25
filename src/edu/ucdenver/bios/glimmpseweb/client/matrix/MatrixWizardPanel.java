@@ -140,6 +140,7 @@ implements WizardActionListener
         wizardPanel.addWizardActionListener(this);
         // layout the overall panel
         panel.add(wizardPanel);
+        panel.add(fileSvcConnector);
         // set style
 
         // initialize
