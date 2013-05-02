@@ -1218,6 +1218,7 @@ public class StudyDesignContext extends WizardContext
                 if (currentNode == node) {
                     return index;
                 }
+                index++;
             }
         }
         return -1;
