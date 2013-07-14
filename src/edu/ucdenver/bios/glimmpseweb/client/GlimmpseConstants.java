@@ -38,6 +38,7 @@ public interface GlimmpseConstants extends Constants
 	public static final String STYLE_GLIMMPSE_PANEL = "glimmpsePanel";
     public static final String STYLE_WIZARD_STEP_PANEL = "wizardStepPanel";
     public static final String STYLE_WIZARD_STEP_HEADER = "wizardStepHeader";
+    public static final String STYLE_WIZARD_STEP_SUBHEADER = "wizardStepSubheader";
     public static final String STYLE_WIZARD_STEP_DESCRIPTION = "wizardStepDescription";
     public static final String STYLE_WIZARD_STEP_SUBPANEL = "subpanel";
     public static final String STYLE_WIZARD_STEP_BUTTON = "wizardStepButton";
@@ -66,6 +67,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_WIZARD_STEP_TAB_HEADER = "wizardStepTabPanelHeader";
     public static final String STYLE_WIZARD_STEP_TAB = "wizardStepTabPanelTab";
     public static final String STYLE_WIZARD_STEP_TAB_CONTENT = "wizardStepTabPanelContent";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_BAR = "wizardStepDeckPanelBar";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_CONTENTS = "wizardStepDeckPanelContents";
+    public static final String STYLE_WIZARD_STEP_DECK_PANEL_SUBPANEL="wizardStepDeckPanelContentsSubpanel";
     // Begin : Added for Power Curve Screen
     public static final String STYLE_WIZARD_STEP_LIST_BOX = "wizardStepListBox";
     public static final String STYLE_WIZARD_STEP_CHECK_BOX = "wizardStepCheckBox";    
@@ -85,6 +89,9 @@ public interface GlimmpseConstants extends Constants
     public static final String STYLE_MESSAGE = "message";
     public static final String STYLE_MESSAGE_ERROR = "error";
     public static final String STYLE_MESSAGE_OKAY = "okay";
+    
+    public static final String STYLE_BLOCK_WITH_BORDER = "blockWithBorder";
+    public static final String STYLE_BLOCK_WITH_SPACING = "blockWithSpacing";
     // generic dependent style names
     public static final String STYLE_EVEN = "even";
     public static final String STYLE_ODD = "odd";
@@ -285,7 +292,6 @@ public interface GlimmpseConstants extends Constants
     // categorical predictors panel constants
     public String predictorsTitle();
     public String predictorsDescription();
-    public String predictorsMultiSampleDescription();
     public String predictorsOneSampleButton();
     public String predictorsMultiSampleButton();
     public String predictorsTableColumn();
@@ -442,8 +448,8 @@ public interface GlimmpseConstants extends Constants
     public String curveOptionsTitle();
     public String curveOptionsDescription();
     public String curveOptionsNone();
-    public String curveOptionsXAxisLabel();
-    public String curveOptionsStratifyLabel();
+    public String curveOptionsXAxisDescription();
+    public String curveOptionsDataSeriesDescription();
     public String curveOptionsDataSeriesLabel();
     public String curveOptionsSampleSizeLabel();
     public String curveOptionsBetaScaleLabel();
@@ -553,6 +559,7 @@ public interface GlimmpseConstants extends Constants
     public String errorInvalidCorrelation();
     public String errorInvalidNumRepeatedMeasures();
     public String errorInvalidEmail();
+    public String errorNonUniqueValue();
     // confirm messages
     public String confirmClearScreen();
     public String confirmClearAll();
@@ -675,6 +682,7 @@ public interface GlimmpseConstants extends Constants
      public String feedbackTypeBug();
      public String feedbackNameLabel();
      public String feedbackEmailLabel();
+     public String feedbackEmailAddress();
      public String feedbackMayWeContactLabel();
      public String feedbackBrowserLabel();
      public String feedbackOtherLabel();

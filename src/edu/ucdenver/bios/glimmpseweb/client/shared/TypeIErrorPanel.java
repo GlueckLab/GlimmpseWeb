@@ -21,10 +21,8 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -54,8 +52,6 @@ implements ListValidator
     // list of alpha values
     protected ListEntryPanel alphaListPanel = 
         new ListEntryPanel(GlimmpseWeb.constants.alphaTableColumn() , this);
-    // caches the entered values as doubles
-    ArrayList<TypeIError> alphaList = new ArrayList<TypeIError>();
 
     /**
      * Create an empty type I error panel
@@ -103,27 +99,13 @@ implements ListValidator
     }
 
     /**
-     * Callback when the number of valid entries in the list of
-     * alpha values changes
-     * 
-     * @see DynamicListValidator
-     */
-    public void onValidRowCount(int validRowCount)
-    {
-        if (validRowCount > 0)
-            changeState(WizardStepPanelState.COMPLETE);
-        else
-            changeState(WizardStepPanelState.INCOMPLETE);
-    }
-
-    /**
      * Clear the list of alpha values.  Note, the onValidRowCount
      * callback will fire when reset is called
      */
     public void reset()
     {
         alphaListPanel.reset();
-        onValidRowCount(alphaListPanel.getValidRowCount());
+        checkComplete();
     }
 
     /**
@@ -139,7 +121,7 @@ implements ListValidator
                 alphaListPanel.add(Double.toString(typeIError.getAlphaValue()));
             }
         }
-        onValidRowCount(alphaListPanel.getValidRowCount());
+        checkComplete();
     }
 
     /**
@@ -166,21 +148,42 @@ implements ListValidator
     }
 
     /**
-     * Notify context of any changes as we exit the screen
+     * Validate the alpha level entered by the user and add to the
+     * study design. 
+     * @param value the alpha value as a string
      */
     @Override
-    public void onExit()
-    {
-        if (alphaListPanel.isChanged()) {
-            List<String> stringValues = alphaListPanel.getValues();
-            alphaList.clear();
-            for(String value: stringValues)
-            {
-                alphaList.add(new TypeIError(Double.parseDouble(value)));
-            }
-            // save to context object
-            studyDesignContext.setAlphaList(this, alphaList);
-            alphaListPanel.resetChanged();
+    public void onAdd(String value) throws IllegalArgumentException {
+        try
+        {
+            double alpha = TextValidation.parseDouble(value, 0, 1, false);
+            studyDesignContext.addTypeIErrorRate(this, alpha);
+            changeState(WizardStepPanelState.COMPLETE);
         }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidAlpha());
+        }
+    }
+
+    /**
+     * Delete the specified alpha value. 
+     * @param value the alpha value as a string
+     */
+    @Override
+    public void onDelete(String value, int index) {
+        studyDesignContext.deleteTypeIErrorRate(this, Double.parseDouble(value), 
+                index);
+        checkComplete();
+    }
+
+    /**
+     * Check if the panel is complete
+     */
+    private void checkComplete() {
+        if (alphaListPanel.getValidRowCount() > 0)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
     }
 }

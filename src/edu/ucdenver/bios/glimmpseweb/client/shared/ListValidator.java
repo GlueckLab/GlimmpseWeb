@@ -27,7 +27,7 @@ package edu.ucdenver.bios.glimmpseweb.client.shared;
  */
 public interface ListValidator
 {
-	public void validate(String value) throws IllegalArgumentException;
+	public void onAdd(String value) throws IllegalArgumentException;
 	
-	public void onValidRowCount(int validRowCount);
+	public void onDelete(String value, int index);
 }

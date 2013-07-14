@@ -21,8 +21,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -35,12 +33,12 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseConstants;
 import edu.ucdenver.bios.glimmpseweb.client.GlimmpseWeb;
+import edu.ucdenver.bios.glimmpseweb.client.TextValidation;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContext;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardContextChangeEvent;
 import edu.ucdenver.bios.glimmpseweb.client.wizard.WizardStepPanel;
@@ -55,20 +53,12 @@ import edu.ucdenver.bios.webservice.common.domain.Category;
  */
 public class FixedPredictorsPanel extends WizardStepPanel
 {
-    private static final String ONE_SAMPLE_LABEL = "Sample";
-    private static final String RADIO_GROUP = "fixedPredictorSampleGroup";
     private static final int MIN_CATEGORIES = 2;
-	// pointer to the study design context
-	StudyDesignContext studyDesignContext = (StudyDesignContext) context;
-	
-	// radio buttons indicating whether this is a single sample or multi sample design
-	protected RadioButton oneSampleRadioButton = new RadioButton(RADIO_GROUP,
-	            GlimmpseWeb.constants.predictorsOneSampleButton());
-	protected RadioButton multiSampleRadioButton = new RadioButton(RADIO_GROUP,
-	        GlimmpseWeb.constants.predictorsMultiSampleButton());
-	
-	// subpanel for mult-sample designs
-	protected VerticalPanel multiSamplePanel = new VerticalPanel();
+    // pointer to the study design context
+    StudyDesignContext studyDesignContext = (StudyDesignContext) context;
+
+    // subpanel for mult-sample designs
+    protected VerticalPanel multiSamplePanel = new VerticalPanel();
     // list box displaying predictors
     protected ListBox predictorList = new ListBox();
     protected ListBox categoryList = new ListBox();
@@ -81,54 +71,35 @@ public class FixedPredictorsPanel extends WizardStepPanel
     // control buttons for predictor/category deletion
     protected Button predictorDeleteButton = new Button(GlimmpseWeb.constants.buttonDelete());
     protected Button categoryDeleteButton = new Button(GlimmpseWeb.constants.buttonDelete());
-    
-    protected HashMap<String,ArrayList<String>> predictorCategoryMap = 
-    	new HashMap<String,ArrayList<String>>();
-    
+
+    // error message display
+    protected HTML errorHTML = new HTML();
+
+    /**
+     * Constructor
+     * @param context the study design context
+     */
     public FixedPredictorsPanel(WizardContext context)
     {
-    	super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
-    	        WizardStepPanelState.INCOMPLETE);
+        super(context, GlimmpseWeb.constants.navItemFixedPredictors(),
+                WizardStepPanelState.COMPLETE);
         VerticalPanel panel = new VerticalPanel();
-        
+
         // create header/instruction text
         HTML header = new HTML(GlimmpseWeb.constants.predictorsTitle());
         HTML description = new HTML(GlimmpseWeb.constants.predictorsDescription());        
-
 
         // disable category text box and delete buttons
         categoryTextBox.setEnabled(false);
         categoryDeleteButton.setEnabled(false);
         predictorDeleteButton.setEnabled(false);
 
-        // add handlers
-        oneSampleRadioButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                showMultiSamplePanel(false);
-                checkComplete();
-            }
-        });
-        // add handlers
-        multiSampleRadioButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                showMultiSamplePanel(true);
-                checkComplete();
-            }
-        });
-        // hide multi-sample panel by default
-        oneSampleRadioButton.setValue(false);
-        multiSamplePanel.setVisible(false);
-        
         // layout the overall panel
         buildCascadingList();
         panel.add(header);
         panel.add(description);
-        panel.add(oneSampleRadioButton);
-        panel.add(multiSampleRadioButton);
         panel.add(multiSamplePanel);
-        
+
         // set style
         panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_PANEL);
         header.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_HEADER);
@@ -136,350 +107,325 @@ public class FixedPredictorsPanel extends WizardStepPanel
 
         initWidget(panel);
     }    
-        
+
     private void buildCascadingList()
-    {
-        HTML description = new HTML(GlimmpseWeb.constants.predictorsMultiSampleDescription());       
-        
+    {    
         VerticalPanel panel = new VerticalPanel();
-        
-    	predictorList.setVisibleItemCount(5);
-    	predictorList.setWidth("100%");
-    	categoryList.setVisibleItemCount(5);
-    	categoryList.setWidth("100%");
-    	
-    	// add callbacks
-    	predictorTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				String value = predictorTextBox.getText();
-				if (!value.isEmpty())
-				{
-					addPredictor(value);
-					int selectedIndex = predictorList.getItemCount()-1;
-					predictorList.setSelectedIndex(selectedIndex);
-					selectPredictor(selectedIndex);
-					predictorTextBox.setText("");
-				}
-			}
-    	});
-    	predictorList.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				selectPredictor(predictorList.getSelectedIndex());
-			}
-    	});
-    	predictorDeleteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				int selectedIndex = predictorList.getSelectedIndex();
-				if (selectedIndex != -1)
-				{
-					deletePredictor(predictorList.getItemText(selectedIndex));
-					predictorList.removeItem(selectedIndex);
-					categoryList.clear();
-				}
-			}
-    	});
-    	categoryTextBox.addChangeHandler(new ChangeHandler() {
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				String value = categoryTextBox.getText();
-				if (!value.isEmpty())
-				{
-					String predictor = predictorList.getItemText(predictorList.getSelectedIndex());
-					if (predictor != null && !predictor.isEmpty())
-					{
-						addCategory(predictor, value);
-					}
-					categoryTextBox.setText("");
-				}
-			}
-    	});
-    	categoryList.addChangeHandler(new ChangeHandler() {
 
-			@Override
-			public void onChange(ChangeEvent event)
-			{
-				categoryDeleteButton.setEnabled((categoryList.getSelectedIndex() != -1));
-			}
-    	});
-    	categoryDeleteButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event)
-			{
-				int predictorIndex = predictorList.getSelectedIndex();
-				if (predictorIndex != -1)
-				{
-					String predictor = predictorList.getItemText(predictorIndex);
-					int categoryIndex = categoryList.getSelectedIndex();
-					if (categoryIndex != -1)
-					{
-						String category = categoryList.getItemText(categoryIndex);
-						deleteCategory(predictor, category);
-						categoryList.removeItem(categoryIndex);
-					}
-				}
-			}
-    	});
-    	// build text entry panels
-    	HorizontalPanel predictorPanel = new HorizontalPanel();
-    	predictorPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-    	VerticalPanel predictorTextContainer = new VerticalPanel();
-    	predictorTextContainer.add(new HTML(GlimmpseWeb.constants.predictorsTableColumn()));
-    	predictorTextContainer.add(predictorTextBox);
-    	predictorPanel.add(predictorTextContainer);
-    	predictorPanel.add(predictorAddButton);
-    	predictorPanel.add(predictorDeleteButton);
+        predictorList.setVisibleItemCount(5);
+        predictorList.setWidth("100%");
+        categoryList.setVisibleItemCount(5);
+        categoryList.setWidth("100%");
 
-    	HorizontalPanel categoryPanel = new HorizontalPanel();
-    	categoryPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-    	VerticalPanel categoryTextContainer = new VerticalPanel();
-    	categoryTextContainer.add(new HTML(GlimmpseWeb.constants.categoriesTableColumn()));
-    	categoryTextContainer.add(categoryTextBox);
-    	categoryPanel.add(categoryTextContainer);
-    	categoryPanel.add(categoryAddButton);
-    	categoryPanel.add(categoryDeleteButton);
-    	
-    	// layout the panels
-    	Grid grid = new Grid(2,2);
-    	grid.setWidget(0, 0, predictorPanel);
-    	grid.setWidget(0, 1, categoryPanel);
-    	grid.setWidget(1, 0, predictorList);
-    	grid.setWidget(1, 1, categoryList);
-    	panel.add(grid);
-    	
-    	// set style
-    	panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
-    	predictorAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	predictorDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	categoryAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-    	categoryDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
-        description.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_DESCRIPTION);
-    	//grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
+        // add callbacks
+        // hitting enter in the predictor text box adds the name to the predictor list
+        predictorTextBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                try {
+                    String value = TextValidation.parseString(predictorTextBox.getText().trim());
+                    if (inList(predictorList, value)) {
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorNonUniqueValue());
+                    } else {
+                        addPredictor(value);
+                        int selectedIndex = predictorList.getItemCount()-1;
+                        predictorList.setSelectedIndex(selectedIndex);
+                        selectPredictor(selectedIndex);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                } catch (Exception e) {
+                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
+                }
+                predictorTextBox.setText("");
+                predictorTextBox.setFocus(true);
+            }
+        });
+        // clicking the name of a predictor in the predictor list
+        // will select the predictor and populate the categories list
+        predictorList.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                selectPredictor(predictorList.getSelectedIndex());
+            }
+        });
+        // clicking delete removes the predictor and updates the context
+        predictorDeleteButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                int selectedIndex = predictorList.getSelectedIndex();
+                if (selectedIndex != -1)
+                {
+                    deletePredictor(predictorList.getItemText(selectedIndex));
+                    predictorList.removeItem(selectedIndex);
+                    categoryList.clear();
+                }
+            }
+        });
+        // hitting enter in the category box adds the category to the list
+        categoryTextBox.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                try {
+                    String predictor = predictorList.getItemText(predictorList.getSelectedIndex());
+                    String value = TextValidation.parseString(categoryTextBox.getText().trim());
+                    if (inList(categoryList, value)) {
+                        TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorNonUniqueValue());
+                    } else {
+                        addCategory(predictor, value);
+                        TextValidation.displayOkay(errorHTML, "");
+                    }
+                } catch (Exception e) {
+                    TextValidation.displayError(errorHTML, GlimmpseWeb.constants.errorInvalidString());
+                }
+                categoryTextBox.setText("");
+                categoryTextBox.setFocus(true);
+            }
+        });
+        // clicking add will add the category to the list and update the
+        // context for the selected predictor
+        categoryList.addChangeHandler(new ChangeHandler() {
+
+            @Override
+            public void onChange(ChangeEvent event)
+            {
+                categoryDeleteButton.setEnabled((categoryList.getSelectedIndex() != -1));
+            }
+        });
+        // clicking delete removes the category
+        categoryDeleteButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event)
+            {
+                int predictorIndex = predictorList.getSelectedIndex();
+                if (predictorIndex != -1)
+                {
+                    String predictor = predictorList.getItemText(predictorIndex);
+                    int categoryIndex = categoryList.getSelectedIndex();
+                    if (categoryIndex != -1)
+                    {
+                        String category = categoryList.getItemText(categoryIndex);
+                        deleteCategory(predictor, category);
+                        categoryList.removeItem(categoryIndex);
+                    }
+                }
+            }
+        });
+        // build text entry panels
+        HorizontalPanel predictorPanel = new HorizontalPanel();
+        predictorPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+        VerticalPanel predictorTextContainer = new VerticalPanel();
+        predictorTextContainer.add(new HTML(GlimmpseWeb.constants.predictorsTableColumn()));
+        predictorTextContainer.add(predictorTextBox);
+        predictorPanel.add(predictorTextContainer);
+        predictorPanel.add(predictorAddButton);
+        predictorPanel.add(predictorDeleteButton);
+
+        HorizontalPanel categoryPanel = new HorizontalPanel();
+        categoryPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+        VerticalPanel categoryTextContainer = new VerticalPanel();
+        categoryTextContainer.add(new HTML(GlimmpseWeb.constants.categoriesTableColumn()));
+        categoryTextContainer.add(categoryTextBox);
+        categoryPanel.add(categoryTextContainer);
+        categoryPanel.add(categoryAddButton);
+        categoryPanel.add(categoryDeleteButton);
+
+        // layout the panels
+        Grid grid = new Grid(2,2);
+        grid.setWidget(0, 0, predictorPanel);
+        grid.setWidget(0, 1, categoryPanel);
+        grid.setWidget(1, 0, predictorList);
+        grid.setWidget(1, 1, categoryList);
+        panel.add(grid);
+        panel.add(errorHTML);
+
+        // set style
+        panel.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_PANEL);
+        predictorAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        predictorDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        categoryAddButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        categoryDeleteButton.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST_BUTTON);
+        errorHTML.setStyleName(GlimmpseConstants.STYLE_MESSAGE);
+        //grid.setStyleName(GlimmpseConstants.STYLE_WIZARD_STEP_LIST);
         grid.getRowFormatter().setStylePrimaryName(0, 
-        		GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
-    	
-        multiSamplePanel.add(description);
+                GlimmpseConstants.STYLE_WIZARD_STEP_LIST_HEADER);
+
         multiSamplePanel.add(panel);
-    }
-    
-    private void showMultiSamplePanel(boolean show) {
-        multiSamplePanel.setVisible(show);
-        changed = true;
-    }
-    
-    
-    private void showCategories(String predictor)
-    {
-    	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-		categoryList.clear();
-    	for(String category: categories)
-    	{
-    		categoryList.addItem(category);
-    	}
-    	// disable the delete categories button
-    	categoryDeleteButton.setEnabled(false);
-    }
-    
-    private void addPredictor(String name)
-    {
-    	if (!predictorCategoryMap.containsKey(name))
-    	{
-    		predictorList.addItem(name);
-    		predictorCategoryMap.put(name, new ArrayList<String>());
-    	}
-        changed = true;
-    }
-    
-    private void selectPredictor(int selectedIndex)
-    {
-		predictorDeleteButton.setEnabled((selectedIndex != -1));
-		categoryTextBox.setEnabled((selectedIndex != -1));
-		if (selectedIndex != -1)
-		{
-			String predictorName = predictorList.getItemText(selectedIndex);
-			showCategories(predictorName);
-		}
-    }
-    
-    private void deletePredictor(String name)
-    {
-    	predictorCategoryMap.remove(name);
-        changed = true;
-    }
-    
-    private void addCategory(String predictor, String category)
-    {
-    	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-    	if (categories != null) 
-    	{
-    		categories.add(category);
-			categoryList.addItem(category);
-    	}
-        changed = true;
-		checkComplete();
-    }
-    
-    private void deleteCategory(String predictor, String category)
-    {
-    	ArrayList<String> categories = predictorCategoryMap.get(predictor);
-    	if (categories != null)  
-    	{
-    		categories.remove(category);
-    	}
-        changed = true;
-		checkComplete();
-    }
-    
-    public void checkComplete()
-    {
-    	boolean isComplete = false;
-    	if (multiSampleRadioButton.getValue()) {
-    	    isComplete = !predictorCategoryMap.isEmpty();
-    	    for(ArrayList<String> categories: predictorCategoryMap.values())
-    	    {
-    	        if (categories.size() < MIN_CATEGORIES) 
-    	        {
-    	            isComplete = false;
-    	            break;
-    	        }
-    	    }
-    	} else if (oneSampleRadioButton.getValue()) {
-    	    // one sample
-    	    isComplete = true;
-    	}
-    	if (isComplete)
-    		changeState(WizardStepPanelState.COMPLETE);
-    	else
-    		changeState(WizardStepPanelState.INCOMPLETE);
-    }
-    
-    public void reset() 
-    {
-    	predictorList.clear();
-    	categoryList.clear();
-    	predictorCategoryMap.clear();
-        oneSampleRadioButton.setValue(false);
-        multiSampleRadioButton.setValue(false);
-        multiSamplePanel.setVisible(false);
-        changed = false;
-    	checkComplete();
     }
 
     /**
-     * Resize the beta matrix when the design matrix dimensions change
+     * Populate the categories list when a user selects a predictor
+     * @param predictor name of the predictor
+     */
+    private void showCategories(String predictor)
+    {
+        BetweenParticipantFactor factor = 
+            studyDesignContext.getBetweenParticipantFactor(predictor);
+        if (factor != null) {
+            List<Category> factorCategoryList = factor.getCategoryList();
+            categoryList.clear();
+            if (factorCategoryList != null) {
+                for(Category category: factorCategoryList)
+                {
+                    categoryList.addItem(category.getCategory());
+                }
+            }
+            // disable the delete categories button
+            categoryDeleteButton.setEnabled(false);
+        }
+    }
+
+    /**
+     * Add a predictor and update the context
+     * @param name name of the new predictor
+     */
+    private void addPredictor(String name)
+    {
+        predictorList.addItem(name);
+        studyDesignContext.addBetweenParticipantFactor(this, name);
+        checkComplete();
+    }
+
+    /**
+     * Update the view to show categories for the selected predictor
+     * @param selectedIndex
+     */
+    private void selectPredictor(int selectedIndex)
+    {
+        predictorDeleteButton.setEnabled((selectedIndex != -1));
+        categoryTextBox.setEnabled((selectedIndex != -1));
+        if (selectedIndex != -1)
+        {
+            String predictorName = predictorList.getItemText(selectedIndex);
+            showCategories(predictorName);
+        }
+    }
+
+    /**
+     * Remove a predictor from the study design
+     * @param name
+     */
+    private void deletePredictor(String name)
+    {
+        studyDesignContext.deleteBetweenParticipantFactor(this, name);
+        checkComplete();
+    }
+
+    /**
+     * Add a category to the study design for the specified predictor
+     * @param predictor
+     * @param category
+     */
+    private void addCategory(String predictor, String category)
+    {
+        categoryList.addItem(category);
+        studyDesignContext.addBetweenParticipantFactorCategory(this, predictor, category);
+        checkComplete();
+    }
+
+    /**
+     * Remove a category for the specified predictor
+     * @param predictor
+     * @param category
+     */
+    private void deleteCategory(String predictor, String category)
+    {
+        studyDesignContext.deleteBetweenParticipantFactorCategory(this, predictor, category);
+        checkComplete();
+    }
+
+    /**
+     * Check if the user has entered a valid set of predictors.
+     * Either no predictors, or 1+ predictors each with at least 
+     * two categories
+     */
+    public void checkComplete()
+    {
+        boolean isComplete = true;
+        List<BetweenParticipantFactor> factorList = 
+            studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
+        if (factorList != null) {
+            // multi-sample - each factor must have at least two categories
+            for(BetweenParticipantFactor factor: factorList) {
+                List<Category> factorCategoryList = factor.getCategoryList();
+                if (factorCategoryList == null || factorCategoryList.size() < MIN_CATEGORIES) {
+                    isComplete = false;
+                    break;
+                }
+            }
+        }
+        if (isComplete)
+            changeState(WizardStepPanelState.COMPLETE);
+        else
+            changeState(WizardStepPanelState.INCOMPLETE);
+    }
+
+    /**
+     * Clear the lists
+     */
+    public void reset() 
+    {
+        predictorList.clear();
+        categoryList.clear();
+        checkComplete();
+    }
+
+    /**
+     * Respond to context change events. At present no action needed
      */
     @Override
     public void onWizardContextChange(WizardContextChangeEvent e)
     {
-    	// no action needed
+        // no action needed
     }
-    
+
     /**
      * Load the between participant factor information from the context
      */
     @Override
     public void onWizardContextLoad()
     {
-    	loadFromContext();
-        changed = false; // reset to false so we don't reset any hypothesis or mean info.
+        loadFromContext();
     }
 
+    /**
+     * Load the predictors when
+     */
     private void loadFromContext()
     {
         reset();
         List<BetweenParticipantFactor> factorList = 
             studyDesignContext.getStudyDesign().getBetweenParticipantFactorList();
-        if (factorList != null) {
-            // first determine if this is a one sample or multi sample design
-            boolean oneSample = true;
+        if (factorList != null) {                
+            // load the lists of predictors
             for(BetweenParticipantFactor factor: factorList)
             {
-                String predictor = factor.getPredictorName();
-                if (!ONE_SAMPLE_LABEL.equals(predictor)) {
-                    oneSample = false;
-                    break;
-                }
-                List<Category> factorCategoryList = factor.getCategoryList();
-                for(Category category: factorCategoryList)
-                {
-                    if (!ONE_SAMPLE_LABEL.equals(category.getCategory())) {
-                        oneSample = false;
-                        break;
-                    }
-                }
-                oneSample = (oneSample && factorCategoryList.size() == 1);
+                predictorList.addItem(factor.getPredictorName());
             }
-            if (oneSample && factorList.size() == 1) {
-                oneSampleRadioButton.setValue(true);
-                multiSamplePanel.setVisible(false);
-            } else {
-                multiSampleRadioButton.setValue(true);
-                multiSamplePanel.setVisible(true);
-                
-                // load the lists of predictors
-                for(BetweenParticipantFactor factor: factorList)
-                {
-                    String predictor = factor.getPredictorName();
-                    addPredictor(predictor);
-                    List<Category> factorCategoryList = factor.getCategoryList();
-                    ArrayList<String> categories = predictorCategoryMap.get(predictor);
-                    for(Category category: factorCategoryList)
-                    {
-                        categories.add(category.getCategory());
-                    }
-                }
+            // select the first predictor
+            if (predictorList.getItemCount() > 0) {
+                predictorList.setSelectedIndex(0);
+                selectPredictor(0);
             }
         }
         checkComplete();
     }
 
     /**
-     * Update the between participant factors in the context
+     * Utility function to see if the listbox contains a value
+     * @param lb
+     * @param value
+     * @returns true if value appears in the listbox
      */
-    @Override
-    public void onExit()
-    {
-        if (changed) {
-            studyDesignContext.setBetweenParticipantFactorList(this, 
-                    buildBetweenParticipantFactorList());
-            changed = false;
-        }
-    }
-    
-    /**
-     * Convert the screen information into a between participant factor list
-     * @return list of between participant factors
-     */
-    private List<BetweenParticipantFactor> buildBetweenParticipantFactorList()
-    {
-        ArrayList<BetweenParticipantFactor> factorList = new ArrayList<BetweenParticipantFactor>();
-        if (!oneSampleRadioButton.getValue()) {
-            for(String predictor: predictorCategoryMap.keySet())
-            {
-                BetweenParticipantFactor factor = new BetweenParticipantFactor();
-                factor.setPredictorName(predictor);
-                List<String> categoryNameList = predictorCategoryMap.get(predictor);
-                ArrayList<Category> categoryList = new ArrayList<Category>();
-                for(String category: categoryNameList) categoryList.add(new Category(category));
-                factor.setCategoryList(categoryList);
-                factorList.add(factor);
+    private boolean inList(ListBox lb, String value) {
+        for(int i = 0; i < lb.getItemCount(); i++) {
+            if (value != null && value.equals(lb.getItemText(i))) {
+                return true;
             }
-        } else {
-            // build a single predictor
-            BetweenParticipantFactor factor = new BetweenParticipantFactor();
-            factor.setPredictorName(ONE_SAMPLE_LABEL);
-            ArrayList<Category> categoryNameList = new ArrayList<Category>();
-            categoryNameList.add(new Category(ONE_SAMPLE_LABEL));
-            factor.setCategoryList(categoryNameList);
-            factorList.add(factor);
         }
-        return factorList;
+        return false;
     }
-	
 }

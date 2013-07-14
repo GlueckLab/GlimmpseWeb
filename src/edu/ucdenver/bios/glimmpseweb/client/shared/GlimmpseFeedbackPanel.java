@@ -92,7 +92,7 @@ public class GlimmpseFeedbackPanel  extends Composite {
         		"HTTP_USER_AGENT,AUTH_TYPE,REMOTE_USER");
         goodUrlHidden.setValue("/feedbackSuccess.html");
         badUrlHidden.setValue("/feedbackError.html");
-        recipientsHidden.setValue("feedback@glimmpse.samplesizeshop.com");
+        recipientsHidden.setValue(GlimmpseWeb.constants.feedbackEmailAddress());
         mailOptionsHidden.setValue("Exclude=email;realname");
         
         VerticalPanel panel = new VerticalPanel();

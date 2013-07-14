@@ -25,8 +25,6 @@ package edu.ucdenver.bios.glimmpseweb.client.guided;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -52,14 +50,14 @@ import edu.ucdenver.bios.webservice.common.domain.Spacing;
  *
  */
 public class CovarianceCorrelationDeckPanel extends Composite
-implements ChangeHandler, CovarianceBuilder
+implements CovarianceBuilder
 {
     // deck panel indices for the correlation/covariance views
     private static final int UNSTRUCT_CORRELATION_INDEX = 0;
     private static final int UNSTRUCT_COVARIANCE_INDEX = 1;
     
     // parent panel
-    protected ChangeHandler parent = null;
+    protected CovarianceSetManager manager = null;
     // name of the dimension
     protected String name = "";
     // size of the covariance matrix
@@ -88,9 +86,9 @@ implements ChangeHandler, CovarianceBuilder
 	 * Build a covariance deck for a repeated measures dimension
 	 * @param repeatedMeasuresNode
 	 */
-	public CovarianceCorrelationDeckPanel(RepeatedMeasuresNode repeatedMeasuresNode,
-	        ChangeHandler handler, boolean showStdDev) {
-	    parent = handler;
+	public CovarianceCorrelationDeckPanel(CovarianceSetManager manager,
+	        RepeatedMeasuresNode repeatedMeasuresNode, boolean showStdDev) {
+	    this.manager = manager;
 	    name = repeatedMeasuresNode.getDimension();
 	    // build a list of labels and spacing values
 		List<String> labelList = new ArrayList<String>(repeatedMeasuresNode.getNumberOfMeasurements());
@@ -117,10 +115,10 @@ implements ChangeHandler, CovarianceBuilder
 	 * Create a covariance input panel for the specified response list
 	 * @param responseList response variable list
 	 */
-	public CovarianceCorrelationDeckPanel(List<ResponseNode> responseList,
-	        ChangeHandler handler, boolean showStdDev)
+	public CovarianceCorrelationDeckPanel(CovarianceSetManager manager,
+	        List<ResponseNode> responseList, boolean showStdDev)
 	{
-	    parent = handler;
+	    this.manager = manager;
 	    name = GlimmpseConstants.RESPONSES_COVARIANCE_LABEL;
 	    ArrayList<String> labels = new ArrayList<String>(responseList.size());
 		List<Integer> spacingList = new ArrayList<Integer>(responseList.size());
@@ -147,9 +145,9 @@ implements ChangeHandler, CovarianceBuilder
 		VerticalPanel verticalPanel = new VerticalPanel();
 		
 		UnStructuredCorrelationPanel unstructuredCorrelationPanelInstance = 
-		        new UnStructuredCorrelationPanel(name, labelList, spacingList, showStdDev, this);
+		        new UnStructuredCorrelationPanel(manager, name, labelList, spacingList, showStdDev);
 		UnStructuredCovariancePanel unstructuredCovariancePanelInstance = 
-		        new UnStructuredCovariancePanel(name, labelList, spacingList, this);
+		        new UnStructuredCovariancePanel(manager, name, labelList, spacingList);
 		
 		deckPanel.add(unstructuredCorrelationPanelInstance);
 		deckPanel.add(unstructuredCovariancePanelInstance);
@@ -164,6 +162,7 @@ implements ChangeHandler, CovarianceBuilder
 			public void onClick(ClickEvent event) 
 			{
 				showWidget(UNSTRUCT_COVARIANCE_INDEX);
+				syncCovariance();
 			}
 		});
 			
@@ -173,6 +172,7 @@ implements ChangeHandler, CovarianceBuilder
 			public void onClick(ClickEvent event) 
 			{
                 showWidget(UNSTRUCT_CORRELATION_INDEX);	
+                syncCovariance();
 			}
 		});
 		
@@ -192,37 +192,6 @@ implements ChangeHandler, CovarianceBuilder
 	            size > 1);
 	    unstructuredCorrelationButton.setVisible(index != UNSTRUCT_CORRELATION_INDEX);
 	}
-	
-	/**
-	 * Create a covariance domain object based on the currently
-	 * visible covariance view
-	 * @return Covariance domain object
-	 */
-	public Covariance getCovariance()
-	{
-	    int visibleIndex = deckPanel.getVisibleWidget();
-	    CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
-	    Covariance covariance = covarianceBuilder.getCovariance();
-	    return covariance;
-	}
-	
-	/**
-	 * Check if the panel is complete
-	 * @return true if complete, false otherwise
-	 */
-	public boolean checkComplete() {
-        int visibleIndex = deckPanel.getVisibleWidget();
-        CovarianceBuilder covarianceBuilder = (CovarianceBuilder) deckPanel.getWidget(visibleIndex);
-        return covarianceBuilder.checkComplete();
-	}
-
-	/**
-	 * Call the parent panel change handler
-	 */
-    @Override
-    public void onChange(ChangeEvent event) {
-        parent.onChange(event);
-    }
     
     /**
      * Load information from the specified covariance object into the panel
@@ -248,6 +217,15 @@ implements ChangeHandler, CovarianceBuilder
                 }
             }
         }
+    }
+    
+    /**
+     * Sync the current GUI view to the context
+     */
+    public void syncCovariance() {
+        CovarianceBuilder covarianceBuilder = 
+            (CovarianceBuilder) deckPanel.getWidget(deckPanel.getVisibleWidget());
+        covarianceBuilder.syncCovariance();
     }
 }
 

@@ -462,6 +462,11 @@ body {
 	font-size: 14pt;
 }
 
+.wizardStepSubheader {
+	margin: 5px 5px;
+	font-weight: bold;
+}
+
 .wizardStepDescription {
 	font-family: 'Quicksand', Arial, Helvetica, sans-serif;
 	margin: 5px 5px;
@@ -617,6 +622,7 @@ body {
 }
 
 .wizardStepTableRow .gwt-TextBox {
+	padding: 0px;
 	width: 100%;
 }
 
@@ -908,7 +914,29 @@ body {
 	height: 200px;
 }
 
+.blockWithBorder {
+	border: 1px solid #ddd;
+}
 
+.blockWithSpacing {
+	margin: 10px;
+}
 
+.wizardStepDeckPanelBar {
+	background: #e4eaef;
+	width: 600px;
+	border: 1px solid #999;
+	border-collapse: collapse;
+	padding: 10px;
+}
 
+.wizardStepDeckPanelContents {
+	border: 1px solid #999;
+	border-collapse: collapse;
+	width: 600px;
+}
+
+.wizardStepDeckPanelContentsSubpanel {
+	padding: 20px;	
+}
 	

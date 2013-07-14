@@ -19,7 +19,6 @@
  */
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.HTML;
@@ -46,16 +45,12 @@ import edu.ucdenver.bios.webservice.common.domain.ResponseNode;
 public class ResponseVariablesPanel extends WizardStepPanel
 implements ListValidator
 {   
-    private static final String PARTICIPANT_LABEL = "participant";
     // context object
     StudyDesignContext studyDesignContext = (StudyDesignContext) context;
     
     // dynamic table of outcomes
     protected ListEntryPanel outcomesListPanel = 
     	new ListEntryPanel(GlimmpseWeb.constants.responseVariablesTableColumn(), this);
-
-    // array list to hold output
-    ArrayList<ResponseNode> outcomesList = new ArrayList<ResponseNode>();
     
     /**
      * Constructor.
@@ -94,26 +89,6 @@ implements ListValidator
     }
     
     /**
-     * Store the list of response variables in the context
-     */
-    @Override
-    public void onExit()
-    {
-        if (outcomesListPanel.isChanged()) {
-            List<String> stringValues = outcomesListPanel.getValues();
-            outcomesList.clear();
-            for(String value: stringValues)
-            {
-                outcomesList.add(new ResponseNode(value));
-            }
-            // save to context object
-            studyDesignContext.setResponseList(this, 
-                    PARTICIPANT_LABEL, outcomesList);
-            outcomesListPanel.resetChanged();
-        }
-    }
-    
-    /**
      * Load the response variable list from the context
      */
     private void loadFromContext()
@@ -126,7 +101,7 @@ implements ListValidator
                 outcomesListPanel.add(response.getName());
             }
         }
-        onValidRowCount(outcomesListPanel.getValidRowCount());
+        checkComplete();
     }
     
     /**
@@ -161,13 +136,28 @@ implements ListValidator
         }
     }
 
+    @Override
+    public void onAdd(String value) throws IllegalArgumentException {
+        try {
+           TextValidation.parseString(value);
+           studyDesignContext.addResponseVariable(this, value);
+           changeState(WizardStepPanelState.COMPLETE);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidString());
+        }
+    }
+
+    @Override
+    public void onDelete(String value, int index) {
+        studyDesignContext.deleteResponseVariable(this, value, index);
+        checkComplete();
+    }
+    
     /**
-     * Update state to complete if at least 1 response variable is entered.
+     * Check if at least one response variable has been entered
      */
-    public void onValidRowCount(int validRowCount)
-    {
-        changed = true;
-        if (validRowCount > 0)
+    private void checkComplete() {
+        if (outcomesListPanel.getValidRowCount() > 0)
             changeState(WizardStepPanelState.COMPLETE);
         else
             changeState(WizardStepPanelState.INCOMPLETE);

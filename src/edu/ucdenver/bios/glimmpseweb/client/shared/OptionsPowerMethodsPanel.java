@@ -22,12 +22,10 @@
 package edu.ucdenver.bios.glimmpseweb.client.shared;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -56,7 +54,7 @@ import edu.ucdenver.bios.webservice.common.enums.PowerMethodEnum;
  *
  */
 public class OptionsPowerMethodsPanel extends WizardStepPanel
-implements ClickHandler
+implements ListValidator
 {
     // study design context
     StudyDesignContext studyDesignContext;
@@ -66,36 +64,13 @@ implements ClickHandler
     protected PowerMethod unconditionalMethod = new PowerMethod(PowerMethodEnum.UNCONDITIONAL);
     protected CheckBox quantilePowerCheckBox = new CheckBox();
     protected PowerMethod quantileMethod = new PowerMethod(PowerMethodEnum.QUANTILE);
-    // list of current power methods
-    protected ArrayList<PowerMethod> powerMethodList = new ArrayList<PowerMethod>();
-    // list of quantile values
-    protected ArrayList<Quantile> quantileList = new ArrayList<Quantile>();
 
     // indicates a design with a gaussian covariate
     protected boolean hasCovariate = false;
 
     // dynamic list of quantile values
     protected ListEntryPanel quantileListPanel = 
-        new ListEntryPanel(GlimmpseWeb.constants.quantilesTableColumn(), new ListValidator() {
-            @Override
-            public void onValidRowCount(int validRowCount)
-            {
-                checkComplete();
-            }
-            @Override
-            public void validate(String value)
-            throws IllegalArgumentException
-            {
-                try
-                {
-                    TextValidation.parseDouble(value, 0, 1, false);
-                }
-                catch (NumberFormatException nfe)
-                {
-                    throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidQuantile());
-                }
-            }
-        });
+        new ListEntryPanel(GlimmpseWeb.constants.quantilesTableColumn(), this);
 
     /**
      * Constructor
@@ -121,18 +96,34 @@ implements ClickHandler
         grid.setWidget(2, 1, quantileListPanel);
 
         // only show quantile list when quantile power is selected
-        quantilePowerCheckBox.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event)
-            {
-                quantileListPanel.setVisible(quantilePowerCheckBox.getValue());
-            }
-        });
         quantileListPanel.setVisible(false);
 
         // add callback to check if screen is complete
-        unconditionalPowerCheckBox.addClickHandler(this);
-        quantilePowerCheckBox.addClickHandler(this);
+        unconditionalPowerCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addPowerMethod(PowerMethodEnum.UNCONDITIONAL);
+                } else {
+                    deletePowerMethod(PowerMethodEnum.UNCONDITIONAL);
+                }
+                checkComplete();
+            }
+        });
+        quantilePowerCheckBox.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                CheckBox cb = (CheckBox) event.getSource();
+                if (cb.getValue()) {
+                    addPowerMethod(PowerMethodEnum.QUANTILE);
+                } else {
+                    deletePowerMethod(PowerMethodEnum.QUANTILE);
+                }
+                quantileListPanel.setVisible(cb.getValue());
+                checkComplete();
+            }
+        });
 
         // layout the overall panel
         panel.add(header);
@@ -166,17 +157,6 @@ implements ClickHandler
     }
 
     /**
-     * Click handler for all checkboxes on the Options screen.
-     * Determines if the current selections represent a complete
-     * set of options.
-     */
-    @Override
-    public void onClick(ClickEvent event)
-    {
-        checkComplete();			
-    }
-
-    /**
      * Check if the user has selected a complete set of options, and
      * if so notify that forward navigation is allowed
      */
@@ -204,33 +184,6 @@ implements ClickHandler
                 changeState(WizardStepPanelState.INCOMPLETE);
             }
         }
-    }
-
-
-
-
-    /**
-     * Notify context of any changes when we leave this screen
-     */
-    @Override
-    public void onExit()
-    {
-        // update the power methods
-        powerMethodList.clear();
-        if (unconditionalPowerCheckBox.getValue())
-            powerMethodList.add(unconditionalMethod);
-        if (quantilePowerCheckBox.getValue())
-            powerMethodList.add(quantileMethod);
-        studyDesignContext.setPowerMethodList(this, powerMethodList);
-
-        // update the quantile information
-        quantileList.clear();
-        List<String> values = quantileListPanel.getValues();
-        for(String value: values)
-        {
-            quantileList.add(new Quantile(Double.parseDouble(value)));
-        }
-        studyDesignContext.setQuantileList(this, quantileList);
     }
 
 
@@ -278,7 +231,9 @@ implements ClickHandler
      */
     private void loadPowerMethodListFromContext()
     {
-        reset();
+        unconditionalPowerCheckBox.setValue(false);
+        quantilePowerCheckBox.setValue(false);
+        quantileListPanel.setVisible(false);
         List<PowerMethod> methodList = studyDesignContext.getStudyDesign().getPowerMethodList();
         if (methodList != null) {
             for(PowerMethod method: methodList)
@@ -290,6 +245,7 @@ implements ClickHandler
                     break;
                 case QUANTILE:
                     quantilePowerCheckBox.setValue(true);
+                    quantileListPanel.setVisible(true);
                     break;
                 }
             }
@@ -316,10 +272,52 @@ implements ClickHandler
      */
     public void loadFromContext()
     {
+        reset();
         hasCovariate = studyDesignContext.getStudyDesign().isGaussianCovariate();
         loadPowerMethodListFromContext();
         loadQuantileListFromContext();
         checkComplete();
     }   
 
+    /**
+     * Add the specified power method to the study design
+     * @param method
+     */
+    private void addPowerMethod(PowerMethodEnum method) {
+        studyDesignContext.addPowerMethod(this, method);
+    }
+    
+    /**
+     * Add the specified power method to the study design
+     * @param method
+     */
+    private void deletePowerMethod(PowerMethodEnum method) {
+        studyDesignContext.deletePowerMethod(this, method);
+    }
+    
+    /**
+     * Called when a quantile is deleted from the quantile listbox
+     */
+    @Override
+    public void onDelete(String value, int index)
+    {
+        double quantile = Double.parseDouble(value);
+        studyDesignContext.deleteQuantile(this, quantile, index);
+        checkComplete();
+    }
+    
+    @Override
+    public void onAdd(String value) throws IllegalArgumentException
+    {
+        try
+        {
+            double quantile = TextValidation.parseDouble(value, 0, 1, false);
+            studyDesignContext.addQuantile(this, quantile);
+            changeState(WizardStepPanelState.COMPLETE);
+        }
+        catch (NumberFormatException nfe)
+        {
+            throw new IllegalArgumentException(GlimmpseWeb.constants.errorInvalidQuantile());
+        }
+    }
 }

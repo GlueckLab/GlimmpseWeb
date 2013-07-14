@@ -19,26 +19,37 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package edu.ucdenver.bios.glimmpseweb.client.guided;
 
-import edu.ucdenver.bios.webservice.common.domain.Covariance;
+import com.google.gwt.user.client.ui.RadioButton;
+
+import edu.ucdenver.bios.webservice.common.enums.HypothesisTrendTypeEnum;
 
 /**
- * 
- * @author VIJAY AKULA
+ * Radio button associated with a hypothesis trend type
+ * @author Sarah Kreidler
  *
  */
-public interface CovarianceBuilder 
-{    
-    /**
-     * Load data from the specified covariance object
-     */
-    public void loadCovariance(Covariance covariance);
+public class TrendRadioButton extends RadioButton {
+    private HypothesisTrendTypeEnum trendType;
     
     /**
-     * Sync the current covariance GUI to the study design context
-     * 
+     * Create a radio button with the specified trend as a value
+     * @param group
+     * @param label
+     * @param trendType
      */
-    public void syncCovariance();
+    public TrendRadioButton(String group, String label,
+                HypothesisTrendTypeEnum trendType) {
+        super(group, label);
+        this.trendType = trendType;
+    }
+    
+    /**
+     * Get the trend value associated with this button
+     * @return
+     */
+    public HypothesisTrendTypeEnum getTrend() {
+        return trendType;
+    }
 }

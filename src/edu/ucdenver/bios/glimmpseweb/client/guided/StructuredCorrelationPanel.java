@@ -49,12 +49,13 @@ import edu.ucdenver.bios.webservice.common.enums.CovarianceTypeEnum;
  * @author Sarah Kreidler
  *
  */
-public class StructuredCorrelationPanel extends Composite implements CovarianceBuilder
+public class StructuredCorrelationPanel extends Composite 
+implements CovarianceBuilder
 {
     // name of this covariance component
     protected String name;
     // parent panel
-    protected ChangeHandler parent = null;
+    protected CovarianceSetManager manager = null;
     
     // input boxes for Lear parameters
     protected TextBox strongestCorrelationTextBox = new TextBox();
@@ -68,19 +69,21 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     // display matrix
     protected ResizableMatrixPanel resizableMatrix;
     // lear correlation calculator
-    LearCorrelation learCorrelation = null;
+    protected LearCorrelation learCorrelation = null;
+    // cache the covariance size
+    protected int size = 0;
     // standard deviation list
-    List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
+    protected List<StandardDeviation> sdList = new ArrayList<StandardDeviation>();
 
     /**
      * Constructor 
      */
-    public StructuredCorrelationPanel(String name, List<String> labelList, List<Integer> spacingList,
-            ChangeHandler handler)
+    public StructuredCorrelationPanel(CovarianceSetManager manager,
+            String name, List<String> labelList, List<Integer> spacingList)
     {
         VerticalPanel verticalPanel = new VerticalPanel();
         this.name = name;
-        parent = handler;
+        this.manager = manager;
         // create a lear calculator for the given spacing
         if (spacingList.size() > 1) {
             learCorrelation = new LearCorrelation(spacingList);
@@ -89,10 +92,10 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         HTML header = new HTML(GlimmpseWeb.constants.structuredCorrelationPanelHeader());
         HTML description = new HTML(GlimmpseWeb.constants.structuredCorrelationPanelText());
 
-        HtmlTextWithExplanationPanel standardDeviation = 
-                new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.standardDeviationLabel(),
-                GlimmpseWeb.constants.standardDeviationExplinationHeader(), 
-                GlimmpseWeb.constants.standardDeviationExplinationText());
+//        HtmlTextWithExplanationPanel standardDeviation = 
+//                new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.standardDeviationLabel(),
+//                GlimmpseWeb.constants.standardDeviationExplinationHeader(), 
+//                GlimmpseWeb.constants.standardDeviationExplinationText());
         HtmlTextWithExplanationPanel strongestCorrelation = 
                 new HtmlTextWithExplanationPanel(GlimmpseWeb.constants.strongestCorrelationLabel(),
                 GlimmpseWeb.constants.strongestCorrelationExplinationHeader(), 
@@ -124,10 +127,9 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                     tb.setText("");
                     setStrongestCorrelation(Double.NaN);
                 }
-
+                notifyLearParameters();
             }
         });
-        strongestCorrelationTextBox.addChangeHandler(parent);
         
         rateOfDecayTextBox.addChangeHandler(new ChangeHandler()
         {
@@ -150,9 +152,9 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                     tb.setText("");
                     setRateOfDecay(Double.NaN);
                 }
+                notifyLearParameters();
             }
         });
-        rateOfDecayTextBox.addChangeHandler(parent);
         
         grid.setWidget(0, 0, strongestCorrelation);
         grid.setWidget(0, 1, strongestCorrelationTextBox);
@@ -187,7 +189,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         rateOfDecay = value;
     }
 
-    public boolean checkComplete() {
+    private boolean checkComplete() {
         return (!Double.isNaN(standardDeviation) &&
                 !Double.isNaN(strongestCorrelation) &&
                 !Double.isNaN(rateOfDecay));
@@ -233,29 +235,6 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
         }
     }
 
-    public Covariance getCovariance()
-    {
-        Covariance covariance = new Covariance();
-        covariance.setName(name);
-        covariance.setType(CovarianceTypeEnum.LEAR_CORRELATION);
-
-        covariance.setRows(resizableMatrix.getRowDimension());
-        covariance.setColumns(resizableMatrix.getRowDimension());
-        
-        sdList.clear();
-        if (standardDeviation != Double.NaN) {
-            sdList.add(new StandardDeviation(standardDeviation));
-            covariance.setStandardDeviationList(sdList);
-        }
-        if (rateOfDecay != Double.NaN) {
-            covariance.setDelta(rateOfDecay);
-        }
-        if (strongestCorrelation != Double.NaN) {
-            covariance.setRho(strongestCorrelation);
-        }
-        return covariance;
-    }
-
     /**
      * Load the panel from the specified covariance object
      * @param covariance covariance object
@@ -264,6 +243,7 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
     public void loadCovariance(Covariance covariance) {
         if (covariance != null && 
                 CovarianceTypeEnum.LEAR_CORRELATION == covariance.getType()) {
+            size = covariance.getRows();
             if (covariance.getDelta() >= 0) {
                 rateOfDecay = covariance.getDelta();
                 rateOfDecayTextBox.setText(Double.toString(rateOfDecay));
@@ -273,7 +253,36 @@ public class StructuredCorrelationPanel extends Composite implements CovarianceB
                 strongestCorrelationTextBox.setText(Double.toString(strongestCorrelation));
             }
             populateMatrix();
+            manager.setComplete(name, checkComplete());
         }
+    }
+    
+    /**
+     * Notify the covariance manager of the change in lear parameters
+     */
+    private void notifyLearParameters() {
+        manager.setLearParameters(name, strongestCorrelation, rateOfDecay);
+        manager.setComplete(name, checkComplete());
+    }
+
+    /**
+     * Sync the current GUI view with the context
+     */
+    @Override
+    public void syncCovariance() {
+        manager.setType(name, CovarianceTypeEnum.LEAR_CORRELATION);
+        // reset the std deviation values to 1
+        for(int i = 0; i < size; i++) {
+            manager.setStandardDeviationValue(name, i, 1);
+        }
+        // clear the covariance matrix - this is regenerated based on the Lear params
+        for(int row = 0; row < size; row++) {
+            for(int col = 0; col <= row; col++) {
+                manager.setCovarianceCellValue(name, row, col, 0);
+            }
+        }
+        // sync the lear parameters
+        notifyLearParameters();
     }
 
 }
